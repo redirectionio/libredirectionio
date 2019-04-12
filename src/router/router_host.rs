@@ -15,18 +15,28 @@ impl RouterHost {
         let mut any_host_rules = Vec::new();
 
         for rule in rules {
-            if rule.source.host == "" {
-                any_host_rules.push(rule)
-            } else {
-                if !hosts_router_rules.contains_key(rule.source.host.as_str()) {
-                    hosts_router_rules.insert(rule.source.host.clone(), Vec::new());
-                }
+            if rule.source.host.is_none() {
+                any_host_rules.push(rule);
 
-                hosts_router_rules
-                    .get_mut(rule.source.host.as_str())
-                    .unwrap()
-                    .push(rule);
+                break;
             }
+
+            let host = rule.source.host.as_ref().unwrap();
+
+            if host == "" {
+                any_host_rules.push(rule);
+
+                break;
+            }
+
+            if !hosts_router_rules.contains_key(host.as_str()) {
+                hosts_router_rules.insert(host.clone(), Vec::new());
+            }
+
+            hosts_router_rules
+                .get_mut(host.as_str())
+                .unwrap()
+                .push(rule);
         }
 
         let any_host_router = RouterPath::new(any_host_rules, cache);

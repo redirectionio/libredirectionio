@@ -1,15 +1,14 @@
-mod api;
+pub mod api;
 mod router_host;
 mod router_path;
 mod router_scheme;
-mod rule;
+pub mod rule;
 mod url_matcher;
 mod url_matcher_regex;
 mod url_matcher_rules;
 
 use crate::router::router_scheme::RouterScheme;
 use regex::Regex;
-use std::fs;
 use url::Url;
 
 pub trait Router {
@@ -22,6 +21,20 @@ pub struct MainRouter {
 }
 
 impl MainRouter {
+    pub fn new_from_data(data: String, cache: bool) -> MainRouter {
+        let rules: Vec<rule::Rule> =
+            serde_json::from_str(data.as_str()).expect("Cannot deserialize");
+        let mut storage = Vec::new();
+
+        for mut rule in rules {
+            rule.compile(cache);
+
+            storage.push(rule);
+        }
+
+        return MainRouter::new(storage, cache);
+    }
+
     pub fn new(rules: Vec<rule::Rule>, cache: bool) -> MainRouter {
         let router_scheme = RouterScheme::new(rules, cache);
 
@@ -70,7 +83,13 @@ impl MainRouter {
         }
 
         let capture_item = capture_option.unwrap();
-        let mut target = rule_to_redirect.target.clone();
+        let target_opt = &rule_to_redirect.target;
+
+        if target_opt.is_none() {
+            return "".to_string();
+        }
+
+        let mut target = target_opt.as_ref().unwrap().to_string();
 
         for named_group in regex_groups.capture_names().into_iter() {
             if named_group.is_none() {
@@ -101,62 +120,4 @@ impl MainRouter {
     pub fn get_rules(&self) -> Vec<&rule::Rule> {
         return self.router_scheme.get_rules();
     }
-}
-
-/**
-func (router *MainRouter) RuleToTarget(rule *datatypes.Rule, uri *url.URL) string {
-    ruleRegex, err := regexp.Compile(rule.Regex)
-
-    if err != nil {
-        return ""
-    }
-
-    path := uri.RawPath
-
-    if path == "" {
-        path = uri.Path
-    }
-
-    if len(uri.Query()) > 0 {
-        path = path + "?" + strings.Replace(uri.Query().Encode(), "%40", "@", -1)
-    }
-
-    matched := ruleRegex.FindStringSubmatch(path)
-    location := rule.Target
-
-    for i, name := range ruleRegex.SubexpNames() {
-        if i != 0 && name != "" {
-            match := matched[i]
-
-            for _, marker := range rule.Markers {
-                if marker.Name == name {
-                    for _, transformer := range marker.Transformers {
-                        match = Transform(match, transformer)
-                    }
-                }
-            }
-
-            location = strings.Replace(location, "@"+name, match, -1)
-        }
-    }
-
-    return location
-}
- */
-
-pub fn create_test_router(cache: bool) -> MainRouter {
-    let data = fs::read_to_string(
-        "/home/joelwurtz/Archive/Redirection/redirection.io/clients/libredirectionio/rules.json",
-    )
-    .expect("Unable to read file");
-    let deserialized: api::ApiAgentRuleResponse = serde_json::from_str(&data).unwrap();
-    let mut storage = Vec::new();
-
-    for mut rule in deserialized.rules {
-        rule.compile(cache);
-
-        storage.push(rule);
-    }
-
-    MainRouter::new(storage, cache)
 }

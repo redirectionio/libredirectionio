@@ -9,9 +9,9 @@ use std::collections::{BTreeMap, HashMap};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Source {
     pub scheme: Option<String>,
-    pub host: String,
+    pub host: Option<String>,
     path: String,
-    query: String,
+    query: Option<String>,
     #[serde(skip)]
     sorted_query: Option<String>,
 }
@@ -19,7 +19,7 @@ pub struct Source {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Transformer {
     #[serde(rename = "type")]
-    transformer_type: String,
+    transformer_type: Option<String>,
     options: HashMap<String, String>,
 }
 
@@ -49,8 +49,8 @@ pub struct HeaderFilter {
 pub struct Rule {
     pub id: String,
     pub source: Source,
-    pub target: String,
-    redirect_code: u16,
+    pub target: Option<String>,
+    pub redirect_code: u16,
     pub rank: u16,
     markers: Vec<Marker>,
     match_on_response_status: Option<u16>,
@@ -155,7 +155,11 @@ pub fn build_sorted_query(query: String) -> Option<String> {
 
 impl Source {
     fn build_sorted_query(&mut self) {
-        self.sorted_query = build_sorted_query(self.query.clone());
+        if self.query.is_none() {
+            return;
+        }
+
+        self.sorted_query = build_sorted_query(self.query.as_ref().unwrap().clone());
     }
 }
 
@@ -167,8 +171,8 @@ mod tests {
     pub fn test_source_compile() {
         let mut source = Source {
             scheme: Some("http".to_string()),
-            host: "www.test.com".to_string(),
-            query: "c=a&b=d".to_string(),
+            host: Some("www.test.com".to_string()),
+            query: Some("c=a&b=d".to_string()),
             path: "/test".to_string(),
             sorted_query: None,
         };
