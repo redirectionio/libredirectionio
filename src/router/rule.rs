@@ -14,10 +14,6 @@ pub struct Source {
     query: String,
     #[serde(skip)]
     sorted_query: Option<String>,
-    #[serde(skip)]
-    pub regex: Option<String>,
-    #[serde(skip)]
-    pub regex_obj: Option<Regex>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -53,70 +49,69 @@ pub struct HeaderFilter {
 pub struct Rule {
     pub id: String,
     pub source: Source,
-    target: String,
+    pub target: String,
     redirect_code: u16,
     pub rank: u16,
     markers: Vec<Marker>,
     match_on_response_status: Option<u16>,
     body_filters: Option<Vec<BodyFilter>>,
     header_filters: Option<Vec<HeaderFilter>>,
+    #[serde(skip)]
+    pub regex: Option<String>,
+    #[serde(skip)]
+    pub regex_with_groups: Option<String>,
+    #[serde(skip)]
+    pub regex_obj: Option<Regex>,
 }
 
 impl Rule {
     pub fn compile(&mut self, cache: bool) {
-        self.source.compile(cache);
-    }
-}
-
-impl Source {
-    fn compile(&mut self, cache: bool) {
-        self.build_sorted_query();
+        self.source.build_sorted_query();
         self.build_regex(cache);
     }
 
     fn build_regex(&mut self, cache: bool) {
         let mut regex_str = "".to_string();
-        regex_str.push_str(&self.path);
+        regex_str.push_str(&self.source.path);
 
-        if self.sorted_query.is_some() {
+        if self.source.sorted_query.is_some() {
             regex_str.push_str("?");
-            regex_str.push_str(self.sorted_query.as_ref().unwrap());
+            regex_str.push_str(self.source.sorted_query.as_ref().unwrap());
         }
 
-        let regex_escaped = regex::escape(&regex_str).to_string();
+        let mut regex_str = regex::escape(&regex_str).to_string();
+        let mut regex_with_group = regex_str.clone();
+
+        for marker in &self.markers {
+            let marker_regex_groups = [
+                "(?P<",
+                marker.name.as_str(),
+                ">",
+                marker.regex.as_str(),
+                ")",
+            ]
+            .join("");
+            let marker_regex_no_group = ["(?:", marker.regex.as_str(), ")"].join("");
+
+            regex_str = regex_str.replace(
+                ["@", marker.name.as_str()].join("").as_str(),
+                marker_regex_no_group.as_str(),
+            );
+
+            regex_with_group = regex_with_group.replace(
+                ["@", marker.name.as_str()].join("").as_str(),
+                marker_regex_groups.as_str(),
+            )
+        }
 
         if cache {
-            let regex_builder = RegexBuilder::new(regex_escaped.as_str());
+            let regex_builder = RegexBuilder::new(regex_str.as_str());
             let regex_obj = regex_builder.build().expect("Cannot compile rule");
             self.regex_obj = Some(regex_obj);
         }
 
-        self.regex = Some(regex_escaped.clone());
-    }
-
-    fn build_sorted_query(&mut self) {
-        let hash_query: BTreeMap<_, _> = url::form_urlencoded::parse(self.query.as_bytes())
-            .into_owned()
-            .collect();
-
-        let mut query_string = "".to_string();
-
-        for (key, value) in &hash_query {
-            query_string.push_str(key);
-            query_string.push_str("=");
-            query_string.push_str(value);
-            query_string.push_str("&");
-        }
-
-        query_string.pop();
-
-        if query_string.is_empty() {
-            self.sorted_query = None;
-
-            return;
-        }
-
-        self.sorted_query = Some(query_string);
+        self.regex = Some(regex_str);
+        self.regex_with_groups = Some(regex_with_group);
     }
 
     pub fn is_match(&self, value: &str) -> bool {
@@ -135,6 +130,35 @@ impl Source {
     }
 }
 
+pub fn build_sorted_query(query: String) -> Option<String> {
+    let hash_query: BTreeMap<_, _> = url::form_urlencoded::parse(query.as_bytes())
+        .into_owned()
+        .collect();
+
+    let mut query_string = "".to_string();
+
+    for (key, value) in &hash_query {
+        query_string.push_str(key);
+        query_string.push_str("=");
+        query_string.push_str(value);
+        query_string.push_str("&");
+    }
+
+    query_string.pop();
+
+    if query_string.is_empty() {
+        return None;
+    }
+
+    return Some(query_string);
+}
+
+impl Source {
+    fn build_sorted_query(&mut self) {
+        self.sorted_query = build_sorted_query(self.query.clone());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -147,8 +171,6 @@ mod tests {
             query: "c=a&b=d".to_string(),
             path: "/test".to_string(),
             sorted_query: None,
-            regex: None,
-            regex_obj: None,
         };
 
         source.compile(true);

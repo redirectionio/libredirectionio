@@ -1,8 +1,3 @@
-use std::alloc::System;
-
-#[global_allocator]
-static GLOBAL: System = System;
-
 pub mod router;
 
 fn main() {
@@ -10,6 +5,16 @@ fn main() {
     let main_router = router::create_test_router(false);
     println!("Router created");
     println!("Match rule");
-    let rules = main_router.has_match("https://fr.ouibus.com/fr/montargis".to_string());
-    println!("Rules matched {:?}", rules);
+    let rule = main_router.match_rule("https://www.ouibus.com/routes/aadouvresbb".to_string());
+
+    if rule.is_some() {
+        let redirect = router::MainRouter::get_redirect(
+            rule.unwrap(),
+            "https://www.ouibus.com/routes/aadouvresbb".to_string(),
+        );
+
+        println!("Redirect to {}", redirect);
+    }
+
+    println!("Rules matched {:?}", rule);
 }

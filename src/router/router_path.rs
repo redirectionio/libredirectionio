@@ -40,7 +40,7 @@ pub fn create_prefixed_map_rules(
     let mut new_map = HashMap::new();
 
     for rule in rules {
-        let mut rule_prefix = rule.source.regex.clone().unwrap();
+        let mut rule_prefix = rule.regex.clone().unwrap();
 
         if !prefix.is_empty() {
             rule_prefix = strip_characters(rule_prefix.as_str(), prefix.as_str());

@@ -27,7 +27,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
         }
 
         for rule in self.rules.as_slice() {
-            if rule.source.is_match(path.as_str()) {
+            if rule.is_match(path.as_str()) {
                 matched_rules.push(rule);
             }
         }

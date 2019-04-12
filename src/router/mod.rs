@@ -8,6 +8,7 @@ mod url_matcher_regex;
 mod url_matcher_rules;
 
 use crate::router::router_scheme::RouterScheme;
+use regex::Regex;
 use std::fs;
 use url::Url;
 
@@ -45,6 +46,54 @@ impl MainRouter {
         return Some(*rules.first().unwrap());
     }
 
+    pub fn get_redirect(rule_to_redirect: &rule::Rule, url: String) -> String {
+        let url_object = Url::parse(url.as_str()).expect("cannot parse url");
+        let regex_groups = Regex::new(rule_to_redirect.regex_with_groups.as_ref().unwrap())
+            .expect("cannot compile regex");
+
+        let mut sorted_query = None;
+
+        if url_object.query().is_some() {
+            sorted_query = rule::build_sorted_query(url_object.query().unwrap().to_string());
+        }
+
+        let mut path = url_object.path().to_string();
+
+        if sorted_query.is_some() {
+            path.push_str(sorted_query.unwrap().as_str());
+        }
+
+        let capture_option = regex_groups.captures(path.as_str());
+
+        if capture_option.is_none() {
+            return "".to_string();
+        }
+
+        let capture_item = capture_option.unwrap();
+        let mut target = rule_to_redirect.target.clone();
+
+        for named_group in regex_groups.capture_names().into_iter() {
+            if named_group.is_none() {
+                continue;
+            }
+
+            let capture_match = capture_item.name(named_group.unwrap());
+
+            if capture_match.is_none() {
+                continue;
+            }
+
+            //@TODO Handle transformers
+
+            target = target.replace(
+                ["@", named_group.unwrap()].join("").as_str(),
+                capture_match.unwrap().as_str(),
+            );
+        }
+
+        return target;
+    }
+
     pub fn has_match(&self, url: String) -> bool {
         return self.match_rules(url).len() > 0;
     }
@@ -53,6 +102,47 @@ impl MainRouter {
         return self.router_scheme.get_rules();
     }
 }
+
+/**
+func (router *MainRouter) RuleToTarget(rule *datatypes.Rule, uri *url.URL) string {
+    ruleRegex, err := regexp.Compile(rule.Regex)
+
+    if err != nil {
+        return ""
+    }
+
+    path := uri.RawPath
+
+    if path == "" {
+        path = uri.Path
+    }
+
+    if len(uri.Query()) > 0 {
+        path = path + "?" + strings.Replace(uri.Query().Encode(), "%40", "@", -1)
+    }
+
+    matched := ruleRegex.FindStringSubmatch(path)
+    location := rule.Target
+
+    for i, name := range ruleRegex.SubexpNames() {
+        if i != 0 && name != "" {
+            match := matched[i]
+
+            for _, marker := range rule.Markers {
+                if marker.Name == name {
+                    for _, transformer := range marker.Transformers {
+                        match = Transform(match, transformer)
+                    }
+                }
+            }
+
+            location = strings.Replace(location, "@"+name, match, -1)
+        }
+    }
+
+    return location
+}
+ */
 
 pub fn create_test_router(cache: bool) -> MainRouter {
     let data = fs::read_to_string(
