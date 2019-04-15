@@ -3,6 +3,8 @@ extern crate wasm_bindgen;
 #[macro_use]
 extern crate lazy_static;
 
+mod api;
+mod filter;
 mod router;
 mod utils;
 
@@ -24,12 +26,6 @@ cfg_if! {
 lazy_static! {
     static ref PROJECT_ROUTERS: Mutex<HashMap<String, router::MainRouter>> =
         Mutex::new(HashMap::new());
-}
-
-#[wasm_bindgen]
-pub struct Redirect {
-    status: u16,
-    target: String,
 }
 
 #[wasm_bindgen]
@@ -64,7 +60,7 @@ pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
 }
 
 #[wasm_bindgen]
-pub fn get_redirect(rule_str: String, url: String) -> Option<Redirect> {
+pub fn get_redirect(rule_str: String, url: String) -> Option<String> {
     let rule = string_to_rule(rule_str);
 
     if rule.is_none() {
@@ -78,11 +74,12 @@ pub fn get_redirect(rule_str: String, url: String) -> Option<Redirect> {
     }
 
     let target = router::MainRouter::get_redirect(&rule_obj, url);
-
-    return Some(Redirect {
+    let redirect = api::Redirect {
         status: rule_obj.redirect_code,
         target,
-    });
+    };
+
+    return Some(serde_json::to_string(&redirect).expect("Cannot serialize redirect"));
 }
 
 fn rule_to_string(rule_obj: &router::rule::Rule) -> String {
@@ -90,5 +87,14 @@ fn rule_to_string(rule_obj: &router::rule::Rule) -> String {
 }
 
 fn string_to_rule(rule_str: String) -> Option<router::rule::Rule> {
-    serde_json::from_str(&rule_str).unwrap()
+    let rule_option: Option<router::rule::Rule> = serde_json::from_str(&rule_str).unwrap();
+
+    if rule_option.is_none() {
+        return None;
+    }
+
+    let mut rule = rule_option.unwrap();
+    rule.compile(false);
+
+    return Some(rule);
 }
