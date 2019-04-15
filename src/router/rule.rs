@@ -177,7 +177,7 @@ mod tests {
             sorted_query: None,
         };
 
-        source.compile(true);
+        source.build_sorted_query();
 
         assert_ne!(None, source.sorted_query);
         assert_eq!(Some("b=d&c=a".to_string()), source.sorted_query);

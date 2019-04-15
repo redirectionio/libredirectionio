@@ -1,33 +1,68 @@
-extern crate html5ever;
-
-use html5ever::tokenizer::{Tokenizer, TokenizerOpts};
 use std::collections::HashMap;
 use std::io;
+use std::io::Write;
+use xmlparser::{ElementEnd, Token, Tokenizer};
 
 trait BodyAction {}
 
 struct BufferLink {
-    actions: Vec<BodyAction>,
+    actions: Vec<Box<BodyAction>>,
     buffer: Vec<u8>,
-    previous: BufferLink,
     tag_name: String,
 }
 
 struct FilterBodyAction {
-    enter_visitors: HashMap<String, Vec<BodyAction>>,
-    leave_visitors: HashMap<String, Vec<BodyAction>>,
-    last_tokenizer_buffer: Vec<u8>,
-    current_buffer: BufferLink,
+    //    enter_visitors: HashMap<String, Vec<Box<BodyAction>>>,
+//    leave_visitors: HashMap<String, Vec<Box<BodyAction>>>,
+//    current_buffer: BufferLink,
 }
 
 impl FilterBodyAction {
-    pub fn filter(&self, mut input: Vec<u8>) -> Vec<u8> {
-        let mut buffer: Vec<u8> = self.last_tokenizer_buffer;
-        buffer.append(&mut input);
-        let sink = io::sink();
-        let opts = TokenizerOpts::default();
-        let tokenizer = Tokenizer::new(sink, opts);
+    pub fn filter(&mut self, mut input: String) -> String {
+        let tokenizer = Tokenizer::from(input.as_str());
+        let to_return = "".to_string();
 
-        return Vec::new();
+        for token in tokenizer {
+            if token.is_err() {
+                println!("Error {:?}", token);
+
+                continue;
+            }
+
+            let current_token = token.unwrap();
+
+            match current_token {
+                Token::ElementStart {
+                    prefix,
+                    local,
+                    span,
+                } => {
+                    println!("Element Start {}", span);
+                }
+                Token::ElementEnd { end, span } => {
+                    println!("Element End {}", span);
+                }
+                _ => {
+                    println!("{:?}", current_token);
+                }
+            }
+        }
+
+        return to_return;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn test_source_compile() {
+        let mut filter = FilterBodyAction {};
+
+        filter.filter(
+            "<html><head><meta attribute=\"yolo\" /></head><body> </Test<a/><a/></body></html>"
+                .to_string(),
+        );
     }
 }
