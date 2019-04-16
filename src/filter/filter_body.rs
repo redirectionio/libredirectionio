@@ -19,12 +19,14 @@ struct FilterBodyAction {
 
 impl FilterBodyAction {
     pub fn filter(&mut self, mut input: String) -> String {
-        let tokenizer = Tokenizer::from(input.as_str());
+        let mut tokenizer = Tokenizer::from(input.as_str());
+        tokenizer.enable_fragment_mode();
+
         let to_return = "".to_string();
 
         for token in tokenizer {
             if token.is_err() {
-                println!("Error {:?}", token);
+                println!("Error {:?}", token.err().unwrap());
 
                 continue;
             }
@@ -61,7 +63,7 @@ mod tests {
         let mut filter = FilterBodyAction {};
 
         filter.filter(
-            "<html><head><meta attribute=\"yolo\" /></head><body> </Test<a/><a/></body></html>"
+            "Text Text Text </test><html><head><meta attribute=\"yolo\" /></head><body>Text />baddattr=\"tata\" Text <a/><a/></body></html>"
                 .to_string(),
         );
     }
