@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::io;
 use std::io::Write;
+use crate::filter::body_action;
 use xmlparser::{ElementEnd, Token, Tokenizer};
 
-trait BodyAction {}
 
 struct BufferLink {
-    actions: Vec<Box<BodyAction>>,
+    actions: Vec<Box<body_action::BodyAction>>,
     buffer: Vec<u8>,
     tag_name: String,
 }
@@ -26,7 +26,8 @@ impl FilterBodyAction {
 
         for token in tokenizer {
             if token.is_err() {
-                println!("Error {:?}", token.err().unwrap());
+                let error = token.err().unwrap();
+//                println!("Invalid token {:?}", error);
 
                 continue;
             }
@@ -39,13 +40,13 @@ impl FilterBodyAction {
                     local,
                     span,
                 } => {
-                    println!("Element Start {}", span);
+//                    println!("Element Start {}", span);
                 }
                 Token::ElementEnd { end, span } => {
-                    println!("Element End {}", span);
+//                    println!("Element End {}", span);
                 }
                 _ => {
-                    println!("{:?}", current_token);
+//                    println!("{:?}", current_token);
                 }
             }
         }
@@ -59,11 +60,21 @@ mod tests {
     use super::*;
 
     #[test]
-    pub fn test_source_compile() {
+    pub fn test_filter() {
         let mut filter = FilterBodyAction {};
 
         filter.filter(
             "Text Text Text </test><html><head><meta attribute=\"yolo\" /></head><body>Text />baddattr=\"tata\" Text <a/><a/></body></html>"
+                .to_string(),
+        );
+    }
+
+    #[test]
+    pub fn test_error() {
+        let mut filter = FilterBodyAction {};
+
+        filter.filter(
+            "<div>Text </ Text</div>"
                 .to_string(),
         );
     }

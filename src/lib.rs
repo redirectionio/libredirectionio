@@ -7,6 +7,7 @@ mod api;
 mod filter;
 mod router;
 mod utils;
+mod html;
 
 use cfg_if::cfg_if;
 use std::collections::HashMap;
