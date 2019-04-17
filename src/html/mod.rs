@@ -36,7 +36,7 @@ struct Span {
     end: usize,
 }
 
-struct Tokenizer<'t> {
+pub struct Tokenizer<'t> {
     reader: &'t mut Read,
     token: TokenType,
     err: Option<Error>,
@@ -164,8 +164,8 @@ impl<'t> Tokenizer<'t> {
         self.allow_cdata = allow_cdata;
     }
 
-    pub fn buffered(&self) -> Vec<u8> {
-        return self.buffer[self.raw.end..].to_vec();
+    pub fn buffered(&self) -> String {
+        return String::from_utf8(self.buffer[self.raw.end..].to_vec()).expect("Canno create utf8 string");
     }
 
     pub fn next(&mut self) -> TokenType {
@@ -309,8 +309,8 @@ impl<'t> Tokenizer<'t> {
         return self.token;
     }
 
-    pub fn raw(&self) -> &[u8] {
-        return &self.buffer[self.raw.start..self.raw.end];
+    pub fn raw(&self) -> String {
+        return String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec()).expect("Canno create utf8 string");
     }
 
     pub fn text(&mut self) -> Option<String> {
@@ -1485,7 +1485,7 @@ mod tests {
 
                     let actual_token = tokenizer.token();
 
-                    println!("{:?}", actual_token);
+//                    println!("{:?}", actual_token);
 
                     if actual_token.to_string() != split {
                         panic!("received: '{}', expected: '{}'", actual_token.to_string(), split);
