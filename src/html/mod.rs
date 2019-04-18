@@ -1,8 +1,10 @@
-use std::io::{Read, ErrorKind};
-use std::io::Error;
+use crate::html::TokenType::{
+    CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken,
+    TextToken,
+};
+use std::io::Read;
 use std::str;
 use std::string::ToString;
-use crate::html::TokenType::{CommentToken, DoctypeToken, TextToken, ErrorToken, StartTagToken, SelfClosingTagToken, EndTagToken};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
@@ -14,6 +16,17 @@ pub enum TokenType {
     SelfClosingTagToken,
     CommentToken,
     DoctypeToken,
+}
+
+pub struct Error {
+    pub kind: ErrorKind,
+    pub read_error: Option<std::io::Error>,
+}
+
+pub enum ErrorKind {
+    ReadError,
+    MaxBufferError,
+    EOFError,
 }
 
 #[derive(Debug, Clone)]
@@ -40,7 +53,6 @@ pub struct Tokenizer<'t> {
     reader: &'t mut Read,
     token: TokenType,
     err: Option<Error>,
-    read_error: Option<Error>,
     raw: Span,
     buffer: Vec<u8>,
     max_buffer: usize,
@@ -81,30 +93,14 @@ impl Token {
 impl ToString for Token {
     fn to_string(&self) -> String {
         match self.token_type {
-            ErrorToken => {
-                "".to_string()
-            }
-            TextToken => {
-                self.data.as_ref().unwrap().clone()
-            }
-            StartTagToken => {
-                ["<", self.tag_string().as_str(), ">"].join("")
-            }
-            EndTagToken => {
-                ["</", self.tag_string().as_str(), ">"].join("")
-            }
-            SelfClosingTagToken => {
-                ["<", self.tag_string().as_str(), "/>"].join("")
-            }
-            CommentToken => {
-                ["<!--", self.data.as_ref().unwrap().as_str(), "-->"].join("")
-            }
-            DoctypeToken => {
-                ["<!DOCTYPE ",  self.data.as_ref().unwrap().as_str(), ">"].join("")
-            }
-            _ => {
-                "invalid".to_string()
-            }
+            ErrorToken => "".to_string(),
+            TextToken => self.data.as_ref().unwrap().clone(),
+            StartTagToken => ["<", self.tag_string().as_str(), ">"].join(""),
+            EndTagToken => ["</", self.tag_string().as_str(), ">"].join(""),
+            SelfClosingTagToken => ["<", self.tag_string().as_str(), "/>"].join(""),
+            CommentToken => ["<!--", self.data.as_ref().unwrap().as_str(), "-->"].join(""),
+            DoctypeToken => ["<!DOCTYPE ", self.data.as_ref().unwrap().as_str(), ">"].join(""),
+            _ => "invalid".to_string(),
         }
     }
 }
@@ -119,21 +115,11 @@ impl<'t> Tokenizer<'t> {
             reader,
             token: TokenType::NoneToken,
             err: None,
-            read_error: None,
-            raw: Span {
-                start: 0,
-                end: 0,
-            },
+            raw: Span { start: 0, end: 0 },
             buffer: Vec::new(),
             max_buffer: 0,
-            data: Span {
-                start: 0,
-                end: 0,
-            },
-            pending_attribute: [
-                Span { start: 0, end: 0 },
-                Span { start: 0, end: 0 },
-            ],
+            data: Span { start: 0, end: 0 },
+            pending_attribute: [Span { start: 0, end: 0 }, Span { start: 0, end: 0 }],
             attribute: Vec::new(),
             number_attribute_returned: 0,
             raw_tag: "".to_string(),
@@ -146,7 +132,8 @@ impl<'t> Tokenizer<'t> {
             context_tag = context_tag.to_lowercase();
 
             match context_tag.as_str() {
-                "iframe" | "noembed" | "noframes" | "noscript" | "plaintext" | "script" | "style" | "title" | "textarea" | "xmp" => {
+                "iframe" | "noembed" | "noframes" | "noscript" | "plaintext" | "script"
+                | "style" | "title" | "textarea" | "xmp" => {
                     tokenizer.raw_tag = context_tag.clone();
                 }
                 _ => {}
@@ -165,7 +152,8 @@ impl<'t> Tokenizer<'t> {
     }
 
     pub fn buffered(&self) -> String {
-        return String::from_utf8(self.buffer[self.raw.end..].to_vec()).expect("Canno create utf8 string");
+        return String::from_utf8(self.buffer[self.raw.end..].to_vec())
+            .expect("Canno create utf8 string");
     }
 
     pub fn next(&mut self) -> TokenType {
@@ -219,7 +207,7 @@ impl<'t> Tokenizer<'t> {
                 break 'main;
             }
 
-            let mut token_type: TokenType;
+            let token_type: TokenType;
 
             if 'a' <= byte && byte <= 'z' || 'A' <= byte && byte <= 'Z' {
                 token_type = StartTagToken;
@@ -248,7 +236,7 @@ impl<'t> Tokenizer<'t> {
                     self.token = self.read_start_tag();
 
                     return self.token;
-                },
+                }
                 EndTagToken => {
                     let end_byte = self.read_byte() as char;
 
@@ -279,7 +267,7 @@ impl<'t> Tokenizer<'t> {
                     self.token = CommentToken;
 
                     return self.token;
-                },
+                }
                 CommentToken => {
                     if byte == '!' {
                         self.token = self.read_markup_declaration();
@@ -310,13 +298,16 @@ impl<'t> Tokenizer<'t> {
     }
 
     pub fn raw(&self) -> String {
-        return String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec()).expect("Canno create utf8 string");
+        return String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec())
+            .expect("Canno create utf8 string");
     }
 
     pub fn text(&mut self) -> Option<String> {
         match self.token {
             TextToken | CommentToken | DoctypeToken => {
-                let mut s = str::from_utf8(&self.buffer[self.data.start..self.data.end]).expect("Cannot create utf8 string").to_string();
+                let mut s = str::from_utf8(&self.buffer[self.data.start..self.data.end])
+                    .expect("Cannot create utf8 string")
+                    .to_string();
 
                 self.data.start = self.raw.end;
                 self.data.end = self.raw.end;
@@ -327,9 +318,9 @@ impl<'t> Tokenizer<'t> {
                     s = s.replace('\x00', "\u{fffd}".to_string().as_str());
                 }
 
-//                if !self.text_is_raw {
-//                    s = escape(s)
-//                }
+                //                if !self.text_is_raw {
+                //                    s = escape(s)
+                //                }
 
                 return Some(s);
             }
@@ -343,12 +334,17 @@ impl<'t> Tokenizer<'t> {
         if self.data.start < self.data.end {
             match self.token {
                 StartTagToken | EndTagToken | SelfClosingTagToken => {
-                    let s = str::from_utf8(&self.buffer[self.data.start..self.data.end]).expect("Cannot create utf8 string").to_string();
+                    let s = str::from_utf8(&self.buffer[self.data.start..self.data.end])
+                        .expect("Cannot create utf8 string")
+                        .to_string();
 
                     self.data.start = self.raw.end;
                     self.data.end = self.raw.end;
 
-                    return (Some(s.to_lowercase()), self.number_attribute_returned < self.attribute.len());
+                    return (
+                        Some(s.to_lowercase()),
+                        self.number_attribute_returned < self.attribute.len(),
+                    );
                 }
                 _ => {}
             }
@@ -364,12 +360,20 @@ impl<'t> Tokenizer<'t> {
                     let attr = &self.attribute[self.number_attribute_returned];
                     self.number_attribute_returned += 1;
 
-                    let key = str::from_utf8(&self.buffer[attr[0].start..attr[0].end]).expect("Cannot create utf8 string").to_string();
-                    let mut val = str::from_utf8(&self.buffer[attr[1].start..attr[1].end]).expect("Cannot create utf8 string").to_string();
+                    let key = str::from_utf8(&self.buffer[attr[0].start..attr[0].end])
+                        .expect("Cannot create utf8 string")
+                        .to_string();
+                    let mut val = str::from_utf8(&self.buffer[attr[1].start..attr[1].end])
+                        .expect("Cannot create utf8 string")
+                        .to_string();
 
                     val = convert_next_lines(val);
 
-                    return (Some(key.to_lowercase()), Some(val), self.number_attribute_returned < self.attribute.len());
+                    return (
+                        Some(key.to_lowercase()),
+                        Some(val),
+                        self.number_attribute_returned < self.attribute.len(),
+                    );
                 }
                 _ => {}
             }
@@ -388,7 +392,7 @@ impl<'t> Tokenizer<'t> {
         match self.token {
             TextToken | CommentToken | DoctypeToken => {
                 token.data = self.text();
-            },
+            }
             StartTagToken | SelfClosingTagToken | EndTagToken => {
                 let (name, mut has_attr) = self.tag_name();
 
@@ -405,7 +409,7 @@ impl<'t> Tokenizer<'t> {
 
                 token.data = name;
             }
-            _ => {},
+            _ => {}
         }
 
         return token;
@@ -417,36 +421,42 @@ impl<'t> Tokenizer<'t> {
 
     fn read_byte(&mut self) -> u8 {
         if self.raw.end >= self.buffer.len() {
-//            let new_buffer= self.buffer[self.raw.start..self.raw.end].to_vec().clone();
-//            let start = self.raw.start;
-//
-//            if start != 0 {
-//                self.data.start -= start;
-//                self.data.end -= start;
-//                self.pending_attribute[0].start -= start;
-//                self.pending_attribute[0].end -= start;
-//                self.pending_attribute[1].start -= start;
-//                self.pending_attribute[1].end -= start;
-//
-//                for attribute in &mut self.attribute {
-//                    attribute[0].start -= start;
-//                    attribute[0].end -= start;
-//                    attribute[1].start -= start;
-//                    attribute[1].end -= start;
-//                }
-//            }
+            //            let new_buffer= self.buffer[self.raw.start..self.raw.end].to_vec().clone();
+            //            let start = self.raw.start;
+            //
+            //            if start != 0 {
+            //                self.data.start -= start;
+            //                self.data.end -= start;
+            //                self.pending_attribute[0].start -= start;
+            //                self.pending_attribute[0].end -= start;
+            //                self.pending_attribute[1].start -= start;
+            //                self.pending_attribute[1].end -= start;
+            //
+            //                for attribute in &mut self.attribute {
+            //                    attribute[0].start -= start;
+            //                    attribute[0].end -= start;
+            //                    attribute[1].start -= start;
+            //                    attribute[1].end -= start;
+            //                }
+            //            }
 
             let mut new_byte_buffer = Vec::new();
             let error = self.reader.read_to_end(new_byte_buffer.as_mut());
 
             if error.is_err() {
-                self.err = error.err();
+                self.err = Some(Error {
+                    kind: ErrorKind::ReadError,
+                    read_error: error.err(),
+                });
 
                 return 0;
             }
 
             if new_byte_buffer.len() == 0 {
-                self.err = Some(Error::new(ErrorKind::UnexpectedEof, "eof"));
+                self.err = Some(Error {
+                    kind: ErrorKind::EOFError,
+                    read_error: None,
+                });
 
                 return 0;
             }
@@ -459,7 +469,10 @@ impl<'t> Tokenizer<'t> {
         self.raw.end += 1;
 
         if self.max_buffer > 0 && self.raw.end - self.raw.start >= self.max_buffer {
-            self.err = Some(Error::new(ErrorKind::UnexpectedEof, "max buffer reached"));
+            self.err = Some(Error {
+                kind: ErrorKind::MaxBufferError,
+                read_error: None,
+            });
 
             return 0;
         }
@@ -516,7 +529,7 @@ impl<'t> Tokenizer<'t> {
                 break;
             }
 
-            if byte !=  '/' {
+            if byte != '/' {
                 continue;
             }
 
@@ -538,7 +551,9 @@ impl<'t> Tokenizer<'t> {
                 return false;
             }
 
-            if byte != self.raw_tag.as_bytes()[i] && byte != self.raw_tag.as_bytes()[i] - ('a' as u8 - 'A' as u8) {
+            if byte != self.raw_tag.as_bytes()[i]
+                && byte != self.raw_tag.as_bytes()[i] - ('a' as u8 - 'A' as u8)
+            {
                 self.raw.end -= 1;
 
                 return false;
@@ -596,10 +611,10 @@ impl<'t> Tokenizer<'t> {
         match byte {
             '/' => {
                 self.read_script_data_end_tag_open();
-            },
+            }
             '!' => {
                 self.read_script_data_escape_start();
-            },
+            }
             _ => {
                 self.raw.end -= 1;
                 self.read_script_data();
@@ -659,10 +674,10 @@ impl<'t> Tokenizer<'t> {
         match byte {
             '-' => {
                 self.read_script_data_escaped_dash();
-            },
+            }
             '<' => {
                 self.read_script_data_escaped_less_than_sign();
-            },
+            }
             _ => {
                 self.read_script_data_escaped();
             }
@@ -679,10 +694,10 @@ impl<'t> Tokenizer<'t> {
         match byte {
             '-' => {
                 self.read_script_data_escaped_dash_dash();
-            },
+            }
             '<' => {
                 self.read_script_data_escaped_less_than_sign();
-            },
+            }
             _ => {
                 self.read_script_data_escaped();
             }
@@ -699,13 +714,13 @@ impl<'t> Tokenizer<'t> {
         match byte {
             '-' => {
                 self.read_script_data_escaped_dash_dash();
-            },
+            }
             '<' => {
                 self.read_script_data_escaped_less_than_sign();
-            },
+            }
             '>' => {
                 self.read_script_data();
-            },
+            }
             _ => {
                 self.read_script_data_escaped();
             }
@@ -788,10 +803,10 @@ impl<'t> Tokenizer<'t> {
         match byte {
             '-' => {
                 self.read_script_data_double_escaped_dash();
-            },
+            }
             '<' => {
                 self.read_script_data_double_escaped_less_than_sign();
-            },
+            }
             _ => {
                 self.read_script_data_double_escaped();
             }
@@ -808,10 +823,10 @@ impl<'t> Tokenizer<'t> {
         match byte {
             '-' => {
                 self.read_script_data_double_escaped_dash_dash();
-            },
+            }
             '<' => {
                 self.read_script_data_double_escaped_less_than_sign();
-            },
+            }
             _ => {
                 self.read_script_data_double_escaped();
             }
@@ -828,13 +843,13 @@ impl<'t> Tokenizer<'t> {
         match byte {
             '-' => {
                 self.read_script_data_double_escaped_dash_dash();
-            },
+            }
             '<' => {
                 self.read_script_data_double_escaped_less_than_sign();
-            },
+            }
             '>' => {
                 self.read_script_data();
-            },
+            }
             _ => {
                 self.read_script_data_double_escaped();
             }
@@ -920,9 +935,7 @@ impl<'t> Tokenizer<'t> {
                         }
                     }
                 }
-                _ => {
-
-                }
+                _ => {}
             }
 
             dash_count = 0;
@@ -1006,7 +1019,9 @@ impl<'t> Tokenizer<'t> {
                 return false;
             }
 
-            if byte != doctype.as_bytes()[i] && byte != doctype.as_bytes()[i] + ('a' as u8 - 'A' as u8) {
+            if byte != doctype.as_bytes()[i]
+                && byte != doctype.as_bytes()[i] + ('a' as u8 - 'A' as u8)
+            {
                 self.raw.end = self.data.start;
 
                 return false;
@@ -1061,7 +1076,7 @@ impl<'t> Tokenizer<'t> {
             match byte {
                 ']' => {
                     brackets += 1;
-                },
+                }
                 '>' => {
                     if brackets > 2 {
                         self.data.end = self.raw.end - "]]>".len();
@@ -1070,7 +1085,7 @@ impl<'t> Tokenizer<'t> {
                     }
 
                     brackets = 0;
-                },
+                }
                 _ => {
                     brackets = 0;
                 }
@@ -1121,27 +1136,35 @@ impl<'t> Tokenizer<'t> {
         match byte_char {
             'i' => {
                 raw = self.start_tag_in(vec!["iframe".to_string()]);
-            },
+            }
             'n' => {
-                raw = self.start_tag_in(vec!["noembed".to_string(), "noframes".to_string(), "noscript".to_string()]);
-            },
+                raw = self.start_tag_in(vec![
+                    "noembed".to_string(),
+                    "noframes".to_string(),
+                    "noscript".to_string(),
+                ]);
+            }
             'p' => {
                 raw = self.start_tag_in(vec!["plaintext".to_string()]);
-            },
+            }
             's' => {
                 raw = self.start_tag_in(vec!["script".to_string(), "style".to_string()]);
-            },
+            }
             't' => {
                 raw = self.start_tag_in(vec!["textarea".to_string(), "title".to_string()]);
-            },
+            }
             'x' => {
                 raw = self.start_tag_in(vec!["xmp".to_string()]);
-            },
+            }
             _ => {}
         }
 
         if raw {
-            self.raw_tag = str::from_utf8(&self.buffer[self.data.start..self.data.end]).expect("").to_string().clone().to_lowercase();
+            self.raw_tag = str::from_utf8(&self.buffer[self.data.start..self.data.end])
+                .expect("")
+                .to_string()
+                .clone()
+                .to_lowercase();
         }
 
         if self.err.is_none() && self.buffer[self.raw.end - 2] == '/' as u8 {
@@ -1201,13 +1224,13 @@ impl<'t> Tokenizer<'t> {
                     self.data.end = self.raw.end - 1;
 
                     return;
-                },
+                }
                 '/' | '>' => {
                     self.raw.end -= 1;
                     self.data.end = self.raw.end;
 
                     return;
-                },
+                }
                 _ => {}
             }
         }
@@ -1230,13 +1253,13 @@ impl<'t> Tokenizer<'t> {
                     self.pending_attribute[0].end = self.raw.end - 1;
 
                     return;
-                },
+                }
                 '=' | '>' => {
                     self.raw.end -= 1;
                     self.pending_attribute[0].end = self.raw.end;
 
                     return;
-                },
+                }
                 _ => {}
             }
         }
@@ -1280,7 +1303,7 @@ impl<'t> Tokenizer<'t> {
                 self.raw.end -= 1;
 
                 return;
-            },
+            }
             '\'' | '"' => {
                 self.pending_attribute[1].start = self.raw.end;
 
@@ -1299,7 +1322,7 @@ impl<'t> Tokenizer<'t> {
                         return;
                     }
                 }
-            },
+            }
             _ => {
                 self.pending_attribute[1].start = self.raw.end - 1;
 
@@ -1317,13 +1340,13 @@ impl<'t> Tokenizer<'t> {
                             self.pending_attribute[1].end = self.raw.end - 1;
 
                             return;
-                        },
+                        }
                         '>' => {
                             self.raw.end -= 1;
                             self.pending_attribute[1].end = self.raw.end;
 
                             return;
-                        },
+                        }
                         _ => {}
                     }
                 }
@@ -1353,8 +1376,6 @@ fn convert_next_lines(s: String) -> String {
             new_bytes.push('\n' as u8);
         }
 
-        let dst = i;
-
         while src < bytes.len() {
             if bytes[src] == '\r' as u8 {
                 if src + 1 < bytes.len() && bytes[src + 1] == '\n' as u8 {
@@ -1368,138 +1389,122 @@ fn convert_next_lines(s: String) -> String {
         }
     }
 
-    return str::from_utf8(new_bytes.as_slice()).expect("Cannot create string").to_string();
+    return str::from_utf8(new_bytes.as_slice())
+        .expect("Cannot create string")
+        .to_string();
+}
+
+macro_rules! html_tests {
+    ($($name:ident: $value:expr,)*) => {
+    $(
+        #[test]
+        fn $name() {
+            let (html, golden) = $value;
+            let reader = &mut html.as_bytes() as &mut std::io::Read;
+            let mut tokenizer = Tokenizer::new(reader);
+
+            if !golden.is_empty() {
+                let splits = golden.split("$");
+
+                for split in splits {
+                    let token_type = tokenizer.next();
+
+                    assert_ne!(token_type, ErrorToken);
+                    let actual_token = tokenizer.token();
+                    assert_eq!(actual_token.to_string(), split);
+                }
+            }
+
+            tokenizer.next();
+            assert_eq!(true, tokenizer.err().is_some());
+        }
+    )*
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    struct TokenTest {
-        desc: String,
-        html: String,
-        golden: String,
-    }
-
-    #[test]
-    pub fn test_tokenizer() {
-        let token_tests = vec![
-            TokenTest { desc: "empty".to_string(), html: "".to_string(), golden: "".to_string() },
-            TokenTest { desc: "text".to_string(), html: "foo  bar".to_string(), golden: "foo  bar".to_string() },
-            TokenTest { desc: "entity".to_string(), html: "one &lt; two".to_string(), golden: "one &lt; two".to_string() },
-            TokenTest { desc: "tags".to_string(), html: "<a>b<c/>d</e>".to_string(), golden: "<a>$b$<c/>$d$</e>".to_string() },
-            TokenTest { desc: "not a tag #0".to_string(), html: "<".to_string(), golden: "<".to_string() },
-            TokenTest { desc: "not a tag #1".to_string(), html: "</".to_string(), golden: "</".to_string() },
-            TokenTest { desc: "not a tag #2".to_string(), html: "</>".to_string(), golden: "<!---->".to_string() },
-            TokenTest { desc: "not a tag #3".to_string(), html: "a</>b".to_string(), golden: "a$<!---->$b".to_string() },
-            TokenTest { desc: "not a tag #4".to_string(), html: "</ >".to_string(), golden: "<!-- -->".to_string() },
-            TokenTest { desc: "not a tag #5".to_string(), html: "</.".to_string(), golden: "<!--.-->".to_string() },
-            TokenTest { desc: "not a tag #6".to_string(), html: "</.>".to_string(), golden: "<!--.-->".to_string() },
-            TokenTest { desc: "not a tag #7".to_string(), html: "a < b".to_string(), golden: "a < b".to_string() },
-            TokenTest { desc: "not a tag #8".to_string(), html: "<.>".to_string(), golden: "<.>".to_string() },
-            TokenTest { desc: "not a tag #9".to_string(), html: "a<<<b>>>c".to_string(), golden: "a<<$<b>$>>c".to_string() },
-            TokenTest { desc: "not a tag #10".to_string(), html: "i x<0 and y < 0 then x*y>0".to_string(), golden: "i x<0 and y < 0 then x*y>0".to_string() },
-            TokenTest { desc: "not a tag #11".to_string(), html: "<<p>".to_string(), golden: "<$<p>".to_string() },
-            TokenTest { desc: "tag name eof #0".to_string(), html: "<a".to_string(), golden: "".to_string() },
-            TokenTest { desc: "tag name eof #1".to_string(), html: "<a ".to_string(), golden: "".to_string() },
-            TokenTest { desc: "tag name eof #2".to_string(), html: "a<b ".to_string(), golden: "a".to_string() },
-            TokenTest { desc: "tag name eof #3".to_string(), html: "<a><b ".to_string(), golden: "<a>".to_string() },
-            TokenTest { desc: "tag name eof #4".to_string(), html: "<a x ".to_string(), golden: "".to_string() },
-            TokenTest { desc: "malformed tag #0".to_string(), html: "<p</p>".to_string(), golden: "<p< p=\"\">".to_string() },
-            TokenTest { desc: "malformed tag #1".to_string(), html: "<p </p>".to_string(), golden: "<p <=\"\" p=\"\">".to_string() },
-            TokenTest { desc: "malformed tag #2".to_string(), html: "<p id".to_string(), golden: "".to_string() },
-            TokenTest { desc: "malformed tag #3".to_string(), html: "<p id=".to_string(), golden: "".to_string() },
-            TokenTest { desc: "malformed tag #4".to_string(), html: "<p id=>".to_string(), golden: "<p id=\"\">".to_string() },
-            TokenTest { desc: "malformed tag #5".to_string(), html: "<p id=0".to_string(), golden: "".to_string() },
-            TokenTest { desc: "malformed tag #6".to_string(), html: "<p id=0</p>".to_string(), golden: "<p id=\"0</p\">".to_string() },
-            TokenTest { desc: "malformed tag #7".to_string(), html: "<p id=\"0</p>".to_string(), golden: "".to_string() },
-            TokenTest { desc: "malformed tag #8".to_string(), html: "<p id=\"0\"</p>".to_string(), golden: "<p id=\"0\" <=\"\" p=\"\">".to_string() },
-            TokenTest { desc: "malformed tag #9".to_string(), html: "<p></p id".to_string(), golden: "<p>".to_string() },
-            TokenTest { desc: "basic raw text".to_string(), html: "<script><a></b></script>".to_string(), golden: "<script>$<a></b>$</script>".to_string() },
-            TokenTest { desc: "unfinished script end tag".to_string(), html: "<SCRIPT>a</SCR".to_string(), golden: "<script>$a</SCR".to_string() },
-            TokenTest { desc: "broken script end tag".to_string(), html: "<SCRIPT>a</SCR ipt>".to_string(), golden: "<script>$a</SCR ipt>".to_string() },
-            TokenTest { desc: "EOF in script end tag".to_string(), html: "<SCRIPT>a</SCRipt".to_string(), golden: "<script>$a</SCRipt".to_string() },
-            TokenTest { desc: "scriptx end tag".to_string(), html: "<SCRIPT>a</SCRiptx".to_string(), golden: "<script>$a</SCRiptx".to_string() },
-            TokenTest { desc: "' ' completes script end tag".to_string(), html: "<SCRIPT>a</SCRipt ".to_string(), golden: "<script>$a".to_string() },
-            TokenTest { desc: "'>' completes script end tag".to_string(), html: "<SCRIPT>a</SCRipt>".to_string(), golden: "<script>$a$</script>".to_string() },
-            TokenTest { desc: "'>' completes script end tag".to_string(), html: "<SCRIPT>a</SCRipt>".to_string(), golden: "<script>$a$</script>".to_string() },
-            TokenTest { desc: "nested script tag".to_string(), html: "<SCRIPT>a</SCRipt<script>".to_string(), golden: "<script>$a</SCRipt<script>".to_string() },
-            TokenTest { desc: "script end tag after unfinished".to_string(), html: "<SCRIPT>a</SCRipt</script>".to_string(), golden: "<script>$a</SCRipt$</script>".to_string() },
-            TokenTest { desc: "script/style mismatched tags".to_string(), html: "<script>a</style>".to_string(), golden: "<script>$a</style>".to_string() },
-            TokenTest { desc: "style element with entity".to_string(), html: "<style>&apos;".to_string(), golden: "<style>$&apos;".to_string() },
-            TokenTest { desc: "textarea with tag".to_string(), html: "<textarea><div></textarea>".to_string(), golden: "<textarea>$<div>$</textarea>".to_string() },
-            TokenTest { desc: "title with tag and entity".to_string(), html: "<title><b>K&amp;R C</b></title>".to_string(), golden: "<title>$<b>K&amp;R C</b>$</title>".to_string() },
-            TokenTest { desc: "Proper DOCTYPE".to_string(), html: "<!DOCTYPE html>".to_string(), golden: "<!DOCTYPE html>".to_string() },
-            TokenTest { desc: "DOCTYPE with no space".to_string(), html: "<!doctypehtml>".to_string(), golden: "<!DOCTYPE html>".to_string() },
-            TokenTest { desc: "DOCTYPE with two space".to_string(), html: "<!doctype  html>".to_string(), golden: "<!DOCTYPE html>".to_string() },
-            TokenTest { desc: "looks like DOCTYPE but isn't".to_string(), html: "<!DOCUMENT html>".to_string(), golden: "<!--DOCUMENT html-->".to_string() },
-            TokenTest { desc: "DOCTYPE at EOF".to_string(), html: "<!DOCTYPE".to_string(), golden: "<!DOCTYPE >".to_string() },
-            TokenTest { desc: "XML Processing instruction".to_string(), html: "<?xml?>".to_string(), golden: "<!--?xml?-->".to_string() },
-            TokenTest { desc: "comment #0".to_string(), html: "abc<b><!-- skipme --></b>def".to_string(), golden: "abc$<b>$<!-- skipme -->$</b>$def".to_string() },
-            TokenTest { desc: "comment #1".to_string(), html: "a<!-->z".to_string(), golden: "a$<!---->$z".to_string() },
-            TokenTest { desc: "comment #2".to_string(), html: "a<!--->z".to_string(), golden: "a$<!---->$z".to_string() },
-            TokenTest { desc: "comment #3".to_string(), html: "a<!--x>-->z".to_string(), golden: "a$<!--x>-->$z".to_string() },
-            TokenTest { desc: "comment #4".to_string(), html: "a<!--x->-->z".to_string(), golden: "a$<!--x->-->$z".to_string() },
-            TokenTest { desc: "comment #5".to_string(), html: "a<!>z".to_string(), golden: "a$<!---->$z".to_string() },
-            TokenTest { desc: "comment #6".to_string(), html: "a<!->z".to_string(), golden: "a$<!----->$z".to_string() },
-            TokenTest { desc: "comment #7".to_string(), html: "a<!---<>z".to_string(), golden: "a$<!---<>z-->".to_string() },
-            TokenTest { desc: "comment #8".to_string(), html: "a<!--z".to_string(), golden: "a$<!--z-->".to_string() },
-            TokenTest { desc: "comment #9".to_string(), html: "a<!--z-".to_string(), golden: "a$<!--z-->".to_string() },
-            TokenTest { desc: "comment #10".to_string(), html: "a<!--z--".to_string(), golden: "a$<!--z-->".to_string() },
-            TokenTest { desc: "comment #11".to_string(), html: "a<!--z---".to_string(), golden: "a$<!--z--->".to_string() },
-            TokenTest { desc: "comment #12".to_string(), html: "a<!--z----".to_string(), golden: "a$<!--z---->".to_string() },
-            TokenTest { desc: "comment #13".to_string(), html: "a<!--x--!>z".to_string(), golden: "a$<!--x-->$z".to_string() },
-            TokenTest { desc: "backslash".to_string(), html: "<p id=\"a\\\"b\">".to_string(), golden: "<p id=\"a\\\" b\"=\"\">".to_string() },
-            TokenTest { desc: "tricky".to_string(), html: "<p \t\n iD=\"a&quot;B\"  foo=\"bar\"><EM>te&lt;&amp;;xt</em></p>".to_string(), golden: "<p id=\"a&quot;B\" foo=\"bar\">$<em>$te&lt;&amp;;xt$</em>$</p>".to_string() },
-            TokenTest { desc: "noSuchEntity".to_string(), html: "<a b=\"c&noSuchEntity;d\">&lt;&alsoDoesntExist;&".to_string(), golden: "<a b=\"c&noSuchEntity;d\">$&lt;&alsoDoesntExist;&".to_string() },
-            TokenTest { desc: "entity without semicolon".to_string(), html: "&notit;&notin;<a b=\"q=z&amp=5&notice=hello&not;=world\">".to_string(), golden: "&notit;&notin;$<a b=\"q=z&amp=5&notice=hello&not;=world\">".to_string() },
-            TokenTest { desc: "Empty attribute".to_string(), html: "<input disabled FOO>".to_string(), golden: "<input disabled=\"\" foo=\"\">".to_string() },
-            TokenTest { desc: "Empty attribute, whitespace".to_string(), html: "<input disabled FOO >".to_string(), golden: "<input disabled=\"\" foo=\"\">".to_string() },
-            TokenTest { desc: "unqoted attribute".to_string(), html: "<input value=yes FOO=BAR>".to_string(), golden: "<input value=\"yes\" foo=\"BAR\">".to_string() },
-            TokenTest { desc: "unqoted attribute spaces".to_string(), html: "<input value = yes FOO = BAR>".to_string(), golden: "<input value=\"yes\" foo=\"BAR\">".to_string() },
-            TokenTest { desc: "unqoted attribute, trailing space".to_string(), html: "<input value=yes FOO=BAR >".to_string(), golden: "<input value=\"yes\" foo=\"BAR\">".to_string() },
-            TokenTest { desc: "Single-quoted attribute value".to_string(), html: "<input value='yes' FOO='BAR'>".to_string(), golden: "<input value=\"yes\" foo=\"BAR\">".to_string() },
-            TokenTest { desc: "Single-quoted attribute value, trailing space".to_string(), html: "<input value='yes' FOO='BAR' >".to_string(), golden: "<input value=\"yes\" foo=\"BAR\">".to_string() },
-            TokenTest { desc: "Double-quoted attribute value".to_string(), html: "<input value=\"I'm an attribute\" FOO=\"BAR\">".to_string(), golden: "<input value=\"I'm an attribute\" foo=\"BAR\">".to_string() },
-            TokenTest { desc: "Attribute name characters".to_string(), html: "<meta http-equiv=\"content-type\">".to_string(), golden: "<meta http-equiv=\"content-type\">".to_string() },
-            TokenTest { desc: "Mixed attributes".to_string(), html: "a<P V=\"0 1\" w='2' X=3 y>z".to_string(), golden: "a$<p v=\"0 1\" w=\"2\" x=\"3\" y=\"\">$z".to_string() },
-            TokenTest { desc: "Attributes with a solitary single quote".to_string(), html: "<p id=can't><p id=won't>".to_string(), golden: "<p id=\"can't\">$<p id=\"won't\">".to_string() },
-        ];
-
-        'test: for tt in token_tests {
-            let mut html = tt.html.clone();
-            let mut reader = &mut html.as_bytes() as &mut std::io::Read;
-            let mut tokenizer = Tokenizer::new(reader);
-
-            if !tt.golden.is_empty() {
-                let splits = tt.golden.split("$");
-
-                for split in splits {
-                    let token_type = tokenizer.next();
-
-                    if token_type == ErrorToken {
-                        panic!("{:?} token", token_type);
-
-                        continue 'test;
-                    }
-
-                    let actual_token = tokenizer.token();
-
-//                    println!("{:?}", actual_token);
-
-                    if actual_token.to_string() != split {
-                        panic!("received: '{}', expected: '{}'", actual_token.to_string(), split);
-
-                        continue 'test;
-                    }
-                }
-            }
-
-            tokenizer.next();
-
-            if tokenizer.err().is_none() {
-                panic!("Error expected");
-            }
-        }
+    html_tests! {
+        empty: ("".to_string(), "".to_string()),
+        text: ("foo  bar".to_string(), "foo  bar".to_string()),
+        entity: ("one &lt; two".to_string(), "one &lt; two".to_string()),
+        tags: ("<a>b<c/>d</e>".to_string(), "<a>$b$<c/>$d$</e>".to_string()),
+        not_a_tag_0: ("<".to_string(), "<".to_string()),
+        not_a_tag_1: ("</".to_string(), "</".to_string()),
+        not_a_tag_2: ("</>".to_string(), "<!---->".to_string()),
+        not_a_tag_3: ("a</>b".to_string(), "a$<!---->$b".to_string()),
+        not_a_tag_4: ("</ >".to_string(), "<!-- -->".to_string()),
+        not_a_tag_5: ("</.".to_string(), "<!--.-->".to_string()),
+        not_a_tag_6: ("</.>".to_string(), "<!--.-->".to_string()),
+        not_a_tag_7: ("a < b".to_string(), "a < b".to_string()),
+        not_a_tag_8: ("<.>".to_string(), "<.>".to_string()),
+        not_a_tag_9: ("a<<<b>>>c".to_string(), "a<<$<b>$>>c".to_string()),
+        not_a_tag_10: ("i x<0 and y < 0 then x*y>0".to_string(), "i x<0 and y < 0 then x*y>0".to_string()),
+        not_a_tag_11: ("<<p>".to_string(), "<$<p>".to_string()),
+        tag_name_eof_0: ("<a".to_string(), "".to_string()),
+        tag_name_eof_1: ("<a ".to_string(), "".to_string()),
+        tag_name_eof_2: ("a<b".to_string(), "a".to_string()),
+        tag_name_eof_3: ("<a><b ".to_string(), "<a>".to_string()),
+        tag_name_eof_4: ("<a x ".to_string(), "".to_string()),
+        malformed_tag_0: ("<p</p>".to_string(), "<p< p=\"\">".to_string()),
+        malformed_tag_1: ("<p </p>".to_string(), "<p <=\"\" p=\"\">".to_string()),
+        malformed_tag_2: ("<p id".to_string(), "".to_string()),
+        malformed_tag_3: ("<p id=".to_string(), "".to_string()),
+        malformed_tag_4: ("<p id=>".to_string(), "<p id=\"\">".to_string()),
+        malformed_tag_5: ("<p id=0".to_string(), "".to_string()),
+        malformed_tag_6: ("<p id=0</p>".to_string(), "<p id=\"0</p\">".to_string()),
+        malformed_tag_7: ("<p id=\"0</p>".to_string(), "".to_string()),
+        malformed_tag_8: ("<p id=\"0\"</p>".to_string(), "<p id=\"0\" <=\"\" p=\"\">".to_string()),
+        malformed_tag_9: ("<p></p id".to_string(), "<p>".to_string()),
+        basic_raw_text: ("<script><a></b></script>".to_string(), "<script>$<a></b>$</script>".to_string()),
+        unfinished_script_end_tag: ("<SCRIPT>a</SCR".to_string(), "<script>$a</SCR".to_string()),
+        broken_script_end_tag: ("<SCRIPT>a</SCR ipt>".to_string(), "<script>$a</SCR ipt>".to_string()),
+        eof_in_script_end_tag: ("<SCRIPT>a</SCRipt".to_string(), "<script>$a</SCRipt".to_string()),
+        scriptx_end_tag: ("<SCRIPT>a</SCRiptx".to_string(), "<script>$a</SCRiptx".to_string()),
+        space_completes_script_end_tag: ("<SCRIPT>a</SCRipt ".to_string(), "<script>$a".to_string()),
+        sup_completes_script_end_tag: ("<SCRIPT>a</SCRipt>".to_string(), "<script>$a$</script>".to_string()),
+        nested_script_tag: ("<SCRIPT>a</SCRipt<script>".to_string(), "<script>$a</SCRipt<script>".to_string()),
+        script_end_tag_after_unfinihsed: ("<SCRIPT>a</SCRipt</script>".to_string(), "<script>$a</SCRipt$</script>".to_string()),
+        script_style_mistmatched_tag: ("<script>a</style>".to_string(), "<script>$a</style>".to_string()),
+        style_element_with_entity: ("<style>&apos;".to_string(), "<style>$&apos;".to_string()),
+        textarea_with_tag: ("<textarea><div></textarea>".to_string(), "<textarea>$<div>$</textarea>".to_string()),
+        title_with_tag_and_entity: ("<title><b>K&amp;R C</b></title>".to_string(), "<title>$<b>K&amp;R C</b>$</title>".to_string()),
+        proper_doctype: ("<!DOCTYPE html>".to_string(), "<!DOCTYPE html>".to_string()),
+        doctype_with_no_space: ("<!doctypehtml>".to_string(), "<!DOCTYPE html>".to_string()),
+        doctype_with_two_space: ("<!doctype  html>".to_string(), "<!DOCTYPE html>".to_string()),
+        doctype_looks_like: ("<!DOCUMENT html>".to_string(), "<!--DOCUMENT html-->".to_string()),
+        doctype_at_eof: ("<!DOCTYPE".to_string(), "<!DOCTYPE >".to_string()),
+        xml_processing_instruction: ("<?xml?>".to_string(), "<!--?xml?-->".to_string()),
+        comment_0: ("abc<b><!-- skipme --></b>def".to_string(), "abc$<b>$<!-- skipme -->$</b>$def".to_string()),
+        comment_1: ("a<!-->z".to_string(), "a$<!---->$z".to_string()),
+        comment_2: ("a<!--->z".to_string(), "a$<!---->$z".to_string()),
+        comment_3: ("a<!--x>-->z".to_string(), "a$<!--x>-->$z".to_string()),
+        comment_4: ("a<!--x->-->z".to_string(), "a$<!--x->-->$z".to_string()),
+        comment_5: ("a<!>z".to_string(), "a$<!---->$z".to_string()),
+        comment_6: ("a<!->z".to_string(), "a$<!----->$z".to_string()),
+        comment_7: ("a<!---<>z".to_string(), "a$<!---<>z-->".to_string()),
+        comment_8: ("a<!--z".to_string(), "a$<!--z-->".to_string()),
+        comment_9: ("a<!--z-".to_string(), "a$<!--z-->".to_string()),
+        comment_10: ("a<!--z--".to_string(), "a$<!--z-->".to_string()),
+        comment_11: ("a<!--z---".to_string(), "a$<!--z--->".to_string()),
+        comment_12: ("a<!--z----".to_string(), "a$<!--z---->".to_string()),
+        comment_13: ("a<!--x--!>z".to_string(), "a$<!--x-->$z".to_string()),
+        backslash: ("<p id=\"a\\\"b\">".to_string(), "<p id=\"a\\\" b\"=\"\">".to_string()),
+        tricky: ("<p \t\n iD=\"a&quot;B\"  foo=\"bar\"><EM>te&lt;&amp;;xt</em></p>".to_string(), "<p id=\"a&quot;B\" foo=\"bar\">$<em>$te&lt;&amp;;xt$</em>$</p>".to_string()),
+        no_such_entity: ("<a b=\"c&noSuchEntity;d\">&lt;&alsoDoesntExist;&".to_string(), "<a b=\"c&noSuchEntity;d\">$&lt;&alsoDoesntExist;&".to_string()),
+        entity_without_semicolon: ("&notit;&notin;<a b=\"q=z&amp=5&notice=hello&not;=world\">".to_string(), "&notit;&notin;$<a b=\"q=z&amp=5&notice=hello&not;=world\">".to_string()),
+        attribute_empty: ("<input disabled FOO>".to_string(), "<input disabled=\"\" foo=\"\">".to_string()),
+        attribute_empty_with_space: ("<input disabled FOO >".to_string(), "<input disabled=\"\" foo=\"\">".to_string()),
+        attribute_unquoted: ("<input value=yes FOO=BAR>".to_string(), "<input value=\"yes\" foo=\"BAR\">".to_string()),
+        attribute_unquoted_with_space: ("<input value = yes FOO = BAR>".to_string(), "<input value=\"yes\" foo=\"BAR\">".to_string()),
+        attribute_unquoted_with_trailing_space: ("<input value=yes FOO=BAR >".to_string(), "<input value=\"yes\" foo=\"BAR\">".to_string()),
+        attribute_value_single_quoted: ("<input value='yes' FOO='BAR'>".to_string(), "<input value=\"yes\" foo=\"BAR\">".to_string()),
+        attribute_value_single_quoted_with_trailing_space: ("<input value='yes' FOO='BAR' >".to_string(), "<input value=\"yes\" foo=\"BAR\">".to_string()),
+        attribute_value_double_quoted: ("<input value=\"I'm an attribute\" FOO=\"BAR\">".to_string(), "<input value=\"I'm an attribute\" foo=\"BAR\">".to_string()),
+        attribute_name_characters: ("<meta http-equiv=\"content-type\">".to_string(), "<meta http-equiv=\"content-type\">".to_string()),
+        attribute_mixed: ("a<P V=\"0 1\" w='2' X=3 y>z".to_string(), "a$<p v=\"0 1\" w=\"2\" x=\"3\" y=\"\">$z".to_string()),
+        attribute_with_a_solitary_single_quote: ("<p id=can't><p id=won't>".to_string(), "<p id=\"can't\">$<p id=\"won't\">".to_string()),
     }
 }
