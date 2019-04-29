@@ -27,6 +27,7 @@ cfg_if! {
 lazy_static! {
     static ref PROJECT_ROUTERS: Mutex<HashMap<String, router::MainRouter>> =
         Mutex::new(HashMap::new());
+    static ref FILTERS: Mutex<HashMap<String, filter::filter_body::FilterBodyAction>> = Mutex::new(HashMap::new());
 }
 
 #[wasm_bindgen]

@@ -32,10 +32,10 @@ pub struct Marker {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BodyFilter {
-    action: String,
-    value: String,
-    element_tree: Vec<String>,
-    x_path_matcher: String,
+    pub action: String,
+    pub value: String,
+    pub element_tree: Vec<String>,
+    pub x_path_matcher: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -54,7 +54,7 @@ pub struct Rule {
     pub rank: u16,
     markers: Vec<Marker>,
     match_on_response_status: Option<u16>,
-    body_filters: Option<Vec<BodyFilter>>,
+    pub body_filters: Option<Vec<BodyFilter>>,
     header_filters: Option<Vec<HeaderFilter>>,
     #[serde(skip)]
     pub regex: Option<String>,

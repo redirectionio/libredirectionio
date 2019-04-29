@@ -36,16 +36,6 @@ impl RouterScheme {
             any_scheme_router: router::router_host::RouterHost::new(any_scheme_rules, cache),
         };
     }
-
-    pub fn get_rules(&self) -> Vec<&router::rule::Rule> {
-        let mut rules = Vec::new();
-
-        rules.append(&mut self.http_router.get_rules());
-        rules.append(&mut self.https_router.get_rules());
-        rules.append(&mut self.any_scheme_router.get_rules());
-
-        return rules;
-    }
 }
 
 impl router::Router for RouterScheme {

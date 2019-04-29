@@ -1,6 +1,6 @@
 use crate::filter::body_action;
-use crate::filter::body_action::BodyAction;
 use crate::html;
+use crate::router::rule;
 
 struct BufferLink {
     buffer: String,
@@ -14,13 +14,46 @@ struct FilterBodyVisitor {
     action: Box<body_action::BodyAction>,
 }
 
-struct FilterBodyAction<'f> {
+pub struct FilterBodyAction {
     visitors: Vec<FilterBodyVisitor>,
     current_buffer: Option<Box<BufferLink>>,
     last_buffer: String,
 }
 
-impl<'f> FilterBodyAction<'f> {
+impl FilterBodyAction {
+    pub fn new(rule_to_filter: rule::Rule) -> Option<FilterBodyAction> {
+        if rule_to_filter.body_filters.is_none() {
+            return None;
+        }
+
+        let mut visitors = Vec::new();
+
+        for filter in rule_to_filter.body_filters.as_ref().unwrap() {
+            let action = body_action::create_body_action(filter);
+
+            if action.is_some() {
+                let action_unwrap = action.unwrap();
+                let visitor = FilterBodyVisitor {
+                    enter: Some(action_unwrap.first()),
+                    leave: None,
+                    action: action_unwrap,
+                };
+
+                visitors.push(visitor);
+            }
+        }
+
+        if visitors.len() > 0 {
+            return Some(FilterBodyAction {
+                visitors,
+                last_buffer: "".to_string(),
+                current_buffer: None,
+            });
+        }
+
+        return None;
+    }
+
     pub fn filter(&mut self, input: String) -> String {
         let mut data = self.last_buffer.clone();
         data.push_str(input.as_str());
@@ -130,29 +163,30 @@ impl<'f> FilterBodyAction<'f> {
         &mut self,
         tag_name: String,
         data: String,
-    ) -> (Option<Box<BufferLink<'f>>>, String) {
+    ) -> (Option<Box<BufferLink>>, String) {
         let mut buffer = data.clone();
-        let mut buffer_link_actions = Vec::new();
+        let mut buffer_link_actions = 0 ;
 
         for visitor in &mut self.visitors {
-            if visitor.enter.is_some() && visitor.enter.unwrap() == tag_name {
+            if visitor.enter.is_some() && visitor.enter.as_ref().unwrap() == tag_name.as_str() {
                 let (next_enter, next_leave, start_buffer, new_buffer) =
                     visitor.action.enter(buffer);
+
+                buffer = new_buffer;
 
                 visitor.enter = next_enter;
                 visitor.leave = next_leave;
 
                 if start_buffer {
-                    buffer_link_actions.push(&mut visitor.action);
+                    buffer_link_actions += 1;
                 }
             }
         }
 
-        if buffer_link_actions.len() > 0 {
+        if buffer_link_actions > 0 {
             let new_current_buffer = BufferLink {
                 tag_name,
                 previous: self.current_buffer.take(),
-                actions: buffer_link_actions,
                 buffer: "".to_string(),
             };
 
@@ -166,11 +200,11 @@ impl<'f> FilterBodyAction<'f> {
         &mut self,
         tag_name: String,
         data: String,
-    ) -> (Option<Box<BufferLink<'f>>>, String) {
+    ) -> (Option<Box<BufferLink>>, String) {
         let mut buffer = data.clone();
 
         for visitor in &mut self.visitors {
-            if visitor.leave.is_some() && visitor.leave.unwrap() == tag_name {
+            if visitor.leave.is_some() && visitor.leave.as_ref().unwrap() == tag_name.as_str() {
                 let (next_enter, next_leave, new_buffer) = visitor.action.leave(buffer);
                 buffer = new_buffer;
 

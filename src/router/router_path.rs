@@ -27,10 +27,6 @@ impl RouterPath {
             matcher: matcher_generic,
         };
     }
-
-    pub fn get_rules(&self) -> Vec<&router::rule::Rule> {
-        return self.matcher.get_rules();
-    }
 }
 
 pub fn create_prefixed_map_rules(

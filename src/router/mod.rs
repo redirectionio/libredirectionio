@@ -116,8 +116,4 @@ impl MainRouter {
     pub fn has_match(&self, url: String) -> bool {
         return self.match_rules(url).len() > 0;
     }
-
-    pub fn get_rules(&self) -> Vec<&rule::Rule> {
-        return self.router_scheme.get_rules();
-    }
 }

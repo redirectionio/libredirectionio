@@ -51,18 +51,6 @@ impl RouterHost {
             any_host_router,
         };
     }
-
-    pub fn get_rules(&self) -> Vec<&router::rule::Rule> {
-        let mut rules = Vec::new();
-
-        rules.append(&mut self.any_host_router.get_rules());
-
-        for (_, router) in &self.hosts_routers {
-            rules.append(&mut router.get_rules());
-        }
-
-        return rules;
-    }
 }
 
 impl router::Router for RouterHost {
