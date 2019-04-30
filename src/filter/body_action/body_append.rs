@@ -47,7 +47,7 @@ impl body_action::BodyAction for BodyAppend {
         let mut next_leave = None;
         let is_processing = self.position + 1 >= self.element_tree.len();
 
-        if self.position - 1 >= 0 {
+        if self.position as i32 - 1 >= 0 {
             self.position = self.position - 1;
 
             next_leave = Some(self.element_tree[self.position].clone());
@@ -55,8 +55,15 @@ impl body_action::BodyAction for BodyAppend {
 
         if is_processing {
             if self.x_path_matcher.is_some() {
-                if body_action::evaluate(data.clone(), self.x_path_matcher.as_ref().unwrap().clone()) {
-                    return (next_enter, next_leave, append_child(data, self.content.clone()));
+                if body_action::evaluate(
+                    data.clone(),
+                    self.x_path_matcher.as_ref().unwrap().clone(),
+                ) {
+                    return (
+                        next_enter,
+                        next_leave,
+                        append_child(data, self.content.clone()),
+                    );
                 }
 
                 return (next_enter, next_leave, data);

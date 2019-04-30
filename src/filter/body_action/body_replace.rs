@@ -50,7 +50,7 @@ impl body_action::BodyAction for BodyReplace {
         let next_enter = Some(self.element_tree[self.position].clone());
         let mut next_leave = None;
 
-        if self.position - 1 >= 0 {
+        if self.position as i32 - 1 >= 0 {
             self.position = self.position - 1;
 
             next_leave = Some(self.element_tree[self.position].clone());

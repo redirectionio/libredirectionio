@@ -40,9 +40,9 @@ pub struct BodyFilter {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HeaderFilter {
-    action: String,
-    header: String,
-    value: String,
+    pub action: String,
+    pub header: String,
+    pub value: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -55,7 +55,7 @@ pub struct Rule {
     markers: Vec<Marker>,
     match_on_response_status: Option<u16>,
     pub body_filters: Option<Vec<BodyFilter>>,
-    header_filters: Option<Vec<HeaderFilter>>,
+    pub header_filters: Option<Vec<HeaderFilter>>,
     #[serde(skip)]
     pub regex: Option<String>,
     #[serde(skip)]
