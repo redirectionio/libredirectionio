@@ -2,18 +2,21 @@ use crate::filter::body_action;
 use crate::html;
 use crate::router::rule;
 
+#[derive(Debug)]
 struct BufferLink {
     buffer: String,
     tag_name: String,
     previous: Option<Box<BufferLink>>,
 }
 
+#[derive(Debug)]
 struct FilterBodyVisitor {
     enter: Option<String>,
     leave: Option<String>,
     action: Box<body_action::BodyAction>,
 }
 
+#[derive(Debug)]
 pub struct FilterBodyAction {
     visitors: Vec<FilterBodyVisitor>,
     current_buffer: Option<Box<BufferLink>>,
@@ -55,6 +58,9 @@ impl FilterBodyAction {
     }
 
     pub fn filter(&mut self, input: String) -> String {
+        println!("Filtering {} {:?}", input, self.current_buffer);
+        println!("Self {:?}", self);
+
         let mut data = self.last_buffer.clone();
         data.push_str(input.as_str());
         let buffer = &mut data.as_bytes() as &mut std::io::Read;
@@ -72,6 +78,9 @@ impl FilterBodyAction {
             }
 
             let mut token_data = tokenizer.raw().clone();
+
+            println!("Token data {}", token_data);
+            println!("Current result {}", to_return);
 
             while token_type == html::TokenType::TextToken
                 && (token_data.contains("<") || token_data.contains("</"))
@@ -105,6 +114,8 @@ impl FilterBodyAction {
                     let (new_buffer_link, new_token_data) =
                         self.on_start_tag_token(tag_name.unwrap(), token_data);
 
+                    println!("New buffer {:?}", new_buffer_link);
+
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
                 }
@@ -134,6 +145,7 @@ impl FilterBodyAction {
             }
 
             if self.current_buffer.is_some() {
+                println!("Add to current buffer");
                 self.current_buffer
                     .as_mut()
                     .unwrap()
@@ -143,6 +155,8 @@ impl FilterBodyAction {
                 to_return.push_str(token_data.as_str());
             }
         }
+
+        println!("Filtering result {}", to_return);
 
         return to_return;
     }
@@ -165,7 +179,7 @@ impl FilterBodyAction {
         data: String,
     ) -> (Option<Box<BufferLink>>, String) {
         let mut buffer = data.clone();
-        let mut buffer_link_actions = 0 ;
+        let mut buffer_link_actions = 0;
 
         for visitor in &mut self.visitors {
             if visitor.enter.is_some() && visitor.enter.as_ref().unwrap() == tag_name.as_str() {

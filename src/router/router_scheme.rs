@@ -42,6 +42,8 @@ impl router::Router for RouterScheme {
     fn match_rule(&self, url: Url) -> Vec<&router::rule::Rule> {
         let mut rules_found = Vec::new();
 
+        rules_found.append(self.any_scheme_router.match_rule(url.clone()).borrow_mut());
+
         if url.scheme() == "http" {
             rules_found.append(self.http_router.match_rule(url.clone()).borrow_mut());
         }
@@ -49,8 +51,6 @@ impl router::Router for RouterScheme {
         if url.scheme() == "https" {
             rules_found.append(self.https_router.match_rule(url.clone()).borrow_mut());
         }
-
-        rules_found.append(self.any_scheme_router.match_rule(url.clone()).borrow_mut());
 
         return rules_found;
     }

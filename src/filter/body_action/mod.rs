@@ -17,7 +17,13 @@ pub trait BodyAction: Debug + Send {
 }
 
 pub fn evaluate(data: String, expression: String) -> bool {
-    let package = parser::parse(data.as_str()).expect("failed to parse XML");
+    let parse_result = parser::parse(data.as_str());
+
+    if parse_result.is_err() {
+        return false;
+    }
+
+    let package = parse_result.expect("failed to parse XML");
     let document = package.as_document();
 
     let value = evaluate_xpath(&document, expression.as_str()).expect("XPath evaluation failed");

@@ -115,6 +115,10 @@ pub extern "C" fn redirectionio_get_rule_for_url(
 
 #[wasm_bindgen]
 pub fn get_redirect(rule_str: String, url: String) -> Option<String> {
+    if rule_str.is_empty() {
+        return None;
+    }
+
     let rule = string_to_rule(rule_str);
 
     if rule.is_none() {

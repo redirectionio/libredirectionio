@@ -33,6 +33,7 @@ sxd-xpath = "0.4.2"
 sxd-document = "0.3.0"
 uuid = { version = "0.7", features = ["serde", "v4", "wasm-bindgen"] }
 libc = "0.2.53"
+heck = "0.3.1"
 
 [dev-dependencies]
 criterion = "0.2"

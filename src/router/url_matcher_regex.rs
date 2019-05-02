@@ -68,10 +68,7 @@ impl UrlMatcherRegex {
 
 impl url_matcher::UrlMatcher for UrlMatcherRegex {
     fn match_rule(&self, url: &Url) -> Vec<&rule::Rule> {
-        let mut path = percent_decode(url.path().as_bytes())
-            .decode_utf8()
-            .unwrap()
-            .to_string();
+        let mut path = url.path().to_string();
 
         if url.query().is_some() {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");

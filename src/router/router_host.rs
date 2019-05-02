@@ -18,7 +18,7 @@ impl RouterHost {
             if rule.source.host.is_none() {
                 any_host_rules.push(rule);
 
-                break;
+                continue;
             }
 
             let host = rule.source.host.as_ref().unwrap();
@@ -26,7 +26,7 @@ impl RouterHost {
             if host == "" {
                 any_host_rules.push(rule);
 
-                break;
+                continue;
             }
 
             if !hosts_router_rules.contains_key(host.as_str()) {

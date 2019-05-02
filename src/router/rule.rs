@@ -19,15 +19,15 @@ pub struct Source {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Transformer {
     #[serde(rename = "type")]
-    transformer_type: Option<String>,
-    options: HashMap<String, String>,
+    pub transformer_type: Option<String>,
+    pub options: Option<HashMap<String, String>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Marker {
-    name: String,
+    pub name: String,
     regex: String,
-    transformers: Vec<Transformer>,
+    pub transformers: Option<Vec<Transformer>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -52,7 +52,7 @@ pub struct Rule {
     pub target: Option<String>,
     pub redirect_code: u16,
     pub rank: u16,
-    markers: Vec<Marker>,
+    pub markers: Option<Vec<Marker>>,
     match_on_response_status: Option<u16>,
     pub body_filters: Option<Vec<BodyFilter>>,
     pub header_filters: Option<Vec<HeaderFilter>>,
@@ -75,37 +75,41 @@ impl Rule {
         regex_str.push_str(&self.source.path);
 
         if self.source.sorted_query.is_some() {
-            regex_str.push_str("?");
-            regex_str.push_str(self.source.sorted_query.as_ref().unwrap());
+            regex_str.push_str("\\?");
+            regex_str.push_str(regex::escape(self.source.sorted_query.as_ref().unwrap()).as_str());
         }
 
-        let mut regex_str = regex::escape(&regex_str).to_string();
+        //        let mut regex_str = ["^".to_string(), regex_str, "$".to_string()].join("");
+
         let mut regex_with_group = regex_str.clone();
 
-        for marker in &self.markers {
-            let marker_regex_groups = [
-                "(?P<",
-                marker.name.as_str(),
-                ">",
-                marker.regex.as_str(),
-                ")",
-            ]
-            .join("");
-            let marker_regex_no_group = ["(?:", marker.regex.as_str(), ")"].join("");
+        if self.markers.is_some() {
+            for marker in self.markers.as_ref().unwrap() {
+                let marker_regex_groups = [
+                    "(?P<",
+                    marker.name.as_str(),
+                    ">",
+                    marker.regex.as_str(),
+                    ")",
+                ]
+                .join("");
+                let marker_regex_no_group = ["(?:", marker.regex.as_str(), ")"].join("");
 
-            regex_str = regex_str.replace(
-                ["@", marker.name.as_str()].join("").as_str(),
-                marker_regex_no_group.as_str(),
-            );
+                regex_str = regex_str.replace(
+                    ["@", marker.name.as_str()].join("").as_str(),
+                    marker_regex_no_group.as_str(),
+                );
 
-            regex_with_group = regex_with_group.replace(
-                ["@", marker.name.as_str()].join("").as_str(),
-                marker_regex_groups.as_str(),
-            )
+                regex_with_group = regex_with_group.replace(
+                    ["@", marker.name.as_str()].join("").as_str(),
+                    marker_regex_groups.as_str(),
+                )
+            }
         }
 
         if cache {
-            let regex_builder = RegexBuilder::new(regex_str.as_str());
+            let regex_matching = ["^", regex_with_group.as_str(), "$"].join("");
+            let regex_builder = RegexBuilder::new(regex_matching.as_str());
             let regex_obj = regex_builder.build().expect("Cannot compile rule");
             self.regex_obj = Some(regex_obj);
         }
@@ -115,13 +119,13 @@ impl Rule {
     }
 
     pub fn is_match(&self, value: &str) -> bool {
-        if self.regex_obj.is_none() && self.regex.is_none() {
+        if self.regex_obj.is_none() && self.regex_with_groups.is_none() {
             return false;
         }
 
         if self.regex_obj.is_none() {
-            let regex = Regex::new(self.regex.as_ref().unwrap().as_str())
-                .expect("Cannot compile rule regex");
+            let regex_matching = ["^", self.regex_with_groups.as_ref().unwrap(), "$"].join("");
+            let regex = Regex::new(regex_matching.as_str()).expect("Cannot compile rule regex");
 
             return regex.is_match(value);
         }
