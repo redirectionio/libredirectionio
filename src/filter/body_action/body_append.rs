@@ -34,6 +34,8 @@ impl body_action::BodyAction for BodyAppend {
         if self.position + 1 < self.element_tree.len() {
             self.position = self.position + 1;
             next_enter = Some(self.element_tree[self.position].clone());
+
+            return (next_enter, next_leave, false, data);
         }
 
         let should_buffer =
@@ -54,7 +56,7 @@ impl body_action::BodyAction for BodyAppend {
         }
 
         if is_processing {
-            if self.x_path_matcher.is_some() {
+            if self.x_path_matcher.is_some() && !self.x_path_matcher.as_ref().unwrap().is_empty() {
                 if body_action::evaluate(
                     data.clone(),
                     self.x_path_matcher.as_ref().unwrap().clone(),

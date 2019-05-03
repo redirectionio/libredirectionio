@@ -60,7 +60,7 @@ impl body_action::BodyAction for BodyPrepend {
             next_leave = Some(self.element_tree[self.position].clone());
         }
 
-        if self.is_buffering && self.x_path_matcher.is_some() {
+        if self.is_buffering && self.x_path_matcher.is_some() && !self.x_path_matcher.as_ref().unwrap().is_empty() {
             self.is_buffering = false;
 
             if body_action::evaluate(data.clone(), self.x_path_matcher.as_ref().unwrap().clone()) {

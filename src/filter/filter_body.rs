@@ -1,6 +1,7 @@
 use crate::filter::body_action;
 use crate::html;
 use crate::router::rule;
+use url::form_urlencoded::Target;
 
 #[derive(Debug)]
 struct BufferLink {
@@ -58,9 +59,6 @@ impl FilterBodyAction {
     }
 
     pub fn filter(&mut self, input: String) -> String {
-        println!("Filtering {} {:?}", input, self.current_buffer);
-        println!("Self {:?}", self);
-
         let mut data = self.last_buffer.clone();
         data.push_str(input.as_str());
         let buffer = &mut data.as_bytes() as &mut std::io::Read;
@@ -78,9 +76,6 @@ impl FilterBodyAction {
             }
 
             let mut token_data = tokenizer.raw().clone();
-
-            println!("Token data {}", token_data);
-            println!("Current result {}", to_return);
 
             while token_type == html::TokenType::TextToken
                 && (token_data.contains("<") || token_data.contains("</"))
@@ -114,8 +109,6 @@ impl FilterBodyAction {
                     let (new_buffer_link, new_token_data) =
                         self.on_start_tag_token(tag_name.unwrap(), token_data);
 
-                    println!("New buffer {:?}", new_buffer_link);
-
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
                 }
@@ -145,7 +138,6 @@ impl FilterBodyAction {
             }
 
             if self.current_buffer.is_some() {
-                println!("Add to current buffer");
                 self.current_buffer
                     .as_mut()
                     .unwrap()
@@ -155,8 +147,6 @@ impl FilterBodyAction {
                 to_return.push_str(token_data.as_str());
             }
         }
-
-        println!("Filtering result {}", to_return);
 
         return to_return;
     }
@@ -215,7 +205,14 @@ impl FilterBodyAction {
         tag_name: String,
         data: String,
     ) -> (Option<Box<BufferLink>>, String) {
-        let mut buffer = data.clone();
+        let mut buffer: String;
+
+        if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {
+            buffer = self.current_buffer.as_ref().unwrap().buffer.clone();
+            buffer.push_str(data.as_str());
+        } else {
+            buffer = data.clone();
+        }
 
         for visitor in &mut self.visitors {
             if visitor.leave.is_some() && visitor.leave.as_ref().unwrap() == tag_name.as_str() {

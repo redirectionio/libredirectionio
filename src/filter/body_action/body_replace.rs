@@ -59,7 +59,7 @@ impl body_action::BodyAction for BodyReplace {
         if self.is_buffering {
             self.is_buffering = false;
 
-            if self.x_path_matcher.is_none() {
+            if self.x_path_matcher.is_none() || self.x_path_matcher.as_ref().unwrap().is_empty() {
                 return (next_enter, next_leave, self.content.clone());
             }
 
