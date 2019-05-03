@@ -64,6 +64,23 @@ pub struct Rule {
     pub regex_obj: Option<Regex>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RouterTrace {
+    pub traces: Vec<RouterTraceItem>,
+    pub rules: Vec<Rule>,
+    pub final_rule: Option<Rule>,
+    pub duration: f64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RouterTraceItem {
+    pub prefix: String,
+    pub group_matched: String,
+    pub matches: bool,
+    pub rules_evaluated: Vec<Rule>,
+    pub rules_matches: Vec<Rule>,
+}
+
 impl Rule {
     pub fn compile(&mut self, cache: bool) {
         self.source.build_sorted_query();

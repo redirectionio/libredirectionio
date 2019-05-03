@@ -12,7 +12,6 @@ use crate::router::router_scheme::RouterScheme;
 use regex::Regex;
 use std::collections::btree_map::BTreeMap;
 use url;
-use url::percent_encoding::percent_decode;
 use url::Url;
 
 pub trait Router {
@@ -47,7 +46,7 @@ impl MainRouter {
 
     fn parse_url(url_str: String) -> Url {
         let url_str_decoded = url_str.clone();
-        let mut url_result = Url::parse(url_str_decoded.as_str());
+        let url_result = Url::parse(url_str_decoded.as_str());
 
         if url_result.is_err() {
             let error = url_result.as_ref().unwrap_err();
@@ -61,8 +60,8 @@ impl MainRouter {
                     .parse(url_str_decoded.as_str())
                     .expect("cannot parse url");
 
-                url_obj.set_scheme("");
-                url_obj.set_host(None);
+                url_obj.set_scheme("").expect("cannot set scheme");
+                url_obj.set_host(None).expect("cannot set host");
 
                 return MainRouter::sort_query(url_obj);
             }
@@ -123,7 +122,6 @@ impl MainRouter {
         .join("");
         let regex_groups = Regex::new(regex_groups_str.as_str()).expect("cannot compile regex");
 
-        let mut sorted_query = None;
         let mut path = url_object.path().to_string();
         let mut path_decoded = url::percent_encoding::percent_decode(path.as_bytes())
             .decode_utf8()
@@ -131,7 +129,7 @@ impl MainRouter {
             .to_string();
 
         if url_object.query().is_some() {
-            sorted_query = rule::build_sorted_query(url_object.query().unwrap().to_string());
+            let sorted_query = rule::build_sorted_query(url_object.query().unwrap().to_string());
 
             if sorted_query.is_some() {
                 path = [path.as_str(), "?", sorted_query.as_ref().unwrap().as_str()].join("");
@@ -198,9 +196,5 @@ impl MainRouter {
         }
 
         return target;
-    }
-
-    pub fn has_match(&self, url: String) -> bool {
-        return self.match_rules(url).len() > 0;
     }
 }

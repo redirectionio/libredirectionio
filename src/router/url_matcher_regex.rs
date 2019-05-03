@@ -4,7 +4,6 @@ use crate::router::rule;
 use crate::router::url_matcher;
 use crate::router::url_matcher::UrlMatcher;
 use regex::Regex;
-use url::percent_encoding::percent_decode;
 use url::Url;
 
 #[derive(Debug)]

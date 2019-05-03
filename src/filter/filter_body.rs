@@ -1,7 +1,6 @@
 use crate::filter::body_action;
 use crate::html;
 use crate::router::rule;
-use url::form_urlencoded::Target;
 
 #[derive(Debug)]
 struct BufferLink {

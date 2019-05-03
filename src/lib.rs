@@ -6,7 +6,7 @@ extern crate libc;
 
 mod api;
 mod filter;
-mod html;
+pub mod html;
 mod router;
 mod utils;
 
@@ -338,7 +338,7 @@ pub extern "C" fn redirectionio_body_filter_end(
 
 pub fn str_to_cstr(str: String) -> *const libc::c_char {
     unsafe {
-        let mut data: *const std::ffi::CString = 0 as *const std::ffi::CString;
+        let data: *const std::ffi::CString;
         let boxed = Box::new(std::ffi::CString::new(str.as_bytes()).expect("Cannot create string"));
 
         data = transmute(boxed);

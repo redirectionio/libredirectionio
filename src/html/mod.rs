@@ -1394,36 +1394,36 @@ fn convert_next_lines(s: String) -> String {
         .to_string();
 }
 
-macro_rules! html_tests {
-    ($($name:ident: $value:expr,)*) => {
-    $(
-        #[test]
-        fn $name() {
-            let (html, golden) = $value;
-            let reader = &mut html.as_bytes() as &mut std::io::Read;
-            let mut tokenizer = Tokenizer::new(reader);
-
-            if !golden.is_empty() {
-                let splits = golden.split("$");
-
-                for split in splits {
-                    let token_type = tokenizer.next();
-
-                    assert_ne!(token_type, ErrorToken);
-                    let actual_token = tokenizer.token();
-                    assert_eq!(actual_token.to_string(), split);
-                }
-            }
-
-            tokenizer.next();
-            assert_eq!(true, tokenizer.err().is_some());
-        }
-    )*
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    macro_rules! html_tests {
+        ($($name:ident: $value:expr,)*) => {
+        $(
+            #[test]
+            fn $name() {
+                let (html, golden) = $value;
+                let reader = &mut html.as_bytes() as &mut std::io::Read;
+                let mut tokenizer = Tokenizer::new(reader);
+
+                if !golden.is_empty() {
+                    let splits = golden.split("$");
+
+                    for split in splits {
+                        let token_type = tokenizer.next();
+
+                        assert_ne!(token_type, ErrorToken);
+                        let actual_token = tokenizer.token();
+                        assert_eq!(actual_token.to_string(), split);
+                    }
+                }
+
+                tokenizer.next();
+                assert_eq!(true, tokenizer.err().is_some());
+            }
+        )*
+        }
+    }
+
     use super::*;
 
     html_tests! {
