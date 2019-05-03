@@ -94,6 +94,10 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
         return matched_rules;
     }
 
+    fn trace(&self, url: &Url) -> Vec<rule::RouterTraceItem> {
+
+    }
+
     fn get_rules(&self) -> Vec<&rule::Rule> {
         let mut rules = Vec::new();
 
