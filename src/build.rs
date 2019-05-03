@@ -1,6 +1,5 @@
 extern crate cbindgen;
 
-use cbindgen::Config;
 use std::env;
 use std::path::PathBuf;
 
