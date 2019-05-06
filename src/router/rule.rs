@@ -66,7 +66,9 @@ pub struct Rule {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Redirect {
+    #[serde(rename = "status_code")]
     pub status: u16,
+    #[serde(rename = "location")]
     pub target: String,
 }
 
@@ -74,17 +76,19 @@ pub struct Redirect {
 pub struct RouterTrace {
     pub traces: Vec<RouterTraceItem>,
     pub rules: Vec<Rule>,
+    #[serde(rename = "finalRule")]
     pub final_rule: Option<Rule>,
     pub response: Option<Redirect>,
-    pub duration: u128,
+    pub duration: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouterTraceItem {
     pub prefix: String,
-    pub group_matched: String,
     pub matches: bool,
+    #[serde(rename = "rulesEvaluated")]
     pub rules_evaluated: Vec<Rule>,
+    #[serde(rename = "rulesMatched")]
     pub rules_matches: Vec<Rule>,
 }
 
@@ -102,8 +106,6 @@ impl Rule {
             regex_str.push_str("\\?");
             regex_str.push_str(regex::escape(self.source.sorted_query.as_ref().unwrap()).as_str());
         }
-
-        //        let mut regex_str = ["^".to_string(), regex_str, "$".to_string()].join("");
 
         let mut regex_with_group = regex_str.clone();
 

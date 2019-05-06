@@ -55,10 +55,10 @@ impl MainRouter {
 
             if *error == url::ParseError::RelativeUrlWithoutBase {
                 let options = url::Url::options();
-                let base_url = Url::parse("https://www.test.com").expect("Cannot parse base url");
+                let base_url = Url::parse("scheme://0.0.0.0").expect("Cannot parse base url");
                 let parser = options.base_url(Some(&base_url));
 
-                let mut url_obj = parser
+                let url_obj = parser
                     .parse(url_str_decoded.as_str())
                     .expect("cannot parse url");
 
@@ -116,7 +116,7 @@ impl MainRouter {
         let traces = self.router_scheme.trace(url_object.clone());
         let start = time::Instant::now();
         let mut matched_rules = self.router_scheme.match_rule(url_object.clone());
-        let elapsed = start.elapsed().as_millis();
+        let elapsed = (start.elapsed().as_micros() as f64) / 1000.0;
         let mut final_rule = None;
 
         if matched_rules.len() > 0 {
@@ -141,13 +141,15 @@ impl MainRouter {
             });
         }
 
-        return rule::RouterTrace {
+        let trace = rule::RouterTrace {
             final_rule,
             traces,
             rules,
             response: redirect,
             duration: elapsed,
         };
+
+        return trace;
     }
 
     pub fn get_redirect(rule_to_redirect: &rule::Rule, url_str: String) -> String {

@@ -56,13 +56,36 @@ impl router::Router for RouterScheme {
     }
 
     fn trace(&self, url: Url) -> Vec<router::rule::RouterTraceItem> {
-        let mut traces = self.any_scheme_router.trace(url.clone());
+        let mut traces = Vec::new();
+
+        traces.push(router::rule::RouterTraceItem {
+            rules_matches: Vec::new(),
+            rules_evaluated: Vec::new(),
+            matches: true,
+            prefix: "://".to_string(),
+        });
+
+        traces.append(self.any_scheme_router.trace(url.clone()).borrow_mut());
 
         if url.scheme() == "http" {
+            traces.push(router::rule::RouterTraceItem {
+                rules_matches: Vec::new(),
+                rules_evaluated: Vec::new(),
+                matches: true,
+                prefix: "http://".to_string(),
+            });
+
             traces.append(self.http_router.trace(url.clone()).borrow_mut());
         }
 
         if url.scheme() == "https" {
+            traces.push(router::rule::RouterTraceItem {
+                rules_matches: Vec::new(),
+                rules_evaluated: Vec::new(),
+                matches: true,
+                prefix: "https://".to_string(),
+            });
+
             traces.append(self.https_router.trace(url.clone()).borrow_mut());
         }
 

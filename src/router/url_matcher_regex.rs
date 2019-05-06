@@ -141,7 +141,6 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                 traces.push(rule::RouterTraceItem {
                     matches: true,
                     prefix: self.empty.as_ref().unwrap().regex.clone(),
-                    group_matched: "".to_string(),
                     rules_evaluated: Vec::new(),
                     rules_matches: Vec::new(),
                 });
@@ -157,7 +156,6 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                 traces.push(rule::RouterTraceItem {
                     matches: true,
                     prefix: self.empty.as_ref().unwrap().regex.clone(),
-                    group_matched: "".to_string(),
                     rules_evaluated: Vec::new(),
                     rules_matches: Vec::new(),
                 });
@@ -176,7 +174,6 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                 traces.push(rule::RouterTraceItem {
                     matches: true,
                     prefix: child.regex.clone(),
-                    group_matched: "".to_string(),
                     rules_evaluated: Vec::new(),
                     rules_matches: Vec::new(),
                 });
@@ -186,7 +183,6 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                 traces.push(rule::RouterTraceItem {
                     matches: true,
                     prefix: child.regex.clone(),
-                    group_matched: "".to_string(),
                     rules_evaluated: Vec::new(),
                     rules_matches: Vec::new(),
                 });
@@ -195,7 +191,6 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                 traces.push(rule::RouterTraceItem {
                     matches: false,
                     prefix: child.regex.clone(),
-                    group_matched: "".to_string(),
                     rules_evaluated: Vec::new(),
                     rules_matches: Vec::new(),
                 });

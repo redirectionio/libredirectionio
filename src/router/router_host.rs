@@ -1,5 +1,6 @@
 use crate::router;
 use crate::router::router_path::RouterPath;
+use core::borrow::BorrowMut;
 use std::collections::HashMap;
 use url::Url;
 
@@ -68,15 +69,42 @@ impl router::Router for RouterHost {
     }
 
     fn trace(&self, url: Url) -> Vec<router::rule::RouterTraceItem> {
-        if url.host().is_some() {
+        let mut traces = Vec::new();
+
+        if url.host().is_some() && url.host().unwrap().to_string() != "0.0.0.0".to_string() {
             let host_str = url.host().unwrap().to_string();
             let host_router = self.hosts_routers.get(host_str.as_str());
 
             if host_router.is_some() {
-                return host_router.unwrap().trace(url);
+                traces.push(router::rule::RouterTraceItem {
+                    rules_matches: Vec::new(),
+                    rules_evaluated: Vec::new(),
+                    matches: true,
+                    prefix: url.host().unwrap().to_string(),
+                });
+
+                traces.append(host_router.unwrap().trace(url).borrow_mut());
+
+                return traces;
+            } else {
+                traces.push(router::rule::RouterTraceItem {
+                    rules_matches: Vec::new(),
+                    rules_evaluated: Vec::new(),
+                    matches: false,
+                    prefix: url.host().unwrap().to_string(),
+                });
             }
         }
 
-        return self.any_host_router.trace(url);
+        traces.push(router::rule::RouterTraceItem {
+            rules_matches: Vec::new(),
+            rules_evaluated: Vec::new(),
+            matches: true,
+            prefix: "any host router".to_string(),
+        });
+
+        traces.append(self.any_host_router.trace(url).borrow_mut());
+
+        return traces;
     }
 }

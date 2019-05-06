@@ -52,7 +52,6 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
 
         return vec![rule::RouterTraceItem {
             matches: rules_matched.len() > 0,
-            group_matched: "".to_string(),
             prefix: "".to_string(),
             rules_evaluated: self.rules.clone(),
             rules_matches: rules_matched,
