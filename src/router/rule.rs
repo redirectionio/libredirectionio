@@ -65,11 +65,18 @@ pub struct Rule {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Redirect {
+    pub status: u16,
+    pub target: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouterTrace {
     pub traces: Vec<RouterTraceItem>,
     pub rules: Vec<Rule>,
     pub final_rule: Option<Rule>,
-    pub duration: f64,
+    pub response: Option<Redirect>,
+    pub duration: u128,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

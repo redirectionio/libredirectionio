@@ -4,7 +4,6 @@ extern crate wasm_bindgen;
 extern crate lazy_static;
 extern crate libc;
 
-mod api;
 mod filter;
 pub mod html;
 mod router;
@@ -114,6 +113,45 @@ pub extern "C" fn redirectionio_get_rule_for_url(
 }
 
 #[wasm_bindgen]
+pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
+    let lock = PROJECT_ROUTERS.lock();
+    let router: Option<&router::MainRouter> = lock.as_ref().unwrap().get(project_id.as_str());
+
+    if router.is_none() {
+        return None;
+    }
+
+    let trace = router.unwrap().trace(url);
+
+    return Some(serde_json::to_string(&trace).expect("Cannot serialize trace"));
+}
+
+#[no_mangle]
+pub extern "C" fn redirectionio_get_trace_for_url(
+    project_id_cstr: *const libc::c_char,
+    url_cstr: *const libc::c_char,
+) -> *const libc::c_char {
+    unsafe {
+        let project_id = std::ffi::CStr::from_ptr(project_id_cstr)
+            .to_str()
+            .expect("Cannot create string")
+            .to_string();
+        let url = std::ffi::CStr::from_ptr(url_cstr)
+            .to_str()
+            .expect("Cannot create string")
+            .to_string();
+
+        let trace_data = get_trace_for_url(project_id, url);
+
+        if trace_data.is_none() {
+            return null();
+        }
+
+        return str_to_cstr(trace_data.unwrap());
+    }
+}
+
+#[wasm_bindgen]
 pub fn get_redirect(rule_str: String, url: String) -> Option<String> {
     if rule_str.is_empty() {
         return None;
@@ -132,7 +170,7 @@ pub fn get_redirect(rule_str: String, url: String) -> Option<String> {
     }
 
     let target = router::MainRouter::get_redirect(&rule_obj, url);
-    let redirect = api::Redirect {
+    let redirect = router::rule::Redirect {
         status: rule_obj.redirect_code,
         target,
     };

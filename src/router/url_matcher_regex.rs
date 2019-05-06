@@ -8,7 +8,7 @@ use url::Url;
 
 #[derive(Debug)]
 pub struct UrlMatcherItem {
-    regex: String,
+    pub regex: String,
     regex_obj: Option<Regex>,
     pub matcher: Box<UrlMatcher>,
 }
@@ -68,9 +68,19 @@ impl UrlMatcherRegex {
 impl url_matcher::UrlMatcher for UrlMatcherRegex {
     fn match_rule(&self, url: &Url) -> Vec<&rule::Rule> {
         let mut path = url.path().to_string();
+        let mut path_decoded = url::percent_encoding::percent_decode(url.path().as_bytes())
+            .decode_utf8()
+            .unwrap()
+            .to_string();
 
         if url.query().is_some() {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
+            path_decoded = [
+                path_decoded,
+                "?".to_string(),
+                url.query().unwrap().to_string(),
+            ]
+            .join("");
         }
 
         if self.empty.is_some() {
@@ -78,6 +88,12 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
 
             if empty_match.is_some() {
                 return empty_match.unwrap().match_rule(url);
+            }
+
+            let empty_match_decoded = self.empty.as_ref().unwrap().match_string(&path_decoded);
+
+            if empty_match_decoded.is_some() {
+                return empty_match_decoded.unwrap().match_rule(url);
             }
         }
 
@@ -89,13 +105,104 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
             if child_match.is_some() {
                 matched_rules.append(&mut child_match.unwrap().match_rule(url));
             }
+
+            let child_match_decoded = child.match_string(&path_decoded);
+
+            if child_match_decoded.is_some() {
+                matched_rules.append(&mut child_match_decoded.unwrap().match_rule(url));
+            }
         }
 
         return matched_rules;
     }
 
     fn trace(&self, url: &Url) -> Vec<rule::RouterTraceItem> {
+        let mut path = url.path().to_string();
+        let mut traces = Vec::new();
+        let mut path_decoded = url::percent_encoding::percent_decode(url.path().as_bytes())
+            .decode_utf8()
+            .unwrap()
+            .to_string();
 
+        if url.query().is_some() {
+            path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
+            path_decoded = [
+                path_decoded,
+                "?".to_string(),
+                url.query().unwrap().to_string(),
+            ]
+            .join("");
+        }
+
+        if self.empty.is_some() {
+            let empty_match = self.empty.as_ref().unwrap().match_string(&path);
+
+            if empty_match.is_some() {
+                traces.push(rule::RouterTraceItem {
+                    matches: true,
+                    prefix: self.empty.as_ref().unwrap().regex.clone(),
+                    group_matched: "".to_string(),
+                    rules_evaluated: Vec::new(),
+                    rules_matches: Vec::new(),
+                });
+
+                traces.append(empty_match.as_ref().unwrap().trace(url).as_mut());
+
+                return traces;
+            }
+
+            let empty_match_decoded = self.empty.as_ref().unwrap().match_string(&path_decoded);
+
+            if empty_match_decoded.is_some() {
+                traces.push(rule::RouterTraceItem {
+                    matches: true,
+                    prefix: self.empty.as_ref().unwrap().regex.clone(),
+                    group_matched: "".to_string(),
+                    rules_evaluated: Vec::new(),
+                    rules_matches: Vec::new(),
+                });
+
+                traces.append(empty_match_decoded.as_ref().unwrap().trace(url).as_mut());
+
+                return traces;
+            }
+        }
+
+        for child in &self.children {
+            let child_match = child.match_string(&path);
+            let child_match_decoded = child.match_string(&path_decoded);
+
+            if child_match.is_some() {
+                traces.push(rule::RouterTraceItem {
+                    matches: true,
+                    prefix: child.regex.clone(),
+                    group_matched: "".to_string(),
+                    rules_evaluated: Vec::new(),
+                    rules_matches: Vec::new(),
+                });
+
+                traces.append(child_match.unwrap().trace(url).as_mut());
+            } else if child_match_decoded.is_some() {
+                traces.push(rule::RouterTraceItem {
+                    matches: true,
+                    prefix: child.regex.clone(),
+                    group_matched: "".to_string(),
+                    rules_evaluated: Vec::new(),
+                    rules_matches: Vec::new(),
+                });
+                traces.append(child_match_decoded.unwrap().trace(url).as_mut());
+            } else {
+                traces.push(rule::RouterTraceItem {
+                    matches: false,
+                    prefix: child.regex.clone(),
+                    group_matched: "".to_string(),
+                    rules_evaluated: Vec::new(),
+                    rules_matches: Vec::new(),
+                });
+            }
+        }
+
+        return traces;
     }
 
     fn get_rules(&self) -> Vec<&rule::Rule> {

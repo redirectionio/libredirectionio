@@ -2,7 +2,6 @@ use crate::router::rule;
 use crate::router::url_matcher;
 use url::percent_encoding::percent_decode;
 use url::Url;
-use crate::router::url_matcher::UrlMatcher;
 
 #[derive(Debug)]
 pub struct UrlMatcherRules {
@@ -45,16 +44,19 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
 
     fn trace(&self, url: &Url) -> Vec<rule::RouterTraceItem> {
         let rules = self.match_rule(url);
+        let mut rules_matched = Vec::new();
 
-        return vec![
-            rule::RouterTraceItem {
-                matches: rules.len() > 0,
-                group_matched: "".to_string(),
-                prefix: "".to_string(),
-                rules_evaluated: self.rules.clone(),
-                rules_matches: *rules.clone(),
-            }
-        ];
+        for rule in rules {
+            rules_matched.push(rule.clone());
+        }
+
+        return vec![rule::RouterTraceItem {
+            matches: rules_matched.len() > 0,
+            group_matched: "".to_string(),
+            prefix: "".to_string(),
+            rules_evaluated: self.rules.clone(),
+            rules_matches: rules_matched,
+        }];
     }
 
     fn get_rules(&self) -> Vec<&rule::Rule> {

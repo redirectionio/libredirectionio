@@ -66,4 +66,17 @@ impl router::Router for RouterHost {
 
         return self.any_host_router.match_rule(url);
     }
+
+    fn trace(&self, url: Url) -> Vec<router::rule::RouterTraceItem> {
+        if url.host().is_some() {
+            let host_str = url.host().unwrap().to_string();
+            let host_router = self.hosts_routers.get(host_str.as_str());
+
+            if host_router.is_some() {
+                return host_router.unwrap().trace(url);
+            }
+        }
+
+        return self.any_host_router.trace(url);
+    }
 }

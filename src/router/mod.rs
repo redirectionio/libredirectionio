@@ -11,11 +11,13 @@ mod url_matcher_rules;
 use crate::router::router_scheme::RouterScheme;
 use regex::Regex;
 use std::collections::btree_map::BTreeMap;
+use std::time;
 use url;
 use url::Url;
 
 pub trait Router {
     fn match_rule(&self, url: Url) -> Vec<&rule::Rule>;
+    fn trace(&self, url: Url) -> Vec<rule::RouterTraceItem>;
 }
 
 #[derive(Debug)]
@@ -59,9 +61,6 @@ impl MainRouter {
                 let mut url_obj = parser
                     .parse(url_str_decoded.as_str())
                     .expect("cannot parse url");
-
-                url_obj.set_scheme("").expect("cannot set scheme");
-                url_obj.set_host(None).expect("cannot set host");
 
                 return MainRouter::sort_query(url_obj);
             }
@@ -110,6 +109,45 @@ impl MainRouter {
         rules.sort_by(|a, b| a.rank.cmp(&b.rank));
 
         return Some(*rules.first().unwrap());
+    }
+
+    pub fn trace(&self, url_str: String) -> rule::RouterTrace {
+        let url_object = MainRouter::parse_url(url_str.clone());
+        let traces = self.router_scheme.trace(url_object.clone());
+        let start = time::Instant::now();
+        let mut matched_rules = self.router_scheme.match_rule(url_object.clone());
+        let elapsed = start.elapsed().as_millis();
+        let mut final_rule = None;
+
+        if matched_rules.len() > 0 {
+            matched_rules.sort_by(|a, b| a.rank.cmp(&b.rank));
+            final_rule = Some((*matched_rules.first().unwrap()).clone());
+        }
+
+        let mut rules = Vec::new();
+
+        for matched_rule in matched_rules {
+            rules.push(matched_rule.clone());
+        }
+
+        let mut redirect = None;
+
+        if final_rule.is_some() {
+            let target = MainRouter::get_redirect(final_rule.as_ref().unwrap(), url_str.clone());
+
+            redirect = Some(rule::Redirect {
+                status: final_rule.as_ref().unwrap().redirect_code,
+                target,
+            });
+        }
+
+        return rule::RouterTrace {
+            final_rule,
+            traces,
+            rules,
+            response: redirect,
+            duration: elapsed,
+        };
     }
 
     pub fn get_redirect(rule_to_redirect: &rule::Rule, url_str: String) -> String {

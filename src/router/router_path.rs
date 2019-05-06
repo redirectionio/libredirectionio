@@ -16,6 +16,10 @@ impl router::Router for RouterPath {
     fn match_rule(&self, url: Url) -> Vec<&router::rule::Rule> {
         return self.matcher.match_rule(&url);
     }
+
+    fn trace(&self, url: Url) -> Vec<router::rule::RouterTraceItem> {
+        return self.matcher.trace(&url);
+    }
 }
 
 impl RouterPath {

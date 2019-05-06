@@ -54,4 +54,18 @@ impl router::Router for RouterScheme {
 
         return rules_found;
     }
+
+    fn trace(&self, url: Url) -> Vec<router::rule::RouterTraceItem> {
+        let mut traces = self.any_scheme_router.trace(url.clone());
+
+        if url.scheme() == "http" {
+            traces.append(self.http_router.trace(url.clone()).borrow_mut());
+        }
+
+        if url.scheme() == "https" {
+            traces.append(self.https_router.trace(url.clone()).borrow_mut());
+        }
+
+        return traces;
+    }
 }
