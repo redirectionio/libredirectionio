@@ -10,7 +10,7 @@ default = ["console_error_panic_hook"]
 
 [lib]
 name = "redirectionio"
-crate-type = ["staticlib"]
+crate-type = ["staticlib", "cdylib"]
 
 [[bin]]
 name = "binary"

@@ -11,7 +11,9 @@ mod utils;
 
 use cfg_if::cfg_if;
 use std::collections::HashMap;
+#[cfg(not(target_arch = "wasm32"))]
 use std::intrinsics::transmute;
+#[cfg(not(target_arch = "wasm32"))]
 use std::ptr::null;
 use std::sync::Mutex;
 use uuid::Uuid;
@@ -48,6 +50,7 @@ pub fn update_rules_for_router(project_id: String, rules_data: String, cache: bo
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_update_rules_for_router(
     project_id_cstr: *const libc::c_char,
     rules_data_cstr: *const libc::c_char,
@@ -88,6 +91,7 @@ pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_get_rule_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
@@ -127,6 +131,7 @@ pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_get_trace_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
@@ -187,6 +192,7 @@ pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_get_redirect(
     rule_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
@@ -240,6 +246,7 @@ pub fn header_filter(rule_str: String, headers_str: String) -> String {
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_header_filter(
     rule_cstr: *const libc::c_char,
     headers_cstr: *const libc::c_char,
@@ -287,6 +294,7 @@ pub fn create_body_filter(rule_str: String) -> Option<String> {
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_create_body_filter(
     rule_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
@@ -324,6 +332,7 @@ pub fn body_filter(filter_id: String, filter_body: String) -> Option<String> {
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_body_filter(
     filter_id_cstr: *const libc::c_char,
     filter_body_cstr: *const libc::c_char,
@@ -349,7 +358,7 @@ pub extern "C" fn redirectionio_body_filter(
 }
 
 #[wasm_bindgen]
-pub extern "C" fn body_filter_end(filter_id: String) -> Option<String> {
+pub fn body_filter_end(filter_id: String) -> Option<String> {
     let has_filter: Option<filter::filter_body::FilterBodyAction> =
         FILTERS.lock().unwrap().remove(filter_id.as_str());
 
@@ -364,6 +373,7 @@ pub extern "C" fn body_filter_end(filter_id: String) -> Option<String> {
 }
 
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_body_filter_end(
     filter_id_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
@@ -383,7 +393,8 @@ pub extern "C" fn redirectionio_body_filter_end(
     }
 }
 
-pub fn str_to_cstr(str: String) -> *const libc::c_char {
+#[cfg(not(target_arch = "wasm32"))]
+fn str_to_cstr(str: String) -> *const libc::c_char {
     unsafe {
         let data: *const std::ffi::CString;
         let boxed = Box::new(std::ffi::CString::new(str.as_bytes()).expect("Cannot create string"));
