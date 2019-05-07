@@ -152,7 +152,7 @@ pub extern "C" fn redirectionio_get_trace_for_url(
 }
 
 #[wasm_bindgen]
-pub fn get_redirect(rule_str: String, url: String) -> Option<String> {
+pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option<String> {
     if rule_str.is_empty() {
         return None;
     }
@@ -165,7 +165,15 @@ pub fn get_redirect(rule_str: String, url: String) -> Option<String> {
 
     let rule_obj = rule.unwrap();
 
+    if rule_obj.id.is_empty() {
+        return None;
+    }
+
     if rule_obj.redirect_code == 0 {
+        return None;
+    }
+
+    if rule_obj.match_on_response_status.is_some() && rule_obj.match_on_response_status.unwrap() != response_code {
         return None;
     }
 
@@ -182,6 +190,7 @@ pub fn get_redirect(rule_str: String, url: String) -> Option<String> {
 pub extern "C" fn redirectionio_get_redirect(
     rule_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
+    response_code: libc::uint16_t,
 ) -> *const libc::c_char {
     unsafe {
         let rule = std::ffi::CStr::from_ptr(rule_cstr)
@@ -193,7 +202,7 @@ pub extern "C" fn redirectionio_get_redirect(
             .expect("Cannot create string")
             .to_string();
 
-        let redirect = get_redirect(rule, url);
+        let redirect = get_redirect(rule, url, response_code);
 
         if redirect.is_none() {
             return null();

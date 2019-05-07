@@ -53,7 +53,7 @@ pub struct Rule {
     pub redirect_code: u16,
     pub rank: u16,
     pub markers: Option<Vec<Marker>>,
-    match_on_response_status: Option<u16>,
+    pub match_on_response_status: Option<u16>,
     pub body_filters: Option<Vec<BodyFilter>>,
     pub header_filters: Option<Vec<HeaderFilter>>,
     #[serde(skip)]
