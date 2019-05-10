@@ -268,7 +268,7 @@ pub extern "C" fn redirectionio_header_filter(
 }
 
 #[wasm_bindgen]
-pub fn create_body_filter(rule_str: String) -> Option<String> {
+pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String> {
     let rule = string_to_rule(rule_str);
 
     if rule.is_none() {
@@ -283,7 +283,11 @@ pub fn create_body_filter(rule_str: String) -> Option<String> {
         return None;
     }
 
-    let uuid = Uuid::new_v4().to_string();
+    let mut uuid = filter_id;
+
+    if uuid.is_empty() {
+        uuid = Uuid::new_v4().to_string();
+    }
 
     FILTERS
         .lock()
@@ -304,7 +308,7 @@ pub extern "C" fn redirectionio_create_body_filter(
             .expect("Cannot create string")
             .to_string();
 
-        let filter_id = create_body_filter(rule);
+        let filter_id = create_body_filter(rule, "".to_string());
 
         if filter_id.is_none() {
             return null();
