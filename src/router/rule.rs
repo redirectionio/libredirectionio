@@ -135,10 +135,11 @@ impl Rule {
             }
         }
 
+        let regex_matching = ["^", regex_with_group.as_str(), "$"].join("");
+        let regex_builder = RegexBuilder::new(regex_matching.as_str());
+        let regex_obj = regex_builder.build()?;
+
         if cache {
-            let regex_matching = ["^", regex_with_group.as_str(), "$"].join("");
-            let regex_builder = RegexBuilder::new(regex_matching.as_str());
-            let regex_obj = regex_builder.build()?;
             self.regex_obj = Some(regex_obj);
         }
 

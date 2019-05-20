@@ -38,8 +38,8 @@ impl MainRouter {
 
             if compile_result.is_err() {
                 error!(
-                    "Rule compilation failed for {:?}: {}",
-                    rule,
+                    "Skipping rule {}, compilation failed: {}",
+                    rule.id,
                     compile_result.err().unwrap()
                 );
             } else {
