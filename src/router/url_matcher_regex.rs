@@ -20,38 +20,42 @@ pub struct UrlMatcherRegex {
 }
 
 impl UrlMatcherItem {
-    pub fn new(regex_str: String, matcher: Box<UrlMatcher>, cache: bool) -> UrlMatcherItem {
+    pub fn new(
+        regex_str: String,
+        matcher: Box<UrlMatcher>,
+        cache: bool,
+    ) -> Result<UrlMatcherItem, regex::Error> {
         let mut regex_obj = None;
 
         if cache {
-            regex_obj = Some(Regex::new(regex_str.as_str()).expect("Cannot compile regex"));
+            regex_obj = Some(Regex::new(regex_str.as_str())?);
         }
 
-        return UrlMatcherItem {
+        return Ok(UrlMatcherItem {
             regex: regex_str,
             regex_obj,
             matcher,
-        };
+        });
     }
 
-    fn match_string(&self, value: &String) -> Option<&Box<UrlMatcher>> {
+    fn match_string(&self, value: &String) -> Result<Option<&Box<UrlMatcher>>, regex::Error> {
         if self.regex_obj.is_some() {
             let regex = self.regex_obj.as_ref().unwrap();
 
             if regex.is_match(value) {
-                return Some(&self.matcher);
+                return Ok(Some(&self.matcher));
             }
 
-            return None;
+            return Ok(None);
         }
 
-        let regex = Regex::new(self.regex.as_str()).expect("Cannot compile regex");
+        let regex = Regex::new(self.regex.as_str())?;
 
         if regex.is_match(value) {
-            return Some(&self.matcher);
+            return Ok(Some(&self.matcher));
         }
 
-        return None;
+        return Ok(None);
     }
 
     fn get_rules(&self) -> Vec<&rule::Rule> {
@@ -66,7 +70,7 @@ impl UrlMatcherRegex {
 }
 
 impl url_matcher::UrlMatcher for UrlMatcherRegex {
-    fn match_rule(&self, url: &Url) -> Vec<&rule::Rule> {
+    fn match_rule(&self, url: &Url) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
         let mut path = url.path().to_string();
         let mut path_decoded = url::percent_encoding::percent_decode(url.path().as_bytes())
             .decode_utf8()
@@ -84,13 +88,13 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
         }
 
         if self.empty.is_some() {
-            let empty_match = self.empty.as_ref().unwrap().match_string(&path);
+            let empty_match = self.empty.as_ref().unwrap().match_string(&path)?;
 
             if empty_match.is_some() {
                 return empty_match.unwrap().match_rule(url);
             }
 
-            let empty_match_decoded = self.empty.as_ref().unwrap().match_string(&path_decoded);
+            let empty_match_decoded = self.empty.as_ref().unwrap().match_string(&path_decoded)?;
 
             if empty_match_decoded.is_some() {
                 return empty_match_decoded.unwrap().match_rule(url);
@@ -100,23 +104,23 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
         let mut matched_rules = Vec::new();
 
         for child in &self.children {
-            let child_match = child.match_string(&path);
+            let child_match = child.match_string(&path)?;
 
             if child_match.is_some() {
-                matched_rules.append(&mut child_match.unwrap().match_rule(url));
+                matched_rules.append(&mut child_match.unwrap().match_rule(url)?);
             }
 
-            let child_match_decoded = child.match_string(&path_decoded);
+            let child_match_decoded = child.match_string(&path_decoded)?;
 
             if child_match_decoded.is_some() {
-                matched_rules.append(&mut child_match_decoded.unwrap().match_rule(url));
+                matched_rules.append(&mut child_match_decoded.unwrap().match_rule(url)?);
             }
         }
 
-        return matched_rules;
+        return Ok(matched_rules);
     }
 
-    fn trace(&self, url: &Url) -> Vec<rule::RouterTraceItem> {
+    fn trace(&self, url: &Url) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>> {
         let mut path = url.path().to_string();
         let mut traces = Vec::new();
         let mut path_decoded = url::percent_encoding::percent_decode(url.path().as_bytes())
@@ -135,7 +139,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
         }
 
         if self.empty.is_some() {
-            let empty_match = self.empty.as_ref().unwrap().match_string(&path);
+            let empty_match = self.empty.as_ref().unwrap().match_string(&path)?;
 
             if empty_match.is_some() {
                 traces.push(rule::RouterTraceItem {
@@ -145,12 +149,12 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                     rules_matches: Vec::new(),
                 });
 
-                traces.append(empty_match.as_ref().unwrap().trace(url).as_mut());
+                traces.append(empty_match.as_ref().unwrap().trace(url)?.as_mut());
 
-                return traces;
+                return Ok(traces);
             }
 
-            let empty_match_decoded = self.empty.as_ref().unwrap().match_string(&path_decoded);
+            let empty_match_decoded = self.empty.as_ref().unwrap().match_string(&path_decoded)?;
 
             if empty_match_decoded.is_some() {
                 traces.push(rule::RouterTraceItem {
@@ -160,15 +164,15 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                     rules_matches: Vec::new(),
                 });
 
-                traces.append(empty_match_decoded.as_ref().unwrap().trace(url).as_mut());
+                traces.append(empty_match_decoded.as_ref().unwrap().trace(url)?.as_mut());
 
-                return traces;
+                return Ok(traces);
             }
         }
 
         for child in &self.children {
-            let child_match = child.match_string(&path);
-            let child_match_decoded = child.match_string(&path_decoded);
+            let child_match = child.match_string(&path)?;
+            let child_match_decoded = child.match_string(&path_decoded)?;
 
             if child_match.is_some() {
                 traces.push(rule::RouterTraceItem {
@@ -178,7 +182,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                     rules_matches: Vec::new(),
                 });
 
-                traces.append(child_match.unwrap().trace(url).as_mut());
+                traces.append(child_match.unwrap().trace(url)?.as_mut());
             } else if child_match_decoded.is_some() {
                 traces.push(rule::RouterTraceItem {
                     matches: true,
@@ -186,7 +190,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                     rules_evaluated: Vec::new(),
                     rules_matches: Vec::new(),
                 });
-                traces.append(child_match_decoded.unwrap().trace(url).as_mut());
+                traces.append(child_match_decoded.unwrap().trace(url)?.as_mut());
             } else {
                 traces.push(rule::RouterTraceItem {
                     matches: false,
@@ -197,7 +201,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
             }
         }
 
-        return traces;
+        return Ok(traces);
     }
 
     fn get_rules(&self) -> Vec<&rule::Rule> {

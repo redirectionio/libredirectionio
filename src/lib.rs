@@ -3,6 +3,9 @@ extern crate wasm_bindgen;
 #[macro_use]
 extern crate lazy_static;
 extern crate libc;
+#[macro_use]
+extern crate log;
+extern crate stderrlog;
 
 mod filter;
 pub mod html;
@@ -16,6 +19,7 @@ use std::intrinsics::transmute;
 #[cfg(not(target_arch = "wasm32"))]
 use std::ptr::null;
 use std::sync::Mutex;
+use std::sync::{Once, ONCE_INIT};
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
@@ -29,6 +33,20 @@ cfg_if! {
     }
 }
 
+static INIT: Once = ONCE_INIT;
+
+cfg_if! {
+    if #[cfg(target_arch = "wasm32")] {
+        fn do_init_log() {
+            console_log::init_with_level(log::Level::Trace).expect("error initializing log");
+        }
+    } else {
+        fn do_init_log() {
+            stderrlog::new().module(module_path!()).init().unwrap();
+        }
+    }
+}
+
 lazy_static! {
     static ref PROJECT_ROUTERS: Mutex<HashMap<String, router::MainRouter>> =
         Mutex::new(HashMap::new());
@@ -36,15 +54,44 @@ lazy_static! {
         Mutex::new(HashMap::new());
 }
 
+macro_rules! cstr_to_str {
+    ($cstr:expr, $str:ident) => {
+        let result = std::ffi::CStr::from_ptr($cstr).to_str();
+
+        if result.is_err() {
+            error!("Unable to create string {}", result.err().unwrap());
+
+            return null();
+        }
+
+        let $str = result.unwrap().to_string();
+    };
+}
+
+fn init() {
+    INIT.call_once(|| do_init_log());
+}
+
 #[wasm_bindgen]
 pub fn update_rules_for_router(project_id: String, rules_data: String, cache: bool) -> String {
+    init();
+
     utils::set_panic_hook();
-    let main_router = router::MainRouter::new_from_data(rules_data, cache);
+    let main_router_result = router::MainRouter::new_from_data(rules_data, cache);
+
+    if main_router_result.is_err() {
+        error!(
+            "Cannot create router: {}",
+            main_router_result.err().unwrap()
+        );
+
+        return project_id;
+    }
 
     PROJECT_ROUTERS
         .lock()
         .unwrap()
-        .insert(project_id.clone(), main_router);
+        .insert(project_id.clone(), main_router_result.unwrap());
 
     return project_id;
 }
@@ -56,15 +103,11 @@ pub extern "C" fn redirectionio_update_rules_for_router(
     rules_data_cstr: *const libc::c_char,
     cache: libc::c_uint,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let project_id = std::ffi::CStr::from_ptr(project_id_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
-        let rules_data = std::ffi::CStr::from_ptr(rules_data_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(project_id_cstr, project_id);
+        cstr_to_str!(rules_data_cstr, rules_data);
 
         let project_id_created = update_rules_for_router(project_id, rules_data, cache != 0);
 
@@ -74,6 +117,8 @@ pub extern "C" fn redirectionio_update_rules_for_router(
 
 #[wasm_bindgen]
 pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
+    init();
+
     let lock = PROJECT_ROUTERS.lock();
     let router: Option<&router::MainRouter> = lock.as_ref().unwrap().get(project_id.as_str());
 
@@ -81,13 +126,25 @@ pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
         return None;
     }
 
-    let rule = router.unwrap().match_rule(url);
+    let rule_result = router.unwrap().match_rule(url.clone());
+
+    if rule_result.is_err() {
+        error!(
+            "Cannot match rule for url {}: {}",
+            url,
+            rule_result.err().unwrap()
+        );
+
+        return None;
+    }
+
+    let rule = rule_result.unwrap();
 
     if rule.is_none() {
         return None;
     }
 
-    Some(rule_to_string(rule.unwrap()))
+    rule_to_string(rule.unwrap())
 }
 
 #[no_mangle]
@@ -96,15 +153,11 @@ pub extern "C" fn redirectionio_get_rule_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let project_id = std::ffi::CStr::from_ptr(project_id_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
-        let url = std::ffi::CStr::from_ptr(url_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(project_id_cstr, project_id);
+        cstr_to_str!(url_cstr, url);
 
         let rule_data = get_rule_for_url(project_id, url);
 
@@ -118,6 +171,8 @@ pub extern "C" fn redirectionio_get_rule_for_url(
 
 #[wasm_bindgen]
 pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
+    init();
+
     let lock = PROJECT_ROUTERS.lock();
     let router: Option<&router::MainRouter> = lock.as_ref().unwrap().get(project_id.as_str());
 
@@ -125,9 +180,28 @@ pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
         return None;
     }
 
-    let trace = router.unwrap().trace(url);
+    let trace_result = router.unwrap().trace(url.clone());
 
-    return Some(serde_json::to_string(&trace).expect("Cannot serialize trace"));
+    if trace_result.is_err() {
+        error!("Cannot trace url {}: {}", url, trace_result.err().unwrap());
+
+        return None;
+    }
+
+    let trace = trace_result.unwrap();
+    let trace_str_result = serde_json::to_string(&trace);
+
+    if trace_str_result.is_err() {
+        error!(
+            "Cannot serialize trace {:?}: {}",
+            trace,
+            trace_str_result.err().unwrap()
+        );
+
+        return None;
+    }
+
+    return Some(trace_str_result.unwrap());
 }
 
 #[no_mangle]
@@ -136,15 +210,11 @@ pub extern "C" fn redirectionio_get_trace_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let project_id = std::ffi::CStr::from_ptr(project_id_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
-        let url = std::ffi::CStr::from_ptr(url_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(project_id_cstr, project_id);
+        cstr_to_str!(url_cstr, url);
 
         let trace_data = get_trace_for_url(project_id, url);
 
@@ -158,6 +228,8 @@ pub extern "C" fn redirectionio_get_trace_for_url(
 
 #[wasm_bindgen]
 pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option<String> {
+    init();
+
     if rule_str.is_empty() {
         return None;
     }
@@ -178,17 +250,44 @@ pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option
         return None;
     }
 
-    if rule_obj.match_on_response_status.is_some() && rule_obj.match_on_response_status.unwrap() != response_code {
+    if rule_obj.match_on_response_status.is_some()
+        && rule_obj.match_on_response_status.unwrap() != response_code
+    {
         return None;
     }
 
-    let target = router::MainRouter::get_redirect(&rule_obj, url);
+    let target_result = router::MainRouter::get_redirect(&rule_obj, url.clone());
+
+    if target_result.is_err() {
+        error!(
+            "Cannot create target for rule {:?} on url {}: {}",
+            rule_obj,
+            url,
+            target_result.err().unwrap()
+        );
+
+        return None;
+    }
+
+    let target = target_result.unwrap();
     let redirect = router::rule::Redirect {
         status: rule_obj.redirect_code,
         target,
     };
 
-    return Some(serde_json::to_string(&redirect).expect("Cannot serialize redirect"));
+    let redirect_str_result = serde_json::to_string(&redirect);
+
+    if redirect_str_result.is_err() {
+        error!(
+            "Cannot serialize redirect {:?}: {}",
+            redirect,
+            redirect_str_result.err().unwrap()
+        );
+
+        return None;
+    }
+
+    return Some(redirect_str_result.unwrap());
 }
 
 #[no_mangle]
@@ -198,15 +297,11 @@ pub extern "C" fn redirectionio_get_redirect(
     url_cstr: *const libc::c_char,
     response_code: libc::uint16_t,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let rule = std::ffi::CStr::from_ptr(rule_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
-        let url = std::ffi::CStr::from_ptr(url_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(rule_cstr, rule);
+        cstr_to_str!(url_cstr, url);
 
         let redirect = get_redirect(rule, url, response_code);
 
@@ -220,6 +315,8 @@ pub extern "C" fn redirectionio_get_redirect(
 
 #[wasm_bindgen]
 pub fn header_filter(rule_str: String, headers_str: String) -> String {
+    init();
+
     let rule = string_to_rule(rule_str);
 
     if rule.is_none() {
@@ -242,7 +339,19 @@ pub fn header_filter(rule_str: String, headers_str: String) -> String {
 
     let new_headers = filter.unwrap().filter(headers.unwrap());
 
-    return serde_json::to_string(&new_headers).expect("Cannot serialize headers");
+    let new_headers_str_result = serde_json::to_string(&new_headers);
+
+    if new_headers_str_result.is_err() {
+        error!(
+            "Cannot serializer new headers {:?}: {}",
+            new_headers,
+            new_headers_str_result.err().unwrap()
+        );
+
+        return headers_str;
+    }
+
+    return new_headers_str_result.unwrap();
 }
 
 #[no_mangle]
@@ -251,15 +360,11 @@ pub extern "C" fn redirectionio_header_filter(
     rule_cstr: *const libc::c_char,
     headers_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let rule = std::ffi::CStr::from_ptr(rule_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
-        let headers = std::ffi::CStr::from_ptr(headers_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(rule_cstr, rule);
+        cstr_to_str!(headers_cstr, headers);
 
         let new_headers_str = header_filter(rule, headers);
 
@@ -269,6 +374,8 @@ pub extern "C" fn redirectionio_header_filter(
 
 #[wasm_bindgen]
 pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String> {
+    init();
+
     let rule = string_to_rule(rule_str);
 
     if rule.is_none() {
@@ -302,11 +409,10 @@ pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String>
 pub extern "C" fn redirectionio_create_body_filter(
     rule_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let rule = std::ffi::CStr::from_ptr(rule_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(rule_cstr, rule);
 
         let filter_id = create_body_filter(rule, "".to_string());
 
@@ -320,6 +426,8 @@ pub extern "C" fn redirectionio_create_body_filter(
 
 #[wasm_bindgen]
 pub fn body_filter(filter_id: String, filter_body: String) -> Option<String> {
+    init();
+
     let has_filter: Option<filter::filter_body::FilterBodyAction> =
         FILTERS.lock().unwrap().remove(filter_id.as_str());
 
@@ -341,15 +449,11 @@ pub extern "C" fn redirectionio_body_filter(
     filter_id_cstr: *const libc::c_char,
     filter_body_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let filter_id = std::ffi::CStr::from_ptr(filter_id_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
-        let filter_body = std::ffi::CStr::from_ptr(filter_body_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(filter_id_cstr, filter_id);
+        cstr_to_str!(filter_body_cstr, filter_body);
 
         let new_data = body_filter(filter_id, filter_body);
 
@@ -363,6 +467,8 @@ pub extern "C" fn redirectionio_body_filter(
 
 #[wasm_bindgen]
 pub fn body_filter_end(filter_id: String) -> Option<String> {
+    init();
+
     let has_filter: Option<filter::filter_body::FilterBodyAction> =
         FILTERS.lock().unwrap().remove(filter_id.as_str());
 
@@ -381,11 +487,10 @@ pub fn body_filter_end(filter_id: String) -> Option<String> {
 pub extern "C" fn redirectionio_body_filter_end(
     filter_id_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
+    init();
+
     unsafe {
-        let filter_id = std::ffi::CStr::from_ptr(filter_id_cstr)
-            .to_str()
-            .expect("Cannot create string")
-            .to_string();
+        cstr_to_str!(filter_id_cstr, filter_id);
 
         let new_data = body_filter_end(filter_id);
 
@@ -400,28 +505,71 @@ pub extern "C" fn redirectionio_body_filter_end(
 #[cfg(not(target_arch = "wasm32"))]
 fn str_to_cstr(str: String) -> *const libc::c_char {
     unsafe {
-        let data: *const std::ffi::CString;
-        let boxed = Box::new(std::ffi::CString::new(str.as_bytes()).expect("Cannot create string"));
+        let string_result = std::ffi::CString::new(str.as_bytes());
 
-        data = transmute(boxed);
+        if string_result.is_err() {
+            error!(
+                "Cannot create c string {}: {}",
+                str,
+                string_result.err().unwrap()
+            );
+
+            return null();
+        }
+
+        let data: *const std::ffi::CString = transmute(Box::new(string_result.unwrap()));
 
         return (&*data).as_ptr();
     };
 }
 
-fn rule_to_string(rule_obj: &router::rule::Rule) -> String {
-    serde_json::to_string(rule_obj).expect("Cannot serialize rule")
+fn rule_to_string(rule_obj: &router::rule::Rule) -> Option<String> {
+    let rule_result = serde_json::to_string(rule_obj);
+
+    if rule_result.is_err() {
+        error!(
+            "Unable to create string from rule {:?}: {}",
+            rule_obj,
+            rule_result.err().unwrap()
+        );
+
+        return None;
+    }
+
+    return Some(rule_result.unwrap());
 }
 
 fn string_to_rule(rule_str: String) -> Option<router::rule::Rule> {
-    let rule_option: Option<router::rule::Rule> = serde_json::from_str(&rule_str).unwrap();
+    let rule_result = serde_json::from_str(&rule_str);
+
+    if rule_result.is_err() {
+        error!(
+            "Unable to create rule from string {}: {}",
+            rule_str,
+            rule_result.err().unwrap()
+        );
+
+        return None;
+    }
+
+    let rule_option: Option<router::rule::Rule> = rule_result.unwrap();
 
     if rule_option.is_none() {
         return None;
     }
 
     let mut rule = rule_option.unwrap();
-    rule.compile(false);
+    let compile_result = rule.compile(false);
+
+    if compile_result.is_err() {
+        error!(
+            "Unable to compile rule {:?}: {}",
+            rule,
+            compile_result.err().unwrap()
+        );
+
+        return None;
+    }
 
     return Some(rule);
 }

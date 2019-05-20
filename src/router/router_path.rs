@@ -13,23 +13,26 @@ pub struct RouterPath {
 }
 
 impl router::Router for RouterPath {
-    fn match_rule(&self, url: Url) -> Vec<&router::rule::Rule> {
+    fn match_rule(&self, url: Url) -> Result<Vec<&router::rule::Rule>, Box<dyn std::error::Error>> {
         return self.matcher.match_rule(&url);
     }
 
-    fn trace(&self, url: Url) -> Vec<router::rule::RouterTraceItem> {
+    fn trace(
+        &self,
+        url: Url,
+    ) -> Result<Vec<router::rule::RouterTraceItem>, Box<dyn std::error::Error>> {
         return self.matcher.trace(&url);
     }
 }
 
 impl RouterPath {
-    pub fn new(rules: Vec<router::rule::Rule>, cache: bool) -> RouterPath {
+    pub fn new(rules: Vec<router::rule::Rule>, cache: bool) -> Result<RouterPath, regex::Error> {
         let rule_map = create_prefixed_map_rules(rules, "".to_string());
-        let matcher_generic = build_matcher_tree("".to_string(), rule_map, cache);
+        let matcher_generic = build_matcher_tree("".to_string(), rule_map, cache)?;
 
-        return RouterPath {
+        return Ok(RouterPath {
             matcher: matcher_generic,
-        };
+        });
     }
 }
 
@@ -96,15 +99,15 @@ fn build_matcher_tree(
     base_prefix: String,
     mut rule_map: HashMap<String, Vec<router::rule::Rule>>,
     cache: bool,
-) -> Box<router::url_matcher::UrlMatcher> {
+) -> Result<Box<router::url_matcher::UrlMatcher>, regex::Error> {
     if rule_map.is_empty() {
-        return Box::new(UrlMatcherRules::new(Vec::new()));
+        return Ok(Box::new(UrlMatcherRules::new(Vec::new())));
     }
 
     if rule_map.len() == 1 {
-        return Box::new(UrlMatcherRules::new(
+        return Ok(Box::new(UrlMatcherRules::new(
             rule_map.values().next().unwrap().to_vec(),
-        ));
+        )));
     }
 
     let mut children = Vec::new();
@@ -123,9 +126,9 @@ fn build_matcher_tree(
                 ["^", base_prefix.as_str(), prefix.as_str()]
                     .join("")
                     .to_string(),
-                build_matcher_tree(new_base_prefix, prefixed_map_rules, cache),
+                build_matcher_tree(new_base_prefix, prefixed_map_rules, cache)?,
                 cache,
-            ));
+            )?);
         }
 
         rule_map = new_rule_map;
@@ -138,10 +141,10 @@ fn build_matcher_tree(
             ["^", base_prefix.as_str(), "$"].join("").to_string(),
             Box::new(UrlMatcherRules::new(empty)),
             cache,
-        ));
+        )?);
     }
 
-    return Box::new(UrlMatcherRegex::new(children, empty_matcher));
+    return Ok(Box::new(UrlMatcherRegex::new(children, empty_matcher)));
 }
 
 fn common_prefix(

@@ -312,8 +312,6 @@ impl<'t> Tokenizer<'t> {
                 self.data.start = self.raw.end;
                 self.data.end = self.raw.end;
 
-                s = convert_next_lines(s);
-
                 if self.convert_null || self.token == TextToken && s.contains('\x00') {
                     s = s.replace('\x00', "\u{fffd}".to_string().as_str());
                 }
@@ -363,11 +361,9 @@ impl<'t> Tokenizer<'t> {
                     let key = str::from_utf8(&self.buffer[attr[0].start..attr[0].end])
                         .expect("Cannot create utf8 string")
                         .to_string();
-                    let mut val = str::from_utf8(&self.buffer[attr[1].start..attr[1].end])
+                    let val = str::from_utf8(&self.buffer[attr[1].start..attr[1].end])
                         .expect("Cannot create utf8 string")
                         .to_string();
-
-                    val = convert_next_lines(val);
 
                     return (
                         Some(key.to_lowercase()),
@@ -1161,7 +1157,7 @@ impl<'t> Tokenizer<'t> {
 
         if raw {
             self.raw_tag = str::from_utf8(&self.buffer[self.data.start..self.data.end])
-                .expect("")
+                .expect("Cannot create utf8 string")
                 .to_string()
                 .clone()
                 .to_lowercase();
@@ -1353,45 +1349,6 @@ impl<'t> Tokenizer<'t> {
             }
         }
     }
-}
-
-// convertNewlines converts "\r" and "\r\n" in s to "\n".
-// The conversion happens in place, but the resulting slice may be shorter.
-fn convert_next_lines(s: String) -> String {
-    let bytes = s.as_bytes();
-    let mut new_bytes = Vec::new();
-
-    for i in 0..bytes.len() {
-        let c = bytes[i];
-
-        if c != '\r' as u8 {
-            new_bytes.push(c);
-
-            continue;
-        }
-
-        let mut src = i + 1;
-
-        if src >= bytes.len() || bytes[src] as char != '\n' {
-            new_bytes.push('\n' as u8);
-        }
-
-        while src < bytes.len() {
-            if bytes[src] == '\r' as u8 {
-                if src + 1 < bytes.len() && bytes[src + 1] == '\n' as u8 {
-                    src += 1;
-                }
-
-                new_bytes.push('\n' as u8);
-            } else {
-                new_bytes.push(bytes[src]);
-            }
-        }
-    }
-
-    return str::from_utf8(new_bytes.as_slice())
-        .expect("Cannot create string")
-        .to_string();
 }
 
 #[cfg(test)]

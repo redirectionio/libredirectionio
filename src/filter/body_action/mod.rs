@@ -20,15 +20,28 @@ pub fn evaluate(data: String, expression: String) -> bool {
     let parse_result = parser::parse(data.as_str());
 
     if parse_result.is_err() {
+        error!("Cannot parse xml {}: {}", data, parse_result.err().unwrap());
+
         return false;
     }
 
-    let package = parse_result.expect("failed to parse XML");
+    let package = parse_result.unwrap();
     let document = package.as_document();
 
-    let value = evaluate_xpath(&document, expression.as_str()).expect("XPath evaluation failed");
+    let evaluate_result = evaluate_xpath(&document, expression.as_str());
 
-    return value.boolean();
+    if evaluate_result.is_err() {
+        error!(
+            "Cannot evaluate xpath expr {} on xml {}: {}",
+            expression,
+            data,
+            evaluate_result.err().unwrap()
+        );
+
+        return false;
+    }
+
+    return evaluate_result.unwrap().boolean();
 }
 
 pub fn create_body_action(filter: &rule::BodyFilter) -> Option<Box<BodyAction>> {

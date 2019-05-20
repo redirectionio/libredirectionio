@@ -16,8 +16,8 @@ use url;
 use url::Url;
 
 pub trait Router {
-    fn match_rule(&self, url: Url) -> Vec<&rule::Rule>;
-    fn trace(&self, url: Url) -> Vec<rule::RouterTraceItem>;
+    fn match_rule(&self, url: Url) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>>;
+    fn trace(&self, url: Url) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>>;
 }
 
 #[derive(Debug)]
@@ -26,47 +26,47 @@ pub struct MainRouter {
 }
 
 impl MainRouter {
-    pub fn new_from_data(data: String, cache: bool) -> MainRouter {
-        let rules: Vec<rule::Rule> =
-            serde_json::from_str(data.as_str()).expect("Cannot deserialize rules list");
+    pub fn new_from_data(
+        data: String,
+        cache: bool,
+    ) -> Result<MainRouter, Box<dyn std::error::Error>> {
+        let rules: Vec<rule::Rule> = serde_json::from_str(data.as_str())?;
         let mut storage = Vec::new();
 
         for mut rule in rules {
-            rule.compile(cache);
+            let compile_result = rule.compile(cache);
 
-            storage.push(rule);
+            if compile_result.is_err() {
+                error!(
+                    "Rule compilation failed for {:?}: {}",
+                    rule,
+                    compile_result.err().unwrap()
+                );
+            } else {
+                storage.push(rule);
+            }
         }
 
         return MainRouter::new(storage, cache);
     }
 
-    pub fn new(rules: Vec<rule::Rule>, cache: bool) -> MainRouter {
-        let router_scheme = RouterScheme::new(rules, cache);
+    pub fn new(
+        rules: Vec<rule::Rule>,
+        cache: bool,
+    ) -> Result<MainRouter, Box<dyn std::error::Error>> {
+        let router_scheme = RouterScheme::new(rules, cache)?;
 
-        MainRouter { router_scheme }
+        return Ok(MainRouter { router_scheme });
     }
 
-    fn parse_url(url_str: String) -> Url {
-        let url_str_decoded = url_str.clone();
-        let url_result = Url::parse(url_str_decoded.as_str());
+    fn parse_url(url_str: String) -> Result<Url, url::ParseError> {
+        let options = url::Url::options();
+        let base_url = Url::parse("scheme://0.0.0.0")?;
+        let parser = options.base_url(Some(&base_url));
 
-        if url_result.is_err() {
-            let error = url_result.as_ref().unwrap_err();
+        let url_obj = parser.parse(url_str.as_str())?;
 
-            if *error == url::ParseError::RelativeUrlWithoutBase {
-                let options = url::Url::options();
-                let base_url = Url::parse("scheme://0.0.0.0").expect("Cannot parse base url");
-                let parser = options.base_url(Some(&base_url));
-
-                let url_obj = parser
-                    .parse(url_str_decoded.as_str())
-                    .expect("cannot parse url");
-
-                return MainRouter::sort_query(url_obj);
-            }
-        }
-
-        return url_result.expect("cannot parse url");
+        return Ok(MainRouter::sort_query(url_obj));
     }
 
     fn sort_query(url_obj: Url) -> Url {
@@ -93,29 +93,35 @@ impl MainRouter {
         return new_url_obj;
     }
 
-    pub fn match_rules(&self, url_str: String) -> Vec<&rule::Rule> {
-        let url_object = MainRouter::parse_url(url_str);
+    pub fn match_rules(
+        &self,
+        url_str: String,
+    ) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
+        let url_object = MainRouter::parse_url(url_str)?;
 
         return self.router_scheme.match_rule(url_object);
     }
 
-    pub fn match_rule(&self, url: String) -> Option<&rule::Rule> {
-        let mut rules = self.match_rules(url);
+    pub fn match_rule(
+        &self,
+        url: String,
+    ) -> Result<Option<&rule::Rule>, Box<dyn std::error::Error>> {
+        let mut rules = self.match_rules(url)?;
 
         if rules.len() == 0 {
-            return None;
+            return Ok(None);
         }
 
         rules.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-        return Some(*rules.first().unwrap());
+        return Ok(Some(*rules.first().unwrap()));
     }
 
-    pub fn trace(&self, url_str: String) -> rule::RouterTrace {
-        let url_object = MainRouter::parse_url(url_str.clone());
-        let traces = self.router_scheme.trace(url_object.clone());
+    pub fn trace(&self, url_str: String) -> Result<rule::RouterTrace, Box<dyn std::error::Error>> {
+        let url_object = MainRouter::parse_url(url_str.clone())?;
+        let traces = self.router_scheme.trace(url_object.clone())?;
         let start = time::Instant::now();
-        let mut matched_rules = self.router_scheme.match_rule(url_object.clone());
+        let mut matched_rules = self.router_scheme.match_rule(url_object.clone())?;
         let elapsed = (start.elapsed().as_micros() as f64) / 1000.0;
         let mut final_rule = None;
 
@@ -133,7 +139,7 @@ impl MainRouter {
         let mut redirect = None;
 
         if final_rule.is_some() {
-            let target = MainRouter::get_redirect(final_rule.as_ref().unwrap(), url_str.clone());
+            let target = MainRouter::get_redirect(final_rule.as_ref().unwrap(), url_str.clone())?;
 
             redirect = Some(rule::Redirect {
                 status: final_rule.as_ref().unwrap().redirect_code,
@@ -149,23 +155,25 @@ impl MainRouter {
             duration: elapsed,
         };
 
-        return trace;
+        return Ok(trace);
     }
 
-    pub fn get_redirect(rule_to_redirect: &rule::Rule, url_str: String) -> String {
-        let url_object = MainRouter::parse_url(url_str);
+    pub fn get_redirect(
+        rule_to_redirect: &rule::Rule,
+        url_str: String,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let url_object = MainRouter::parse_url(url_str)?;
         let regex_groups_str = [
             "^",
             rule_to_redirect.regex_with_groups.as_ref().unwrap(),
             "$",
         ]
         .join("");
-        let regex_groups = Regex::new(regex_groups_str.as_str()).expect("cannot compile regex");
+        let regex_groups = Regex::new(regex_groups_str.as_str())?;
 
         let mut path = url_object.path().to_string();
         let mut path_decoded = url::percent_encoding::percent_decode(path.as_bytes())
-            .decode_utf8()
-            .expect("cannot create utf8 path")
+            .decode_utf8()?
             .to_string();
 
         if url_object.query().is_some() {
@@ -185,7 +193,7 @@ impl MainRouter {
         let target_opt = rule_to_redirect.target.as_ref();
 
         if target_opt.is_none() {
-            return "".to_string();
+            return Ok("".to_string());
         }
 
         let mut target = target_opt.as_ref().unwrap().to_string();
@@ -195,14 +203,14 @@ impl MainRouter {
             capture_option = regex_groups.captures(path_decoded.as_str());
 
             if capture_option.is_none() {
-                return target;
+                return Ok(target);
             }
         }
 
         let capture_item = capture_option.unwrap();
 
         if target_opt.is_none() {
-            return target;
+            return Ok(target);
         }
 
         for named_group in regex_groups.capture_names().into_iter() {
@@ -235,6 +243,6 @@ impl MainRouter {
             );
         }
 
-        return target;
+        return Ok(target);
     }
 }

@@ -93,12 +93,14 @@ pub struct RouterTraceItem {
 }
 
 impl Rule {
-    pub fn compile(&mut self, cache: bool) {
+    pub fn compile(&mut self, cache: bool) -> Result<(), Box<dyn std::error::Error>> {
         self.source.build_sorted_query();
-        self.build_regex(cache);
+        self.build_regex(cache)?;
+
+        return Ok(());
     }
 
-    fn build_regex(&mut self, cache: bool) {
+    fn build_regex(&mut self, cache: bool) -> Result<(), Box<dyn std::error::Error>> {
         let mut regex_str = "".to_string();
         regex_str.push_str(&self.source.path);
 
@@ -136,27 +138,29 @@ impl Rule {
         if cache {
             let regex_matching = ["^", regex_with_group.as_str(), "$"].join("");
             let regex_builder = RegexBuilder::new(regex_matching.as_str());
-            let regex_obj = regex_builder.build().expect("Cannot compile rule");
+            let regex_obj = regex_builder.build()?;
             self.regex_obj = Some(regex_obj);
         }
 
         self.regex = Some(regex_str);
         self.regex_with_groups = Some(regex_with_group);
+
+        return Ok(());
     }
 
-    pub fn is_match(&self, value: &str) -> bool {
+    pub fn is_match(&self, value: &str) -> Result<bool, regex::Error> {
         if self.regex_obj.is_none() && self.regex_with_groups.is_none() {
-            return false;
+            return Ok(false);
         }
 
         if self.regex_obj.is_none() {
             let regex_matching = ["^", self.regex_with_groups.as_ref().unwrap(), "$"].join("");
-            let regex = Regex::new(regex_matching.as_str()).expect("Cannot compile rule regex");
+            let regex = Regex::new(regex_matching.as_str())?;
 
-            return regex.is_match(value);
+            return Ok(regex.is_match(value));
         }
 
-        return self.regex_obj.as_ref().unwrap().is_match(value);
+        return Ok(self.regex_obj.as_ref().unwrap().is_match(value));
     }
 }
 
