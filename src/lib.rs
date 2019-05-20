@@ -54,6 +54,7 @@ lazy_static! {
         Mutex::new(HashMap::new());
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 macro_rules! cstr_to_str {
     ($cstr:expr, $str:ident) => {
         let result = std::ffi::CStr::from_ptr($cstr).to_str();
