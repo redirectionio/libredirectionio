@@ -19,7 +19,6 @@ use std::intrinsics::transmute;
 #[cfg(not(target_arch = "wasm32"))]
 use std::ptr::null;
 use std::sync::Mutex;
-use std::sync::{Once, ONCE_INIT};
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
@@ -33,15 +32,15 @@ cfg_if! {
     }
 }
 
-static INIT: Once = ONCE_INIT;
-
 cfg_if! {
     if #[cfg(target_arch = "wasm32")] {
-        fn do_init_log() {
+        #[wasm_bindgen]
+        pub fn init_log() {
             console_log::init_with_level(log::Level::Trace).expect("error initializing log");
         }
     } else {
-        fn do_init_log() {
+        #[no_mangle]
+        pub extern "C" fn init_log() {
             stderrlog::new().module(module_path!()).init().unwrap();
         }
     }
@@ -69,14 +68,8 @@ macro_rules! cstr_to_str {
     };
 }
 
-fn init() {
-    INIT.call_once(|| do_init_log());
-}
-
 #[wasm_bindgen]
 pub fn update_rules_for_router(project_id: String, rules_data: String, cache: bool) -> String {
-    init();
-
     utils::set_panic_hook();
     let main_router_result = router::MainRouter::new_from_data(rules_data, cache);
 
@@ -104,8 +97,6 @@ pub extern "C" fn redirectionio_update_rules_for_router(
     rules_data_cstr: *const libc::c_char,
     cache: libc::c_uint,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(project_id_cstr, project_id);
         cstr_to_str!(rules_data_cstr, rules_data);
@@ -118,8 +109,6 @@ pub extern "C" fn redirectionio_update_rules_for_router(
 
 #[wasm_bindgen]
 pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
-    init();
-
     let lock = PROJECT_ROUTERS.lock();
     let router: Option<&router::MainRouter> = lock.as_ref().unwrap().get(project_id.as_str());
 
@@ -154,8 +143,6 @@ pub extern "C" fn redirectionio_get_rule_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(project_id_cstr, project_id);
         cstr_to_str!(url_cstr, url);
@@ -172,8 +159,6 @@ pub extern "C" fn redirectionio_get_rule_for_url(
 
 #[wasm_bindgen]
 pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
-    init();
-
     let lock = PROJECT_ROUTERS.lock();
     let router: Option<&router::MainRouter> = lock.as_ref().unwrap().get(project_id.as_str());
 
@@ -211,8 +196,6 @@ pub extern "C" fn redirectionio_get_trace_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(project_id_cstr, project_id);
         cstr_to_str!(url_cstr, url);
@@ -229,8 +212,6 @@ pub extern "C" fn redirectionio_get_trace_for_url(
 
 #[wasm_bindgen]
 pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option<String> {
-    init();
-
     if rule_str.is_empty() {
         return None;
     }
@@ -298,8 +279,6 @@ pub extern "C" fn redirectionio_get_redirect(
     url_cstr: *const libc::c_char,
     response_code: libc::uint16_t,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(rule_cstr, rule);
         cstr_to_str!(url_cstr, url);
@@ -316,8 +295,6 @@ pub extern "C" fn redirectionio_get_redirect(
 
 #[wasm_bindgen]
 pub fn header_filter(rule_str: String, headers_str: String) -> String {
-    init();
-
     let rule = string_to_rule(rule_str);
 
     if rule.is_none() {
@@ -361,8 +338,6 @@ pub extern "C" fn redirectionio_header_filter(
     rule_cstr: *const libc::c_char,
     headers_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(rule_cstr, rule);
         cstr_to_str!(headers_cstr, headers);
@@ -375,8 +350,6 @@ pub extern "C" fn redirectionio_header_filter(
 
 #[wasm_bindgen]
 pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String> {
-    init();
-
     let rule = string_to_rule(rule_str);
 
     if rule.is_none() {
@@ -410,8 +383,6 @@ pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String>
 pub extern "C" fn redirectionio_create_body_filter(
     rule_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(rule_cstr, rule);
 
@@ -427,8 +398,6 @@ pub extern "C" fn redirectionio_create_body_filter(
 
 #[wasm_bindgen]
 pub fn body_filter(filter_id: String, filter_body: String) -> Option<String> {
-    init();
-
     let has_filter: Option<filter::filter_body::FilterBodyAction> =
         FILTERS.lock().unwrap().remove(filter_id.as_str());
 
@@ -450,8 +419,6 @@ pub extern "C" fn redirectionio_body_filter(
     filter_id_cstr: *const libc::c_char,
     filter_body_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(filter_id_cstr, filter_id);
         cstr_to_str!(filter_body_cstr, filter_body);
@@ -468,8 +435,6 @@ pub extern "C" fn redirectionio_body_filter(
 
 #[wasm_bindgen]
 pub fn body_filter_end(filter_id: String) -> Option<String> {
-    init();
-
     let has_filter: Option<filter::filter_body::FilterBodyAction> =
         FILTERS.lock().unwrap().remove(filter_id.as_str());
 
@@ -488,8 +453,6 @@ pub fn body_filter_end(filter_id: String) -> Option<String> {
 pub extern "C" fn redirectionio_body_filter_end(
     filter_id_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    init();
-
     unsafe {
         cstr_to_str!(filter_id_cstr, filter_id);
 
