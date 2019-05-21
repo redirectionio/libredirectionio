@@ -7,6 +7,8 @@ extern crate libc;
 extern crate log;
 extern crate stderrlog;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod callback_log;
 mod filter;
 pub mod html;
 mod router;
@@ -19,6 +21,7 @@ use std::intrinsics::transmute;
 #[cfg(not(target_arch = "wasm32"))]
 use std::ptr::null;
 use std::sync::Mutex;
+use std::sync::{Once, ONCE_INIT};
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
@@ -34,13 +37,11 @@ cfg_if! {
 
 cfg_if! {
     if #[cfg(target_arch = "wasm32")] {
-        #[wasm_bindgen]
-        pub fn init_log() {
+        fn init_log() {
             console_log::init_with_level(log::Level::Trace).expect("error initializing log");
         }
     } else {
-        #[no_mangle]
-        pub extern "C" fn init_log() {
+        fn init_log() {
             stderrlog::new().module(module_path!()).init().unwrap();
         }
     }
@@ -51,6 +52,36 @@ lazy_static! {
         Mutex::new(HashMap::new());
     static ref FILTERS: Mutex<HashMap<String, filter::filter_body::FilterBodyAction>> =
         Mutex::new(HashMap::new());
+}
+
+static mut LOGGER: callback_log::CallbackLogger = callback_log::CallbackLogger {
+    callback: None,
+    data: None,
+};
+static INIT: Once = ONCE_INIT;
+
+#[wasm_bindgen]
+#[no_mangle]
+pub extern "C" fn redirectionio_init_log() {
+    init_log();
+}
+
+#[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
+pub extern "C" fn redirectionio_init_log_callback(
+    callback: callback_log::redirectionio_log_callback,
+    data: &'static libc::c_void,
+) {
+    unsafe {
+        LOGGER.callback = Some(callback);
+        LOGGER.data = Some(data);
+
+        INIT.call_once(|| {
+            log::set_logger(&LOGGER)
+                .map(|()| log::set_max_level(log::LevelFilter::Trace))
+                .expect("cannot set logger");
+        });
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
