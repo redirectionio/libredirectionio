@@ -21,6 +21,7 @@ use std::intrinsics::transmute;
 #[cfg(not(target_arch = "wasm32"))]
 use std::ptr::null;
 use std::sync::Mutex;
+#[cfg(not(target_arch = "wasm32"))]
 use std::sync::{Once, ONCE_INIT};
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
@@ -54,10 +55,13 @@ lazy_static! {
         Mutex::new(HashMap::new());
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 static mut LOGGER: callback_log::CallbackLogger = callback_log::CallbackLogger {
     callback: None,
     data: None,
 };
+
+#[cfg(not(target_arch = "wasm32"))]
 static INIT: Once = ONCE_INIT;
 
 #[wasm_bindgen]

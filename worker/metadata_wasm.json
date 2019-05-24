@@ -1,0 +1,10 @@
+{
+    "body_part": "script",
+    "bindings": [
+        {
+            "name": "REDIRECTIONIO_MODULE",
+            "type": "wasm_module",
+            "part": "wasmprogram"
+        }
+    ]
+}
