@@ -112,6 +112,11 @@ impl Rule {
         let mut regex_with_group = regex_str.clone();
 
         if self.markers.is_some() {
+            self.markers
+                .as_mut()
+                .unwrap()
+                .sort_by(|a, b| b.name.len().cmp(&a.name.len()));
+
             for marker in self.markers.as_ref().unwrap() {
                 let marker_regex_groups = [
                     "(?P<",
