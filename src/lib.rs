@@ -90,11 +90,12 @@ pub extern "C" fn redirectionio_init_log_callback(
 
 #[cfg(not(target_arch = "wasm32"))]
 macro_rules! cstr_to_str {
-    ($cstr:expr, $str:ident) => {
-        let result = std::ffi::CStr::from_ptr($cstr).to_str();
+    ($cstr:expr, $str:ident, $origin:expr) => {
+        let cstring = std::ffi::CStr::from_ptr($cstr);
+        let result = cstring.to_str();
 
         if result.is_err() {
-            error!("Unable to create string {}", result.err().unwrap());
+            error!("Unable to create string for {} '{}': {}", $origin, String::from_utf8_lossy(cstring.to_bytes()), result.err().unwrap());
 
             return null();
         }
@@ -133,8 +134,8 @@ pub extern "C" fn redirectionio_update_rules_for_router(
     cache: libc::c_uint,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(project_id_cstr, project_id);
-        cstr_to_str!(rules_data_cstr, rules_data);
+        cstr_to_str!(project_id_cstr, project_id, "project id");
+        cstr_to_str!(rules_data_cstr, rules_data, "rules data");
 
         let project_id_created = update_rules_for_router(project_id, rules_data, cache != 0);
 
@@ -179,8 +180,8 @@ pub extern "C" fn redirectionio_get_rule_for_url(
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(project_id_cstr, project_id);
-        cstr_to_str!(url_cstr, url);
+        cstr_to_str!(project_id_cstr, project_id, "project id in get rule");
+        cstr_to_str!(url_cstr, url, "url in get rule");
 
         let rule_data = get_rule_for_url(project_id, url);
 
@@ -232,8 +233,8 @@ pub extern "C" fn redirectionio_get_trace_for_url(
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(project_id_cstr, project_id);
-        cstr_to_str!(url_cstr, url);
+        cstr_to_str!(project_id_cstr, project_id, "project id in get trace");
+        cstr_to_str!(url_cstr, url, "url in get trace");
 
         let trace_data = get_trace_for_url(project_id, url);
 
@@ -315,8 +316,8 @@ pub extern "C" fn redirectionio_get_redirect(
     response_code: libc::uint16_t,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(rule_cstr, rule);
-        cstr_to_str!(url_cstr, url);
+        cstr_to_str!(rule_cstr, rule, "rule in get redirect");
+        cstr_to_str!(url_cstr, url, "url in get redirect");
 
         let redirect = get_redirect(rule, url, response_code);
 
@@ -374,8 +375,8 @@ pub extern "C" fn redirectionio_header_filter(
     headers_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(rule_cstr, rule);
-        cstr_to_str!(headers_cstr, headers);
+        cstr_to_str!(rule_cstr, rule, "rule in header filtering");
+        cstr_to_str!(headers_cstr, headers, "headers in header filtering");
 
         let new_headers_str = header_filter(rule, headers);
 
@@ -419,7 +420,7 @@ pub extern "C" fn redirectionio_create_body_filter(
     rule_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(rule_cstr, rule);
+        cstr_to_str!(rule_cstr, rule, "rule in create body filter");
 
         let filter_id = create_body_filter(rule, "".to_string());
 
@@ -455,8 +456,8 @@ pub extern "C" fn redirectionio_body_filter(
     filter_body_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(filter_id_cstr, filter_id);
-        cstr_to_str!(filter_body_cstr, filter_body);
+        cstr_to_str!(filter_id_cstr, filter_id, "filter id in body filtering");
+        cstr_to_str!(filter_body_cstr, filter_body, "filter body in body filtering");
 
         let new_data = body_filter(filter_id, filter_body);
 
@@ -489,7 +490,7 @@ pub extern "C" fn redirectionio_body_filter_end(
     filter_id_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(filter_id_cstr, filter_id);
+        cstr_to_str!(filter_id_cstr, filter_id, "filter id in body filtering ending");
 
         let new_data = body_filter_end(filter_id);
 
