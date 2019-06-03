@@ -36,18 +36,6 @@ cfg_if! {
     }
 }
 
-cfg_if! {
-    if #[cfg(target_arch = "wasm32")] {
-        fn init_log() {
-            console_log::init_with_level(log::Level::Trace).expect("error initializing log");
-        }
-    } else {
-        fn init_log() {
-            stderrlog::new().module(module_path!()).init().unwrap();
-        }
-    }
-}
-
 lazy_static! {
     static ref PROJECT_ROUTERS: Mutex<HashMap<String, router::MainRouter>> =
         Mutex::new(HashMap::new());
@@ -64,10 +52,15 @@ static mut LOGGER: callback_log::CallbackLogger = callback_log::CallbackLogger {
 #[cfg(not(target_arch = "wasm32"))]
 static INIT: Once = ONCE_INIT;
 
-#[wasm_bindgen]
+#[cfg(target_arch = "wasm32")]
+pub fn init_log() {
+    console_log::init_with_level(log::Level::Trace).expect("error initializing log");
+}
+
 #[no_mangle]
+#[cfg(not(target_arch = "wasm32"))]
 pub extern "C" fn redirectionio_init_log() {
-    init_log();
+    stderrlog::new().module(module_path!()).init().unwrap();
 }
 
 #[no_mangle]
@@ -95,7 +88,12 @@ macro_rules! cstr_to_str {
         let result = cstring.to_str();
 
         if result.is_err() {
-            error!("Unable to create string for {} '{}': {}", $origin, String::from_utf8_lossy(cstring.to_bytes()), result.err().unwrap());
+            error!(
+                "Unable to create string for {} '{}': {}",
+                $origin,
+                String::from_utf8_lossy(cstring.to_bytes()),
+                result.err().unwrap()
+            );
 
             return null();
         }
@@ -457,7 +455,11 @@ pub extern "C" fn redirectionio_body_filter(
 ) -> *const libc::c_char {
     unsafe {
         cstr_to_str!(filter_id_cstr, filter_id, "filter id in body filtering");
-        cstr_to_str!(filter_body_cstr, filter_body, "filter body in body filtering");
+        cstr_to_str!(
+            filter_body_cstr,
+            filter_body,
+            "filter body in body filtering"
+        );
 
         let new_data = body_filter(filter_id, filter_body);
 
@@ -490,7 +492,11 @@ pub extern "C" fn redirectionio_body_filter_end(
     filter_id_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
     unsafe {
-        cstr_to_str!(filter_id_cstr, filter_id, "filter id in body filtering ending");
+        cstr_to_str!(
+            filter_id_cstr,
+            filter_id,
+            "filter id in body filtering ending"
+        );
 
         let new_data = body_filter_end(filter_id);
 

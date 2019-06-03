@@ -35,7 +35,7 @@ pub struct BodyFilter {
     pub action: String,
     pub value: String,
     pub element_tree: Vec<String>,
-    pub x_path_matcher: Option<String>,
+    pub css_selector: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

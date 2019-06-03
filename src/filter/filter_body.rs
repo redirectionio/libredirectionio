@@ -25,7 +25,7 @@ pub struct FilterBodyAction {
 }
 
 lazy_static! {
-    static ref VOID_ELEMENTS: HashMap<&'static str, bool> = {
+    pub static ref VOID_ELEMENTS: HashMap<&'static str, bool> = {
         let mut map = HashMap::new();
         map.insert("area", true);
         map.insert("base", true);
@@ -135,7 +135,8 @@ impl FilterBodyAction {
                     token_data = new_token_data;
 
                     if VOID_ELEMENTS.get(tag_name_str.as_str()).is_some() {
-                        let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name_str.clone(), token_data);
+                        let (new_buffer_link, new_token_data) =
+                            self.on_end_tag_token(tag_name_str.clone(), token_data);
 
                         self.current_buffer = new_buffer_link;
                         token_data = new_token_data;
@@ -236,7 +237,9 @@ impl FilterBodyAction {
     ) -> (Option<Box<BufferLink>>, String) {
         let mut buffer: String;
 
-        if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {
+        if self.current_buffer.is_some()
+            && self.current_buffer.as_ref().unwrap().tag_name == tag_name
+        {
             buffer = self.current_buffer.as_ref().unwrap().buffer.clone();
             buffer.push_str(data.as_str());
         } else {
@@ -269,8 +272,8 @@ impl FilterBodyAction {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::filter::body_action::body_replace::BodyReplace;
     use crate::filter::body_action::body_append::BodyAppend;
+    use crate::filter::body_action::body_replace::BodyReplace;
 
     #[test]
     pub fn test_filter() {
@@ -304,10 +307,18 @@ mod tests {
     }
 
     #[test]
-    pub fn test_append_and_replace() {
+    pub fn test_replace() {
         let mut visitors = Vec::new();
-        let append  = Box::new(BodyAppend::new(vec!["html".to_string(), "head".to_string()], Some("count(//meta[@name = 'description']) = 0".to_string()), "<meta name=\"description\" content=\"New Description\" />".to_string()));
-        let replace = Box::new(BodyReplace::new(vec!["html".to_string(), "head".to_string(), "meta".to_string()], Some("count(//meta[@name = 'description']) = 1".to_string()), "<meta name=\"description\" content=\"New Description\" />".to_string()));
+        let append = Box::new(BodyAppend::new(
+            vec!["html".to_string(), "head".to_string()],
+            Some(r#"meta[name="description"]"#.to_string()),
+            "<meta name=\"description\" content=\"New Description\" />".to_string(),
+        ));
+        let replace = Box::new(BodyReplace::new(
+            vec!["html".to_string(), "head".to_string(), "meta".to_string()],
+            Some(r#"meta[name="description"]"#.to_string()),
+            "<meta name=\"description\" content=\"New Description\" />".to_string(),
+        ));
 
         visitors.push(FilterBodyVisitor {
             enter: Some("html".to_string()),
@@ -327,11 +338,101 @@ mod tests {
             visitors,
         };
 
-        let mut filtered = filter.filter("<html><head><meta name=\"description\"></head></html>".to_string());
+        let mut filtered =
+            filter.filter("<html><head><meta name=\"description\"></head></html>".to_string());
         let end = filter.end();
 
         filtered.push_str(end.as_str());
 
-        assert_eq!("<html><head><meta name=\"description\" content=\"New Description\" /></head></html>", filtered);
+        assert_eq!(
+            "<html><head><meta name=\"description\" content=\"New Description\" /></head></html>",
+            filtered
+        );
+    }
+
+    #[test]
+    pub fn test_append() {
+        let mut visitors = Vec::new();
+        let append = Box::new(BodyAppend::new(
+            vec!["html".to_string(), "head".to_string()],
+            Some(r#"meta[name="description"]"#.to_string()),
+            "<meta name=\"description\" content=\"New Description\" />".to_string(),
+        ));
+        let replace = Box::new(BodyReplace::new(
+            vec!["html".to_string(), "head".to_string(), "meta".to_string()],
+            Some(r#"meta[name="description"]"#.to_string()),
+            "<meta name=\"description\" content=\"New Description\" />".to_string(),
+        ));
+
+        visitors.push(FilterBodyVisitor {
+            enter: Some("html".to_string()),
+            leave: None,
+            action: append,
+        });
+
+        visitors.push(FilterBodyVisitor {
+            enter: Some("html".to_string()),
+            leave: None,
+            action: replace,
+        });
+
+        let mut filter = FilterBodyAction {
+            last_buffer: "".to_string(),
+            current_buffer: None,
+            visitors,
+        };
+
+        let mut filtered = filter.filter("<html><head><meta></head></html>".to_string());
+        let end = filter.end();
+
+        filtered.push_str(end.as_str());
+
+        assert_eq!(
+            "<html><head><meta><meta name=\"description\" content=\"New Description\" /></head></html>",
+            filtered
+        );
+    }
+
+    #[test]
+    pub fn test_description_2() {
+        let mut visitors = Vec::new();
+        let append = Box::new(BodyAppend::new(
+            vec!["html".to_string(), "head".to_string()],
+            Some(r#"meta[property="og:description"]"#.to_string()),
+            r#"<meta property="og:description" content="New Description" />"#.to_string(),
+        ));
+        let replace = Box::new(BodyReplace::new(
+            vec!["html".to_string(), "head".to_string(), "meta".to_string()],
+            Some(r#"meta[property="og:description"]"#.to_string()),
+            r#"<meta property="og:description" content="New Description" />"#.to_string(),
+        ));
+
+        visitors.push(FilterBodyVisitor {
+            enter: Some("html".to_string()),
+            leave: None,
+            action: append,
+        });
+
+        visitors.push(FilterBodyVisitor {
+            enter: Some("html".to_string()),
+            leave: None,
+            action: replace,
+        });
+
+        let mut filter = FilterBodyAction {
+            last_buffer: "".to_string(),
+            current_buffer: None,
+            visitors,
+        };
+
+        let mut filtered = filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.to_string());
+        let end = filter.end();
+
+        filtered.push_str(end.as_str());
+
+        assert_eq!(
+            r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#,
+            filtered
+        );
     }
 }

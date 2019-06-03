@@ -28,14 +28,13 @@ wasm-bindgen = "0.2"
 console_error_panic_hook = { version = "0.1.1", optional = true }
 wee_alloc = { version = "0.4.2", optional = true }
 cfg-if = "0.1"
-sxd-xpath = "0.4.2"
-sxd-document = "0.3.0"
 uuid = { version = "0.7", features = ["serde", "v4", "wasm-bindgen"] }
 libc = "0.2.53"
 heck = "0.3.1"
 log = "0.4.6"
 stderrlog = "0.4.1"
 console_log = "0.1.2"
+scraper = "0.10.0"
 
 [dev-dependencies]
 criterion = "0.2"

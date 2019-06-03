@@ -5,7 +5,7 @@ use crate::html;
 pub struct BodyPrepend {
     element_tree: Vec<String>,
     position: usize,
-    x_path_matcher: Option<String>,
+    css_selector: Option<String>,
     content: String,
     is_buffering: bool,
 }
@@ -13,12 +13,12 @@ pub struct BodyPrepend {
 impl BodyPrepend {
     pub fn new(
         element_tree: Vec<String>,
-        x_path_matcher: Option<String>,
+        css_selector: Option<String>,
         content: String,
     ) -> BodyPrepend {
         BodyPrepend {
             element_tree,
-            x_path_matcher,
+            css_selector,
             position: 0,
             content,
             is_buffering: false,
@@ -40,7 +40,7 @@ impl body_action::BodyAction for BodyPrepend {
         }
 
         if self.position + 1 >= self.element_tree.len() {
-            if self.x_path_matcher.is_none() {
+            if self.css_selector.is_none() {
                 new_data.push_str(self.content.as_str());
             } else {
                 self.is_buffering = true;
@@ -60,10 +60,15 @@ impl body_action::BodyAction for BodyPrepend {
             next_leave = Some(self.element_tree[self.position].clone());
         }
 
-        if self.is_buffering && self.x_path_matcher.is_some() && !self.x_path_matcher.as_ref().unwrap().is_empty() {
+        if self.is_buffering
+            && self.css_selector.is_some()
+            && !self.css_selector.as_ref().unwrap().is_empty()
+        {
             self.is_buffering = false;
 
-            if body_action::evaluate(data.clone(), self.x_path_matcher.as_ref().unwrap().clone()) {
+            println!("Evaluate prepend");
+
+            if !body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
                 return (
                     next_enter,
                     next_leave,

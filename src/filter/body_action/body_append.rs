@@ -1,11 +1,12 @@
 use crate::filter::body_action;
+use crate::filter::filter_body;
 use crate::html;
 
 #[derive(Debug)]
 pub struct BodyAppend {
     element_tree: Vec<String>,
     position: usize,
-    x_path_matcher: Option<String>,
+    css_selector: Option<String>,
     content: String,
     is_buffering: bool,
 }
@@ -13,12 +14,12 @@ pub struct BodyAppend {
 impl BodyAppend {
     pub fn new(
         element_tree: Vec<String>,
-        x_path_matcher: Option<String>,
+        css_selector: Option<String>,
         content: String,
     ) -> BodyAppend {
         BodyAppend {
             element_tree,
-            x_path_matcher,
+            css_selector,
             position: 0,
             content,
             is_buffering: false,
@@ -31,8 +32,6 @@ impl body_action::BodyAction for BodyAppend {
         let next_leave = Some(self.element_tree[self.position].clone());
         let mut next_enter = None;
 
-        println!("Enter append {} {}", self.position, self.element_tree[self.position]);
-
         if self.position + 1 < self.element_tree.len() {
             self.position = self.position + 1;
             next_enter = Some(self.element_tree[self.position].clone());
@@ -41,7 +40,7 @@ impl body_action::BodyAction for BodyAppend {
         }
 
         let should_buffer =
-            self.position + 1 >= self.element_tree.len() && self.x_path_matcher.is_some();
+            self.position + 1 >= self.element_tree.len() && self.css_selector.is_some();
 
         return (next_enter, next_leave, should_buffer, data);
     }
@@ -51,22 +50,16 @@ impl body_action::BodyAction for BodyAppend {
         let mut next_leave = None;
         let is_processing = self.position + 1 >= self.element_tree.len();
 
-        println!("Leave append {} {} {}", self.position, self.element_tree[self.position], is_processing);
-
         if self.position as i32 - 1 >= 0 {
             self.position = self.position - 1;
 
             next_leave = Some(self.element_tree[self.position].clone());
         }
 
-        println!("Check processing");
-
         if is_processing {
-            if self.x_path_matcher.is_some() && !self.x_path_matcher.as_ref().unwrap().is_empty() {
-                if body_action::evaluate(
-                    data.clone(),
-                    self.x_path_matcher.as_ref().unwrap().clone(),
-                ) {
+            if self.css_selector.is_some() && !self.css_selector.as_ref().unwrap().is_empty() {
+                if !body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone())
+                {
                     return (
                         next_enter,
                         next_leave,
@@ -106,6 +99,14 @@ fn append_child(content: String, child: String) -> String {
 
         if token_type == html::TokenType::StartTagToken {
             level += 1;
+            let (tag_name, _) = tokenizer.tag_name();
+
+            if filter_body::VOID_ELEMENTS
+                .get(tag_name.unwrap().as_str())
+                .is_some()
+            {
+                level -= 1;
+            }
         }
 
         if token_type == html::TokenType::EndTagToken {
