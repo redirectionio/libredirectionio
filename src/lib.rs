@@ -311,7 +311,7 @@ pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option
 pub extern "C" fn redirectionio_get_redirect(
     rule_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
-    response_code: libc::uint16_t,
+    response_code: u16,
 ) -> *const libc::c_char {
     unsafe {
         cstr_to_str!(rule_cstr, rule, "rule in get redirect");
