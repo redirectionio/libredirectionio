@@ -66,8 +66,6 @@ impl body_action::BodyAction for BodyPrepend {
         {
             self.is_buffering = false;
 
-            println!("Evaluate prepend");
-
             if !body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
                 return (
                     next_enter,
