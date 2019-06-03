@@ -1,6 +1,7 @@
 use crate::filter::body_action;
 use crate::html;
 use crate::router::rule;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 struct BufferLink {
@@ -21,6 +22,27 @@ pub struct FilterBodyAction {
     visitors: Vec<FilterBodyVisitor>,
     current_buffer: Option<Box<BufferLink>>,
     last_buffer: String,
+}
+
+lazy_static! {
+    static ref VOID_ELEMENTS: HashMap<&'static str, bool> = {
+        let mut map = HashMap::new();
+        map.insert("area", true);
+        map.insert("base", true);
+        map.insert("br", true);
+        map.insert("col", true);
+        map.insert("embed", true);
+        map.insert("hr", true);
+        map.insert("img", true);
+        map.insert("input", true);
+        map.insert("meta", true);
+        map.insert("param", true);
+        map.insert("source", true);
+        map.insert("track", true);
+        map.insert("wbr", true);
+
+        map
+    };
 }
 
 impl FilterBodyAction {
@@ -105,11 +127,19 @@ impl FilterBodyAction {
             match token_type {
                 html::TokenType::StartTagToken => {
                     let (tag_name, _) = tokenizer.tag_name();
+                    let tag_name_str = tag_name.unwrap_or("".to_string());
                     let (new_buffer_link, new_token_data) =
-                        self.on_start_tag_token(tag_name.unwrap(), token_data);
+                        self.on_start_tag_token(tag_name_str.clone(), token_data);
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
+
+                    if VOID_ELEMENTS.get(tag_name_str.as_str()).is_some() {
+                        let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name_str.clone(), token_data);
+
+                        self.current_buffer = new_buffer_link;
+                        token_data = new_token_data;
+                    }
                 }
                 html::TokenType::EndTagToken => {
                     let (tag_name, _) = tokenizer.tag_name();
@@ -239,6 +269,8 @@ impl FilterBodyAction {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::filter::body_action::body_replace::BodyReplace;
+    use crate::filter::body_action::body_append::BodyAppend;
 
     #[test]
     pub fn test_filter() {
@@ -269,5 +301,37 @@ mod tests {
 
         assert_eq!("<div>Text ", filtered);
         assert_eq!("</", end);
+    }
+
+    #[test]
+    pub fn test_append_and_replace() {
+        let mut visitors = Vec::new();
+        let append  = Box::new(BodyAppend::new(vec!["html".to_string(), "head".to_string()], Some("count(//meta[@name = 'description']) = 0".to_string()), "<meta name=\"description\" content=\"New Description\" />".to_string()));
+        let replace = Box::new(BodyReplace::new(vec!["html".to_string(), "head".to_string(), "meta".to_string()], Some("count(//meta[@name = 'description']) = 1".to_string()), "<meta name=\"description\" content=\"New Description\" />".to_string()));
+
+        visitors.push(FilterBodyVisitor {
+            enter: Some("html".to_string()),
+            leave: None,
+            action: append,
+        });
+
+        visitors.push(FilterBodyVisitor {
+            enter: Some("html".to_string()),
+            leave: None,
+            action: replace,
+        });
+
+        let mut filter = FilterBodyAction {
+            last_buffer: "".to_string(),
+            current_buffer: None,
+            visitors,
+        };
+
+        let mut filtered = filter.filter("<html><head><meta name=\"description\"></head></html>".to_string());
+        let end = filter.end();
+
+        filtered.push_str(end.as_str());
+
+        assert_eq!("<html><head><meta name=\"description\" content=\"New Description\" /></head></html>", filtered);
     }
 }

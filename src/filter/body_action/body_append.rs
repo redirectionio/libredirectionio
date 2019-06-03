@@ -31,6 +31,8 @@ impl body_action::BodyAction for BodyAppend {
         let next_leave = Some(self.element_tree[self.position].clone());
         let mut next_enter = None;
 
+        println!("Enter append {} {}", self.position, self.element_tree[self.position]);
+
         if self.position + 1 < self.element_tree.len() {
             self.position = self.position + 1;
             next_enter = Some(self.element_tree[self.position].clone());
@@ -49,11 +51,15 @@ impl body_action::BodyAction for BodyAppend {
         let mut next_leave = None;
         let is_processing = self.position + 1 >= self.element_tree.len();
 
+        println!("Leave append {} {} {}", self.position, self.element_tree[self.position], is_processing);
+
         if self.position as i32 - 1 >= 0 {
             self.position = self.position - 1;
 
             next_leave = Some(self.element_tree[self.position].clone());
         }
+
+        println!("Check processing");
 
         if is_processing {
             if self.x_path_matcher.is_some() && !self.x_path_matcher.as_ref().unwrap().is_empty() {

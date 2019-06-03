@@ -19,8 +19,9 @@ pub trait BodyAction: Debug + Send {
 pub fn evaluate(data: String, expression: String) -> bool {
     let parse_result = parser::parse(data.as_str());
 
+    println!("Begin evaluate {} {}", data, expression);
     if parse_result.is_err() {
-        error!("Cannot parse xml {}: {}", data, parse_result.err().unwrap());
+        println!("Cannot parse xml {}: {}", data, parse_result.err().unwrap());
 
         return false;
     }
@@ -31,6 +32,7 @@ pub fn evaluate(data: String, expression: String) -> bool {
     let evaluate_result = evaluate_xpath(&document, expression.as_str());
 
     if evaluate_result.is_err() {
+        println!("Fuck 2");
         error!(
             "Cannot evaluate xpath expr {} on xml {}: {}",
             expression,
@@ -41,7 +43,10 @@ pub fn evaluate(data: String, expression: String) -> bool {
         return false;
     }
 
-    return evaluate_result.unwrap().boolean();
+    let result = evaluate_result.unwrap().boolean();
+    println!("End evaluate {} {} {}", data, expression, result);
+
+    return result;
 }
 
 pub fn create_body_action(filter: &rule::BodyFilter) -> Option<Box<BodyAction>> {
