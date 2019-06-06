@@ -20,7 +20,7 @@ use std::collections::HashMap;
 use std::intrinsics::transmute;
 #[cfg(not(target_arch = "wasm32"))]
 use std::ptr::null;
-use std::sync::Mutex;
+use std::sync::{Mutex, RwLock};
 #[cfg(not(target_arch = "wasm32"))]
 use std::sync::{Once, ONCE_INIT};
 use uuid::Uuid;
@@ -37,8 +37,8 @@ cfg_if! {
 }
 
 lazy_static! {
-    static ref PROJECT_ROUTERS: Mutex<HashMap<String, router::MainRouter>> =
-        Mutex::new(HashMap::new());
+    static ref PROJECT_ROUTERS: RwLock<HashMap<String, router::MainRouter>> =
+        RwLock::new(HashMap::new());
     static ref FILTERS: Mutex<HashMap<String, filter::filter_body::FilterBodyAction>> =
         Mutex::new(HashMap::new());
 }
@@ -117,7 +117,7 @@ pub fn update_rules_for_router(project_id: String, rules_data: String, cache: bo
     }
 
     PROJECT_ROUTERS
-        .lock()
+        .write()
         .unwrap()
         .insert(project_id.clone(), main_router_result.unwrap());
 
@@ -143,8 +143,8 @@ pub extern "C" fn redirectionio_update_rules_for_router(
 
 #[wasm_bindgen]
 pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
-    let lock = PROJECT_ROUTERS.lock();
-    let router: Option<&router::MainRouter> = lock.as_ref().unwrap().get(project_id.as_str());
+    let routers = PROJECT_ROUTERS.read().unwrap();
+    let router: Option<&router::MainRouter> =  routers.get(project_id.as_str());
 
     if router.is_none() {
         return None;
@@ -193,8 +193,8 @@ pub extern "C" fn redirectionio_get_rule_for_url(
 
 #[wasm_bindgen]
 pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
-    let lock = PROJECT_ROUTERS.lock();
-    let router: Option<&router::MainRouter> = lock.as_ref().unwrap().get(project_id.as_str());
+    let routers = PROJECT_ROUTERS.read().unwrap();
+    let router: Option<&router::MainRouter> =  routers.get(project_id.as_str());
 
     if router.is_none() {
         return None;
