@@ -1,6 +1,5 @@
 use crate::router::rule;
 use crate::router::url_matcher;
-use url::percent_encoding::percent_decode;
 use url::Url;
 
 #[derive(Debug)]
@@ -18,23 +17,13 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
     fn match_rule(&self, url: &Url) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
         let mut matched_rules = Vec::new();
         let mut path = url.path().to_string();
-        let mut path_decoded = percent_decode(url.path().as_bytes())
-            .decode_utf8()
-            .unwrap()
-            .to_string();
 
         if url.query() != None {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
-            path_decoded = [
-                path_decoded,
-                "?".to_string(),
-                url.query().unwrap().to_string(),
-            ]
-            .join("");
         }
 
         for rule in self.rules.as_slice() {
-            if rule.is_match(path.as_str())? || rule.is_match(path_decoded.as_str())? {
+            if rule.is_match(path.as_str())? {
                 matched_rules.push(rule);
             }
         }

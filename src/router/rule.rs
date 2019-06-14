@@ -5,6 +5,7 @@ use regex::Regex;
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
+use url::percent_encoding::{utf8_percent_encode, SIMPLE_ENCODE_SET};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Source {
@@ -102,7 +103,8 @@ impl Rule {
 
     fn build_regex(&mut self, cache: bool) -> Result<(), Box<dyn std::error::Error>> {
         let mut regex_str = "".to_string();
-        regex_str.push_str(&self.source.path);
+        let path =  utf8_percent_encode(self.source.path.as_str(), SIMPLE_ENCODE_SET).to_string();
+        regex_str.push_str(path.as_str());
 
         if self.source.sorted_query.is_some() {
             regex_str.push_str("\\?");
@@ -118,11 +120,12 @@ impl Rule {
                 .sort_by(|a, b| b.name.len().cmp(&a.name.len()));
 
             for marker in self.markers.as_ref().unwrap() {
+                let marker_regex =  utf8_percent_encode(marker.regex.as_str(), SIMPLE_ENCODE_SET).to_string();
                 let marker_regex_groups = [
                     "(?P<",
                     marker.name.as_str(),
                     ">",
-                    marker.regex.as_str(),
+                    marker_regex.as_str(),
                     ")",
                 ]
                 .join("");
@@ -221,5 +224,36 @@ mod tests {
 
         assert_ne!(None, source.sorted_query);
         assert_eq!(Some("b=d&c=a".to_string()), source.sorted_query);
+    }
+
+    #[test]
+    pub fn test_source_compile_emoji() {
+        let mut source = Source {
+            scheme: Some("http".to_string()),
+            host: Some("www.test.com".to_string()),
+            query: None,
+            path: "/🍕".to_string(),
+            sorted_query: None,
+        };
+
+        let mut rule = Rule {
+            match_on_response_status: None,
+            body_filters: None,
+            header_filters: None,
+            id: "id".to_string(),
+            markers: None,
+            rank: 0,
+            redirect_code: 302,
+            regex: None,
+            regex_obj: None,
+            regex_with_groups: None,
+            source,
+            target: Some("/bar".to_string()),
+        };
+
+        rule.compile(true);
+
+
+        println!("Rule: {}", rule.regex_obj.as_ref().unwrap());
     }
 }
