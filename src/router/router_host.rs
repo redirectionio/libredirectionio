@@ -64,7 +64,15 @@ impl router::Router for RouterHost {
             let host_router = self.hosts_routers.get(host_str.as_str());
 
             if host_router.is_some() {
-                return host_router.unwrap().match_rule(url);
+                let rule = host_router.unwrap().match_rule(url.clone());
+
+                if rule.is_err() {
+                    return rule;
+                }
+
+                if rule.as_ref().unwrap().len() > 0 {
+                    return rule;
+                }
             }
         }
 
