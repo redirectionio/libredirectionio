@@ -14,16 +14,11 @@ impl UrlMatcherRules {
 }
 
 impl url_matcher::UrlMatcher for UrlMatcherRules {
-    fn match_rule(&self, url: &Url) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
+    fn match_rule(&self, _url: &Url, path: &str) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
         let mut matched_rules = Vec::new();
-        let mut path = url.path().to_string();
-
-        if url.query() != None {
-            path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
-        }
 
         for rule in self.rules.as_slice() {
-            if rule.is_match(path.as_str())? {
+            if rule.is_match(path)? {
                 matched_rules.push(rule);
             }
         }
@@ -31,8 +26,8 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
         return Ok(matched_rules);
     }
 
-    fn trace(&self, url: &Url) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>> {
-        let rules = self.match_rule(url)?;
+    fn trace(&self, url: &Url, path: &str) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>> {
+        let rules = self.match_rule(url, path)?;
         let mut rules_matched = Vec::new();
 
         for rule in rules {

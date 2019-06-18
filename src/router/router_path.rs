@@ -14,14 +14,26 @@ pub struct RouterPath {
 
 impl router::Router for RouterPath {
     fn match_rule(&self, url: Url) -> Result<Vec<&router::rule::Rule>, Box<dyn std::error::Error>> {
-        return self.matcher.match_rule(&url);
+        let mut path = url.path().to_string();
+
+        if url.query().is_some() {
+            path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
+        }
+
+        return self.matcher.match_rule(&url, path.as_str());
     }
 
     fn trace(
         &self,
         url: Url,
     ) -> Result<Vec<router::rule::RouterTraceItem>, Box<dyn std::error::Error>> {
-        return self.matcher.trace(&url);
+        let mut path = url.path().to_string();
+
+        if url.query().is_some() {
+            path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
+        }
+
+        return self.matcher.trace(&url, path.as_str());
     }
 }
 
