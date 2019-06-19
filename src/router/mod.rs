@@ -172,21 +172,12 @@ impl MainRouter {
         let regex_groups = Regex::new(regex_groups_str.as_str())?;
 
         let mut path = url_object.path().to_string();
-        let mut path_decoded = url::percent_encoding::percent_decode(path.as_bytes())
-            .decode_utf8()?
-            .to_string();
 
         if url_object.query().is_some() {
             let sorted_query = rule::build_sorted_query(url_object.query().unwrap().to_string());
 
             if sorted_query.is_some() {
                 path = [path.as_str(), "?", sorted_query.as_ref().unwrap().as_str()].join("");
-                path_decoded = [
-                    path_decoded.as_str(),
-                    "?",
-                    sorted_query.as_ref().unwrap().as_str(),
-                ]
-                .join("");
             }
         }
 
@@ -200,7 +191,7 @@ impl MainRouter {
         let mut capture_option = regex_groups.captures(path.as_str());
 
         if capture_option.is_none() {
-            capture_option = regex_groups.captures(path_decoded.as_str());
+            capture_option = regex_groups.captures(path.as_str());
 
             if capture_option.is_none() {
                 return Ok(target);

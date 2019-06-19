@@ -15,6 +15,10 @@ default = ["console_error_panic_hook"]
 name = "redirectionio"
 crate-type = ["staticlib", "cdylib"]
 
+[[bin]]
+name = "bench"
+path = "src/bin.rs"
+
 [build-dependencies]
 cbindgen="0.8.4"
 
