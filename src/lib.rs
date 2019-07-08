@@ -144,7 +144,7 @@ pub extern "C" fn redirectionio_update_rules_for_router(
 #[wasm_bindgen]
 pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
     let routers = PROJECT_ROUTERS.read().unwrap();
-    let router: Option<&router::MainRouter> =  routers.get(project_id.as_str());
+    let router: Option<&router::MainRouter> = routers.get(project_id.as_str());
 
     if router.is_none() {
         return None;
@@ -194,7 +194,7 @@ pub extern "C" fn redirectionio_get_rule_for_url(
 #[wasm_bindgen]
 pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
     let routers = PROJECT_ROUTERS.read().unwrap();
-    let router: Option<&router::MainRouter> =  routers.get(project_id.as_str());
+    let router: Option<&router::MainRouter> = routers.get(project_id.as_str());
 
     if router.is_none() {
         return None;
