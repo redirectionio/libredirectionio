@@ -1,0 +1,59 @@
+RUST_SOURCES =                                      \
+        Cargo.toml                                  \
+        src/build.rs                                \
+        src/callback_log.rs                         \
+        src/lib.rs                                  \
+        src/filter/mod.rs                           \
+        src/filter/filter_body.rs                   \
+        src/filter/filter_header.rs                 \
+        src/filter/body_action/mod.rs               \
+        src/filter/body_action/body_append.rs       \
+        src/filter/body_action/body_prepend.rs      \
+        src/filter/body_action/body_replace.rs      \
+        src/filter/header_action/mod.rs             \
+        src/filter/header_action/header_add.rs      \
+        src/filter/header_action/header_remove.rs   \
+        src/filter/header_action/header_replace.rs  \
+        src/html/mod.rs                             \
+        src/router/mod.rs                           \
+        src/router/api.rs                           \
+        src/router/router_host.rs                   \
+        src/router/router_path.rs                   \
+        src/router/router_scheme.rs                 \
+        src/router/rule.rs                          \
+        src/router/transform.rs                     \
+        src/router/url_matcher.rs                   \
+        src/router/url_matcher_regex.rs             \
+        src/router/url_matcher_rules.rs
+
+RUST_EXTRA =                     \
+        Cargo.lock
+
+EXTRA_DIST += $(RUST_SOURCES) $(RUST_EXTRA)
+
+DESTDIR ?= @prefix@
+
+MAKE_PID    := $(shell echo $$PPID)
+JOB_FLAG    := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
+JOBS        := $(subst -j,,$(JOB_FLAG))
+
+ifdef JOBS
+CARGO_FLAGS=-j $(JOBS)
+else
+CARGO_FLAGS=
+endif
+
+all: target/release/libredirectionio.a
+
+target/redirectionio.h target/release/libredirectionio.a target/release/libredirectionio.la: $(EXTRA_DIST)
+	cargo build $(CARGO_FLAGS) --lib @RUST_RELEASE@
+
+.PHONY: install
+install: target/redirectionio.h target/release/libredirectionio.a target/release/libredirectionio.la libredirectionio.pc
+	install -c -m 644 target/redirectionio.h $(DESTDIR)/include/
+	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a target/@RUST_TARGET_SUBDIR@/libredirectionio.la $(DESTDIR)/lib/
+	install -c -m 644 libredirectionio.pc $(DESTDIR)/lib/pkgconfig/
+
+.PHONY:	clean
+clean:
+	rm -rf target

@@ -1,4 +1,5 @@
 extern crate cbindgen;
+extern crate libtool;
 
 use std::env;
 use std::path::PathBuf;

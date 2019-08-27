@@ -1,2 +1,8 @@
+autom4te.cache
 target/
 rules.json
+config.log
+config.status
+configure
+libredirectionio.pc
+Makefile
