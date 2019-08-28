@@ -45,13 +45,13 @@ endif
 
 all: target/release/libredirectionio.a
 
-target/redirectionio.h target/release/libredirectionio.a target/release/libredirectionio.la: $(EXTRA_DIST)
+target/redirectionio.h target/release/libredirectionio.a: $(EXTRA_DIST)
 	cargo build $(CARGO_FLAGS) --lib @RUST_RELEASE@
 
 .PHONY: install
-install: target/redirectionio.h target/release/libredirectionio.a target/release/libredirectionio.la libredirectionio.pc
+install: target/redirectionio.h target/release/libredirectionio.a libredirectionio.pc
 	install -c -m 644 target/redirectionio.h $(DESTDIR)/include/
-	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a target/@RUST_TARGET_SUBDIR@/libredirectionio.la $(DESTDIR)/lib/
+	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)/lib/
 	install -c -m 644 libredirectionio.pc $(DESTDIR)/lib/pkgconfig/
 
 .PHONY:	clean
