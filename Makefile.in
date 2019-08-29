@@ -31,7 +31,7 @@ RUST_EXTRA =                     \
 
 EXTRA_DIST += $(RUST_SOURCES) $(RUST_EXTRA)
 
-DESTDIR ?= @prefix@
+DESTDIR ?=
 
 MAKE_PID    := $(shell echo $$PPID)
 JOB_FLAG    := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
@@ -50,9 +50,12 @@ target/redirectionio.h target/release/libredirectionio.a: $(EXTRA_DIST)
 
 .PHONY: install
 install: target/redirectionio.h target/release/libredirectionio.a libredirectionio.pc
-	install -c -m 644 target/redirectionio.h $(DESTDIR)/include/
-	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)/lib/
-	install -c -m 644 libredirectionio.pc $(DESTDIR)/lib/pkgconfig/
+	mkdir -p $(DESTDIR)@prefix@/include/
+	install -c -m 644 target/redirectionio.h $(DESTDIR)@prefix@/include/
+	mkdir -p $(DESTDIR)@prefix@/lib/
+	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@prefix@/lib/
+	mkdir -p $(DESTDIR)@prefix@/lib/pkgconfig/
+	install -c -m 644 libredirectionio.pc $(DESTDIR)@prefix@/lib/pkgconfig/
 
 .PHONY:	clean
 clean:

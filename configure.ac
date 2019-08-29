@@ -35,7 +35,7 @@ AC_SUBST([RUST_RELEASE])
 AC_SUBST([RUST_TARGET_SUBDIR])
 
 AC_MSG_NOTICE([summary of build options:
-    Install prefix:        ${PREFIX}
+    Install prefix:        ${prefix}
     Debugging information: ${debug_release}
 ])
 
