@@ -9,7 +9,7 @@ use url::Url;
 
 #[derive(Debug)]
 pub struct RouterPath {
-    matcher: Box<UrlMatcher>,
+    matcher: Box<dyn UrlMatcher>,
 }
 
 impl router::Router for RouterPath {
@@ -111,7 +111,7 @@ fn build_matcher_tree(
     base_prefix: String,
     mut rule_map: HashMap<String, Vec<router::rule::Rule>>,
     cache: bool,
-) -> Result<Box<router::url_matcher::UrlMatcher>, regex::Error> {
+) -> Result<Box<dyn router::url_matcher::UrlMatcher>, regex::Error> {
     if rule_map.is_empty() {
         return Ok(Box::new(UrlMatcherRules::new(Vec::new())));
     }

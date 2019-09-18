@@ -10,7 +10,7 @@ use url::Url;
 pub struct UrlMatcherItem {
     pub regex: String,
     regex_obj: Option<Regex>,
-    pub matcher: Box<UrlMatcher>,
+    pub matcher: Box<dyn UrlMatcher>,
 }
 
 #[derive(Debug)]
@@ -22,7 +22,7 @@ pub struct UrlMatcherRegex {
 impl UrlMatcherItem {
     pub fn new(
         regex_str: String,
-        matcher: Box<UrlMatcher>,
+        matcher: Box<dyn UrlMatcher>,
         cache: bool,
     ) -> Result<UrlMatcherItem, regex::Error> {
         let mut regex_obj = None;
@@ -38,7 +38,7 @@ impl UrlMatcherItem {
         });
     }
 
-    fn match_string(&self, value: &str) -> Result<Option<&Box<UrlMatcher>>, regex::Error> {
+    fn match_string(&self, value: &str) -> Result<Option<&Box<dyn UrlMatcher>>, regex::Error> {
         if self.regex_obj.is_some() {
             let regex = self.regex_obj.as_ref().unwrap();
 
@@ -70,7 +70,11 @@ impl UrlMatcherRegex {
 }
 
 impl url_matcher::UrlMatcher for UrlMatcherRegex {
-    fn match_rule(&self, url: &Url, path: &str) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
+    fn match_rule(
+        &self,
+        url: &Url,
+        path: &str,
+    ) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
         if self.empty.is_some() {
             let empty_match = self.empty.as_ref().unwrap().match_string(&path)?;
 
@@ -92,7 +96,11 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
         return Ok(matched_rules);
     }
 
-    fn trace(&self, url: &Url, path: &str) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>> {
+    fn trace(
+        &self,
+        url: &Url,
+        path: &str,
+    ) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>> {
         let mut traces = Vec::new();
 
         if self.empty.is_some() {

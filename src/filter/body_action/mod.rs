@@ -34,7 +34,7 @@ pub fn evaluate(data: String, expression: String) -> bool {
     return result;
 }
 
-pub fn create_body_action(filter: &rule::BodyFilter) -> Option<Box<BodyAction>> {
+pub fn create_body_action(filter: &rule::BodyFilter) -> Option<Box<dyn BodyAction>> {
     if filter.element_tree.len() == 0 {
         return None;
     }

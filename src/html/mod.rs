@@ -50,7 +50,7 @@ struct Span {
 }
 
 pub struct Tokenizer<'t> {
-    reader: &'t mut Read,
+    reader: &'t mut dyn Read,
     token: TokenType,
     err: Option<Error>,
     raw: Span,
@@ -106,11 +106,11 @@ impl ToString for Token {
 }
 
 impl<'t> Tokenizer<'t> {
-    pub fn new(reader: &'t mut Read) -> Tokenizer {
+    pub fn new(reader: &'t mut dyn Read) -> Tokenizer {
         return Tokenizer::new_fragment(reader, "".to_string());
     }
 
-    pub fn new_fragment(reader: &'t mut Read, mut context_tag: String) -> Tokenizer {
+    pub fn new_fragment(reader: &'t mut dyn Read, mut context_tag: String) -> Tokenizer {
         let mut tokenizer = Tokenizer {
             reader,
             token: TokenType::NoneToken,

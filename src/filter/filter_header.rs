@@ -2,7 +2,7 @@ use crate::filter::header_action;
 use crate::router::rule;
 
 pub struct FilterHeaderAction {
-    actions: Vec<Box<header_action::HeaderAction>>,
+    actions: Vec<Box<dyn header_action::HeaderAction>>,
 }
 
 impl FilterHeaderAction {

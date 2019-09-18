@@ -85,7 +85,7 @@ impl body_action::BodyAction for BodyAppend {
 }
 
 fn append_child(content: String, child: String) -> String {
-    let buffer = &mut content.as_bytes() as &mut std::io::Read;
+    let buffer = &mut content.as_bytes() as &mut dyn std::io::Read;
     let mut tokenizer = html::Tokenizer::new(buffer);
     let mut output = "".to_string();
     let mut level = 0;

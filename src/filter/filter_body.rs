@@ -14,7 +14,7 @@ struct BufferLink {
 struct FilterBodyVisitor {
     enter: Option<String>,
     leave: Option<String>,
-    action: Box<body_action::BodyAction>,
+    action: Box<dyn body_action::BodyAction>,
 }
 
 #[derive(Debug)]
@@ -82,7 +82,7 @@ impl FilterBodyAction {
     pub fn filter(&mut self, input: String) -> String {
         let mut data = self.last_buffer.clone();
         data.push_str(input.as_str());
-        let buffer = &mut data.as_bytes() as &mut std::io::Read;
+        let buffer = &mut data.as_bytes() as &mut dyn std::io::Read;
         let mut tokenizer = html::Tokenizer::new(buffer);
         let mut to_return = "".to_string();
 
