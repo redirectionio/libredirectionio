@@ -1,8 +1,8 @@
 AC_INIT([libredirectionio], [1.0.0], [contact@redirection.io])
 AC_PREFIX_DEFAULT(/usr)
 
-AC_CHECK_PROG(CARGO, [cargo], [yes], [no])
-AS_IF(test x$CARGO = xno,
+AC_PATH_PROG(CARGO_BIN, [cargo], [])
+AS_IF(test x$CARGO_BIN = x,
     AC_MSG_ERROR([cargo is required.  Please install the Rust toolchain from https://www.rust-lang.org/])
 )
 
@@ -31,6 +31,7 @@ else
     RUST_TARGET_SUBDIR=release
 fi
 
+AC_SUBST([CARGO_BIN])
 AC_SUBST([RUST_RELEASE])
 AC_SUBST([RUST_TARGET_SUBDIR])
 

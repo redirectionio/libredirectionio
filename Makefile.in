@@ -43,19 +43,22 @@ else
 CARGO_FLAGS=
 endif
 
+prefix := @prefix@
+exec_prefix := @exec_prefix@
+
 all: target/release/libredirectionio.a
 
 target/redirectionio.h target/release/libredirectionio.a: $(EXTRA_DIST)
-	cargo build $(CARGO_FLAGS) --lib @RUST_RELEASE@
+	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@
 
 .PHONY: install
 install: target/redirectionio.h target/release/libredirectionio.a libredirectionio.pc
 	mkdir -p $(DESTDIR)@prefix@/include/
 	install -c -m 644 target/redirectionio.h $(DESTDIR)@prefix@/include/
-	mkdir -p $(DESTDIR)@prefix@/lib/
-	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@prefix@/lib/
-	mkdir -p $(DESTDIR)@prefix@/lib/pkgconfig/
-	install -c -m 644 libredirectionio.pc $(DESTDIR)@prefix@/lib/pkgconfig/
+	mkdir -p $(DESTDIR)@libdir@/
+	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
+	mkdir -p $(DESTDIR)@libdir@/pkgconfig/
+	install -c -m 644 libredirectionio.pc $(DESTDIR)@libdir@/pkgconfig/
 
 .PHONY:	clean
 clean:
