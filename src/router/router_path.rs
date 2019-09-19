@@ -35,12 +35,16 @@ impl router::Router for RouterPath {
 
         return self.matcher.trace(&url, path.as_str());
     }
+
+    fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
+        return self.matcher.build_cache(cache_limit, level);
+    }
 }
 
 impl RouterPath {
-    pub fn new(rules: Vec<router::rule::Rule>, cache: bool) -> Result<RouterPath, regex::Error> {
+    pub fn new(rules: Vec<router::rule::Rule>) -> Result<RouterPath, regex::Error> {
         let rule_map = create_prefixed_map_rules(rules, "".to_string());
-        let matcher_generic = build_matcher_tree("".to_string(), rule_map, cache)?;
+        let matcher_generic = build_matcher_tree("".to_string(), rule_map, 0)?;
 
         return Ok(RouterPath {
             matcher: matcher_generic,
@@ -110,15 +114,16 @@ fn strip_characters(original: &str, prefix: &str) -> String {
 fn build_matcher_tree(
     base_prefix: String,
     mut rule_map: HashMap<String, Vec<router::rule::Rule>>,
-    cache: bool,
+    level: u64,
 ) -> Result<Box<dyn router::url_matcher::UrlMatcher>, regex::Error> {
     if rule_map.is_empty() {
-        return Ok(Box::new(UrlMatcherRules::new(Vec::new())));
+        return Ok(Box::new(UrlMatcherRules::new(Vec::new(), level)));
     }
 
     if rule_map.len() == 1 {
         return Ok(Box::new(UrlMatcherRules::new(
             rule_map.values().next().unwrap().to_vec(),
+            level,
         )));
     }
 
@@ -138,8 +143,8 @@ fn build_matcher_tree(
                 ["^", base_prefix.as_str(), prefix.as_str()]
                     .join("")
                     .to_string(),
-                build_matcher_tree(new_base_prefix, prefixed_map_rules, cache)?,
-                cache,
+                build_matcher_tree(new_base_prefix, prefixed_map_rules, level + 1)?,
+                level,
             )?);
         }
 
@@ -151,8 +156,8 @@ fn build_matcher_tree(
     if empty.len() > 0 {
         empty_matcher = Some(UrlMatcherItem::new(
             ["^", base_prefix.as_str(), "$"].join("").to_string(),
-            Box::new(UrlMatcherRules::new(empty)),
-            cache,
+            Box::new(UrlMatcherRules::new(empty, level)),
+            level,
         )?);
     }
 

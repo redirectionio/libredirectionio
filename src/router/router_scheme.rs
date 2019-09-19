@@ -10,10 +10,7 @@ pub struct RouterScheme {
 }
 
 impl RouterScheme {
-    pub fn new(
-        rules: Vec<router::rule::Rule>,
-        cache: bool,
-    ) -> Result<RouterScheme, Box<dyn std::error::Error>> {
+    pub fn new(rules: Vec<router::rule::Rule>) -> Result<RouterScheme, Box<dyn std::error::Error>> {
         let mut http_rules = Vec::new();
         let mut https_rules = Vec::new();
         let mut any_scheme_rules = Vec::new();
@@ -34,9 +31,9 @@ impl RouterScheme {
         }
 
         return Ok(RouterScheme {
-            http_router: router::router_host::RouterHost::new(http_rules, cache)?,
-            https_router: router::router_host::RouterHost::new(https_rules, cache)?,
-            any_scheme_router: router::router_host::RouterHost::new(any_scheme_rules, cache)?,
+            http_router: router::router_host::RouterHost::new(http_rules)?,
+            https_router: router::router_host::RouterHost::new(https_rules)?,
+            any_scheme_router: router::router_host::RouterHost::new(any_scheme_rules)?,
         });
     }
 }
@@ -56,6 +53,16 @@ impl router::Router for RouterScheme {
         }
 
         return Ok(rules_found);
+    }
+
+    fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
+        let mut new_cache_limit = cache_limit;
+
+        new_cache_limit = self.https_router.build_cache(new_cache_limit, level);
+        new_cache_limit = self.http_router.build_cache(new_cache_limit, level);
+        new_cache_limit = self.any_scheme_router.build_cache(new_cache_limit, level);
+
+        return new_cache_limit;
     }
 
     fn trace(

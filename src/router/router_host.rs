@@ -11,10 +11,7 @@ pub struct RouterHost {
 }
 
 impl RouterHost {
-    pub fn new(
-        rules: Vec<router::rule::Rule>,
-        cache: bool,
-    ) -> Result<RouterHost, Box<dyn std::error::Error>> {
+    pub fn new(rules: Vec<router::rule::Rule>) -> Result<RouterHost, Box<dyn std::error::Error>> {
         let mut hosts_router_rules = HashMap::new();
         let mut any_host_rules = Vec::new();
 
@@ -43,11 +40,11 @@ impl RouterHost {
                 .push(rule);
         }
 
-        let any_host_router = RouterPath::new(any_host_rules, cache)?;
+        let any_host_router = RouterPath::new(any_host_rules)?;
         let mut hosts_routers = HashMap::new();
 
         for (host, rules_by_host) in hosts_router_rules {
-            hosts_routers.insert(host.to_string(), RouterPath::new(rules_by_host, cache)?);
+            hosts_routers.insert(host.to_string(), RouterPath::new(rules_by_host)?);
         }
 
         return Ok(RouterHost {
@@ -120,5 +117,17 @@ impl router::Router for RouterHost {
         traces.append(self.any_host_router.trace(url)?.borrow_mut());
 
         return Ok(traces);
+    }
+
+    fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
+        let mut new_cache_limit = cache_limit;
+
+        new_cache_limit = self.any_host_router.build_cache(new_cache_limit, level);
+
+        for (_, router) in &mut self.hosts_routers {
+            new_cache_limit = router.build_cache(new_cache_limit, level);
+        }
+
+        return new_cache_limit;
     }
 }

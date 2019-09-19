@@ -11,6 +11,7 @@ pub struct UrlMatcherItem {
     pub regex: String,
     regex_obj: Option<Regex>,
     pub matcher: Box<dyn UrlMatcher>,
+    level: u64,
 }
 
 #[derive(Debug)]
@@ -23,18 +24,13 @@ impl UrlMatcherItem {
     pub fn new(
         regex_str: String,
         matcher: Box<dyn UrlMatcher>,
-        cache: bool,
+        level: u64,
     ) -> Result<UrlMatcherItem, regex::Error> {
-        let mut regex_obj = None;
-
-        if cache {
-            regex_obj = Some(Regex::new(regex_str.as_str())?);
-        }
-
         return Ok(UrlMatcherItem {
             regex: regex_str,
-            regex_obj,
+            regex_obj: None,
             matcher,
+            level,
         });
     }
 
@@ -56,6 +52,30 @@ impl UrlMatcherItem {
         }
 
         return Ok(None);
+    }
+
+    fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
+        if level < self.level {
+            return cache_limit;
+        }
+
+        if level != self.level {
+            return self.matcher.build_cache(cache_limit, level);
+        }
+
+        if self.regex_obj.is_some() {
+            return cache_limit;
+        }
+
+        let regex = Regex::new(self.regex.as_str());
+
+        if regex.is_err() {
+            return cache_limit;
+        }
+
+        self.regex_obj = Some(regex.unwrap());
+
+        return cache_limit - 1;
     }
 
     fn get_rules(&self) -> Vec<&rule::Rule> {
@@ -94,6 +114,24 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
         }
 
         return Ok(matched_rules);
+    }
+
+    fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
+        let mut new_cache_limit = cache_limit;
+
+        if self.empty.is_some() {
+            new_cache_limit = self
+                .empty
+                .as_mut()
+                .unwrap()
+                .build_cache(new_cache_limit, level);
+        }
+
+        for matcher in &mut self.children {
+            new_cache_limit = matcher.build_cache(new_cache_limit, level);
+        }
+
+        return new_cache_limit;
     }
 
     fn trace(

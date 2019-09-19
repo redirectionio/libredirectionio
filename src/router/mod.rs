@@ -18,6 +18,7 @@ use url::Url;
 pub trait Router {
     fn match_rule(&self, url: Url) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>>;
     fn trace(&self, url: Url) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>>;
+    fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64;
 }
 
 #[derive(Debug)]
@@ -28,13 +29,13 @@ pub struct MainRouter {
 impl MainRouter {
     pub fn new_from_data(
         data: String,
-        cache: bool,
+        cache_limit: u64,
     ) -> Result<MainRouter, Box<dyn std::error::Error>> {
         let rules: Vec<rule::Rule> = serde_json::from_str(data.as_str())?;
         let mut storage = Vec::new();
 
         for mut rule in rules {
-            let compile_result = rule.compile(cache);
+            let compile_result = rule.compile(false);
 
             if compile_result.is_err() {
                 error!(
@@ -47,16 +48,32 @@ impl MainRouter {
             }
         }
 
-        return MainRouter::new(storage, cache);
+        let mut router = MainRouter::new(storage)?;
+        router.build_cache(cache_limit);
+
+        return Ok(router);
     }
 
-    pub fn new(
-        rules: Vec<rule::Rule>,
-        cache: bool,
-    ) -> Result<MainRouter, Box<dyn std::error::Error>> {
-        let router_scheme = RouterScheme::new(rules, cache)?;
+    pub fn new(rules: Vec<rule::Rule>) -> Result<MainRouter, Box<dyn std::error::Error>> {
+        let router_scheme = RouterScheme::new(rules)?;
 
         return Ok(MainRouter { router_scheme });
+    }
+
+    fn build_cache(&mut self, cache_limit: u64) {
+        let mut prev_cache_limit = cache_limit;
+        let mut level = 0;
+
+        while prev_cache_limit > 0 {
+            let next_cache_limit = self.router_scheme.build_cache(prev_cache_limit, level);
+
+            if next_cache_limit == prev_cache_limit {
+                break;
+            }
+
+            level += 1;
+            prev_cache_limit = next_cache_limit;
+        }
     }
 
     fn parse_url(url_str: String) -> Result<Url, url::ParseError> {

@@ -103,9 +103,9 @@ macro_rules! cstr_to_str {
 }
 
 #[wasm_bindgen]
-pub fn update_rules_for_router(project_id: String, rules_data: String, cache: bool) -> String {
+pub fn update_rules_for_router(project_id: String, rules_data: String, cache_limit: u64) -> String {
     utils::set_panic_hook();
-    let main_router_result = router::MainRouter::new_from_data(rules_data, cache);
+    let main_router_result = router::MainRouter::new_from_data(rules_data, cache_limit);
 
     if main_router_result.is_err() {
         error!(
@@ -129,13 +129,13 @@ pub fn update_rules_for_router(project_id: String, rules_data: String, cache: bo
 pub extern "C" fn redirectionio_update_rules_for_router(
     project_id_cstr: *const libc::c_char,
     rules_data_cstr: *const libc::c_char,
-    cache: libc::c_uint,
+    cache: libc::c_ulong,
 ) -> *const libc::c_char {
     unsafe {
         cstr_to_str!(project_id_cstr, project_id, "project id");
         cstr_to_str!(rules_data_cstr, rules_data, "rules data");
 
-        let project_id_created = update_rules_for_router(project_id, rules_data, cache != 0);
+        let project_id_created = update_rules_for_router(project_id, rules_data, cache);
 
         return str_to_cstr(project_id_created);
     }
