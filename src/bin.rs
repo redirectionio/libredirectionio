@@ -27,7 +27,7 @@ fn main() -> std::io::Result<()> {
     let data = serde_json::to_string(&api.rules)?;
     error!("Rule serializzd");
 
-    let main_router = router::MainRouter::new_from_data(data, false);
+    let main_router = router::MainRouter::new_from_data(data, 0);
     error!("Router created");
 
     println!("{:?}", main_router);
