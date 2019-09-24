@@ -5,7 +5,7 @@ use std::intrinsics::transmute;
 use std::ptr::null;
 
 #[allow(non_camel_case_types)]
-pub type redirectionio_log_callback = extern "C" fn(*const libc::c_char, *const libc::c_void);
+pub type redirectionio_log_callback = extern "C" fn(*const libc::c_char, *const libc::c_void, libc::c_short);
 
 pub struct CallbackLogger {
     pub callback: Option<redirectionio_log_callback>,
@@ -30,7 +30,7 @@ impl log::Log for CallbackLogger {
             let log_str = format!("{} - {}", record.level(), record.args());
             let cstr = safe_str_to_cstr(log_str);
 
-            (self.callback.unwrap())(cstr, self.data.unwrap());
+            (self.callback.unwrap())(cstr, self.data.unwrap(), record.level() as i16);
         }
     }
 

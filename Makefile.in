@@ -46,13 +46,13 @@ endif
 prefix := @prefix@
 exec_prefix := @exec_prefix@
 
-all: target/release/libredirectionio.a
+all: target/redirectionio.h target/release/libredirectionio.a
 
-target/redirectionio.h target/release/libredirectionio.a: $(EXTRA_DIST)
+target/redirectionio.h target/release/libredirectionio.a:
 	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@
 
 .PHONY: install
-install: target/redirectionio.h target/release/libredirectionio.a libredirectionio.pc
+install: target/redirectionio.h target/release/libredirectionio.a
 	mkdir -p $(DESTDIR)@prefix@/include/
 	install -c -m 644 target/redirectionio.h $(DESTDIR)@prefix@/include/
 	mkdir -p $(DESTDIR)@libdir@/
