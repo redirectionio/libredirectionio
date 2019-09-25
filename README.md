@@ -16,7 +16,8 @@ autoreconf -i
 make
 ```
 
-You can run `make install` to install your module to the current nginx module folder (you may need root permissions in order to do so).
+You can run `make install` (with root permissions) to install this library into your system, this is required if you need to 
+compile some of our modules against this library.
 
 ### Web Assembly
 
