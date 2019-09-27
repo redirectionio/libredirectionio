@@ -495,7 +495,7 @@ fn cstr_to_str(cstr: *const libc::c_char) -> &'static str {
         let result = cstring.to_str();
 
         if result.is_err() {
-            println!(
+            error!(
                 "Unable to create string for '{}': {}",
                 String::from_utf8_lossy(cstring.to_bytes()),
                 result.err().unwrap()
