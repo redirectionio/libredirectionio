@@ -5,7 +5,6 @@ extern crate lazy_static;
 extern crate libc;
 #[macro_use]
 extern crate log;
-extern crate html5ever;
 extern crate stderrlog;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -459,12 +458,6 @@ pub extern "C" fn redirectionio_body_filter_end(
     }
 
     return str_to_cstr(new_data.unwrap());
-}
-
-#[no_mangle]
-#[cfg(not(target_arch = "wasm32"))]
-pub extern "C" fn redirectionio_fix_segfault() {
-    html5ever::LocalName::from("not_existing_property");
 }
 
 #[cfg(not(target_arch = "wasm32"))]
