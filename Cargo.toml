@@ -15,10 +15,6 @@ default = ["console_error_panic_hook"]
 name = "redirectionio"
 crate-type = ["staticlib", "cdylib"]
 
-[[bin]]
-name = "bench"
-path = "src/bin.rs"
-
 [build-dependencies]
 cbindgen="0.9.1"
 libtool = "0.1.1"
@@ -61,3 +57,7 @@ string_cache = { git = "https://github.com/servo/string-cache", branch = "master
 [profile.release]
 # Tell `rustc` to optimize for small code size.
 opt-level = "s"
+
+[[test]]
+name = "small-stack"
+harness = false
