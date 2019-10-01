@@ -1,6 +1,6 @@
 /* redirection.io options */
 const options = {
-    token: INSTALL_OPTIONS.token,
+    token: YOUR_OWN_TOKEN,
     timeout: 2000,
 };
 
@@ -15,7 +15,7 @@ addEventListener('fetch', async event => {
 
 async function respondWithCallback(request) {
     const libredirectionio = wasm_bindgen;
-    await wasm_bindgen("https://packages.preprod.redirection.io/webassembly/libredirectionio-latest.wasm");
+    await wasm_bindgen(wasm);
     const [response, rule] = await handle(request, libredirectionio);
 
     await log(request, response, rule);

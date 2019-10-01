@@ -6,3 +6,4 @@ config.status
 configure
 libredirectionio.pc
 Makefile
+wrangler.toml

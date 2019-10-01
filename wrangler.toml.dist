@@ -1,0 +1,6 @@
+account_id = "YOUR_ACCOUNT_ID"
+name = "libredirectionio"
+type = "rust"
+route = "YOUR_ROUTE_WHERE"
+workers_dev = false
+zone_id = "YOUR_ZONE_ID"
