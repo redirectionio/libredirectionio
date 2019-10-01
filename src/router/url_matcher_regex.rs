@@ -55,6 +55,10 @@ impl UrlMatcherItem {
     }
 
     fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
+        if cache_limit == 0 {
+            return cache_limit;
+        }
+
         if level < self.level {
             return cache_limit;
         }
