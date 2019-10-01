@@ -13,7 +13,7 @@ default = ["console_error_panic_hook"]
 
 [lib]
 name = "redirectionio"
-crate-type = ["staticlib", "cdylib"]
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 cbindgen="0.9.1"
