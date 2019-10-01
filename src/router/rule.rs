@@ -229,7 +229,7 @@ mod tests {
 
     #[test]
     pub fn test_source_compile_emoji() {
-        let mut source = Source {
+        let source = Source {
             scheme: Some("http".to_string()),
             host: Some("www.test.com".to_string()),
             query: None,

@@ -22,7 +22,7 @@ use std::intrinsics::transmute;
 use std::ptr::null;
 use std::sync::{Mutex, RwLock};
 #[cfg(not(target_arch = "wasm32"))]
-use std::sync::{Once, ONCE_INIT};
+use std::sync::Once;
 use uuid::Uuid;
 use wasm_bindgen::prelude::*;
 
@@ -50,7 +50,7 @@ static mut LOGGER: callback_log::CallbackLogger = callback_log::CallbackLogger {
 };
 
 #[cfg(not(target_arch = "wasm32"))]
-static INIT: Once = ONCE_INIT;
+static INIT: Once = Once::new();
 
 #[cfg(target_arch = "wasm32")]
 pub fn init_log() {
@@ -79,27 +79,6 @@ pub extern "C" fn redirectionio_init_log_callback(
                 .expect("cannot set logger");
         });
     }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-macro_rules! cstr_to_str {
-    ($cstr:expr, $str:ident, $origin:expr) => {
-        let cstring = std::ffi::CStr::from_ptr($cstr);
-        let result = cstring.to_str();
-
-        if result.is_err() {
-            error!(
-                "Unable to create string for {} '{}': {}",
-                $origin,
-                String::from_utf8_lossy(cstring.to_bytes()),
-                result.err().unwrap()
-            );
-
-            return null();
-        }
-
-        let $str = result.unwrap().to_string();
-    };
 }
 
 #[wasm_bindgen]
@@ -131,14 +110,12 @@ pub extern "C" fn redirectionio_update_rules_for_router(
     rules_data_cstr: *const libc::c_char,
     cache: libc::c_ulong,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(project_id_cstr, project_id, "project id");
-        cstr_to_str!(rules_data_cstr, rules_data, "rules data");
+    let project_id_str = cstr_to_str(project_id_cstr).to_string();
+    let rules_data_str = cstr_to_str(rules_data_cstr).to_string();
 
-        let project_id_created = update_rules_for_router(project_id, rules_data, cache);
+    let project_id_created = update_rules_for_router(project_id_str, rules_data_str, cache);
 
-        return str_to_cstr(project_id_created);
-    }
+    return str_to_cstr(project_id_created);
 }
 
 #[wasm_bindgen]
@@ -177,18 +154,16 @@ pub extern "C" fn redirectionio_get_rule_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(project_id_cstr, project_id, "project id in get rule");
-        cstr_to_str!(url_cstr, url, "url in get rule");
+    let project_id_str = cstr_to_str(project_id_cstr).to_string();
+    let url_str = cstr_to_str(url_cstr).to_string();
 
-        let rule_data = get_rule_for_url(project_id, url);
+    let rule_data = get_rule_for_url(project_id_str, url_str);
 
-        if rule_data.is_none() {
-            return null();
-        }
-
-        return str_to_cstr(rule_data.unwrap());
+    if rule_data.is_none() {
+        return null();
     }
+
+    return str_to_cstr(rule_data.unwrap());
 }
 
 #[wasm_bindgen]
@@ -230,18 +205,16 @@ pub extern "C" fn redirectionio_get_trace_for_url(
     project_id_cstr: *const libc::c_char,
     url_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(project_id_cstr, project_id, "project id in get trace");
-        cstr_to_str!(url_cstr, url, "url in get trace");
+    let project_id_str = cstr_to_str(project_id_cstr).to_string();
+    let url_str = cstr_to_str(url_cstr).to_string();
 
-        let trace_data = get_trace_for_url(project_id, url);
+    let trace_data = get_trace_for_url(project_id_str, url_str);
 
-        if trace_data.is_none() {
-            return null();
-        }
-
-        return str_to_cstr(trace_data.unwrap());
+    if trace_data.is_none() {
+        return null();
     }
+
+    return str_to_cstr(trace_data.unwrap());
 }
 
 #[wasm_bindgen]
@@ -313,18 +286,16 @@ pub extern "C" fn redirectionio_get_redirect(
     url_cstr: *const libc::c_char,
     response_code: u16,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(rule_cstr, rule, "rule in get redirect");
-        cstr_to_str!(url_cstr, url, "url in get redirect");
+    let rule_str = cstr_to_str(rule_cstr).to_string();
+    let url_str = cstr_to_str(url_cstr).to_string();
 
-        let redirect = get_redirect(rule, url, response_code);
+    let redirect = get_redirect(rule_str, url_str, response_code);
 
-        if redirect.is_none() {
-            return null();
-        }
-
-        return str_to_cstr(redirect.unwrap());
+    if redirect.is_none() {
+        return null();
     }
+
+    return str_to_cstr(redirect.unwrap());
 }
 
 #[wasm_bindgen]
@@ -372,14 +343,12 @@ pub extern "C" fn redirectionio_header_filter(
     rule_cstr: *const libc::c_char,
     headers_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(rule_cstr, rule, "rule in header filtering");
-        cstr_to_str!(headers_cstr, headers, "headers in header filtering");
+    let rule_str = cstr_to_str(rule_cstr).to_string();
+    let headers_str = cstr_to_str(headers_cstr).to_string();
 
-        let new_headers_str = header_filter(rule, headers);
+    let new_headers_str = header_filter(rule_str, headers_str);
 
-        return str_to_cstr(new_headers_str);
-    }
+    return str_to_cstr(new_headers_str);
 }
 
 #[wasm_bindgen]
@@ -417,17 +386,14 @@ pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String>
 pub extern "C" fn redirectionio_create_body_filter(
     rule_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(rule_cstr, rule, "rule in create body filter");
+    let rule_str = cstr_to_str(rule_cstr).to_string();
+    let filter_id = create_body_filter(rule_str, "".to_string());
 
-        let filter_id = create_body_filter(rule, "".to_string());
-
-        if filter_id.is_none() {
-            return null();
-        }
-
-        return str_to_cstr(filter_id.unwrap());
+    if filter_id.is_none() {
+        return null();
     }
+
+    return str_to_cstr(filter_id.unwrap());
 }
 
 #[wasm_bindgen]
@@ -453,22 +419,15 @@ pub extern "C" fn redirectionio_body_filter(
     filter_id_cstr: *const libc::c_char,
     filter_body_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(filter_id_cstr, filter_id, "filter id in body filtering");
-        cstr_to_str!(
-            filter_body_cstr,
-            filter_body,
-            "filter body in body filtering"
-        );
+    let filter_id = cstr_to_str(filter_id_cstr).to_string();
+    let filter_body = cstr_to_str(filter_body_cstr).to_string();
+    let new_data = body_filter(filter_id, filter_body);
 
-        let new_data = body_filter(filter_id, filter_body);
-
-        if new_data.is_none() {
-            return null();
-        }
-
-        return str_to_cstr(new_data.unwrap());
+    if new_data.is_none() {
+        return null();
     }
+
+    return str_to_cstr(new_data.unwrap());
 }
 
 #[wasm_bindgen]
@@ -491,21 +450,14 @@ pub fn body_filter_end(filter_id: String) -> Option<String> {
 pub extern "C" fn redirectionio_body_filter_end(
     filter_id_cstr: *const libc::c_char,
 ) -> *const libc::c_char {
-    unsafe {
-        cstr_to_str!(
-            filter_id_cstr,
-            filter_id,
-            "filter id in body filtering ending"
-        );
+    let filter_id = cstr_to_str(filter_id_cstr);
+    let new_data = body_filter_end(filter_id.to_string());
 
-        let new_data = body_filter_end(filter_id);
-
-        if new_data.is_none() {
-            return null();
-        }
-
-        return str_to_cstr(new_data.unwrap());
+    if new_data.is_none() {
+        return null();
     }
+
+    return str_to_cstr(new_data.unwrap());
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -527,6 +479,26 @@ fn str_to_cstr(str: String) -> *const libc::c_char {
 
         return (&*data).as_ptr();
     };
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn cstr_to_str(cstr: *const libc::c_char) -> &'static str {
+    unsafe {
+        let cstring = std::ffi::CStr::from_ptr(cstr);
+        let result = cstring.to_str();
+
+        if result.is_err() {
+            error!(
+                "Unable to create string for '{}': {}",
+                String::from_utf8_lossy(cstring.to_bytes()),
+                result.err().unwrap()
+            );
+
+            return "";
+        }
+
+        result.unwrap()
+    }
 }
 
 fn rule_to_string(rule_obj: &router::rule::Rule) -> Option<String> {

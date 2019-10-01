@@ -36,6 +36,10 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
             return cache_limit;
         }
 
+        if cache_limit == 0 {
+            return cache_limit;
+        }
+
         let mut new_cache_limit = cache_limit;
 
         for rule in &mut self.rules {

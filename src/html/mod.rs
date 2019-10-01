@@ -1359,7 +1359,7 @@ mod tests {
             #[test]
             fn $name() {
                 let (html, golden) = $value;
-                let reader = &mut html.as_bytes() as &mut std::io::Read;
+                let reader = &mut html.as_bytes() as &mut dyn std::io::Read;
                 let mut tokenizer = Tokenizer::new(reader);
 
                 if !golden.is_empty() {
