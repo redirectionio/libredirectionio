@@ -427,7 +427,7 @@ addEventListener('fetch', async event => {
 async function respondWithCallback(request) {
     try {
         const libredirectionio = wasm_bindgen;
-        await wasm_bindgen(REDIRECTIONIO_MODULE);
+        await wasm_bindgen("https://packages.preprod.redirection.io/webassembly/libredirectionio-latest.wasm");
         const [response, rule] = await handle(request, libredirectionio);
 
         await log(request, response, rule);
@@ -452,7 +452,7 @@ async function handle(request, libredirectionio) {
 
     try {
         const response = await Promise.race([
-            fetch('https://proxy.preprod.redirection.io/' + options.token + '/match-rule', {
+            fetch('https://proxy.redirection.io/' + options.token + '/match-rule', {
                 method: 'POST',
                 body: JSON.stringify(context),
                 headers: {
