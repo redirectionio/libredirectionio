@@ -36,11 +36,11 @@ fn replace(data: String, options: Option<&HashMap<String, String>>) -> String {
         return data;
     }
 
-    if options.unwrap().contains_key("something") {
+    if !options.unwrap().contains_key("something") {
         return data;
     }
 
-    if options.unwrap().contains_key("with") {
+    if !options.unwrap().contains_key("with") {
         return data;
     }
 
