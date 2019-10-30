@@ -13,6 +13,6 @@ impl header_action::HeaderAction for HeaderAddAction {
             self.value.clone(),
         ));
 
-        return headers;
+        headers
     }
 }

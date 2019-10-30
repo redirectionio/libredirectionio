@@ -28,7 +28,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
             }
         }
 
-        return Ok(matched_rules);
+        Ok(matched_rules)
     }
 
     fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
@@ -54,7 +54,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
             }
         }
 
-        return new_cache_limit;
+        new_cache_limit
     }
 
     fn trace(
@@ -69,12 +69,12 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
             rules_matched.push(rule.clone());
         }
 
-        return Ok(vec![rule::RouterTraceItem {
-            matches: rules_matched.len() > 0,
+        Ok(vec![rule::RouterTraceItem {
+            matches: !rules_matched.is_empty(),
             prefix: "".to_string(),
             rules_evaluated: self.rules.clone(),
             rules_matches: rules_matched,
-        }]);
+        }])
     }
 
     fn get_rules(&self) -> Vec<&rule::Rule> {
@@ -84,6 +84,6 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
             rules.push(rule);
         }
 
-        return rules;
+        rules
     }
 }

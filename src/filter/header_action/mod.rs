@@ -43,5 +43,5 @@ pub fn create_header_action(header_filter: &rule::HeaderFilter) -> Option<Box<dy
         }));
     }
 
-    return None;
+    None
 }

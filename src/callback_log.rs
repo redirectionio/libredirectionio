@@ -14,7 +14,7 @@ pub struct CallbackLogger {
 
 impl log::Log for CallbackLogger {
     fn enabled(&self, _metadata: &Metadata) -> bool {
-        return true;
+        true
     }
 
     fn log(&self, record: &Record) {
@@ -48,6 +48,6 @@ fn safe_str_to_cstr(str: String) -> *const libc::c_char {
 
         let data: *const std::ffi::CString = transmute(Box::new(string_result.unwrap()));
 
-        return (&*data).as_ptr();
-    };
+        (&*data).as_ptr()
+    }
 }

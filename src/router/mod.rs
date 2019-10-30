@@ -51,13 +51,13 @@ impl MainRouter {
         let mut router = MainRouter::new(storage)?;
         router.build_cache(cache_limit);
 
-        return Ok(router);
+        Ok(router)
     }
 
     pub fn new(rules: Vec<rule::Rule>) -> Result<MainRouter, Box<dyn std::error::Error>> {
         let router_scheme = RouterScheme::new(rules)?;
 
-        return Ok(MainRouter { router_scheme });
+        Ok(MainRouter { router_scheme })
     }
 
     fn build_cache(&mut self, cache_limit: u64) {
@@ -83,7 +83,7 @@ impl MainRouter {
 
         let url_obj = parser.parse(url_str.as_str())?;
 
-        return Ok(MainRouter::sort_query(url_obj));
+        Ok(MainRouter::sort_query(url_obj))
     }
 
     fn sort_query(url_obj: Url) -> Url {
@@ -107,7 +107,7 @@ impl MainRouter {
             new_url_obj.set_query(None);
         }
 
-        return new_url_obj;
+        new_url_obj
     }
 
     pub fn match_rules(
@@ -116,7 +116,7 @@ impl MainRouter {
     ) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
         let url_object = MainRouter::parse_url(url_str)?;
 
-        return self.router_scheme.match_rule(url_object);
+        self.router_scheme.match_rule(url_object)
     }
 
     pub fn match_rule(
@@ -125,13 +125,13 @@ impl MainRouter {
     ) -> Result<Option<&rule::Rule>, Box<dyn std::error::Error>> {
         let mut rules = self.match_rules(url)?;
 
-        if rules.len() == 0 {
+        if rules.is_empty() {
             return Ok(None);
         }
 
         rules.sort_by(|a, b| a.rank.cmp(&b.rank));
 
-        return Ok(Some(*rules.first().unwrap()));
+        Ok(Some(*rules.first().unwrap()))
     }
 
     pub fn trace(&self, url_str: String) -> Result<rule::RouterTrace, Box<dyn std::error::Error>> {
@@ -142,7 +142,7 @@ impl MainRouter {
         let elapsed = (start.elapsed().as_micros() as f64) / 1000.0;
         let mut final_rule = None;
 
-        if matched_rules.len() > 0 {
+        if !matched_rules.is_empty() {
             matched_rules.sort_by(|a, b| a.rank.cmp(&b.rank));
             final_rule = Some((*matched_rules.first().unwrap()).clone());
         }
@@ -172,7 +172,7 @@ impl MainRouter {
             duration: elapsed,
         };
 
-        return Ok(trace);
+        Ok(trace)
     }
 
     pub fn get_redirect(
@@ -251,6 +251,6 @@ impl MainRouter {
             );
         }
 
-        return Ok(target);
+        Ok(target)
     }
 }

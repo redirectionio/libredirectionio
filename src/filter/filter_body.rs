@@ -47,28 +47,21 @@ lazy_static! {
 
 impl FilterBodyAction {
     pub fn new(rule_to_filter: rule::Rule) -> Option<FilterBodyAction> {
-        if rule_to_filter.body_filters.is_none() {
-            return None;
-        }
-
         let mut visitors = Vec::new();
 
-        for filter in rule_to_filter.body_filters.as_ref().unwrap() {
-            let action = body_action::create_body_action(filter);
-
-            if action.is_some() {
-                let action_unwrap = action.unwrap();
+        for filter in rule_to_filter.body_filters.as_ref()? {
+            if let Some(action) = body_action::create_body_action(filter) {
                 let visitor = FilterBodyVisitor {
-                    enter: Some(action_unwrap.first()),
+                    enter: Some(action.first()),
                     leave: None,
-                    action: action_unwrap,
+                    action,
                 };
 
                 visitors.push(visitor);
             }
         }
 
-        if visitors.len() > 0 {
+        if !visitors.is_empty() {
             return Some(FilterBodyAction {
                 visitors,
                 last_buffer: "".to_string(),
@@ -76,7 +69,7 @@ impl FilterBodyAction {
             });
         }
 
-        return None;
+        None
     }
 
     pub fn filter(&mut self, input: String) -> String {
@@ -99,7 +92,7 @@ impl FilterBodyAction {
             let mut token_data = tokenizer.raw().clone();
 
             while token_type == html::TokenType::TextToken
-                && (token_data.contains("<") || token_data.contains("</"))
+                && (token_data.contains('<') || token_data.contains("</"))
             {
                 token_type = tokenizer.next();
 
@@ -127,7 +120,7 @@ impl FilterBodyAction {
             match token_type {
                 html::TokenType::StartTagToken => {
                     let (tag_name, _) = tokenizer.tag_name();
-                    let tag_name_str = tag_name.unwrap_or("".to_string());
+                    let tag_name_str = tag_name.unwrap_or_else(|| "".to_string());
                     let (new_buffer_link, new_token_data) =
                         self.on_start_tag_token(tag_name_str.clone(), token_data);
 
@@ -178,7 +171,7 @@ impl FilterBodyAction {
             }
         }
 
-        return to_return;
+        to_return
     }
 
     pub fn end(&mut self) -> String {
@@ -190,7 +183,7 @@ impl FilterBodyAction {
             buffer = buffer.unwrap().previous.as_ref();
         }
 
-        return to_return;
+        to_return
     }
 
     fn on_start_tag_token(
@@ -227,7 +220,7 @@ impl FilterBodyAction {
             self.current_buffer = Some(Box::new(new_current_buffer));
         }
 
-        return (self.current_buffer.take(), buffer);
+        (self.current_buffer.take(), buffer)
     }
 
     fn on_end_tag_token(
@@ -265,7 +258,7 @@ impl FilterBodyAction {
             );
         }
 
-        return (self.current_buffer.take(), buffer);
+        (self.current_buffer.take(), buffer)
     }
 }
 

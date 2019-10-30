@@ -29,13 +29,12 @@ pub fn evaluate(data: String, expression: String) -> bool {
 
     let selector = selector_result.unwrap();
     let mut select = document.select(&selector);
-    let result = select.next().is_some();
 
-    return result;
+    select.next().is_some()
 }
 
 pub fn create_body_action(filter: &rule::BodyFilter) -> Option<Box<dyn BodyAction>> {
-    if filter.element_tree.len() == 0 {
+    if filter.element_tree.is_empty() {
         return None;
     }
 
@@ -63,5 +62,5 @@ pub fn create_body_action(filter: &rule::BodyFilter) -> Option<Box<dyn BodyActio
         )));
     }
 
-    return None;
+    None
 }

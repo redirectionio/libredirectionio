@@ -74,7 +74,7 @@ impl Token {
 
         let mut tag = self.data.as_ref().unwrap().clone();
 
-        if self.attrs.len() == 0 {
+        if self.attrs.is_empty() {
             return tag;
         }
 
@@ -86,7 +86,7 @@ impl Token {
             tag.push_str("\"");
         }
 
-        return tag;
+        tag
     }
 }
 
@@ -107,7 +107,7 @@ impl ToString for Token {
 
 impl<'t> Tokenizer<'t> {
     pub fn new(reader: &'t mut dyn Read) -> Tokenizer {
-        return Tokenizer::new_fragment(reader, "".to_string());
+        Tokenizer::new_fragment(reader, "".to_string())
     }
 
     pub fn new_fragment(reader: &'t mut dyn Read, mut context_tag: String) -> Tokenizer {
@@ -140,11 +140,11 @@ impl<'t> Tokenizer<'t> {
             }
         }
 
-        return tokenizer;
+        tokenizer
     }
 
     pub fn err(&self) -> Option<&Error> {
-        return self.err.as_ref();
+        self.err.as_ref()
     }
 
     pub fn allow_cdata(&mut self, allow_cdata: bool) {
@@ -152,10 +152,11 @@ impl<'t> Tokenizer<'t> {
     }
 
     pub fn buffered(&self) -> String {
-        return String::from_utf8(self.buffer[self.raw.end..].to_vec())
-            .expect("Canno create utf8 string");
+        String::from_utf8(self.buffer[self.raw.end..].to_vec())
+            .expect("Canno create utf8 string")
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> TokenType {
         self.raw.start = self.raw.end;
         self.data.start = self.raw.end;
@@ -168,7 +169,7 @@ impl<'t> Tokenizer<'t> {
         }
 
         if !self.raw_tag.is_empty() {
-            if self.raw_tag == "plaintext".to_string() {
+            if self.raw_tag == "plaintext" {
                 while self.err.is_none() {
                     self.read_byte();
                 }
@@ -294,12 +295,12 @@ impl<'t> Tokenizer<'t> {
 
         self.token = ErrorToken;
 
-        return self.token;
+        self.token
     }
 
     pub fn raw(&self) -> String {
-        return String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec())
-            .expect("Canno create utf8 string");
+        String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec())
+            .expect("Canno create utf8 string")
     }
 
     pub fn text(&mut self) -> Option<String> {
@@ -320,10 +321,10 @@ impl<'t> Tokenizer<'t> {
                 //                    s = escape(s)
                 //                }
 
-                return Some(s);
+                Some(s)
             }
             _ => {
-                return None;
+                None
             }
         }
     }
@@ -348,7 +349,7 @@ impl<'t> Tokenizer<'t> {
             }
         }
 
-        return (None, false);
+        (None, false)
     }
 
     pub fn tag_attr(&mut self) -> (Option<String>, Option<String>, bool) {
@@ -375,7 +376,7 @@ impl<'t> Tokenizer<'t> {
             }
         }
 
-        return (None, None, false);
+        (None, None, false)
     }
 
     pub fn token(&mut self) -> Token {
@@ -408,7 +409,7 @@ impl<'t> Tokenizer<'t> {
             _ => {}
         }
 
-        return token;
+        token
     }
 
     pub fn set_max_buffer(&mut self, max_buffer: usize) {
@@ -448,7 +449,7 @@ impl<'t> Tokenizer<'t> {
                 return 0;
             }
 
-            if new_byte_buffer.len() == 0 {
+            if new_byte_buffer.is_empty() {
                 self.err = Some(Error {
                     kind: ErrorKind::EOFError,
                     read_error: None,
@@ -473,7 +474,7 @@ impl<'t> Tokenizer<'t> {
             return 0;
         }
 
-        return byte;
+        byte
     }
 
     fn skip_white_space(&mut self) {
@@ -548,7 +549,7 @@ impl<'t> Tokenizer<'t> {
             }
 
             if byte != self.raw_tag.as_bytes()[i]
-                && byte != self.raw_tag.as_bytes()[i] - ('a' as u8 - 'A' as u8)
+                && byte != self.raw_tag.as_bytes()[i] - (b'a' - b'A')
             {
                 self.raw.end -= 1;
 
@@ -566,12 +567,12 @@ impl<'t> Tokenizer<'t> {
             ' ' | '\n' | '\r' | '\t' | '\x0c' | '/' | '>' => {
                 self.raw.end -= 3 + self.raw_tag.len();
 
-                return true;
+                true
             }
             _ => {
                 self.raw.end -= 1;
 
-                return false;
+                false
             }
         }
     }
@@ -764,7 +765,7 @@ impl<'t> Tokenizer<'t> {
                 return;
             }
 
-            if byte != "script".as_bytes()[i] && byte != "SCRIPT".as_bytes()[i] {
+            if byte != b"script"[i] && byte != b"SCRIPT"[i] {
                 self.raw.end -= 1;
                 self.read_script_data_escaped();
 
@@ -1000,7 +1001,7 @@ impl<'t> Tokenizer<'t> {
 
         self.read_until_close_angle();
 
-        return CommentToken;
+        CommentToken
     }
 
     fn read_doc_type(&mut self) -> bool {
@@ -1016,7 +1017,7 @@ impl<'t> Tokenizer<'t> {
             }
 
             if byte != doctype.as_bytes()[i]
-                && byte != doctype.as_bytes()[i] + ('a' as u8 - 'A' as u8)
+                && byte != doctype.as_bytes()[i] + (b'a' - b'A')
             {
                 self.raw.end = self.data.start;
 
@@ -1035,7 +1036,7 @@ impl<'t> Tokenizer<'t> {
 
         self.read_until_close_angle();
 
-        return true;
+        true
     }
 
     fn read_cdata(&mut self) -> bool {
@@ -1098,8 +1099,8 @@ impl<'t> Tokenizer<'t> {
             for i in 0..s.len() {
                 let mut c = self.buffer[self.data.start + i];
 
-                if 'A' as u8 <= c && c <= 'Z' as u8 {
-                    c += 'a' as u8 - 'A' as u8;
+                if b'A' <= c && c <= b'Z' {
+                    c += b'a' - b'A';
                 }
 
                 if c != s.as_bytes()[i] {
@@ -1110,7 +1111,7 @@ impl<'t> Tokenizer<'t> {
             return true;
         }
 
-        return false;
+        false
     }
 
     fn read_start_tag(&mut self) -> TokenType {
@@ -1123,8 +1124,8 @@ impl<'t> Tokenizer<'t> {
         let mut raw = false;
         let mut byte = self.buffer[self.data.start] as u8;
 
-        if 'A' as u8 <= byte && byte <= 'Z' as u8 {
-            byte += 'a' as u8 - 'A' as u8;
+        if b'A' <= byte && byte <= b'Z' {
+            byte += b'a' - b'A' ;
         }
 
         let byte_char = byte as char;
@@ -1163,11 +1164,11 @@ impl<'t> Tokenizer<'t> {
                 .to_lowercase();
         }
 
-        if self.err.is_none() && self.buffer[self.raw.end - 2] == '/' as u8 {
+        if self.err.is_none() && self.buffer[self.raw.end - 2] == b'/' {
             return SelfClosingTagToken;
         }
 
-        return StartTagToken;
+        StartTagToken
     }
 
     fn read_tag(&mut self, save_attr: bool) {
@@ -1297,8 +1298,6 @@ impl<'t> Tokenizer<'t> {
         match quote {
             '>' => {
                 self.raw.end -= 1;
-
-                return;
             }
             '\'' | '"' => {
                 self.pending_attribute[1].start = self.raw.end;

@@ -21,6 +21,6 @@ impl header_action::HeaderAction for HeaderReplaceAction {
             }
         }
 
-        return new_headers;
+        new_headers
     }
 }

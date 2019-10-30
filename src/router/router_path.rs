@@ -20,7 +20,7 @@ impl router::Router for RouterPath {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
         }
 
-        return self.matcher.match_rule(&url, path.as_str());
+        self.matcher.match_rule(&url, path.as_str())
     }
 
     fn trace(
@@ -33,11 +33,11 @@ impl router::Router for RouterPath {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
         }
 
-        return self.matcher.trace(&url, path.as_str());
+        self.matcher.trace(&url, path.as_str())
     }
 
     fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
-        return self.matcher.build_cache(cache_limit, level);
+        self.matcher.build_cache(cache_limit, level)
     }
 }
 
@@ -46,9 +46,9 @@ impl RouterPath {
         let rule_map = create_prefixed_map_rules(rules, "".to_string());
         let matcher_generic = build_matcher_tree("".to_string(), rule_map, 0)?;
 
-        return Ok(RouterPath {
+        Ok(RouterPath {
             matcher: matcher_generic,
-        });
+        })
     }
 }
 
@@ -72,7 +72,7 @@ pub fn create_prefixed_map_rules(
         new_map.get_mut(rule_prefix.as_str()).unwrap().push(rule);
     }
 
-    return new_map;
+    new_map
 }
 
 fn strip_characters(original: &str, prefix: &str) -> String {
@@ -153,7 +153,7 @@ fn build_matcher_tree(
 
     let mut empty_matcher = None;
 
-    if empty.len() > 0 {
+    if !empty.is_empty() {
         empty_matcher = Some(UrlMatcherItem::new(
             ["^", base_prefix.as_str(), "$"].join("").to_string(),
             Box::new(UrlMatcherRules::new(empty, level)),
@@ -161,7 +161,7 @@ fn build_matcher_tree(
         )?);
     }
 
-    return Ok(Box::new(UrlMatcherRegex::new(children, empty_matcher)));
+    Ok(Box::new(UrlMatcherRegex::new(children, empty_matcher)))
 }
 
 fn common_prefix(
@@ -211,7 +211,7 @@ fn common_prefix(
         }
     }
 
-    return (final_prefix, matched, not_matched);
+    (final_prefix, matched, not_matched)
 }
 
 fn longest_prefix(left_prefix: String, right_prefix: String) -> String {
@@ -227,16 +227,16 @@ fn longest_prefix(left_prefix: String, right_prefix: String) -> String {
             let mut j = 1 + i;
 
             while j < end && 0 < n {
-                j = j + 1;
+                j += 1;
 
                 if left_prefix_utf8[j] != right_prefix_utf8[j] {
                     break 'main;
                 }
 
                 if '(' == left_prefix_utf8[j] {
-                    n = n + 1;
+                    n += 1;
                 } else if ')' == left_prefix_utf8[j] {
-                    n = n - 1;
+                    n -= 1;
                 } else if '\\' == left_prefix_utf8[j]
                     && (j + 1 == end || left_prefix_utf8[j + 1] != right_prefix_utf8[j + 1])
                 {
@@ -255,14 +255,14 @@ fn longest_prefix(left_prefix: String, right_prefix: String) -> String {
             break 'main;
         }
 
-        i = i + 1;
+        i += 1;
         prefix_length = i;
     }
 
     let mut new_prefix = left_prefix_utf8.clone();
     new_prefix.truncate(prefix_length);
 
-    return new_prefix.into_iter().collect();
+    new_prefix.into_iter().collect()
 }
 
 fn to_char_vector(str: String) -> Vec<char> {
@@ -279,5 +279,5 @@ fn to_char_vector(str: String) -> Vec<char> {
         vec_chars.push(character.unwrap());
     }
 
-    return vec_chars;
+    vec_chars
 }

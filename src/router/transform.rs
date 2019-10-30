@@ -44,10 +44,10 @@ fn replace(data: String, options: Option<&HashMap<String, String>>) -> String {
         return data;
     }
 
-    return data.replace(
+    data.replace(
         options.unwrap().get("something").unwrap(),
         options.unwrap().get("with").unwrap(),
-    );
+    )
 }
 
 fn slice(data: String, options: Option<&HashMap<String, String>>) -> String {
@@ -67,7 +67,7 @@ fn slice(data: String, options: Option<&HashMap<String, String>>) -> String {
     }
 
     let from = usize::from_str(from_opt.unwrap()).unwrap_or(0);
-    let mut to = usize::from_str(to_opt.unwrap()).unwrap_or(data.len());
+    let mut to = usize::from_str(to_opt.unwrap()).unwrap_or_else(|_| data.len());
 
     if from > data.len() {
         return "".to_string();
@@ -77,14 +77,11 @@ fn slice(data: String, options: Option<&HashMap<String, String>>) -> String {
         to = data.len();
     }
 
-    return data[from..to].to_string();
+    data[from..to].to_string()
 }
 
 fn underscorize(data: String) -> String {
-    let mut new_data = dasherize(data);
-    new_data = new_data.replace("-", "_");
-
-    return new_data;
+    dasherize(data).replace("-", "_")
 }
 
 fn uppercase(data: String) -> String {

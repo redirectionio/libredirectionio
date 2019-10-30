@@ -100,7 +100,7 @@ pub fn update_rules_for_router(project_id: String, rules_data: String, cache_lim
         .unwrap()
         .insert(project_id.clone(), main_router_result.unwrap());
 
-    return project_id;
+    project_id
 }
 
 #[no_mangle]
@@ -115,19 +115,14 @@ pub extern "C" fn redirectionio_update_rules_for_router(
 
     let project_id_created = update_rules_for_router(project_id_str, rules_data_str, cache);
 
-    return str_to_cstr(project_id_created);
+    str_to_cstr(project_id_created)
 }
 
 #[wasm_bindgen]
 pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
     let routers = PROJECT_ROUTERS.read().unwrap();
-    let router: Option<&router::MainRouter> = routers.get(project_id.as_str());
-
-    if router.is_none() {
-        return None;
-    }
-
-    let rule_result = router.unwrap().match_rule(url.clone());
+    let router = routers.get(project_id.as_str())?;
+    let rule_result = router.match_rule(url.clone());
 
     if rule_result.is_err() {
         error!(
@@ -139,13 +134,7 @@ pub fn get_rule_for_url(project_id: String, url: String) -> Option<String> {
         return None;
     }
 
-    let rule = rule_result.unwrap();
-
-    if rule.is_none() {
-        return None;
-    }
-
-    rule_to_string(rule.unwrap())
+    rule_to_string(rule_result.unwrap()?)
 }
 
 #[no_mangle]
@@ -163,19 +152,14 @@ pub extern "C" fn redirectionio_get_rule_for_url(
         return null();
     }
 
-    return str_to_cstr(rule_data.unwrap());
+    str_to_cstr(rule_data.unwrap())
 }
 
 #[wasm_bindgen]
 pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
     let routers = PROJECT_ROUTERS.read().unwrap();
-    let router: Option<&router::MainRouter> = routers.get(project_id.as_str());
-
-    if router.is_none() {
-        return None;
-    }
-
-    let trace_result = router.unwrap().trace(url.clone());
+    let router: &router::MainRouter = routers.get(project_id.as_str())?;
+    let trace_result = router.trace(url.clone());
 
     if trace_result.is_err() {
         error!("Cannot trace url {}: {}", url, trace_result.err().unwrap());
@@ -196,7 +180,7 @@ pub fn get_trace_for_url(project_id: String, url: String) -> Option<String> {
         return None;
     }
 
-    return Some(trace_str_result.unwrap());
+    Some(trace_str_result.unwrap())
 }
 
 #[no_mangle]
@@ -214,7 +198,7 @@ pub extern "C" fn redirectionio_get_trace_for_url(
         return null();
     }
 
-    return str_to_cstr(trace_data.unwrap());
+    str_to_cstr(trace_data.unwrap())
 }
 
 #[wasm_bindgen]
@@ -223,34 +207,28 @@ pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option
         return None;
     }
 
-    let rule = string_to_rule(rule_str);
+    let rule = string_to_rule(rule_str)?;
 
-    if rule.is_none() {
+    if rule.id.is_empty() {
         return None;
     }
 
-    let rule_obj = rule.unwrap();
-
-    if rule_obj.id.is_empty() {
+    if rule.redirect_code == 0 {
         return None;
     }
 
-    if rule_obj.redirect_code == 0 {
-        return None;
-    }
-
-    if rule_obj.match_on_response_status.is_some()
-        && rule_obj.match_on_response_status.unwrap() != response_code
+    if rule.match_on_response_status.is_some()
+        && rule.match_on_response_status.unwrap() != response_code
     {
         return None;
     }
 
-    let target_result = router::MainRouter::get_redirect(&rule_obj, url.clone());
+    let target_result = router::MainRouter::get_redirect(&rule, url.clone());
 
     if target_result.is_err() {
         error!(
             "Cannot create target for rule {:?} on url {}: {}",
-            rule_obj,
+            rule,
             url,
             target_result.err().unwrap()
         );
@@ -260,7 +238,7 @@ pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option
 
     let target = target_result.unwrap();
     let redirect = router::rule::Redirect {
-        status: rule_obj.redirect_code,
+        status: rule.redirect_code,
         target,
     };
 
@@ -276,7 +254,7 @@ pub fn get_redirect(rule_str: String, url: String, response_code: u16) -> Option
         return None;
     }
 
-    return Some(redirect_str_result.unwrap());
+    Some(redirect_str_result.unwrap())
 }
 
 #[no_mangle]
@@ -295,7 +273,7 @@ pub extern "C" fn redirectionio_get_redirect(
         return null();
     }
 
-    return str_to_cstr(redirect.unwrap());
+    str_to_cstr(redirect.unwrap())
 }
 
 #[wasm_bindgen]
@@ -334,7 +312,7 @@ pub fn header_filter(rule_str: String, headers_str: String) -> String {
         return headers_str;
     }
 
-    return new_headers_str_result.unwrap();
+    new_headers_str_result.unwrap()
 }
 
 #[no_mangle]
@@ -348,24 +326,12 @@ pub extern "C" fn redirectionio_header_filter(
 
     let new_headers_str = header_filter(rule_str, headers_str);
 
-    return str_to_cstr(new_headers_str);
+    str_to_cstr(new_headers_str)
 }
 
 #[wasm_bindgen]
 pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String> {
-    let rule = string_to_rule(rule_str);
-
-    if rule.is_none() {
-        return None;
-    }
-
-    let rule_obj = rule.unwrap();
-
-    let filter = filter::filter_body::FilterBodyAction::new(rule_obj);
-
-    if filter.is_none() {
-        return None;
-    }
+    let filter = filter::filter_body::FilterBodyAction::new(string_to_rule(rule_str)?)?;
 
     let mut uuid = filter_id;
 
@@ -376,9 +342,9 @@ pub fn create_body_filter(rule_str: String, filter_id: String) -> Option<String>
     FILTERS
         .lock()
         .unwrap()
-        .insert(uuid.clone(), filter.unwrap());
+        .insert(uuid.clone(), filter);
 
-    return Some(uuid);
+    Some(uuid)
 }
 
 #[no_mangle]
@@ -393,24 +359,17 @@ pub extern "C" fn redirectionio_create_body_filter(
         return null();
     }
 
-    return str_to_cstr(filter_id.unwrap());
+    str_to_cstr(filter_id.unwrap())
 }
 
 #[wasm_bindgen]
 pub fn body_filter(filter_id: String, filter_body: String) -> Option<String> {
-    let has_filter: Option<filter::filter_body::FilterBodyAction> =
-        FILTERS.lock().unwrap().remove(filter_id.as_str());
-
-    if has_filter.is_none() {
-        return None;
-    }
-
-    let mut filter = has_filter.unwrap();
+    let mut filter = FILTERS.lock().unwrap().remove(filter_id.as_str())?;
     let result = filter.filter(filter_body);
 
     FILTERS.lock().unwrap().insert(filter_id, filter);
 
-    return Some(result);
+    Some(result)
 }
 
 #[no_mangle]
@@ -427,22 +386,14 @@ pub extern "C" fn redirectionio_body_filter(
         return null();
     }
 
-    return str_to_cstr(new_data.unwrap());
+    str_to_cstr(new_data.unwrap())
 }
 
 #[wasm_bindgen]
 pub fn body_filter_end(filter_id: String) -> Option<String> {
-    let has_filter: Option<filter::filter_body::FilterBodyAction> =
-        FILTERS.lock().unwrap().remove(filter_id.as_str());
+    let mut filter = FILTERS.lock().unwrap().remove(filter_id.as_str())?;
 
-    if has_filter.is_none() {
-        return None;
-    }
-
-    let mut filter = has_filter.unwrap();
-    let result = filter.end();
-
-    return Some(result);
+    Some(filter.end())
 }
 
 #[no_mangle]
@@ -457,7 +408,7 @@ pub extern "C" fn redirectionio_body_filter_end(
         return null();
     }
 
-    return str_to_cstr(new_data.unwrap());
+    str_to_cstr(new_data.unwrap())
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -477,8 +428,8 @@ fn str_to_cstr(str: String) -> *const libc::c_char {
 
         let data: *const std::ffi::CString = transmute(Box::new(string_result.unwrap()));
 
-        return (&*data).as_ptr();
-    };
+        (&*data).as_ptr()
+    }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -514,11 +465,11 @@ fn rule_to_string(rule_obj: &router::rule::Rule) -> Option<String> {
         return None;
     }
 
-    return Some(rule_result.unwrap());
+    Some(rule_result.unwrap())
 }
 
 fn string_to_rule(rule_str: String) -> Option<router::rule::Rule> {
-    let rule_result = serde_json::from_str(&rule_str);
+    let rule_result: Result<Option<router::rule::Rule>, serde_json::error::Error> = serde_json::from_str(&rule_str);
 
     if rule_result.is_err() {
         error!(
@@ -530,13 +481,7 @@ fn string_to_rule(rule_str: String) -> Option<router::rule::Rule> {
         return None;
     }
 
-    let rule_option: Option<router::rule::Rule> = rule_result.unwrap();
-
-    if rule_option.is_none() {
-        return None;
-    }
-
-    let mut rule = rule_option.unwrap();
+    let mut rule: router::rule::Rule = rule_result.unwrap()?;
     let compile_result = rule.compile(false);
 
     if compile_result.is_err() {
@@ -549,5 +494,5 @@ fn string_to_rule(rule_str: String) -> Option<router::rule::Rule> {
         return None;
     }
 
-    return Some(rule);
+    Some(rule)
 }

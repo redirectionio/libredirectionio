@@ -98,7 +98,7 @@ impl Rule {
         self.source.build_sorted_query();
         self.build_regex(cache)?;
 
-        return Ok(());
+        Ok(())
     }
 
     fn build_regex(&mut self, cache: bool) -> Result<(), Box<dyn std::error::Error>> {
@@ -155,7 +155,7 @@ impl Rule {
         self.regex = Some(regex_str);
         self.regex_with_groups = Some(regex_with_group);
 
-        return Ok(());
+        Ok(())
     }
 
     pub fn is_match(&self, value: &str) -> Result<bool, regex::Error> {
@@ -170,7 +170,7 @@ impl Rule {
             return Ok(regex.is_match(value));
         }
 
-        return Ok(self.regex_obj.as_ref().unwrap().is_match(value));
+        Ok(self.regex_obj.as_ref().unwrap().is_match(value))
     }
 }
 
@@ -194,7 +194,7 @@ pub fn build_sorted_query(query: String) -> Option<String> {
         return None;
     }
 
-    return Some(query_string);
+    Some(query_string)
 }
 
 impl Source {
@@ -252,8 +252,8 @@ mod tests {
             target: Some("/bar".to_string()),
         };
 
-        rule.compile(true);
+        let compile_result = rule.compile(true);
 
-        println!("Rule: {}", rule.regex_obj.as_ref().unwrap());
+        assert!(compile_result.is_ok());
     }
 }

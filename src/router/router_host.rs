@@ -47,10 +47,10 @@ impl RouterHost {
             hosts_routers.insert(host.to_string(), RouterPath::new(rules_by_host)?);
         }
 
-        return Ok(RouterHost {
+        Ok(RouterHost {
             hosts_routers,
             any_host_router,
-        });
+        })
     }
 }
 
@@ -58,22 +58,21 @@ impl router::Router for RouterHost {
     fn match_rule(&self, url: Url) -> Result<Vec<&router::rule::Rule>, Box<dyn std::error::Error>> {
         if url.host().is_some() {
             let host_str = url.host().unwrap().to_string();
-            let host_router = self.hosts_routers.get(host_str.as_str());
 
-            if host_router.is_some() {
-                let rule = host_router.unwrap().match_rule(url.clone());
+            if let Some(host_router) = self.hosts_routers.get(host_str.as_str()) {
+                let rule = host_router.match_rule(url.clone());
 
                 if rule.is_err() {
                     return rule;
                 }
 
-                if rule.as_ref().unwrap().len() > 0 {
+                if !rule.as_ref().unwrap().is_empty() {
                     return rule;
                 }
             }
         }
 
-        return self.any_host_router.match_rule(url);
+        self.any_host_router.match_rule(url)
     }
 
     fn trace(
@@ -82,28 +81,31 @@ impl router::Router for RouterHost {
     ) -> Result<Vec<router::rule::RouterTraceItem>, Box<dyn std::error::Error>> {
         let mut traces = Vec::new();
 
-        if url.host().is_some() && url.host().unwrap().to_string() != "0.0.0.0".to_string() {
+        if url.host().is_some() && url.host().unwrap().to_string() != "0.0.0.0" {
             let host_str = url.host().unwrap().to_string();
-            let host_router = self.hosts_routers.get(host_str.as_str());
+            let has_host_router = self.hosts_routers.get(host_str.as_str());
 
-            if host_router.is_some() {
-                traces.push(router::rule::RouterTraceItem {
-                    rules_matches: Vec::new(),
-                    rules_evaluated: Vec::new(),
-                    matches: true,
-                    prefix: url.host().unwrap().to_string(),
-                });
+            match has_host_router {
+                Some(host_router) => {
+                    traces.push(router::rule::RouterTraceItem {
+                        rules_matches: Vec::new(),
+                        rules_evaluated: Vec::new(),
+                        matches: true,
+                        prefix: url.host().unwrap().to_string(),
+                    });
 
-                traces.append(host_router.unwrap().trace(url)?.borrow_mut());
+                    traces.append(host_router.trace(url)?.borrow_mut());
 
-                return Ok(traces);
-            } else {
-                traces.push(router::rule::RouterTraceItem {
-                    rules_matches: Vec::new(),
-                    rules_evaluated: Vec::new(),
-                    matches: false,
-                    prefix: url.host().unwrap().to_string(),
-                });
+                    return Ok(traces);
+                }
+                None => {
+                    traces.push(router::rule::RouterTraceItem {
+                        rules_matches: Vec::new(),
+                        rules_evaluated: Vec::new(),
+                        matches: false,
+                        prefix: url.host().unwrap().to_string(),
+                    });
+                }
             }
         }
 
@@ -116,7 +118,7 @@ impl router::Router for RouterHost {
 
         traces.append(self.any_host_router.trace(url)?.borrow_mut());
 
-        return Ok(traces);
+        Ok(traces)
     }
 
     fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
@@ -124,10 +126,10 @@ impl router::Router for RouterHost {
 
         new_cache_limit = self.any_host_router.build_cache(new_cache_limit, level);
 
-        for (_, router) in &mut self.hosts_routers {
+        for router in self.hosts_routers.values_mut() {
             new_cache_limit = router.build_cache(new_cache_limit, level);
         }
 
-        return new_cache_limit;
+        new_cache_limit
     }
 }

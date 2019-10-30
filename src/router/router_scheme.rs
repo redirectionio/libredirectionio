@@ -30,11 +30,11 @@ impl RouterScheme {
             }
         }
 
-        return Ok(RouterScheme {
+        Ok(RouterScheme {
             http_router: router::router_host::RouterHost::new(http_rules)?,
             https_router: router::router_host::RouterHost::new(https_rules)?,
             any_scheme_router: router::router_host::RouterHost::new(any_scheme_rules)?,
-        });
+        })
     }
 }
 
@@ -52,7 +52,7 @@ impl router::Router for RouterScheme {
             rules_found.append(self.https_router.match_rule(url.clone())?.borrow_mut());
         }
 
-        return Ok(rules_found);
+        Ok(rules_found)
     }
 
     fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
@@ -60,9 +60,8 @@ impl router::Router for RouterScheme {
 
         new_cache_limit = self.https_router.build_cache(new_cache_limit, level);
         new_cache_limit = self.http_router.build_cache(new_cache_limit, level);
-        new_cache_limit = self.any_scheme_router.build_cache(new_cache_limit, level);
 
-        return new_cache_limit;
+        self.any_scheme_router.build_cache(new_cache_limit, level)
     }
 
     fn trace(
@@ -102,6 +101,6 @@ impl router::Router for RouterScheme {
             traces.append(self.https_router.trace(url.clone())?.borrow_mut());
         }
 
-        return Ok(traces);
+        Ok(traces)
     }
 }

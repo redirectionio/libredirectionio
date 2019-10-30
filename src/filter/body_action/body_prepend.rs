@@ -33,7 +33,7 @@ impl body_action::BodyAction for BodyPrepend {
         let mut new_data = data.clone();
 
         if self.position + 1 < self.element_tree.len() {
-            self.position = self.position + 1;
+            self.position += 1;
             next_enter = Some(self.element_tree[self.position].clone());
 
             return (next_enter, next_leave, false, new_data);
@@ -47,18 +47,18 @@ impl body_action::BodyAction for BodyPrepend {
             }
         }
 
-        return (next_enter, next_leave, self.is_buffering, new_data);
+        (next_enter, next_leave, self.is_buffering, new_data)
     }
 
     fn leave(&mut self, data: String) -> (Option<String>, Option<String>, String) {
         let next_enter = Some(self.element_tree[self.position].clone());
-        let mut next_leave = None;
+        let next_leave = if self.position as i32 > 0 {
+            self.position -= 1;
 
-        if self.position as i32 - 1 >= 0 {
-            self.position = self.position - 1;
-
-            next_leave = Some(self.element_tree[self.position].clone());
-        }
+            Some(self.element_tree[self.position].clone())
+        } else {
+            None
+        };
 
         if self.is_buffering
             && self.css_selector.is_some()
@@ -75,11 +75,11 @@ impl body_action::BodyAction for BodyPrepend {
             }
         }
 
-        return (next_enter, next_leave, data);
+        (next_enter, next_leave, data)
     }
 
     fn first(&self) -> String {
-        return self.element_tree[0].clone();
+        self.element_tree[0].clone()
     }
 }
 

@@ -15,6 +15,6 @@ impl header_action::HeaderAction for HeaderRemoveAction {
             }
         }
 
-        return new_headers;
+        new_headers
     }
 }

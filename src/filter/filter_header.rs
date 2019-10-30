@@ -7,27 +7,21 @@ pub struct FilterHeaderAction {
 
 impl FilterHeaderAction {
     pub fn new(rule_to_filter: rule::Rule) -> Option<FilterHeaderAction> {
-        if rule_to_filter.header_filters.is_none() {
-            return None;
-        }
+        let filters = rule_to_filter.header_filters.as_ref()?;
 
-        let filters = rule_to_filter.header_filters.as_ref().unwrap();
-
-        if filters.len() == 0 {
+        if filters.is_empty() {
             return None;
         }
 
         let mut actions = Vec::new();
 
         for filter in filters {
-            let action_filter = header_action::create_header_action(filter);
-
-            if action_filter.is_some() {
-                actions.push(action_filter.unwrap());
+            if let Some(action_filter) = header_action::create_header_action(filter) {
+                actions.push(action_filter);
             }
         }
 
-        return Some(FilterHeaderAction { actions });
+        Some(FilterHeaderAction { actions })
     }
 
     pub fn filter(&self, mut headers: Vec<header_action::Header>) -> Vec<header_action::Header> {
@@ -35,6 +29,6 @@ impl FilterHeaderAction {
             headers = filter.filter(headers);
         }
 
-        return headers;
+        headers
     }
 }

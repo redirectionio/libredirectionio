@@ -33,7 +33,7 @@ impl body_action::BodyAction for BodyAppend {
         let mut next_enter = None;
 
         if self.position + 1 < self.element_tree.len() {
-            self.position = self.position + 1;
+            self.position += 1;
             next_enter = Some(self.element_tree[self.position].clone());
 
             return (next_enter, next_leave, false, data);
@@ -42,19 +42,19 @@ impl body_action::BodyAction for BodyAppend {
         let should_buffer =
             self.position + 1 >= self.element_tree.len() && self.css_selector.is_some();
 
-        return (next_enter, next_leave, should_buffer, data);
+        (next_enter, next_leave, should_buffer, data)
     }
 
     fn leave(&mut self, data: String) -> (Option<String>, Option<String>, String) {
         let next_enter = Some(self.element_tree[self.position].clone());
-        let mut next_leave = None;
         let is_processing = self.position + 1 >= self.element_tree.len();
+        let next_leave = if self.position as i32 > 0 {
+            self.position -= 1;
 
-        if self.position as i32 - 1 >= 0 {
-            self.position = self.position - 1;
-
-            next_leave = Some(self.element_tree[self.position].clone());
-        }
+            Some(self.element_tree[self.position].clone())
+        } else {
+            None
+        };
 
         if is_processing {
             if self.css_selector.is_some() && !self.css_selector.as_ref().unwrap().is_empty() {
@@ -76,11 +76,11 @@ impl body_action::BodyAction for BodyAppend {
             return (next_enter, next_leave, new_data);
         }
 
-        return (next_enter, next_leave, data);
+        (next_enter, next_leave, data)
     }
 
     fn first(&self) -> String {
-        return self.element_tree[0].clone();
+        self.element_tree[0].clone()
     }
 }
 
