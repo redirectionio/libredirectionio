@@ -5,7 +5,7 @@ use regex::Regex;
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
-use url::percent_encoding::{utf8_percent_encode, SIMPLE_ENCODE_SET};
+use url::percent_encoding::{utf8_percent_encode, QUERY_ENCODE_SET, SIMPLE_ENCODE_SET};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Source {
@@ -182,9 +182,13 @@ pub fn build_sorted_query(query: String) -> Option<String> {
     let mut query_string = "".to_string();
 
     for (key, value) in &hash_query {
-        query_string.push_str(key);
-        query_string.push_str("=");
-        query_string.push_str(value);
+        query_string.push_str(&utf8_percent_encode(key, QUERY_ENCODE_SET).to_string());
+
+        if !value.is_empty() {
+            query_string.push_str("=");
+            query_string.push_str(&utf8_percent_encode(value, QUERY_ENCODE_SET).to_string());
+        }
+
         query_string.push_str("&");
     }
 

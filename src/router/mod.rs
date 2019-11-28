@@ -9,8 +9,8 @@ mod url_matcher_regex;
 mod url_matcher_rules;
 
 use crate::router::router_scheme::RouterScheme;
+use crate::router::rule::build_sorted_query;
 use regex::Regex;
-use std::collections::btree_map::BTreeMap;
 use std::time;
 use url;
 use url::Url;
@@ -87,24 +87,18 @@ impl MainRouter {
     }
 
     fn sort_query(url_obj: Url) -> Url {
-        let mut new_url_obj = url_obj;
-        let hash_query: BTreeMap<_, _> = new_url_obj.query_pairs().into_owned().collect();
-
-        let mut query_string = "".to_string();
-
-        for (key, value) in &hash_query {
-            query_string.push_str(key);
-            query_string.push_str("=");
-            query_string.push_str(value);
-            query_string.push_str("&");
+        if url_obj.query().is_none() {
+            return url_obj;
         }
 
-        query_string.pop();
+        let mut new_url_obj = url_obj;
+        let query_string = build_sorted_query(new_url_obj.query().unwrap().to_string());
 
-        if !query_string.is_empty() {
-            new_url_obj.set_query(Some(query_string.as_str()))
-        } else {
-            new_url_obj.set_query(None);
+        match query_string {
+            Some(query) => new_url_obj.set_query(Some(query.as_str())),
+            None => {
+                new_url_obj.set_query(None);
+            }
         }
 
         new_url_obj
