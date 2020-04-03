@@ -21,15 +21,11 @@ impl router::Router for RouterPath {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
         }
 
-        let mut rules = Vec::new();
+        let mut rules = self.matcher.match_rule(&url, path.as_str())?;
 
         if self.static_rules.contains_key(path.as_str()) {
             rules.extend(self.static_rules.get(path.as_str()).unwrap())
         }
-
-        let regex_rules = self.matcher.match_rule(&url, path.as_str())?;
-
-        rules.extend(regex_rules);
 
         Ok(rules)
     }
@@ -44,7 +40,16 @@ impl router::Router for RouterPath {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
         }
 
-        self.matcher.trace(&url, path.as_str())
+        let mut traces = self.matcher.trace(&url, path.as_str())?;
+
+        traces.push(router::rule::RouterTraceItem {
+            matches: self.static_rules.contains_key(path.as_str()),
+            prefix: "".to_string(),
+            rules_evaluated: Vec::new(),
+            rules_matches: self.static_rules.get(path.as_str()).unwrap().clone(),
+        });
+
+        Ok(traces)
     }
 
     fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64 {
