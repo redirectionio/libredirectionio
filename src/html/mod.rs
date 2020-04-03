@@ -1160,7 +1160,6 @@ impl<'t> Tokenizer<'t> {
             self.raw_tag = str::from_utf8(&self.buffer[self.data.start..self.data.end])
                 .expect("Cannot create utf8 string")
                 .to_string()
-                .clone()
                 .to_lowercase();
         }
 

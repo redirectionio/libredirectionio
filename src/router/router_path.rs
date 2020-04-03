@@ -58,7 +58,7 @@ impl router::Router for RouterPath {
 
             traces.push(router::rule::RouterTraceItem {
                 matches: true,
-                prefix: path.clone(),
+                prefix: path,
                 rules_evaluated,
                 rules_matches: rules_matched,
             });
@@ -209,7 +209,7 @@ fn build_matcher_tree(
 
     if !empty.is_empty() {
         empty_matcher = Some(UrlMatcherItem::new(
-            ["^", base_prefix.as_str(), "$"].join("").to_string(),
+            ["^", base_prefix.as_str(), "$"].join(""),
             Box::new(UrlMatcherRules::new(empty, level)),
             level,
         )?);
@@ -270,8 +270,8 @@ fn common_prefix(
 
 fn longest_prefix(left_prefix: String, right_prefix: String) -> String {
     let mut prefix_length = 0;
-    let left_prefix_utf8 = to_char_vector(left_prefix.clone());
-    let right_prefix_utf8 = to_char_vector(right_prefix.clone());
+    let left_prefix_utf8 = to_char_vector(left_prefix);
+    let right_prefix_utf8 = to_char_vector(right_prefix);
     let end = cmp::min(left_prefix_utf8.len(), right_prefix_utf8.len());
     let mut i = 0;
 
@@ -313,7 +313,7 @@ fn longest_prefix(left_prefix: String, right_prefix: String) -> String {
         prefix_length = i;
     }
 
-    let mut new_prefix = left_prefix_utf8.clone();
+    let mut new_prefix = left_prefix_utf8;
     new_prefix.truncate(prefix_length);
 
     new_prefix.into_iter().collect()

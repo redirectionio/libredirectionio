@@ -45,11 +45,9 @@ impl router::Router for RouterScheme {
         rules_found.append(self.any_scheme_router.match_rule(url.clone())?.borrow_mut());
 
         if url.scheme() == "http" {
-            rules_found.append(self.http_router.match_rule(url.clone())?.borrow_mut());
-        }
-
-        if url.scheme() == "https" {
-            rules_found.append(self.https_router.match_rule(url.clone())?.borrow_mut());
+            rules_found.append(self.http_router.match_rule(url)?.borrow_mut());
+        } else if url.scheme() == "https" {
+            rules_found.append(self.https_router.match_rule(url)?.borrow_mut());
         }
 
         Ok(rules_found)
@@ -98,7 +96,7 @@ impl router::Router for RouterScheme {
                 prefix: "https://".to_string(),
             });
 
-            traces.append(self.https_router.trace(url.clone())?.borrow_mut());
+            traces.append(self.https_router.trace(url)?.borrow_mut());
         }
 
         Ok(traces)

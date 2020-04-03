@@ -134,7 +134,7 @@ impl MainRouter {
         let url_object = MainRouter::parse_url(url_str.clone())?;
         let traces = self.router_scheme.trace(url_object.clone())?;
         let start = time::Instant::now();
-        let mut matched_rules = self.router_scheme.match_rule(url_object.clone())?;
+        let mut matched_rules = self.router_scheme.match_rule(url_object)?;
         let elapsed = (start.elapsed().as_micros() as f64) / 1000.0;
         let mut final_rule = None;
 
@@ -152,7 +152,7 @@ impl MainRouter {
         let mut redirect = None;
 
         if final_rule.is_some() {
-            let target = MainRouter::get_redirect(final_rule.as_ref().unwrap(), url_str.clone())?;
+            let target = MainRouter::get_redirect(final_rule.as_ref().unwrap(), url_str)?;
 
             redirect = Some(rule::Redirect {
                 status: final_rule.as_ref().unwrap().redirect_code,
@@ -206,7 +206,7 @@ impl MainRouter {
             return Ok("".to_string());
         }
 
-        let mut target = target_opt.as_ref().unwrap().to_string();
+        let mut target = target_opt.unwrap().to_string();
         let mut capture_option = regex_groups.captures(path.as_str());
 
         if capture_option.is_none() {

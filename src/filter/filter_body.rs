@@ -83,7 +83,7 @@ impl FilterBodyAction {
             let mut token_type = tokenizer.next();
 
             if token_type == html::TokenType::ErrorToken {
-                self.last_buffer = tokenizer.raw().clone();
+                self.last_buffer = tokenizer.raw();
                 self.last_buffer.push_str(tokenizer.buffered().as_str());
 
                 break;
@@ -97,7 +97,7 @@ impl FilterBodyAction {
                 token_type = tokenizer.next();
 
                 if token_type == html::TokenType::ErrorToken {
-                    self.last_buffer = token_data.clone();
+                    self.last_buffer = token_data;
                     self.last_buffer.push_str(tokenizer.raw().as_str());
                     self.last_buffer.push_str(tokenizer.buffered().as_str());
 
@@ -191,7 +191,7 @@ impl FilterBodyAction {
         tag_name: String,
         data: String,
     ) -> (Option<Box<BufferLink>>, String) {
-        let mut buffer = data.clone();
+        let mut buffer = data;
         let mut buffer_link_actions = 0;
 
         for visitor in &mut self.visitors {
@@ -236,7 +236,7 @@ impl FilterBodyAction {
             buffer = self.current_buffer.as_ref().unwrap().buffer.clone();
             buffer.push_str(data.as_str());
         } else {
-            buffer = data.clone();
+            buffer = data;
         }
 
         for visitor in &mut self.visitors {

@@ -113,7 +113,7 @@ impl Rule {
     }
 
     fn build_path(&mut self, cache: bool) -> Result<(), Box<dyn std::error::Error>> {
-        if self.markers.is_some() && self.markers.as_ref().unwrap().len() > 0 {
+        if self.markers.is_some() && !self.markers.as_ref().unwrap().is_empty() {
             self.static_path = None;
             self.build_regex(cache)?;
 
@@ -195,7 +195,7 @@ impl Rule {
 
     pub fn is_match(&self, value: &str) -> Result<bool, regex::Error> {
         if self.static_path.is_some() {
-            return Ok(self.static_path.as_ref().unwrap().clone() == value.to_string());
+            return Ok(self.static_path.as_ref().unwrap().clone() == value);
         }
 
         if self.regex_obj.is_none() && self.regex_with_groups.is_none() {

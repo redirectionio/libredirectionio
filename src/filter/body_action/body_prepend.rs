@@ -30,7 +30,7 @@ impl body_action::BodyAction for BodyPrepend {
     fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
         let next_leave = Some(self.element_tree[self.position].clone());
         let mut next_enter = None;
-        let mut new_data = data.clone();
+        let mut new_data = data;
 
         if self.position + 1 < self.element_tree.len() {
             self.position += 1;
