@@ -8,11 +8,19 @@ use std::collections::{BTreeMap, HashMap};
 use url::percent_encoding::{utf8_percent_encode, QUERY_ENCODE_SET, SIMPLE_ENCODE_SET};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Header {
+    pub key: String,
+    pub value: String,
+    pub markers: Option<Vec<Marker>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Source {
     pub scheme: Option<String>,
     pub host: Option<String>,
     path: String,
     query: Option<String>,
+    headers: Option<Vec<Header>>,
     #[serde(skip)]
     sorted_query: Option<String>,
 }
@@ -58,6 +66,8 @@ pub struct Rule {
     pub body_filters: Option<Vec<BodyFilter>>,
     pub header_filters: Option<Vec<HeaderFilter>>,
     #[serde(skip)]
+    pub static_path: Option<String>,
+    #[serde(skip)]
     pub regex: Option<String>,
     #[serde(skip)]
     pub regex_with_groups: Option<String>,
@@ -96,7 +106,31 @@ pub struct RouterTraceItem {
 impl Rule {
     pub fn compile(&mut self, cache: bool) -> Result<(), Box<dyn std::error::Error>> {
         self.source.build_sorted_query();
-        self.build_regex(cache)?;
+        self.build_path(cache)?;
+
+        Ok(())
+    }
+
+    fn build_path(&mut self, cache: bool) -> Result<(), Box<dyn std::error::Error>> {
+        if self.markers.is_some() && self.markers.as_ref().unwrap().len() > 0 {
+            self.static_path = None;
+            self.build_regex(cache)?;
+
+            return Ok(());
+        }
+
+        self.regex = None;
+        self.regex_obj = None;
+        self.regex_with_groups = None;
+
+        let mut path = utf8_percent_encode(self.source.path.as_str(), SIMPLE_ENCODE_SET).to_string();
+
+        if self.source.sorted_query.is_some() {
+            path.push_str("?");
+            path.push_str(self.source.sorted_query.as_ref().unwrap());
+        }
+
+        self.static_path = Some(path);
 
         Ok(())
     }
@@ -223,6 +257,7 @@ mod tests {
             query: Some("c=a&b=d".to_string()),
             path: "/test".to_string(),
             sorted_query: None,
+            headers: None,
         };
 
         source.build_sorted_query();
@@ -239,6 +274,7 @@ mod tests {
             query: None,
             path: "/🍕".to_string(),
             sorted_query: None,
+            headers: None,
         };
 
         let mut rule = Rule {
@@ -249,6 +285,7 @@ mod tests {
             markers: None,
             rank: 0,
             redirect_code: 302,
+            static_path: None,
             regex: None,
             regex_obj: None,
             regex_with_groups: None,

@@ -10,6 +10,7 @@ use url::Url;
 #[derive(Debug)]
 pub struct RouterPath {
     matcher: Box<dyn UrlMatcher>,
+    static_rules: HashMap<String, Vec<router::rule::Rule>>,
 }
 
 impl router::Router for RouterPath {
@@ -20,7 +21,17 @@ impl router::Router for RouterPath {
             path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
         }
 
-        self.matcher.match_rule(&url, path.as_str())
+        let mut rules = Vec::new();
+
+        if self.static_rules.contains_key(path.as_str()) {
+            rules.extend(self.static_rules.get(path.as_str()).unwrap())
+        }
+
+        let regex_rules = self.matcher.match_rule(&url, path.as_str())?;
+
+        rules.extend(regex_rules);
+
+        Ok(rules)
     }
 
     fn trace(
@@ -43,11 +54,34 @@ impl router::Router for RouterPath {
 
 impl RouterPath {
     pub fn new(rules: Vec<router::rule::Rule>) -> Result<RouterPath, regex::Error> {
-        let rule_map = create_prefixed_map_rules(rules, "".to_string());
+        let mut static_rules: HashMap<String, Vec<router::rule::Rule>> = HashMap::new();
+        let mut regex_rules: Vec<router::rule::Rule> = Vec::new();
+
+        for rule in rules {
+            if rule.static_path.is_some() {
+                let static_path = rule.static_path.as_ref().unwrap().clone();
+
+                if !static_rules.contains_key(static_path.as_str()) {
+                    static_rules.insert(static_path.clone(), Vec::new());
+                }
+
+                static_rules
+                    .get_mut(static_path.as_str())
+                    .unwrap()
+                    .push(rule);
+
+                continue;
+            }
+
+            regex_rules.push(rule)
+        }
+
+        let rule_map = create_prefixed_map_rules(regex_rules, "".to_string());
         let matcher_generic = build_matcher_tree("".to_string(), rule_map, 0)?;
 
         Ok(RouterPath {
             matcher: matcher_generic,
+            static_rules,
         })
     }
 }

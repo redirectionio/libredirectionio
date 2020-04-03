@@ -174,6 +174,12 @@ impl MainRouter {
         url_str: String,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let url_object = MainRouter::parse_url(url_str)?;
+
+        // No markers
+        if rule_to_redirect.static_path.is_some() {
+            return Ok(rule_to_redirect.target.as_ref().unwrap().clone());
+        }
+
         let regex_groups_str = [
             "^",
             rule_to_redirect.regex_with_groups.as_ref().unwrap(),
