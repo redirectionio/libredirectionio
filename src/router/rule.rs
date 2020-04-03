@@ -263,6 +263,7 @@ mod tests {
             path: "/test".to_string(),
             sorted_query: None,
             headers: None,
+            methods: None,
         };
 
         source.build_sorted_query();
@@ -280,6 +281,7 @@ mod tests {
             path: "/🍕".to_string(),
             sorted_query: None,
             headers: None,
+            methods: None,
         };
 
         let mut rule = Rule {
