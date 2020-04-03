@@ -81,10 +81,6 @@ impl UrlMatcherItem {
 
         cache_limit - 1
     }
-
-    fn get_rules(&self) -> Vec<&rule::Rule> {
-        self.matcher.get_rules()
-    }
 }
 
 impl UrlMatcherRegex {
@@ -188,19 +184,5 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
         }
 
         Ok(traces)
-    }
-
-    fn get_rules(&self) -> Vec<&rule::Rule> {
-        let mut rules = Vec::new();
-
-        for matcher in &self.children {
-            rules.append(&mut matcher.get_rules());
-        }
-
-        if self.empty.is_some() {
-            rules.append(&mut self.empty.as_ref().unwrap().get_rules());
-        }
-
-        rules
     }
 }

@@ -16,6 +16,4 @@ pub trait UrlMatcher: Debug + Send + Sync + 'static {
         url: &Url,
         path: &str,
     ) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>>;
-
-    fn get_rules(&self) -> Vec<&rule::Rule>;
 }

@@ -76,14 +76,4 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
             rules_matches: rules_matched,
         }])
     }
-
-    fn get_rules(&self) -> Vec<&rule::Rule> {
-        let mut rules = Vec::new();
-
-        for rule in &self.rules {
-            rules.push(rule);
-        }
-
-        rules
-    }
 }

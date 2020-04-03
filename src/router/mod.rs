@@ -2,6 +2,8 @@ pub mod api;
 mod router_host;
 mod router_path;
 mod router_scheme;
+mod router_header;
+mod router_method;
 pub mod rule;
 mod transform;
 mod url_matcher;
