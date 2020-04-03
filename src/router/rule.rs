@@ -20,8 +20,8 @@ pub struct Source {
     pub host: Option<String>,
     path: String,
     query: Option<String>,
-    headers: Option<Vec<Header>>,
-    methods: Option<Vec<String>>,
+    pub headers: Option<Vec<Header>>,
+    pub methods: Option<Vec<String>>,
     #[serde(skip)]
     sorted_query: Option<String>,
 }

@@ -60,14 +60,10 @@ impl router::Router for RouterHost {
             let host_str = request.uri().host().unwrap();
 
             if let Some(host_router) = self.hosts_routers.get(host_str) {
-                let rule = host_router.match_rule(request);
+                let rules = host_router.match_rule(request)?;
 
-                if rule.is_err() {
-                    return rule;
-                }
-
-                if !rule.as_ref().unwrap().is_empty() {
-                    return rule;
+                if !rules.is_empty() {
+                    return Ok(rules);
                 }
             }
         }
