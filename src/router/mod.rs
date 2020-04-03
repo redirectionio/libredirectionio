@@ -16,10 +16,11 @@ use regex::Regex;
 use std::time;
 use url;
 use url::Url;
+use http::Request;
 
 pub trait Router {
-    fn match_rule(&self, url: Url) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>>;
-    fn trace(&self, url: Url) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>>;
+    fn match_rule(&self, request: &Request<()>) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>>;
+    fn trace(&self, request: &Request<()>) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>>;
     fn build_cache(&mut self, cache_limit: u64, level: u64) -> u64;
 }
 
@@ -78,6 +79,12 @@ impl MainRouter {
         }
     }
 
+    fn create_request(url_str: String) -> Result<Request<()>, url::ParseError> {
+        let url = MainRouter::parse_url(url_str)?;
+
+        Ok(Request::builder().uri(url.to_string()).body(()).unwrap())
+    }
+
     fn parse_url(url_str: String) -> Result<Url, url::ParseError> {
         let options = url::Url::options();
         let base_url = Url::parse("scheme://0.0.0.0")?;
@@ -110,9 +117,9 @@ impl MainRouter {
         &self,
         url_str: String,
     ) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
-        let url_object = MainRouter::parse_url(url_str)?;
+        let request = MainRouter::create_request(url_str)?;
 
-        self.router_scheme.match_rule(url_object)
+        self.router_scheme.match_rule(&request)
     }
 
     pub fn match_rule(
@@ -131,10 +138,10 @@ impl MainRouter {
     }
 
     pub fn trace(&self, url_str: String) -> Result<rule::RouterTrace, Box<dyn std::error::Error>> {
-        let url_object = MainRouter::parse_url(url_str.clone())?;
-        let traces = self.router_scheme.trace(url_object.clone())?;
+        let request = MainRouter::create_request(url_str.clone())?;
+        let traces = self.router_scheme.trace(&request)?;
         let start = time::Instant::now();
-        let mut matched_rules = self.router_scheme.match_rule(url_object)?;
+        let mut matched_rules = self.router_scheme.match_rule(&request)?;
         let elapsed = (start.elapsed().as_micros() as f64) / 1000.0;
         let mut final_rule = None;
 

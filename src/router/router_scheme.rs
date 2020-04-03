@@ -1,6 +1,7 @@
 use crate::router;
 use core::borrow::BorrowMut;
-use url::Url;
+use http::Request;
+use http::uri::Scheme;
 
 #[derive(Debug)]
 pub struct RouterScheme {
@@ -39,15 +40,15 @@ impl RouterScheme {
 }
 
 impl router::Router for RouterScheme {
-    fn match_rule(&self, url: Url) -> Result<Vec<&router::rule::Rule>, Box<dyn std::error::Error>> {
+    fn match_rule(&self, request: &Request<()>) -> Result<Vec<&router::rule::Rule>, Box<dyn std::error::Error>> {
         let mut rules_found = Vec::new();
 
-        rules_found.append(self.any_scheme_router.match_rule(url.clone())?.borrow_mut());
+        rules_found.append(self.any_scheme_router.match_rule(request)?.borrow_mut());
 
-        if url.scheme() == "http" {
-            rules_found.append(self.http_router.match_rule(url)?.borrow_mut());
-        } else if url.scheme() == "https" {
-            rules_found.append(self.https_router.match_rule(url)?.borrow_mut());
+        if request.uri().scheme() == Some(&Scheme::HTTP) {
+            rules_found.append(self.http_router.match_rule(request)?.borrow_mut());
+        } else if request.uri().scheme() == Some(&Scheme::HTTPS) {
+            rules_found.append(self.https_router.match_rule(request)?.borrow_mut());
         }
 
         Ok(rules_found)
@@ -64,7 +65,7 @@ impl router::Router for RouterScheme {
 
     fn trace(
         &self,
-        url: Url,
+        request: &Request<()>,
     ) -> Result<Vec<router::rule::RouterTraceItem>, Box<dyn std::error::Error>> {
         let mut traces = Vec::new();
 
@@ -75,9 +76,9 @@ impl router::Router for RouterScheme {
             prefix: "://".to_string(),
         });
 
-        traces.append(self.any_scheme_router.trace(url.clone())?.borrow_mut());
+        traces.append(self.any_scheme_router.trace(request)?.borrow_mut());
 
-        if url.scheme() == "http" {
+        if request.uri().scheme() == Some(&Scheme::HTTP) {
             traces.push(router::rule::RouterTraceItem {
                 rules_matches: Vec::new(),
                 rules_evaluated: Vec::new(),
@@ -85,10 +86,10 @@ impl router::Router for RouterScheme {
                 prefix: "http://".to_string(),
             });
 
-            traces.append(self.http_router.trace(url.clone())?.borrow_mut());
+            traces.append(self.http_router.trace(request)?.borrow_mut());
         }
 
-        if url.scheme() == "https" {
+        if request.uri().scheme() == Some(&Scheme::HTTPS) {
             traces.push(router::rule::RouterTraceItem {
                 rules_matches: Vec::new(),
                 rules_evaluated: Vec::new(),
@@ -96,7 +97,7 @@ impl router::Router for RouterScheme {
                 prefix: "https://".to_string(),
             });
 
-            traces.append(self.https_router.trace(url)?.borrow_mut());
+            traces.append(self.https_router.trace(request)?.borrow_mut());
         }
 
         Ok(traces)

@@ -4,7 +4,7 @@ use crate::router::rule;
 use crate::router::url_matcher;
 use crate::router::url_matcher::UrlMatcher;
 use regex::Regex;
-use url::Url;
+use http::Request;
 
 #[derive(Debug)]
 pub struct UrlMatcherItem {
@@ -92,14 +92,14 @@ impl UrlMatcherRegex {
 impl url_matcher::UrlMatcher for UrlMatcherRegex {
     fn match_rule(
         &self,
-        url: &Url,
+        request: &Request<()>,
         path: &str,
     ) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
         if self.empty.is_some() {
             let empty_match = self.empty.as_ref().unwrap().match_string(&path)?;
 
             if let Some(empty_matcher) = empty_match {
-                return empty_matcher.match_rule(url, path);
+                return empty_matcher.match_rule(request, path);
             }
         }
 
@@ -109,7 +109,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
             let child_match = child.match_string(path)?;
 
             if let Some(child_matcher) = child_match {
-                matched_rules.append(&mut child_matcher.match_rule(url, path)?);
+                matched_rules.append(&mut child_matcher.match_rule(request, path)?);
             }
         }
 
@@ -136,7 +136,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
 
     fn trace(
         &self,
-        url: &Url,
+        request: &Request<()>,
         path: &str,
     ) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>> {
         let mut traces = Vec::new();
@@ -152,7 +152,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                     rules_matches: Vec::new(),
                 });
 
-                traces.append(empty_match.as_ref().unwrap().trace(url, path)?.as_mut());
+                traces.append(empty_match.as_ref().unwrap().trace(request, path)?.as_mut());
 
                 return Ok(traces);
             }
@@ -170,7 +170,7 @@ impl url_matcher::UrlMatcher for UrlMatcherRegex {
                         rules_matches: Vec::new(),
                     });
 
-                    traces.append(matcher.trace(url, path)?.as_mut());
+                    traces.append(matcher.trace(request, path)?.as_mut());
                 },
                 None => {
                     traces.push(rule::RouterTraceItem {

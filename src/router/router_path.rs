@@ -5,7 +5,7 @@ use crate::router::url_matcher_regex::UrlMatcherRegex;
 use crate::router::url_matcher_rules::UrlMatcherRules;
 use std::cmp;
 use std::collections::HashMap;
-use url::Url;
+use http::Request;
 
 #[derive(Debug)]
 pub struct RouterPath {
@@ -14,14 +14,14 @@ pub struct RouterPath {
 }
 
 impl router::Router for RouterPath {
-    fn match_rule(&self, url: Url) -> Result<Vec<&router::rule::Rule>, Box<dyn std::error::Error>> {
-        let mut path = url.path().to_string();
+    fn match_rule(&self, request: &Request<()>) -> Result<Vec<&router::rule::Rule>, Box<dyn std::error::Error>> {
+        let mut path = request.uri().path().to_string();
 
-        if url.query().is_some() {
-            path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
+        if request.uri().query().is_some() {
+            path = [path, "?".to_string(), request.uri().query().unwrap().to_string()].join("");
         }
 
-        let mut rules = self.matcher.match_rule(&url, path.as_str())?;
+        let mut rules = self.matcher.match_rule(request, path.as_str())?;
 
         if self.static_rules.contains_key(path.as_str()) {
             for rule in self.static_rules.get(path.as_str()).unwrap() {
@@ -36,15 +36,15 @@ impl router::Router for RouterPath {
 
     fn trace(
         &self,
-        url: Url,
+        request: &Request<()>,
     ) -> Result<Vec<router::rule::RouterTraceItem>, Box<dyn std::error::Error>> {
-        let mut path = url.path().to_string();
+        let mut path = request.uri().path().to_string();
 
-        if url.query().is_some() {
-            path = [path, "?".to_string(), url.query().unwrap().to_string()].join("");
+        if request.uri().query().is_some() {
+            path = [path, "?".to_string(), request.uri().query().unwrap().to_string()].join("");
         }
 
-        let mut traces = self.matcher.trace(&url, path.as_str())?;
+        let mut traces = self.matcher.trace(request, path.as_str())?;
 
         if self.static_rules.contains_key(path.as_str()) {
             let rules_evaluated = self.static_rules.get(path.as_str()).unwrap().clone();

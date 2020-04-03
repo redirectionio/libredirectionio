@@ -1,6 +1,6 @@
 use crate::router::rule;
 use crate::router::url_matcher;
-use url::Url;
+use http::Request;
 
 #[derive(Debug)]
 pub struct UrlMatcherRules {
@@ -17,7 +17,7 @@ impl UrlMatcherRules {
 impl url_matcher::UrlMatcher for UrlMatcherRules {
     fn match_rule(
         &self,
-        _url: &Url,
+        _request: &Request<()>,
         path: &str,
     ) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>> {
         let mut matched_rules = Vec::new();
@@ -59,10 +59,10 @@ impl url_matcher::UrlMatcher for UrlMatcherRules {
 
     fn trace(
         &self,
-        url: &Url,
+        request: &Request<()>,
         path: &str,
     ) -> Result<Vec<rule::RouterTraceItem>, Box<dyn std::error::Error>> {
-        let rules = self.match_rule(url, path)?;
+        let rules = self.match_rule(request, path)?;
         let mut rules_matched = Vec::new();
 
         for rule in rules {
