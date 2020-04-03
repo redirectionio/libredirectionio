@@ -36,6 +36,8 @@ log = "0.4.6"
 stderrlog = "0.4.1"
 console_log = "0.1.2"
 scraper = "0.10.1"
+http = "0.2.1"
+string_cache = "0.8.0"
 
 [dev-dependencies]
 criterion = "0.3.1"
@@ -49,9 +51,6 @@ version = "0.3"
 features = [
   "console",
 ]
-
-[patch.crates-io]
-string_cache = { git = "https://github.com/servo/string-cache", branch = "master" }
 
 [profile.release]
 opt-level = "s"
