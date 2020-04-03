@@ -44,7 +44,7 @@ impl router::Router for RouterPath {
 
         traces.push(router::rule::RouterTraceItem {
             matches: self.static_rules.contains_key(path.as_str()),
-            prefix: "".to_string(),
+            prefix: path.clone(),
             rules_evaluated: Vec::new(),
             rules_matches: self.static_rules.get(path.as_str()).unwrap().clone(),
         });
