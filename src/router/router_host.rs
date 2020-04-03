@@ -1,13 +1,13 @@
 use crate::router;
-use crate::router::router_path::RouterPath;
+use crate::router::router_method::RouterMethod;
 use core::borrow::BorrowMut;
 use std::collections::HashMap;
 use http::Request;
 
 #[derive(Debug)]
 pub struct RouterHost {
-    hosts_routers: HashMap<String, router::router_path::RouterPath>,
-    any_host_router: router::router_path::RouterPath,
+    hosts_routers: HashMap<String, RouterMethod>,
+    any_host_router: RouterMethod,
 }
 
 impl RouterHost {
@@ -40,11 +40,11 @@ impl RouterHost {
                 .push(rule);
         }
 
-        let any_host_router = RouterPath::new(any_host_rules)?;
+        let any_host_router = RouterMethod::new(any_host_rules)?;
         let mut hosts_routers = HashMap::new();
 
         for (host, rules_by_host) in hosts_router_rules {
-            hosts_routers.insert(host.to_string(), RouterPath::new(rules_by_host)?);
+            hosts_routers.insert(host.to_string(), RouterMethod::new(rules_by_host)?);
         }
 
         Ok(RouterHost {
