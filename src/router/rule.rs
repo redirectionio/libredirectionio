@@ -194,6 +194,10 @@ impl Rule {
     }
 
     pub fn is_match(&self, value: &str) -> Result<bool, regex::Error> {
+        if self.static_path.is_some() {
+            return Ok(self.static_path.as_ref().unwrap().clone() == value.to_string());
+        }
+
         if self.regex_obj.is_none() && self.regex_with_groups.is_none() {
             return Ok(false);
         }

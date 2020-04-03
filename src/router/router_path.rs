@@ -24,7 +24,11 @@ impl router::Router for RouterPath {
         let mut rules = self.matcher.match_rule(&url, path.as_str())?;
 
         if self.static_rules.contains_key(path.as_str()) {
-            rules.extend(self.static_rules.get(path.as_str()).unwrap())
+            for rule in self.static_rules.get(path.as_str()).unwrap() {
+                if rule.is_match(path.as_str())? {
+                    rules.push(rule)
+                }
+            }
         }
 
         Ok(rules)
@@ -42,12 +46,23 @@ impl router::Router for RouterPath {
 
         let mut traces = self.matcher.trace(&url, path.as_str())?;
 
-        traces.push(router::rule::RouterTraceItem {
-            matches: self.static_rules.contains_key(path.as_str()),
-            prefix: path.clone(),
-            rules_evaluated: Vec::new(),
-            rules_matches: self.static_rules.get(path.as_str()).unwrap().clone(),
-        });
+        if self.static_rules.contains_key(path.as_str()) {
+            let rules_evaluated = self.static_rules.get(path.as_str()).unwrap().clone();
+            let mut rules_matched = Vec::new();
+
+            for rule in &rules_evaluated {
+                if rule.is_match(path.as_str())? {
+                    rules_matched.push(rule.clone())
+                }
+            }
+
+            traces.push(router::rule::RouterTraceItem {
+                matches: true,
+                prefix: path.clone(),
+                rules_evaluated,
+                rules_matches: rules_matched,
+            });
+        }
 
         Ok(traces)
     }
