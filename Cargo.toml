@@ -46,6 +46,10 @@ criterion = "0.3.1"
 name = "match_rule_benchmark"
 harness = false
 
+[[bench]]
+name = "build_router_rule_benchmark"
+harness = false
+
 [dependencies.web-sys]
 version = "0.3"
 features = [
