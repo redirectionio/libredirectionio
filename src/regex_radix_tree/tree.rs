@@ -15,12 +15,8 @@ impl<T> RegexRadixTree<T> where T: Item {
         let regex = value.node_regex();
     }
 
-    pub fn find(&self, value: &str) -> Vec<&T> {
-        if self.root.is_none() {
-            return Vec::new();
-        }
-
-        self.root.as_ref().unwrap().find(value)
+    pub fn find(&self, value: &str) -> Option<Vec<&T>> {
+        self.root.as_ref()?.find(value)
     }
 
     pub fn remove(&mut self, id: String) -> bool {
