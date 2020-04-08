@@ -1,4 +1,4 @@
 pub struct Leaf<T> {
-    rules: Vec<T>,
+    data: T,
     level: u64,
 }
