@@ -13,6 +13,7 @@ mod filter;
 pub mod html;
 mod router;
 mod utils;
+mod regex_radix_tree;
 
 use cfg_if::cfg_if;
 use std::collections::HashMap;
