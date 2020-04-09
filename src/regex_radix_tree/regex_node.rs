@@ -2,41 +2,44 @@ use regex::Regex;
 use crate::regex_radix_tree::{Node, Item};
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
+use std::fmt::Debug;
 
-pub struct RegexNode<T> where T: Item {
-    prefix: String,
+#[derive(Debug)]
+pub struct RegexNode<T> where T: Item + Debug {
+    prefix: Option<String>,
     prefix_compiled: Option<Regex>,
     level: u64,
     children: Vec<Box<dyn Node<T>>>,
 }
 
-impl<T> Node<T> for RegexNode<T> where T: Item {
+impl<T> Node<T> for RegexNode<T> where T: Item + Debug {
     fn insert(&mut self, item: T) {
         let item_regex = item.node_regex();
 
         // for each children node
         for i in 0 .. self.children.len() {
-            let regex_child = self.children[i].regex();
-            let prefix_size = common_prefix_char_size(item_regex.as_str(), regex_child);
+            let regex_child= self.children[i].regex();
+            let prefix_size= common_prefix_char_size(item_regex, regex_child);
 
             if prefix_size == 0 {
                 continue;
             }
 
-            let prefix = get_prefix_with_char_size(item_regex.as_str(), prefix_size);
+            let prefix = get_prefix_with_char_size(item_regex, prefix_size);
 
-            if prefix == regex_child {
+            if self.children[i].can_insert_item(prefix.as_str(), &item) {
                 self.children[i].insert(item);
 
                 return;
             }
 
-            let current_item = self.children.remove(i);
+            let mut current_item = self.children.remove(i);
+            current_item.incr_level();
 
             self.children.push(Box::new(RegexNode::new(
-                Box::new(Leaf::new(item, self.level + 1)),
+                Box::new(Leaf::new(item, self.level + 2)),
                 current_item,
-                prefix.to_string(),
+                prefix,
                 self.level + 1,
             )));
 
@@ -68,19 +71,30 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
         }
     }
 
-    fn is_match(&self, value: &str) -> bool {
-        match self.prefix_compiled.as_ref() {
-            Some(regex) => regex.is_match(value),
-            None => self.create_regex().is_match(value),
+    fn regex(&self) -> &str {
+        match self.prefix.as_ref() {
+            None => "",
+            Some(prefix) => prefix
         }
     }
 
-    fn regex(&self) -> &str {
-        self.prefix.as_str()
+    fn can_insert_item(&self, prefix: &str, _item: &T) -> bool {
+        match self.prefix.as_ref() {
+            None => true,
+            Some(prefix_regex) => prefix_regex == prefix,
+        }
+    }
+
+    fn incr_level(&mut self) {
+        self.level += 1;
+
+        for child in &mut self.children {
+            child.incr_level();
+        }
     }
 
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
-        if self.level == level {
+        if self.level == level && !self.prefix.is_none() {
             self.prefix_compiled = Some(self.create_regex());
 
             return limit - 1;
@@ -96,19 +110,44 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
     }
 }
 
-impl<T> RegexNode<T> where T: Item {
+impl<T> RegexNode<T> where T: Item + Debug {
     pub fn new(first: Box<dyn Node<T>>, second: Box<dyn Node<T>>, prefix: String, level: u64) -> RegexNode<T> {
         RegexNode {
             level,
-            prefix,
+            prefix: Some(prefix),
             prefix_compiled: None,
             children: vec![first, second]
         }
     }
 
+    pub fn new_empty() -> RegexNode<T> {
+        RegexNode {
+            level: 0,
+            prefix: None,
+            prefix_compiled: None,
+            children: Vec::new(),
+        }
+    }
+
+    fn is_match(&self, value: &str) -> bool {
+        if self.prefix.is_none() {
+            return true;
+        }
+
+        match self.prefix_compiled.as_ref() {
+            Some(regex) => regex.is_match(value),
+            None => self.create_regex().is_match(value),
+        }
+    }
+
     fn create_regex(&self) -> Regex {
-        // @TODO Change this to error handler
-        let regex = ["^", self.prefix.as_str()].join("");
-        Regex::new(regex.as_str()).expect("Cannot create regex")
+        match self.prefix.as_ref() {
+            None => Regex::new(""),
+            Some(prefix) => {
+                let regex = ["^", prefix.as_str()].join("");
+
+                Regex::new(regex.as_str())
+            },
+        }.expect("Cannot create regex")
     }
 }

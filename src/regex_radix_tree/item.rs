@@ -4,7 +4,7 @@ pub trait Item: Send + Sync + 'static {
     ///
     /// Regex should not contains `^` at the start and `$` at the end, those are inserted for you
     /// automatically
-    fn node_regex(&self) -> String;
+    fn node_regex(&self) -> &str;
 
-    fn id(&self) -> String;
+    fn id(&self) -> &str;
 }

@@ -1,14 +1,16 @@
 use crate::regex_radix_tree::{Node, Item};
 use regex::Regex;
+use std::fmt::Debug;
 
-pub struct Leaf<T> where T: Item {
+#[derive(Debug)]
+pub struct Leaf<T> where T: Item + Debug {
     data: Vec<T>,
     level: u64,
     prefix: String,
     prefix_compiled: Option<Regex>,
 }
 
-impl<T> Node<T> for Leaf<T> where T: Item {
+impl<T> Node<T> for Leaf<T> where T: Item + Debug {
     fn insert(&mut self, item: T) {
         self.data.push(item)
     }
@@ -20,15 +22,16 @@ impl<T> Node<T> for Leaf<T> where T: Item {
         }
     }
 
-    fn is_match(&self, value: &str) -> bool {
-        match self.prefix_compiled.as_ref() {
-            Some(regex) => regex.is_match(value),
-            None => self.create_regex().is_match(value),
-        }
-    }
-
     fn regex(&self) -> &str {
         self.prefix.as_str()
+    }
+
+    fn can_insert_item(&self, _prefix: &str, item: &T) -> bool {
+        item.node_regex() == self.prefix
+    }
+
+    fn incr_level(&mut self) {
+        self.level += 1
     }
 
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
@@ -47,13 +50,20 @@ impl<T> Node<T> for Leaf<T> where T: Item {
     }
 }
 
-impl<T> Leaf<T> where T: Item {
+impl<T> Leaf<T> where T: Item + Debug {
     pub fn new(item: T, level: u64) -> Leaf<T> {
         Leaf {
-            prefix: item.node_regex(),
+            prefix: item.node_regex().to_string(),
             data: vec![item],
             level,
             prefix_compiled: None,
+        }
+    }
+
+    fn is_match(&self, value: &str) -> bool {
+        match self.prefix_compiled.as_ref() {
+            Some(regex) => regex.is_match(value),
+            None => self.create_regex().is_match(value),
         }
     }
 

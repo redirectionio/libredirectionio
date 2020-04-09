@@ -1,17 +1,20 @@
 use crate::regex_radix_tree::Item;
+use std::fmt::Debug;
 
-pub trait Node<T> where T: Item {
+pub trait Node<T>: Debug where T: Item + Debug {
     /// Insert a new item into this node
     fn insert(&mut self, item: T);
 
     /// Find all possible item matching this value
     fn find(&self, value: &str) -> Option<Vec<&T>>;
 
-    /// Does this node match a given value
-    fn is_match(&self, value: &str) -> bool;
-
     /// Return regex used by this node
     fn regex(&self) -> &str;
+
+    fn can_insert_item(&self, prefix: &str, item: &T) -> bool;
+
+    /// Incr level of node by one
+    fn incr_level(&mut self);
 
     /// Cache current regex according to a limit and a level
     ///
