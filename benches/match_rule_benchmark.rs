@@ -48,11 +48,11 @@ fn no_match_bench(c: &mut Criterion) {
 
 fn no_match_cache_bench(c: &mut Criterion) {
     let files = vec![
-//        "../bench-files/large-rules-1k.json".to_string(),
+        "../bench-files/large-rules-1k.json".to_string(),
         "../bench-files/large-rules-10k.json".to_string(),
-//        "../bench-files/large-rules-50k.json".to_string(),
-//        "../bench-files/large-rules-150k.json".to_string(),
-//        "../bench-files/large-rules-200k.json".to_string(),
+        "../bench-files/large-rules-50k.json".to_string(),
+        "../bench-files/large-rules-150k.json".to_string(),
+        "../bench-files/large-rules-200k.json".to_string(),
     ];
 
     let mut group = c.benchmark_group("no_match_cache");
@@ -72,5 +72,5 @@ fn no_match_cache_bench(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, no_match_cache_bench);
+criterion_group!(benches, no_match_bench, no_match_cache_bench);
 criterion_main!(benches);
