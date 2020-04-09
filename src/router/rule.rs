@@ -179,7 +179,7 @@ impl Rule {
                     ")",
                 ]
                 .join("");
-                let marker_regex_no_group = ["(?:", marker.regex.as_str(), ")"].join("");
+                let marker_regex_no_group = ["(?:", marker_regex.as_str(), ")"].join("");
 
                 regex_str = regex_str.replace(
                     ["@", marker.name.as_str()].join("").as_str(),
