@@ -1,16 +1,15 @@
 use crate::regex_radix_tree::{Node, Item};
 use regex::Regex;
-use std::fmt::Debug;
 
 #[derive(Debug)]
-pub struct Leaf<T> where T: Item + Debug {
+pub struct Leaf<T> where T: Item {
     data: Vec<T>,
     level: u64,
     prefix: String,
     prefix_compiled: Option<Regex>,
 }
 
-impl<T> Node<T> for Leaf<T> where T: Item + Debug {
+impl<T> Node<T> for Leaf<T> where T: Item {
     fn insert(&mut self, item: T) {
         self.data.push(item)
     }
@@ -20,6 +19,18 @@ impl<T> Node<T> for Leaf<T> where T: Item + Debug {
             true => Some(self.data.iter().collect::<Vec<_>>()),
             false => None,
         }
+    }
+
+    fn remove(&mut self, id: &str) -> bool {
+        for i in 0 .. self.data.len() {
+            if self.data[i].id() == id {
+                self.data.remove(i);
+
+                break;
+            }
+        }
+
+        self.data.is_empty()
     }
 
     fn regex(&self) -> &str {
@@ -50,7 +61,7 @@ impl<T> Node<T> for Leaf<T> where T: Item + Debug {
     }
 }
 
-impl<T> Leaf<T> where T: Item + Debug {
+impl<T> Leaf<T> where T: Item {
     pub fn new(item: T, level: u64) -> Leaf<T> {
         Leaf {
             prefix: item.node_regex().to_string(),

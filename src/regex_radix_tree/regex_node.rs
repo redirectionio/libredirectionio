@@ -2,17 +2,16 @@ use regex::Regex;
 use crate::regex_radix_tree::{Node, Item};
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
-use std::fmt::Debug;
 
 #[derive(Debug)]
-pub struct RegexNode<T> where T: Item + Debug {
+pub struct RegexNode<T> where T: Item {
     prefix: Option<String>,
     prefix_compiled: Option<Regex>,
     level: u64,
     children: Vec<Box<dyn Node<T>>>,
 }
 
-impl<T> Node<T> for RegexNode<T> where T: Item + Debug {
+impl<T> Node<T> for RegexNode<T> where T: Item {
     fn insert(&mut self, item: T) {
         let item_regex = item.node_regex();
 
@@ -60,7 +59,10 @@ impl<T> Node<T> for RegexNode<T> where T: Item + Debug {
                             values = child.find(value);
                         },
                         Some(items) => {
-                            items.extend(child.find(value).unwrap_or(Vec::new()));
+                            match child.find(value) {
+                                None => (),
+                                Some(new_values) => items.extend(new_values),
+                            }
                         }
                     }
                 }
@@ -69,6 +71,20 @@ impl<T> Node<T> for RegexNode<T> where T: Item + Debug {
             },
             false => None,
         }
+    }
+
+    fn remove(&mut self, id: &str) -> bool {
+        for i in 0 .. self.children.len() {
+            let to_remove = self.children[i].remove(id);
+
+            if to_remove {
+                self.children.remove(i);
+
+                break;
+            }
+        }
+
+        self.children.is_empty()
     }
 
     fn regex(&self) -> &str {
@@ -110,7 +126,7 @@ impl<T> Node<T> for RegexNode<T> where T: Item + Debug {
     }
 }
 
-impl<T> RegexNode<T> where T: Item + Debug {
+impl<T> RegexNode<T> where T: Item {
     pub fn new(first: Box<dyn Node<T>>, second: Box<dyn Node<T>>, prefix: String, level: u64) -> RegexNode<T> {
         RegexNode {
             level,

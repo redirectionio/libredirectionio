@@ -18,6 +18,10 @@ impl<T> RegexRadixTree<T> where T: Item + Debug {
         self.root.insert(item)
     }
 
+    pub fn remove(&mut self, id: &str) {
+        self.root.remove(id);
+    }
+
     pub fn find(&self, value: &str) -> Option<Vec<&T>> {
         self.root.find(value)
     }
@@ -35,19 +39,19 @@ mod tests {
 
     impl Item for TestItem {
         fn node_regex(&self) -> &str {
-            return self.regex.as_str()
+            self.regex.as_str()
         }
 
         fn id(&self) -> &str {
-            unimplemented!()
+            self.id.as_str()
         }
     }
 
     impl TestItem {
         pub fn new(regex: String) -> TestItem {
             TestItem {
+                id: regex.clone(),
                 regex,
-                id: "".to_string(),
             }
         }
     }
@@ -99,5 +103,39 @@ mod tests {
         assert_eq!(tree.find("/a/b/c").is_some(), true);
         assert_eq!(tree.find("/a/b/d").is_some(), false);
         assert_eq!(tree.find("/a/b").is_some(), false);
+    }
+
+    #[test]
+    fn test_find_multiple_rule_with_regex() {
+        let mut tree = RegexRadixTree::new();
+
+        tree.insert(TestItem::new("/a/(.+?)/c".to_string()));
+        tree.insert(TestItem::new("/a/(.+?)/b".to_string()));
+
+        assert_eq!(tree.find("/a/b/c").is_some(), true);
+        assert_eq!(tree.find("/a/b/d").is_some(), false);
+        assert_eq!(tree.find("/a/b").is_some(), false);
+        assert_eq!(tree.find("/a/b/b").is_some(), true);
+        assert_eq!(tree.find("/a/c/b").is_some(), true);
+        assert_eq!(tree.find("/a/c/d").is_some(), false);
+        assert_eq!(tree.find("/a/c/").is_some(), false);
+    }
+
+    #[test]
+    fn test_find_multiple_rule_after_remove() {
+        let mut tree = RegexRadixTree::new();
+
+        tree.insert(TestItem::new("/a/b".to_string()));
+        tree.insert(TestItem::new("/a/b/c".to_string()));
+        tree.insert(TestItem::new("/a/b/d".to_string()));
+        tree.insert(TestItem::new("/b/a".to_string()));
+
+        assert_eq!(tree.find("/a/b").is_some(), true);
+        assert_eq!(tree.find("/a/b/c").is_some(), true);
+
+        tree.remove("/a/b");
+
+        assert_eq!(tree.find("/a/b").is_some(), false);
+        assert_eq!(tree.find("/a/b/c").is_some(), true);
     }
 }

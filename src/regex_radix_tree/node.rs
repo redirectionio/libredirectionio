@@ -1,12 +1,17 @@
 use crate::regex_radix_tree::Item;
 use std::fmt::Debug;
 
-pub trait Node<T>: Debug where T: Item + Debug {
+pub trait Node<T>: Debug where T: Item {
     /// Insert a new item into this node
     fn insert(&mut self, item: T);
 
     /// Find all possible item matching this value
     fn find(&self, value: &str) -> Option<Vec<&T>>;
+
+    /// Remove an item on this tree
+    ///
+    /// This method returns true if there is no more data so it can be cleaned up
+    fn remove(&mut self, id: &str) -> bool;
 
     /// Return regex used by this node
     fn regex(&self) -> &str;
