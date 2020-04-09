@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate criterion;
-#[macro_use]
-extern crate log;
-use criterion::{Criterion, BenchmarkId, BatchSize};
+use criterion::{Criterion, BenchmarkId};
 use serde::{Serialize, Deserialize};
 use redirectionio::{Rule, MainRouter};
 use std::fs::read_to_string;
