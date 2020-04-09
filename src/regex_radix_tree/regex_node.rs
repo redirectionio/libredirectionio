@@ -12,7 +12,7 @@ pub struct RegexNode<T> where T: Item {
 }
 
 impl<T> Node<T> for RegexNode<T> where T: Item {
-    fn insert(&mut self, item: T) {
+    fn insert(&mut self, item: T, parent_prefix_size: u32) {
         let item_regex = item.node_regex();
 
         // for each children node
@@ -20,14 +20,14 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
             let regex_child= self.children[i].regex();
             let prefix_size= common_prefix_char_size(item_regex, regex_child);
 
-            if prefix_size == 0 {
+            if prefix_size == parent_prefix_size {
                 continue;
             }
 
             let prefix = get_prefix_with_char_size(item_regex, prefix_size);
 
             if self.children[i].can_insert_item(prefix.as_str(), &item) {
-                self.children[i].insert(item);
+                self.children[i].insert(item, prefix_size);
 
                 return;
             }

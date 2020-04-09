@@ -15,7 +15,7 @@ impl<T> RegexRadixTree<T> where T: Item + Debug {
     }
 
     pub fn insert(&mut self, item: T) {
-        self.root.insert(item)
+        self.root.insert(item, 0)
     }
 
     pub fn remove(&mut self, id: &str) {
@@ -80,6 +80,18 @@ mod tests {
     }
 
     #[test]
+    fn test_find_emoji_rule_regex() {
+        let mut tree = RegexRadixTree::new();
+
+        tree.insert(TestItem::new("/emoji/(([\\p{Ll}]|\\-|➡️|🤘)+?)".to_string()));
+
+        assert_eq!(tree.find("/emoji/test").is_some(), true);
+        assert_eq!(tree.find("/emoji/➡️").is_some(), true);
+        assert_eq!(tree.find("/emoji/🤘").is_some(), true);
+        assert_eq!(tree.find("/not-emoji").is_some(), false);
+    }
+
+    #[test]
     fn test_find_multiple_rule() {
         let mut tree = RegexRadixTree::new();
 
@@ -141,5 +153,30 @@ mod tests {
 
         assert_eq!(tree.find("/a/b").is_some(), false);
         assert_eq!(tree.find("/a/b/c").is_some(), true);
+    }
+
+
+    #[test]
+    fn test_find_emoji_weird_rule_regex() {
+        let mut tree = RegexRadixTree::new();
+
+        tree.insert(TestItem::new("/string/from/(?:)".to_string()));
+        tree.insert(TestItem::new("/string\\-uppercase/from/(?:([\\p{Lu}\\p{Lt}])+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-ending/from/(?:([\\p{Ll}]|\\-)+?JOHN\\-SNOW)".to_string()));
+        tree.insert(TestItem::new("/string\\-lowercase/from/(?:([\\p{Ll}])+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-starting/from/(?:JOHN\\-SNOW([\\p{Ll}]|\\-)+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-lowercase\\-uppercase\\-digits/from/(?:([\\p{Ll}\\p{Lu}\\p{Lt}0-9])+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-lowercase\\-uppercase\\-digits\\-allowPercentEncodedChars\\-specificCharacters/from/(?:([\\p{Ll}\\p{Lu}\\p{Lt}0-9]|\\-|\\.|\\(|\\)|%[0-9A-Z]{2})+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-starting\\-shit/from/(?:\\(\\[A\\-Z\\]\\)\\+([\\p{Ll}]|\\-)+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-lowercase\\-specificCharacters\\-emoji/from/(?:([\\p{Ll}]|\\-|🤘)+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-lowercase\\-digits\\-allowPercentEncodedChars/from/(?:([\\p{Ll}0-9]|%[0-9A-Z]{2})+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-allowLowercaseAlphabet\\-specificCharacters\\-starting\\-containing/from/(?:JOHN\\-SNOW(([\\p{Ll}]|\\-)*?L33T([\\p{Ll}]|\\-)*?)+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-allowPercentEncodedChars/from/(?:(%[0-9A-Z]{2})+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-containing/from/(?:(L33T)+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-specificCharacters/from/(?:(\\.|\\-|\\+|_|/)+?)".to_string()));
+        tree.insert(TestItem::new("/string\\-specificCharacters\\-other/from/(?:(a|\\-|z)+?)".to_string()));
+
+        assert_eq!(tree.find("/string-lowercase/from/coucou").is_some(), true);
+        assert_eq!(tree.find("/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘").is_some(), true);
     }
 }

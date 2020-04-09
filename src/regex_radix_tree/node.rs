@@ -3,7 +3,7 @@ use std::fmt::Debug;
 
 pub trait Node<T>: Debug + Send + Sync where T: Item {
     /// Insert a new item into this node
-    fn insert(&mut self, item: T);
+    fn insert(&mut self, item: T, parent_prefix_size: u32);
 
     /// Find all possible item matching this value
     fn find(&self, value: &str) -> Option<Vec<&T>>;

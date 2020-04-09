@@ -10,7 +10,7 @@ pub struct Leaf<T> where T: Item {
 }
 
 impl<T> Node<T> for Leaf<T> where T: Item {
-    fn insert(&mut self, item: T) {
+    fn insert(&mut self, item: T, _parent_prefix_size: u32) {
         self.data.push(item)
     }
 
