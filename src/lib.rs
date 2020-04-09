@@ -15,6 +15,9 @@ mod router;
 mod utils;
 mod regex_radix_tree;
 
+pub use router::MainRouter;
+pub use router::rule::Rule;
+
 use cfg_if::cfg_if;
 use std::collections::HashMap;
 #[cfg(not(target_arch = "wasm32"))]

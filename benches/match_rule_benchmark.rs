@@ -2,11 +2,9 @@
 extern crate criterion;
 #[macro_use]
 extern crate log;
-#[path = "../src/router/mod.rs"]
-mod router;
 use criterion::{Criterion, BenchmarkId, BatchSize};
 use serde::{Serialize, Deserialize};
-use router::rule::Rule;
+use redirectionio::{Rule, MainRouter};
 use std::fs::read_to_string;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -36,9 +34,9 @@ fn no_match_bench(c: &mut Criterion) {
 
     for filename in files {
         let rules = create_rules(filename.clone());
-        let router = router::MainRouter::new_from_data(rules, 0).expect("Cannot create router");
+        let router = MainRouter::new_from_data(rules, 0).expect("Cannot create router");
 
-        group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, f| {
+        group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
                 router.match_rule("/no-match".to_string());
             });
@@ -50,11 +48,11 @@ fn no_match_bench(c: &mut Criterion) {
 
 fn no_match_cache_bench(c: &mut Criterion) {
     let files = vec![
-        "../bench-files/large-rules-1k.json".to_string(),
+//        "../bench-files/large-rules-1k.json".to_string(),
         "../bench-files/large-rules-10k.json".to_string(),
-        "../bench-files/large-rules-50k.json".to_string(),
-        "../bench-files/large-rules-150k.json".to_string(),
-        "../bench-files/large-rules-200k.json".to_string(),
+//        "../bench-files/large-rules-50k.json".to_string(),
+//        "../bench-files/large-rules-150k.json".to_string(),
+//        "../bench-files/large-rules-200k.json".to_string(),
     ];
 
     let mut group = c.benchmark_group("no_match_cache");
@@ -62,9 +60,9 @@ fn no_match_cache_bench(c: &mut Criterion) {
 
     for filename in files {
         let rules = create_rules(filename.clone());
-        let router = router::MainRouter::new_from_data(rules, 1000).expect("Cannot create router");
+        let router = MainRouter::new_from_data(rules, 1000).expect("Cannot create router");
 
-        group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, f| {
+        group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
                 router.match_rule("/no-match".to_string());
             });
@@ -74,5 +72,5 @@ fn no_match_cache_bench(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, no_match_bench, no_match_cache_bench);
+criterion_group!(benches, no_match_cache_bench);
 criterion_main!(benches);

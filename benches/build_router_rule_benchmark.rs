@@ -1,12 +1,8 @@
 #[macro_use]
 extern crate criterion;
-#[macro_use]
-extern crate log;
-#[path = "../src/router/mod.rs"]
-mod router;
 use criterion::{Criterion, BenchmarkId, BatchSize};
 use serde::{Serialize, Deserialize};
-use router::rule::Rule;
+use redirectionio::{Rule, MainRouter};
 use std::fs::read_to_string;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -38,7 +34,7 @@ fn build_router_bench(c: &mut Criterion) {
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, f| {
             b.iter_batched(
                 || create_rules(f.to_string()),
-                |rules| router::MainRouter::new_from_data(rules, 0),
+                |rules| MainRouter::new_from_data(rules, 0),
                 BatchSize::NumIterations(1),
             );
         });

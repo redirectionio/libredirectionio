@@ -1,4 +1,3 @@
-pub mod api;
 mod router_host;
 mod router_path;
 mod router_scheme;
@@ -67,7 +66,7 @@ impl MainRouter {
         while prev_cache_limit > 0 {
             let next_cache_limit = self.router_scheme.build_cache(prev_cache_limit, level);
 
-            if next_cache_limit == prev_cache_limit {
+            if next_cache_limit == prev_cache_limit && level > 5 {
                 break;
             }
 

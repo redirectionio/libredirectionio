@@ -1,8 +1,8 @@
 use crate::router;
+use crate::router::rule::Rule;
 use crate::regex_radix_tree::RegexRadixTree;
 use std::collections::HashMap;
 use http::Request;
-use crate::router::rule::Rule;
 
 #[derive(Debug)]
 pub struct RouterPath {
