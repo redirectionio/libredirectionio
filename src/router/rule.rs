@@ -4,6 +4,7 @@ extern crate regex;
 use regex::Regex;
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
+use crate::regex_radix_tree::Item;
 use std::collections::{BTreeMap, HashMap};
 use url::percent_encoding::{utf8_percent_encode, QUERY_ENCODE_SET, SIMPLE_ENCODE_SET};
 
@@ -102,6 +103,19 @@ pub struct RouterTraceItem {
     pub rules_evaluated: Vec<Rule>,
     #[serde(rename = "rulesMatched")]
     pub rules_matches: Vec<Rule>,
+}
+
+impl Item for Rule {
+    fn node_regex(&self) -> &str {
+        match self.regex.as_ref() {
+            None => "",
+            Some(regex) => regex,
+        }
+    }
+
+    fn id(&self) -> &str {
+        self.id.as_str()
+    }
 }
 
 impl Rule {

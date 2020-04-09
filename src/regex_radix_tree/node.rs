@@ -1,7 +1,7 @@
 use crate::regex_radix_tree::Item;
 use std::fmt::Debug;
 
-pub trait Node<T>: Debug where T: Item {
+pub trait Node<T>: Debug + Send + Sync where T: Item {
     /// Insert a new item into this node
     fn insert(&mut self, item: T);
 

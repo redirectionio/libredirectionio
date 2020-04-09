@@ -25,6 +25,10 @@ impl<T> RegexRadixTree<T> where T: Item + Debug {
     pub fn find(&self, value: &str) -> Option<Vec<&T>> {
         self.root.find(value)
     }
+
+    pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
+        self.root.cache(limit, level)
+    }
 }
 
 #[cfg(test)]

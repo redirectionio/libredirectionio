@@ -6,9 +6,6 @@ mod router_header;
 mod router_method;
 pub mod rule;
 mod transform;
-mod url_matcher;
-mod url_matcher_regex;
-mod url_matcher_rules;
 
 use crate::router::router_scheme::RouterScheme;
 use crate::router::rule::build_sorted_query;
