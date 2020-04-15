@@ -14,6 +14,7 @@ pub mod html;
 mod router;
 mod utils;
 mod regex_radix_tree;
+mod api;
 
 pub use router::MainRouter;
 pub use router::rule::Rule;

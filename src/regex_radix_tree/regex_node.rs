@@ -74,13 +74,15 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
     }
 
     fn remove(&mut self, id: &str) -> bool {
-        for i in 0 .. self.children.len() {
-            let to_remove = self.children[i].remove(id);
+        let mut i = 0;
 
-            if to_remove {
+        while i != self.children.len() {
+            let child = &mut self.children[i];
+
+            if child.remove(id) {
                 self.children.remove(i);
-
-                break;
+            } else {
+                i += 1;
             }
         }
 

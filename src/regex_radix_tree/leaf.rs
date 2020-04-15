@@ -22,13 +22,9 @@ impl<T> Node<T> for Leaf<T> where T: Item {
     }
 
     fn remove(&mut self, id: &str) -> bool {
-        for i in 0 .. self.data.len() {
-            if self.data[i].id() == id {
-                self.data.remove(i);
-
-                break;
-            }
-        }
+        self.data.retain(|item| {
+            item.id() != id
+        });
 
         self.data.is_empty()
     }

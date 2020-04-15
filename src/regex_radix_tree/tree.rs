@@ -3,11 +3,11 @@ use crate::regex_radix_tree::regex_node::RegexNode;
 use std::fmt::Debug;
 
 #[derive(Debug)]
-pub struct RegexRadixTree<T> where T: Item + Debug {
+pub struct RegexRadixTree<T> where T: Item {
     root: RegexNode<T>,
 }
 
-impl<T> RegexRadixTree<T> where T: Item + Debug {
+impl<T> RegexRadixTree<T> where T: Item {
     pub fn new() -> RegexRadixTree<T> {
         RegexRadixTree {
             root: RegexNode::new_empty(),
@@ -18,8 +18,8 @@ impl<T> RegexRadixTree<T> where T: Item + Debug {
         self.root.insert(item, 0)
     }
 
-    pub fn remove(&mut self, id: &str) {
-        self.root.remove(id);
+    pub fn remove(&mut self, id: &str) -> bool {
+        self.root.remove(id)
     }
 
     pub fn find(&self, value: &str) -> Option<Vec<&T>> {

@@ -6,6 +6,13 @@ mod router_method;
 pub mod rule;
 mod transform;
 
+mod request_matcher;
+mod route;
+mod marker_string;
+
+pub use route::{RouteData, Route};
+pub use marker_string::{StaticOrDynamic, Marker};
+
 use crate::router::router_scheme::RouterScheme;
 use crate::router::rule::build_sorted_query;
 use regex::Regex;
