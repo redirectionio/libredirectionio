@@ -78,35 +78,37 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
 
     fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>) {
         let matched = self.is_match(value);
-        let items = match matched {
-            true => {
-                let mut values = None;
+        let mut items = None;
+        let mut children = Vec::new();
 
-                for child in &self.children {
-                    match &mut values {
-                        None => {
-                            values = child.find(value);
-                        },
-                        Some(items) => {
-                            match child.find(value) {
-                                None => (),
-                                Some(new_values) => items.extend(new_values),
+        if matched {
+            for child in &self.children {
+                let (trace, trace_items) = child.trace(value);
+
+                children.push(trace);
+
+                items = match items {
+                    None => trace_items,
+                    Some(mut items_vec) => {
+                        match trace_items {
+                            None => (),
+                            Some(new_items) => {
+                                items_vec.extend(new_items);
                             }
-                        }
+                        };
+
+                        Some(items_vec)
                     }
                 }
-
-                values
-            },
-            false => None,
-        };
+            }
+        }
 
         (
             Trace::new(
                 self.prefix.clone().unwrap_or("".to_string()),
                 matched,
                 self.count as u64,
-                Vec::new(),
+                children,
             ),
             items
         )
