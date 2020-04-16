@@ -1,4 +1,4 @@
-use crate::regex_radix_tree::{Node, Item};
+use crate::regex_radix_tree::{Node, Item, Trace};
 use crate::regex_radix_tree::regex_node::RegexNode;
 use std::fmt::Debug;
 
@@ -24,6 +24,10 @@ impl<T> RegexRadixTree<T> where T: Item {
 
     pub fn len(&self) -> usize{
         self.root.len()
+    }
+
+    pub fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>) {
+        self.root.trace(value)
     }
 
     pub fn find(&self, value: &str) -> Option<Vec<&T>> {

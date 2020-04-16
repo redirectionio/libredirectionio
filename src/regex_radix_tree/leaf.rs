@@ -1,4 +1,4 @@
-use crate::regex_radix_tree::{Node, Item};
+use crate::regex_radix_tree::{Node, Item, Trace};
 use regex::Regex;
 
 #[derive(Debug)]
@@ -19,6 +19,24 @@ impl<T> Node<T> for Leaf<T> where T: Item {
             true => Some(self.data.iter().collect::<Vec<_>>()),
             false => None,
         }
+    }
+
+    fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>) {
+        let matched = self.is_match(value);
+        let items = match self.is_match(value) {
+            true => Some(self.data.iter().collect::<Vec<_>>()),
+            false => None,
+        };
+
+        (
+            Trace::new(
+            self.prefix.clone(),
+            matched,
+            self.data.len() as u64,
+            Vec::new(),
+            ),
+            items
+        )
     }
 
     fn remove(&mut self, id: &str) -> Vec<T> {

@@ -1,5 +1,5 @@
 use regex::Regex;
-use crate::regex_radix_tree::{Node, Item};
+use crate::regex_radix_tree::{Node, Item, Trace};
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
 
@@ -74,6 +74,42 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
             },
             false => None,
         }
+    }
+
+    fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>) {
+        let matched = self.is_match(value);
+        let items = match matched {
+            true => {
+                let mut values = None;
+
+                for child in &self.children {
+                    match &mut values {
+                        None => {
+                            values = child.find(value);
+                        },
+                        Some(items) => {
+                            match child.find(value) {
+                                None => (),
+                                Some(new_values) => items.extend(new_values),
+                            }
+                        }
+                    }
+                }
+
+                values
+            },
+            false => None,
+        };
+
+        (
+            Trace::new(
+                self.prefix.clone().unwrap_or("".to_string()),
+                matched,
+                self.count as u64,
+                Vec::new(),
+            ),
+            items
+        )
     }
 
     fn remove(&mut self, id: &str) -> Vec<T> {

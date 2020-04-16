@@ -1,4 +1,4 @@
-use crate::regex_radix_tree::Item;
+use crate::regex_radix_tree::{Item, Trace};
 use std::fmt::Debug;
 
 pub trait Node<T>: Debug + Send + Sync where T: Item {
@@ -8,6 +8,9 @@ pub trait Node<T>: Debug + Send + Sync where T: Item {
     /// Find all possible item matching this value
     fn find(&self, value: &str) -> Option<Vec<&T>>;
 
+    /// Traces when finding a value
+    fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>);
+
     /// Remove an item on this tree
     ///
     /// This method returns true if there is no more data so it can be cleaned up
@@ -16,6 +19,7 @@ pub trait Node<T>: Debug + Send + Sync where T: Item {
     /// Return regex used by this node
     fn regex(&self) -> &str;
 
+    /// Length of node
     fn len(&self) -> usize;
 
     fn can_insert_item(&self, prefix: &str, item: &T) -> bool;
