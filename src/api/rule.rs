@@ -32,6 +32,9 @@ impl Rule {
             }
         };
 
+        // @TODO sort query parameters
+        // @TODO Encode path
+
         let id = self.id.clone();
 
         Route::new(

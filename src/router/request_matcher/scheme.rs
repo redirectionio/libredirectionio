@@ -1,5 +1,5 @@
 use crate::router::request_matcher::{RequestMatcher, HostMatcher};
-use crate::router::{Route, RouteData};
+use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
@@ -7,10 +7,13 @@ use std::collections::HashMap;
 pub struct SchemeMatcher<T> {
     schemes: HashMap<String, Box<dyn RequestMatcher<T>>>,
     any_scheme: Box<dyn RequestMatcher<T>>,
+    count: usize,
 }
 
 impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
     fn insert(&mut self, route: Route<T>) {
+        self.count += 1;
+
         match route.scheme() {
             None => self.any_scheme.insert(route),
             Some(scheme) => {
@@ -23,14 +26,20 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut empty = self.any_scheme.remove(id);
+    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
+        let mut removed = Vec::new();
+
+        removed.extend(self.any_scheme.remove(id));
 
         self.schemes.retain(|_, matcher| {
-            !matcher.remove(id)
+            removed.extend(matcher.remove(id));
+
+            matcher.len() > 0
         });
 
-        empty && self.schemes.is_empty()
+        self.count -= removed.len();
+
+        removed
     }
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
@@ -48,6 +57,46 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
         routes
     }
 
+    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+        let any_traces = self.any_scheme.trace(request);
+        let mut traces = Vec::new();
+
+        traces.push(Trace::new(
+            "Any scheme".to_string(),
+            true,
+            self.any_scheme.len() as u64,
+            any_traces,
+            None,
+        ));
+
+        match request.uri().scheme() {
+            None => (),
+            Some(scheme) => {
+                if let Some(matcher) = self.schemes.get(scheme.as_str()) {
+                    let scheme_traces = matcher.trace(request);
+
+                    traces.push(Trace::new(
+                        format!("Scheme {}", scheme.as_str()),
+                        true,
+                        matcher.len() as u64,
+                        scheme_traces,
+                        None,
+                    ));
+                } else {
+                    traces.push(Trace::new(
+                        format!("Scheme {}", scheme.as_str()),
+                        false,
+                        0,
+                        Vec::new(),
+                        None,
+                    ));
+                }
+            }
+        }
+
+        traces
+    }
+
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.any_scheme.cache(limit, level);
 
@@ -57,6 +106,10 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
 
         new_limit
     }
+
+    fn len(&self) -> usize {
+        self.count
+    }
 }
 
 impl<T> SchemeMatcher<T> where T: RouteData {
@@ -64,6 +117,7 @@ impl<T> SchemeMatcher<T> where T: RouteData {
         SchemeMatcher {
             schemes: HashMap::new(),
             any_scheme: SchemeMatcher::create_sub_matcher(),
+            count: 0,
         }
     }
 

@@ -9,9 +9,11 @@ mod transform;
 mod request_matcher;
 mod route;
 mod marker_string;
+mod trace;
 
 pub use route::{RouteData, Route};
 pub use marker_string::{StaticOrDynamic, Marker};
+pub use trace::Trace;
 
 use crate::router::router_scheme::RouterScheme;
 use crate::router::rule::build_sorted_query;

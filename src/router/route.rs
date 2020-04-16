@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use crate::router::marker_string::StaticOrDynamic;
+use crate::router::StaticOrDynamic;
 
 pub trait RouteData: Debug + Clone + Send + Sync + 'static {}
 

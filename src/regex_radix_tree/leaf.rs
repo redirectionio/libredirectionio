@@ -21,16 +21,29 @@ impl<T> Node<T> for Leaf<T> where T: Item {
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        self.data.retain(|item| {
-            item.id() != id
-        });
+    fn remove(&mut self, id: &str) -> Vec<T> {
+        let mut i = 0;
+        let mut removed = Vec::new();
 
-        self.data.is_empty()
+        while i != self.data.len() {
+            let item = &mut self.data[i];
+
+            if item.id() == id {
+                removed.push(self.data.remove(i));
+            } else {
+                i += 1;
+            }
+        }
+
+        removed
     }
 
     fn regex(&self) -> &str {
         self.prefix.as_str()
+    }
+
+    fn len(&self) -> usize {
+        self.data.len()
     }
 
     fn can_insert_item(&self, _prefix: &str, item: &T) -> bool {

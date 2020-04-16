@@ -9,10 +9,13 @@ pub struct RegexNode<T> where T: Item {
     prefix_compiled: Option<Regex>,
     level: u64,
     children: Vec<Box<dyn Node<T>>>,
+    count: usize,
 }
 
 impl<T> Node<T> for RegexNode<T> where T: Item {
     fn insert(&mut self, item: T, parent_prefix_size: u32) {
+        self.count += 1;
+
         let item_regex = item.node_regex();
 
         // for each children node
@@ -73,20 +76,24 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
+    fn remove(&mut self, id: &str) -> Vec<T> {
+        let mut removed = Vec::new();
         let mut i = 0;
 
         while i != self.children.len() {
             let child = &mut self.children[i];
+            removed.extend(child.remove(id));
 
-            if child.remove(id) {
+            if child.len() == 0 {
                 self.children.remove(i);
             } else {
                 i += 1;
             }
         }
 
-        self.children.is_empty()
+        self.count -= removed.len();
+
+        removed
     }
 
     fn regex(&self) -> &str {
@@ -94,6 +101,10 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
             None => "",
             Some(prefix) => prefix
         }
+    }
+
+    fn len(&self) -> usize {
+        self.count
     }
 
     fn can_insert_item(&self, prefix: &str, _item: &T) -> bool {
@@ -134,7 +145,8 @@ impl<T> RegexNode<T> where T: Item {
             level,
             prefix: Some(prefix),
             prefix_compiled: None,
-            children: vec![first, second]
+            count: first.len() + second.len(),
+            children: vec![first, second],
         }
     }
 
@@ -144,6 +156,7 @@ impl<T> RegexNode<T> where T: Item {
             prefix: None,
             prefix_compiled: None,
             children: Vec::new(),
+            count: 0,
         }
     }
 

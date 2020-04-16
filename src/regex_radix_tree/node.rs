@@ -11,10 +11,12 @@ pub trait Node<T>: Debug + Send + Sync where T: Item {
     /// Remove an item on this tree
     ///
     /// This method returns true if there is no more data so it can be cleaned up
-    fn remove(&mut self, id: &str) -> bool;
+    fn remove(&mut self, id: &str) -> Vec<T>;
 
     /// Return regex used by this node
     fn regex(&self) -> &str;
+
+    fn len(&self) -> usize;
 
     fn can_insert_item(&self, prefix: &str, item: &T) -> bool;
 

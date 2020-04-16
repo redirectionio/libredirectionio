@@ -1,6 +1,6 @@
 use crate::regex_radix_tree::Item;
 use crate::router::request_matcher::RequestMatcher;
-use crate::router::{Route, RouteData};
+use crate::router::{Route, RouteData, Trace};
 use http::Request;
 
 #[derive(Debug)]
@@ -25,7 +25,7 @@ impl<T> RequestMatcher<T> for RegexItemMatcher<T> where T: RouteData {
         self.matcher.insert(route)
     }
 
-    fn remove(&mut self, id: &str) -> bool {
+    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
         self.matcher.remove(id)
     }
 
@@ -33,8 +33,16 @@ impl<T> RequestMatcher<T> for RegexItemMatcher<T> where T: RouteData {
         self.matcher.match_request(request)
     }
 
+    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+        self.matcher.trace(request)
+    }
+
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         self.matcher.cache(limit, level)
+    }
+
+    fn len(&self) -> usize {
+        self.matcher.len()
     }
 }
 

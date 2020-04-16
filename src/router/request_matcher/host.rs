@@ -1,5 +1,5 @@
 use crate::router::request_matcher::{RequestMatcher, MethodMatcher};
-use crate::router::{Route, RouteData};
+use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
@@ -7,10 +7,13 @@ use std::collections::HashMap;
 pub struct HostMatcher<T> {
     hosts: HashMap<String, Box<dyn RequestMatcher<T>>>,
     any_host: Box<dyn RequestMatcher<T>>,
+    count: usize,
 }
 
 impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
     fn insert(&mut self, route: Route<T>) {
+        self.count += 1;
+
         match route.host() {
             None => self.any_host.insert(route),
             Some(host) => {
@@ -23,14 +26,20 @@ impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut empty = self.any_host.remove(id);
+    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
+        let mut removed = Vec::new();
+
+        removed.extend(self.any_host.remove(id));
 
         self.hosts.retain(|_, matcher| {
-            !matcher.remove(id)
+            removed.extend(matcher.remove(id));
+
+            matcher.len() > 0
         });
 
-        empty && self.hosts.is_empty()
+        self.count -= removed.len();
+
+        removed
     }
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
@@ -47,6 +56,47 @@ impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
         self.any_host.match_request(request)
     }
 
+    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+        let mut traces = Vec::new();
+
+        if let Some(host) = request.uri().host() {
+            if let Some(matcher) = self.hosts.get(host) {
+                let host_traces = matcher.trace(request);
+
+                traces.push(Trace::new(
+                    format!("Host {}", host),
+                    true,
+                    matcher.len() as u64,
+                    host_traces,
+                    None,
+                ));
+
+                // @TODO Only return if rules returned here
+                return traces;
+            } else {
+                traces.push(Trace::new(
+                    format!("Host {}", host),
+                    false,
+                    0,
+                    Vec::new(),
+                    None,
+                ));
+            }
+        }
+
+        let any_traces = self.any_host.trace(request);
+
+        traces.push(Trace::new(
+            "Any host".to_string(),
+            true,
+            self.any_host.len() as u64,
+            any_traces,
+            None,
+        ));
+
+        traces
+    }
+
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = limit;
 
@@ -56,6 +106,10 @@ impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
 
         self.any_host.cache(new_limit, level)
     }
+
+    fn len(&self) -> usize {
+        self.count
+    }
 }
 
 impl<T> HostMatcher<T> where T: RouteData {
@@ -63,6 +117,7 @@ impl<T> HostMatcher<T> where T: RouteData {
         HostMatcher {
             hosts: HashMap::new(),
             any_host: HostMatcher::create_sub_matcher(),
+            count: 0,
         }
     }
 

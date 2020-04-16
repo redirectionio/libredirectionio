@@ -6,7 +6,11 @@ use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use crate::regex_radix_tree::Item;
 use std::collections::{BTreeMap, HashMap};
-use url::percent_encoding::{utf8_percent_encode, QUERY_ENCODE_SET, SIMPLE_ENCODE_SET};
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+
+const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
+const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
+
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Header {

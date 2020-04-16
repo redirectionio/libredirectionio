@@ -1,6 +1,6 @@
 use crate::regex_radix_tree::RegexRadixTree;
 use crate::router::request_matcher::{RequestMatcher, PathAndQueryMatcher};
-use crate::router::{Route, RouteData};
+use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
@@ -11,10 +11,10 @@ pub struct HeaderMatcher<T> where T: RouteData {
 
 impl<T> RequestMatcher<T> for HeaderMatcher<T> where T: RouteData {
     fn insert(&mut self, route: Route<T>) {
-        self.any_header.insert(route)
+        self.any_header.insert(route);
     }
 
-    fn remove(&mut self, id: &str) -> bool {
+    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
         self.any_header.remove(id)
     }
 
@@ -22,8 +22,16 @@ impl<T> RequestMatcher<T> for HeaderMatcher<T> where T: RouteData {
         self.any_header.match_request(request)
     }
 
+    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+        self.any_header.trace(request)
+    }
+
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         self.any_header.cache(limit, level)
+    }
+
+    fn len(&self) -> usize {
+        self.any_header.len()
     }
 }
 

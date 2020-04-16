@@ -18,8 +18,12 @@ impl<T> RegexRadixTree<T> where T: Item {
         self.root.insert(item, 0)
     }
 
-    pub fn remove(&mut self, id: &str) -> bool {
+    pub fn remove(&mut self, id: &str) -> Vec<T> {
         self.root.remove(id)
+    }
+
+    pub fn len(&self) -> usize{
+        self.root.len()
     }
 
     pub fn find(&self, value: &str) -> Option<Vec<&T>> {
@@ -66,6 +70,7 @@ mod tests {
 
         assert_eq!(tree.find("tata").is_some(), false);
         assert_eq!(tree.find("test").is_some(), false);
+        assert_eq!(tree.len(), 0);
     }
 
     #[test]
@@ -77,6 +82,7 @@ mod tests {
 
         assert_eq!(tree.find("tata").is_some(), true);
         assert_eq!(tree.find("test").is_some(), false);
+        assert_eq!(tree.len(), 1);
     }
 
     #[test]
@@ -89,6 +95,7 @@ mod tests {
         assert_eq!(tree.find("/emoji/➡️").is_some(), true);
         assert_eq!(tree.find("/emoji/🤘").is_some(), true);
         assert_eq!(tree.find("/not-emoji").is_some(), false);
+        assert_eq!(tree.len(), 1);
     }
 
     #[test]
@@ -108,6 +115,7 @@ mod tests {
         assert_eq!(tree.find("/b").is_some(), false);
         assert_eq!(tree.find("/a").is_some(), false);
         assert_eq!(tree.find("/no-match").is_some(), false);
+        assert_eq!(tree.len(), 4);
     }
 
     #[test]
@@ -119,6 +127,7 @@ mod tests {
         assert_eq!(tree.find("/a/b/c").is_some(), true);
         assert_eq!(tree.find("/a/b/d").is_some(), false);
         assert_eq!(tree.find("/a/b").is_some(), false);
+        assert_eq!(tree.len(), 1);
     }
 
     #[test]
@@ -135,6 +144,7 @@ mod tests {
         assert_eq!(tree.find("/a/c/b").is_some(), true);
         assert_eq!(tree.find("/a/c/d").is_some(), false);
         assert_eq!(tree.find("/a/c/").is_some(), false);
+        assert_eq!(tree.len(), 2);
     }
 
     #[test]
@@ -148,11 +158,13 @@ mod tests {
 
         assert_eq!(tree.find("/a/b").is_some(), true);
         assert_eq!(tree.find("/a/b/c").is_some(), true);
+        assert_eq!(tree.len(), 4);
 
         tree.remove("/a/b");
 
         assert_eq!(tree.find("/a/b").is_some(), false);
         assert_eq!(tree.find("/a/b/c").is_some(), true);
+        assert_eq!(tree.len(), 3);
     }
 
 

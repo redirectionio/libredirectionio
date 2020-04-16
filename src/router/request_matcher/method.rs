@@ -1,5 +1,5 @@
 use crate::router::request_matcher::{RequestMatcher, HeaderMatcher};
-use crate::router::{Route, RouteData};
+use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
@@ -7,10 +7,13 @@ use std::collections::HashMap;
 pub struct MethodMatcher<T> {
     methods: HashMap<String, Box<dyn RequestMatcher<T>>>,
     any_method: Box<dyn RequestMatcher<T>>,
+    count: usize,
 }
 
 impl<T> RequestMatcher<T> for MethodMatcher<T> where T: RouteData {
     fn insert(&mut self, route: Route<T>) {
+        self.count += 1;
+
         match route.methods() {
             None => self.any_method.insert(route),
             Some(methods) => {
@@ -25,14 +28,20 @@ impl<T> RequestMatcher<T> for MethodMatcher<T> where T: RouteData {
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut empty = self.any_method.remove(id);
+    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
+        let mut removed = Vec::new();
+
+        removed.extend(self.any_method.remove(id));
 
         self.methods.retain(|_, matcher| {
-            !matcher.remove(id)
+            removed.extend(matcher.remove(id));
+
+            matcher.len() > 0
         });
 
-        empty && self.methods.is_empty()
+        self.count -= removed.len();
+
+        removed
     }
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
@@ -45,6 +54,41 @@ impl<T> RequestMatcher<T> for MethodMatcher<T> where T: RouteData {
         routes
     }
 
+    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+        let any_traces = self.any_method.trace(request);
+        let mut traces = Vec::new();
+
+        traces.push(Trace::new(
+            "Any method".to_string(),
+            true,
+            self.any_method.len() as u64,
+            any_traces,
+            None,
+        ));
+
+        if let Some(matcher) = self.methods.get(request.method().as_str()) {
+            let method_traces = matcher.trace(request);
+
+            traces.push(Trace::new(
+                format!("Method {}", request.method().as_str()),
+                true,
+                matcher.len() as u64,
+                method_traces,
+                None,
+            ));
+        } else {
+            traces.push(Trace::new(
+                format!("Method {}", request.method().as_str()),
+                false,
+                0,
+                Vec::new(),
+                None,
+            ));
+        }
+
+        traces
+    }
+
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.any_method.cache(limit, level);
 
@@ -54,6 +98,10 @@ impl<T> RequestMatcher<T> for MethodMatcher<T> where T: RouteData {
 
         new_limit
     }
+
+    fn len(&self) -> usize {
+        self.count
+    }
 }
 
 impl<T> MethodMatcher<T> where T: RouteData {
@@ -61,6 +109,7 @@ impl<T> MethodMatcher<T> where T: RouteData {
         MethodMatcher {
             methods: HashMap::new(),
             any_method: MethodMatcher::create_sub_matcher(),
+            count: 0,
         }
     }
 

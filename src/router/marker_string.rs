@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use regex::Regex;
+
 #[derive(Debug, Clone)]
 pub struct Marker {
     name: String,
@@ -55,5 +58,17 @@ impl StaticOrDynamic {
             regex,
             capture,
         })
+    }
+
+    pub fn capture(&self, str: &str) -> HashMap<String, String> {
+        match &self {
+            StaticOrDynamic::Static(_) => HashMap::new(),
+            StaticOrDynamic::Dynamic(marker_string) => {
+                let regex = Regex::new(marker_string.capture.as_str()).expect("cannot compile regex");
+                let captured = regex.captures_iter(str);
+
+                HashMap::new()
+            }
+        }
     }
 }
