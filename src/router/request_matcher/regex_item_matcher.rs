@@ -3,7 +3,7 @@ use crate::router::request_matcher::RequestMatcher;
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RegexItemMatcher<T> where T: RouteData {
     matcher: Box<dyn RequestMatcher<T>>,
     regex: String,
@@ -33,7 +33,7 @@ impl<T> RequestMatcher<T> for RegexItemMatcher<T> where T: RouteData {
         self.matcher.match_request(request)
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
         self.matcher.trace(request)
     }
 
@@ -43,6 +43,10 @@ impl<T> RequestMatcher<T> for RegexItemMatcher<T> where T: RouteData {
 
     fn len(&self) -> usize {
         self.matcher.len()
+    }
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
+        Box::new((*self).clone())
     }
 }
 

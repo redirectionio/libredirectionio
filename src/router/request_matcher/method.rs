@@ -3,14 +3,14 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
-#[derive(Debug)]
-pub struct MethodMatcher<T> {
+#[derive(Debug, Clone)]
+pub struct MethodMatcher<T: RouteData> {
     methods: HashMap<String, Box<dyn RequestMatcher<T>>>,
     any_method: Box<dyn RequestMatcher<T>>,
     count: usize,
 }
 
-impl<T> RequestMatcher<T> for MethodMatcher<T> where T: RouteData {
+impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
@@ -54,35 +54,52 @@ impl<T> RequestMatcher<T> for MethodMatcher<T> where T: RouteData {
         routes
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
-        let any_traces = self.any_method.trace(request);
+    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
+        let any_traces= self.any_method.trace(request);
         let mut traces = Vec::new();
+        let request_method = request.method().as_str();
 
         traces.push(Trace::new(
             "Any method".to_string(),
             true,
+            true,
             self.any_method.len() as u64,
             any_traces,
-            None,
+            Vec::new(),
         ));
 
-        if let Some(matcher) = self.methods.get(request.method().as_str()) {
-            let method_traces = matcher.trace(request);
+        for (method, matcher) in &self.methods {
+            if method == request_method {
+                let method_traces = matcher.trace(request);
 
+                traces.push(Trace::new(
+                    format!("Method {}", method),
+                    true,
+                    true,
+                    matcher.len() as u64,
+                    method_traces,
+                    Vec::new(),
+                ));
+            } else {
+                traces.push(Trace::new(
+                    format!("Method {}", method),
+                    false,
+                    false,
+                    matcher.len() as u64,
+                    Vec::new(),
+                    Vec::new(),
+                ));
+            }
+        }
+
+        if !self.methods.contains_key(request_method) {
             traces.push(Trace::new(
-                format!("Method {}", request.method().as_str()),
+                format!("Method {}", request_method),
                 true,
-                matcher.len() as u64,
-                method_traces,
-                None,
-            ));
-        } else {
-            traces.push(Trace::new(
-                format!("Method {}", request.method().as_str()),
                 false,
                 0,
                 Vec::new(),
-                None,
+                Vec::new(),
             ));
         }
 
@@ -101,6 +118,10 @@ impl<T> RequestMatcher<T> for MethodMatcher<T> where T: RouteData {
 
     fn len(&self) -> usize {
         self.count
+    }
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
+        Box::new((*self).clone())
     }
 }
 

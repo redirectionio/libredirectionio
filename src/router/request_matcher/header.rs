@@ -4,7 +4,7 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HeaderMatcher<T> where T: RouteData {
     any_header: Box<dyn RequestMatcher<T>>,
 }
@@ -22,7 +22,7 @@ impl<T> RequestMatcher<T> for HeaderMatcher<T> where T: RouteData {
         self.any_header.match_request(request)
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
         self.any_header.trace(request)
     }
 
@@ -32,6 +32,10 @@ impl<T> RequestMatcher<T> for HeaderMatcher<T> where T: RouteData {
 
     fn len(&self) -> usize {
         self.any_header.len()
+    }
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
+        Box::new((*self).clone())
     }
 }
 

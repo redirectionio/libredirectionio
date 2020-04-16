@@ -2,7 +2,7 @@ use crate::router::request_matcher::RequestMatcher;
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RouteMatcher<T> where T: RouteData {
     routes: Vec<Route<T>>,
 }
@@ -29,22 +29,21 @@ impl<T> RequestMatcher<T> for RouteMatcher<T> where T: RouteData {
         removed
     }
 
-    fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
+    fn match_request(&self, _request: &Request<()>) -> Vec<&Route<T>> {
         self.routes.iter().collect::<Vec<_>>()
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
-        let mut traces = Vec::new();
-
-        for route in &self.routes {
-            traces.push(Trace::new(
-                route.id().to_string(),
+    fn trace(&self, _request: &Request<()>) -> Vec<Trace<T>> {
+        let traces = vec![
+            Trace::new(
+                "route_matcher".to_string(),
                 true,
-                1,
+                true,
+                self.routes.len() as u64,
                 Vec::new(),
-                Some(route.id().to_string()),
-            ));
-        }
+                self.routes.clone(),
+            )
+        ];
 
         traces
     }
@@ -55,6 +54,10 @@ impl<T> RequestMatcher<T> for RouteMatcher<T> where T: RouteData {
 
     fn len(&self) -> usize {
         self.routes.len()
+    }
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
+        Box::new((*self).clone())
     }
 }
 

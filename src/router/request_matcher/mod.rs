@@ -24,9 +24,17 @@ pub trait RequestMatcher<T>: Debug + Send + Sync where T: RouteData {
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>>;
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace>;
+    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>>;
 
     fn cache(&mut self, limit: u64, level: u64) -> u64;
 
     fn len(&self) -> usize;
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>>;
+}
+
+impl<T: RouteData> Clone for Box<dyn RequestMatcher<T>> {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
 }

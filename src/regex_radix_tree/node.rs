@@ -1,15 +1,15 @@
 use crate::regex_radix_tree::{Item, Trace};
 use std::fmt::Debug;
 
-pub trait Node<T>: Debug + Send + Sync where T: Item {
+pub trait Node<T: Item>: Debug + Send + Sync {
     /// Insert a new item into this node
     fn insert(&mut self, item: T, parent_prefix_size: u32);
 
     /// Find all possible item matching this value
-    fn find(&self, value: &str) -> Option<Vec<&T>>;
+    fn find(&self, value: &str) -> Vec<&T>;
 
     /// Traces when finding a value
-    fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>);
+    fn trace(&self, value: &str) -> Trace<T>;
 
     /// Remove an item on this tree
     ///
@@ -39,4 +39,13 @@ pub trait Node<T>: Debug + Send + Sync where T: Item {
     /// Implementation must retain at which level this node is build and not do any caching
     /// if we are not on the current level
     fn cache(&mut self, limit: u64, level: u64) -> u64;
+
+    /// Allow to clone object
+    fn box_clone(&self) -> Box<dyn Node<T>>;
+}
+
+impl<T: Item> Clone for Box<dyn Node<T>> {
+    fn clone(&self) -> Self {
+        self.box_clone()
+    }
 }

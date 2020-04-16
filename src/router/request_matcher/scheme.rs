@@ -3,8 +3,8 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
-#[derive(Debug)]
-pub struct SchemeMatcher<T> {
+#[derive(Debug, Clone)]
+pub struct SchemeMatcher<T: RouteData> {
     schemes: HashMap<String, Box<dyn RequestMatcher<T>>>,
     any_scheme: Box<dyn RequestMatcher<T>>,
     count: usize,
@@ -57,41 +57,56 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
         routes
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
         let any_traces = self.any_scheme.trace(request);
         let mut traces = Vec::new();
+        let request_scheme = match request.uri().scheme() {
+            None => "",
+            Some(scheme) => scheme.as_str(),
+        };
 
         traces.push(Trace::new(
-            "Any scheme".to_string(),
+            "Any method".to_string(),
+            true,
             true,
             self.any_scheme.len() as u64,
             any_traces,
-            None,
+            Vec::new(),
         ));
 
-        match request.uri().scheme() {
-            None => (),
-            Some(scheme) => {
-                if let Some(matcher) = self.schemes.get(scheme.as_str()) {
-                    let scheme_traces = matcher.trace(request);
+        for (scheme, matcher) in &self.schemes {
+            if scheme == request_scheme && request_scheme != "" {
+                let scheme_traces = matcher.trace(request);
 
-                    traces.push(Trace::new(
-                        format!("Scheme {}", scheme.as_str()),
-                        true,
-                        matcher.len() as u64,
-                        scheme_traces,
-                        None,
-                    ));
-                } else {
-                    traces.push(Trace::new(
-                        format!("Scheme {}", scheme.as_str()),
-                        false,
-                        0,
-                        Vec::new(),
-                        None,
-                    ));
-                }
+                traces.push(Trace::new(
+                    format!("Scheme {}", scheme),
+                    true,
+                    true,
+                    matcher.len() as u64,
+                    scheme_traces,
+                    Vec::new(),
+                ));
+            } else {
+                traces.push(Trace::new(
+                    format!("Scheme {}", scheme),
+                    false,
+                    false,
+                    matcher.len() as u64,
+                    Vec::new(),
+                    Vec::new(),
+                ));
             }
+        }
+
+        if request_scheme != "" && !self.schemes.contains_key(request_scheme) {
+            traces.push(Trace::new(
+                format!("Scheme {}", request_scheme),
+                true,
+                false,
+                0,
+                Vec::new(),
+                Vec::new(),
+            ));
         }
 
         traces
@@ -109,6 +124,10 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
 
     fn len(&self) -> usize {
         self.count
+    }
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
+        Box::new((*self).clone())
     }
 }
 

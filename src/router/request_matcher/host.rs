@@ -3,14 +3,14 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
 
-#[derive(Debug)]
-pub struct HostMatcher<T> {
+#[derive(Debug, Clone)]
+pub struct HostMatcher<T: RouteData> {
     hosts: HashMap<String, Box<dyn RequestMatcher<T>>>,
     any_host: Box<dyn RequestMatcher<T>>,
     count: usize,
 }
 
-impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
+impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
@@ -56,32 +56,47 @@ impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
         self.any_host.match_request(request)
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
+    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
         let mut traces = Vec::new();
+        let request_host = request.uri().host().unwrap_or("");
 
-        if let Some(host) = request.uri().host() {
-            if let Some(matcher) = self.hosts.get(host) {
+        for (host, matcher) in &self.hosts {
+            if host == request_host && request_host != "" {
                 let host_traces = matcher.trace(request);
 
                 traces.push(Trace::new(
                     format!("Host {}", host),
                     true,
+                    true,
                     matcher.len() as u64,
                     host_traces,
-                    None,
+                    Vec::new(),
                 ));
-
-                // @TODO Only return if rules returned here
-                return traces;
             } else {
                 traces.push(Trace::new(
                     format!("Host {}", host),
                     false,
-                    0,
+                    false,
+                    matcher.len() as u64,
                     Vec::new(),
-                    None,
+                    Vec::new(),
                 ));
             }
+        }
+
+        if request_host != "" && !self.hosts.contains_key(request_host) {
+            traces.push(Trace::new(
+                format!("Host {}", request_host),
+                true,
+                false,
+                0,
+                Vec::new(),
+                Vec::new(),
+            ));
+        }
+
+        if Trace::<T>::get_routes_from_traces(&traces).is_empty() {
+            return traces;
         }
 
         let any_traces = self.any_host.trace(request);
@@ -89,9 +104,10 @@ impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
         traces.push(Trace::new(
             "Any host".to_string(),
             true,
+            true,
             self.any_host.len() as u64,
             any_traces,
-            None,
+            Vec::new(),
         ));
 
         traces
@@ -109,6 +125,10 @@ impl<T> RequestMatcher<T> for HostMatcher<T> where T: RouteData {
 
     fn len(&self) -> usize {
         self.count
+    }
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
+        Box::new((*self).clone())
     }
 }
 

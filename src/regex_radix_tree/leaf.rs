@@ -1,40 +1,38 @@
 use crate::regex_radix_tree::{Node, Item, Trace};
 use regex::Regex;
 
-#[derive(Debug)]
-pub struct Leaf<T> where T: Item {
+#[derive(Debug, Clone)]
+pub struct Leaf<T: Item> where T: Item {
     data: Vec<T>,
     level: u64,
     prefix: String,
     prefix_compiled: Option<Regex>,
 }
 
-impl<T> Node<T> for Leaf<T> where T: Item {
+impl<T: Item> Node<T> for Leaf<T> {
     fn insert(&mut self, item: T, _parent_prefix_size: u32) {
         self.data.push(item)
     }
 
-    fn find(&self, value: &str) -> Option<Vec<&T>> {
+    fn find(&self, value: &str) -> Vec<&T> {
         match self.is_match(value) {
-            true => Some(self.data.iter().collect::<Vec<_>>()),
-            false => None,
+            true => self.data.iter().collect::<Vec<_>>(),
+            false => Vec::new(),
         }
     }
 
-    fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>) {
+    fn trace(&self, value: &str) -> Trace<T> {
         let matched = self.is_match(value);
         let items = match self.is_match(value) {
-            true => Some(self.data.iter().collect::<Vec<_>>()),
-            false => None,
+            true => self.data.clone(),
+            false => Vec::new(),
         };
 
-        (
-            Trace::new(
+        Trace::new(
             self.prefix.clone(),
             matched,
             self.data.len() as u64,
             Vec::new(),
-            ),
             items
         )
     }
@@ -86,9 +84,13 @@ impl<T> Node<T> for Leaf<T> where T: Item {
 
         limit - 1
     }
+
+    fn box_clone(&self) -> Box<dyn Node<T>> {
+        Box::new(self.clone())
+    }
 }
 
-impl<T> Leaf<T> where T: Item {
+impl<T: Item> Leaf<T> {
     pub fn new(item: T, level: u64) -> Leaf<T> {
         Leaf {
             prefix: item.node_regex().to_string(),

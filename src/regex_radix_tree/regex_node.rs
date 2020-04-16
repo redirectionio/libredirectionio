@@ -3,8 +3,8 @@ use crate::regex_radix_tree::{Node, Item, Trace};
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
 
-#[derive(Debug)]
-pub struct RegexNode<T> where T: Item {
+#[derive(Debug, Clone)]
+pub struct RegexNode<T: Item> {
     prefix: Option<String>,
     prefix_compiled: Option<Regex>,
     level: u64,
@@ -12,7 +12,7 @@ pub struct RegexNode<T> where T: Item {
     count: usize,
 }
 
-impl<T> Node<T> for RegexNode<T> where T: Item {
+impl<T: Item> Node<T> for RegexNode<T> {
     fn insert(&mut self, item: T, parent_prefix_size: u32) {
         self.count += 1;
 
@@ -51,66 +51,34 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
         self.children.push(Box::new(Leaf::new(item, self.level + 1)));
     }
 
-    fn find(&self, value: &str) -> Option<Vec<&T>> {
-        match self.is_match(value) {
-            true => {
-                let mut values = None;
+    fn find(&self, value: &str) -> Vec<&T> {
+        let mut values = Vec::new();
 
-                for child in &self.children {
-                    match &mut values {
-                        None => {
-                            values = child.find(value);
-                        },
-                        Some(items) => {
-                            match child.find(value) {
-                                None => (),
-                                Some(new_values) => items.extend(new_values),
-                            }
-                        }
-                    }
-                }
-
-                values
-            },
-            false => None,
-        }
-    }
-
-    fn trace(&self, value: &str) -> (Trace, Option<Vec<&T>>) {
-        let matched = self.is_match(value);
-        let mut items = None;
-        let mut children = Vec::new();
-
-        if matched {
+        if self.is_match(value) {
             for child in &self.children {
-                let (trace, trace_items) = child.trace(value);
-
-                children.push(trace);
-
-                items = match items {
-                    None => trace_items,
-                    Some(mut items_vec) => {
-                        match trace_items {
-                            None => (),
-                            Some(new_items) => {
-                                items_vec.extend(new_items);
-                            }
-                        };
-
-                        Some(items_vec)
-                    }
-                }
+                values.extend(child.find(value));
             }
         }
 
-        (
-            Trace::new(
-                self.prefix.clone().unwrap_or("".to_string()),
-                matched,
-                self.count as u64,
-                children,
-            ),
-            items
+        values
+    }
+
+    fn trace(&self, value: &str) -> Trace<T> {
+        let mut children = Vec::new();
+        let matched = self.is_match(value);
+
+        if matched {
+            for child in &self.children {
+                children.push(child.trace(value));
+            }
+        }
+
+        Trace::new(
+            self.prefix.clone().unwrap_or("".to_string()),
+            matched,
+            self.count as u64,
+            children,
+            Vec::new(),
         )
     }
 
@@ -175,9 +143,13 @@ impl<T> Node<T> for RegexNode<T> where T: Item {
 
         new_limit
     }
+
+    fn box_clone(&self) -> Box<dyn Node<T>> {
+        Box::new(self.clone())
+    }
 }
 
-impl<T> RegexNode<T> where T: Item {
+impl<T: Item> RegexNode<T> {
     pub fn new(first: Box<dyn Node<T>>, second: Box<dyn Node<T>>, prefix: String, level: u64) -> RegexNode<T> {
         RegexNode {
             level,

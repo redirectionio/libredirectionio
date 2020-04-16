@@ -18,7 +18,7 @@ impl router::Router for RouterPath {
             path = [path, "?".to_string(), request.uri().query().unwrap().to_string()].join("");
         }
 
-        let mut rules = self.regex_tree_rule.find(path.as_str()).unwrap_or(Vec::new());
+        let mut rules = self.regex_tree_rule.find(path.as_str());
 
         match self.static_rules.get(path.as_str()) {
             None => (),

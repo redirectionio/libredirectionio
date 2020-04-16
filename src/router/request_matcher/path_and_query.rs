@@ -1,4 +1,4 @@
-use crate::regex_radix_tree::RegexRadixTree;
+use crate::regex_radix_tree::{RegexRadixTree, Trace as NodeTrace};
 use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
 use crate::router::request_matcher::regex_item_matcher::RegexItemMatcher;
 use crate::router::{Route, RouteData, Trace};
@@ -6,14 +6,14 @@ use crate::router::marker_string::StaticOrDynamic;
 use http::Request;
 use std::collections::HashMap;
 
-#[derive(Debug)]
-pub struct PathAndQueryMatcher<T> where T: RouteData {
+#[derive(Debug, Clone)]
+pub struct PathAndQueryMatcher<T: RouteData> {
     regex_tree_rule: RegexRadixTree<RegexItemMatcher<T>>,
     static_rules: HashMap<String, Box<dyn RequestMatcher<T>>>,
     count: usize,
 }
 
-impl<T> RequestMatcher<T> for PathAndQueryMatcher<T> where T: RouteData {
+impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
@@ -54,13 +54,8 @@ impl<T> RequestMatcher<T> for PathAndQueryMatcher<T> where T: RouteData {
     }
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
-        let mut path = request.uri().path().to_string();
-
-        if request.uri().query().is_some() {
-            path = [path, "?".to_string(), request.uri().query().unwrap().to_string()].join("");
-        }
-
-        let matchers = self.regex_tree_rule.find(path.as_str()).unwrap_or(Vec::new());
+        let path = PathAndQueryMatcher::<T>::request_to_path(request);
+        let matchers = self.regex_tree_rule.find(path.as_str());
         let mut routes = Vec::new();
 
         for matcher in matchers {
@@ -77,43 +72,26 @@ impl<T> RequestMatcher<T> for PathAndQueryMatcher<T> where T: RouteData {
         routes
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace> {
-        let mut path = request.uri().path().to_string();
+    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
+        let path = PathAndQueryMatcher::<T>::request_to_path(request);
+        let node_trace = self.regex_tree_rule.trace(path.as_str());
+        let mut traces = vec![PathAndQueryMatcher::<T>::node_trace_to_router_trace(node_trace, request)];
 
-        if request.uri().query().is_some() {
-            path = [path, "?".to_string(), request.uri().query().unwrap().to_string()].join("");
-        }
-
-        let matchers = self.regex_tree_rule.find(path.as_str()).unwrap_or(Vec::new());
-        let mut traces = Vec::new();
-
-        for matcher in matchers {
-            // @TODO Implement trace on regex radix tree
-            traces.extend(matcher.trace(request));
-        }
-
-        match self.static_rules.get(path.as_str()) {
-            None => {
-                traces.push(Trace::new(
-                    "static_path".to_string(),
-                    false,
-                    0,
-                    Vec::new(),
-                    None,
-                ))
-            },
+        let static_traces = match self.static_rules.get(path.as_str()) {
+            None => Vec::new(),
             Some(static_matcher) => {
-                let static_traces = static_matcher.trace(request);
-
-                traces.push(Trace::new(
-                    "static_path".to_string(),
-                    true,
-                    static_matcher.len() as u64,
-                    static_traces,
-                    None,
-                ));
+                static_matcher.trace(request)
             }
-        }
+        };
+
+        traces.push(Trace::new(
+            "static_path".to_string(),
+            !static_traces.is_empty(),
+            true,
+            static_traces.len() as u64,
+            static_traces,
+            Vec::new(),
+        ));
 
         traces
     }
@@ -131,6 +109,10 @@ impl<T> RequestMatcher<T> for PathAndQueryMatcher<T> where T: RouteData {
     fn len(&self) -> usize {
         self.count
     }
+
+    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
+        Box::new((*self).clone())
+    }
 }
 
 impl<T> PathAndQueryMatcher<T> where T: RouteData {
@@ -140,6 +122,37 @@ impl<T> PathAndQueryMatcher<T> where T: RouteData {
             static_rules: HashMap::new(),
             count: 0,
         }
+    }
+
+    fn request_to_path(request: &Request<()>) -> String {
+        let mut path = request.uri().path().to_string();
+
+        if request.uri().query().is_some() {
+            path = [path, "?".to_string(), request.uri().query().unwrap().to_string()].join("");
+        }
+
+        path
+    }
+
+    fn node_trace_to_router_trace(trace: NodeTrace<RegexItemMatcher<T>>, request: &Request<()>) -> Trace<T> {
+        let mut children = Vec::new();
+
+        for child in trace.children {
+            children.push(PathAndQueryMatcher::<T>::node_trace_to_router_trace(child, request));
+        }
+
+        for matcher in trace.items {
+            children.extend(matcher.trace(request));
+        }
+
+        Trace::new(
+            format!("Regex tree prefix {}", trace.regex),
+            trace.matched,
+            true,
+            trace.count,
+            Vec::new(),
+            Vec::new(),
+        )
     }
 
     fn create_item_matcher(path: String, id: String) -> RegexItemMatcher<T> {
