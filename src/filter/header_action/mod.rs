@@ -2,7 +2,7 @@ pub mod header_add;
 pub mod header_remove;
 pub mod header_replace;
 
-use crate::router::rule;
+use crate::api::HeaderFilter;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
@@ -22,7 +22,7 @@ pub trait HeaderAction: Debug + Send {
     fn filter(&self, headers: Vec<Header>) -> Vec<Header>;
 }
 
-pub fn create_header_action(header_filter: &rule::HeaderFilter) -> Option<Box<dyn HeaderAction>> {
+pub fn create_header_action(header_filter: &HeaderFilter) -> Option<Box<dyn HeaderAction>> {
     if header_filter.action == "add" {
         return Some(Box::new(header_add::HeaderAddAction {
             name: header_filter.header.clone(),

@@ -1,12 +1,12 @@
-use crate::router::rule;
+use crate::api::Transformer;
 use heck::{KebabCase, MixedCase};
 use std::collections::HashMap;
 use std::str::FromStr;
 
-pub fn transform(data: String, transformer: &rule::Transformer) -> String {
-    match transformer.transformer_type.as_ref() {
+pub fn transform(data: String, transformer: &Transformer) -> String {
+    match transformer.kind.as_ref() {
         None => data,
-        Some(transformer_type) => match transformer_type.as_str() {
+        Some(kind) => match kind.as_str() {
             "camelize" => camelize(data),
             "dasherize" => dasherize(data),
             "lowercase" => lowercase(data),

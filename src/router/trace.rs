@@ -1,5 +1,11 @@
 use crate::router::{Route, RouteData};
 
+pub struct RouteTrace<T: RouteData> {
+    traces: Vec<Trace<T>>,
+    routes: Vec<Route<T>>,
+    final_route: Option<Route<T>>,
+}
+
 pub struct Trace<T: RouteData> {
     name: String,
     matched: bool,
@@ -7,6 +13,16 @@ pub struct Trace<T: RouteData> {
     count: u64,
     children: Vec<Trace<T>>,
     routes: Vec<Route<T>>,
+}
+
+impl<T: RouteData> RouteTrace<T> {
+    pub fn new(traces: Vec<Trace<T>>, routes: Vec<Route<T>>, final_route: Option<Route<T>>) -> RouteTrace<T> {
+        RouteTrace {
+            traces,
+            routes,
+            final_route,
+        }
+    }
 }
 
 impl<T: RouteData> Trace<T> {

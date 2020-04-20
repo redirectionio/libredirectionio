@@ -59,7 +59,3 @@ features = [
 
 [profile.release]
 opt-level = "s"
-
-[[test]]
-name = "small-stack"
-harness = false

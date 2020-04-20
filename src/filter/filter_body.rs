@@ -1,6 +1,6 @@
 use crate::filter::body_action;
 use crate::html;
-use crate::router::rule;
+use crate::api::BodyFilter;
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -46,10 +46,10 @@ lazy_static! {
 }
 
 impl FilterBodyAction {
-    pub fn new(rule_to_filter: rule::Rule) -> Option<FilterBodyAction> {
+    pub fn new(filters: Vec<BodyFilter>) -> Option<FilterBodyAction> {
         let mut visitors = Vec::new();
 
-        for filter in rule_to_filter.body_filters.as_ref()? {
+        for filter in &filters {
             if let Some(action) = body_action::create_body_action(filter) {
                 let visitor = FilterBodyVisitor {
                     enter: Some(action.first()),

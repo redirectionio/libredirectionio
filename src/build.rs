@@ -13,12 +13,10 @@ fn main() {
         .display()
         .to_string();
 
-    cbindgen::Builder::new()
-        .with_crate(crate_dir)
-        .with_language(cbindgen::Language::C)
-        .generate()
+    cbindgen::generate(crate_dir)
         .expect("Unable to generate bindings")
-        .write_to_file(&output_file);
+        .write_to_file(&output_file)
+        ;
 }
 
 /// Find the location of the `target/` directory. Note that this may be

@@ -124,7 +124,7 @@ impl<T> PathAndQueryMatcher<T> where T: RouteData {
         }
     }
 
-    fn request_to_path(request: &Request<()>) -> String {
+    pub fn request_to_path(request: &Request<()>) -> String {
         let mut path = request.uri().path().to_string();
 
         if request.uri().query().is_some() {

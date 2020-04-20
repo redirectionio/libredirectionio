@@ -4,7 +4,7 @@ pub mod body_append;
 pub mod body_prepend;
 pub mod body_replace;
 
-use crate::router::rule;
+use crate::api::BodyFilter;
 use std::fmt::Debug;
 
 pub trait BodyAction: Debug + Send {
@@ -33,7 +33,7 @@ pub fn evaluate(data: String, expression: String) -> bool {
     select.next().is_some()
 }
 
-pub fn create_body_action(filter: &rule::BodyFilter) -> Option<Box<dyn BodyAction>> {
+pub fn create_body_action(filter: &BodyFilter) -> Option<Box<dyn BodyAction>> {
     if filter.element_tree.is_empty() {
         return None;
     }

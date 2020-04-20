@@ -7,6 +7,7 @@ pub struct Marker {
     regex: String,
 }
 
+#[repr(C)]
 #[derive(Debug, Clone)]
 pub enum StaticOrDynamic {
     Static(String),
@@ -66,6 +67,8 @@ impl StaticOrDynamic {
             StaticOrDynamic::Dynamic(marker_string) => {
                 let regex = Regex::new(marker_string.capture.as_str()).expect("cannot compile regex");
                 let captured = regex.captures_iter(str);
+
+                // @TODO
 
                 HashMap::new()
             }

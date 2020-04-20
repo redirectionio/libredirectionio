@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HeaderFilter {
-    action: String,
-    header: String,
-    value: String,
+    pub action: String,
+    pub header: String,
+    pub value: String,
 }
