@@ -1,21 +1,21 @@
-mod transform;
 pub mod request_matcher;
 mod route;
 mod marker_string;
 mod trace;
+mod transformer;
 
 pub use route::{RouteData, Route};
 pub use marker_string::{StaticOrDynamic, Marker};
 pub use trace::{RouteTrace, Trace};
+pub use request_matcher::{PathAndQueryMatcher, SchemeMatcher, RequestMatcher};
+pub use transformer::{Transform, Transformer, Camelize, Uppercase, Underscorize, Slice, Replace, Dasherize, Lowercase};
 
 use crate::api::Rule;
-use request_matcher::SchemeMatcher;
 use regex::Regex;
 use std::time;
 use url;
 use url::Url;
 use http::Request;
-use crate::router::request_matcher::RequestMatcher;
 
 #[derive(Debug)]
 pub struct Router<T: RouteData> {

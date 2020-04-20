@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use regex::Regex;
+use crate::router::Transformer;
 
 #[derive(Debug, Clone)]
 pub struct Marker {
@@ -18,6 +19,7 @@ pub enum StaticOrDynamic {
 pub struct MarkerString {
     pub regex: String,
     pub capture: String,
+    markers: HashMap<String, String>,
 }
 
 impl Marker {
@@ -42,6 +44,7 @@ impl StaticOrDynamic {
         // Create regex string
         let mut regex = regex::escape(str);
         let mut capture = regex.clone();
+        let mut marker_map = HashMap::new();
 
         // Sort markers by length
         markers.sort_by(|a, b| b.name.len().cmp(&a.name.len()));
@@ -53,11 +56,13 @@ impl StaticOrDynamic {
 
             regex = regex.replace(marker.format().as_str(), marker_regex.as_str());
             capture = capture.replace(marker.format().as_str(), marker_capture.as_str());
+            marker_map.insert(marker.name.clone(), marker_capture);
         }
 
         StaticOrDynamic::Dynamic(MarkerString {
             regex,
             capture,
+            markers: marker_map,
         })
     }
 
@@ -65,13 +70,50 @@ impl StaticOrDynamic {
         match &self {
             StaticOrDynamic::Static(_) => HashMap::new(),
             StaticOrDynamic::Dynamic(marker_string) => {
-                let regex = Regex::new(marker_string.capture.as_str()).expect("cannot compile regex");
-                let captured = regex.captures_iter(str);
+                let mut parameters = HashMap::new();
+                let mut regex_captures = match Regex::new(marker_string.capture.as_str()) {
+                    Err(error) => return parameters,
+                    Ok(regex) => regex,
+                };
 
-                // @TODO
+                let mut capture = match regex_captures.captures(str) {
+                    None => return parameters,
+                    Some(capture) => capture,
+                };
 
-                HashMap::new()
+                for named_group in regex_captures.capture_names() {
+                    let name = match named_group {
+                        None => continue,
+                        Some(group) => group,
+                    };
+
+                    let value = match capture.name(name) {
+                        None => continue,
+                        Some(matched) => matched.as_str().to_string(),
+                    };
+
+                    parameters.insert(name.to_string(), value);
+                }
+
+                parameters
             }
         }
+    }
+
+    pub fn replace(str: String, parameters: HashMap<String, String>, transformers: Vec<Transformer>) -> String {
+        let mut replaced = str.clone();
+
+        for transformer in transformers {
+            let has_value = parameters.get(transformer.marker.as_str());
+
+            match has_value {
+                None => (),
+                Some(value) => {
+                    replaced = transformer.transform(replaced, value.as_str());
+                }
+            }
+        }
+
+        replaced
     }
 }
