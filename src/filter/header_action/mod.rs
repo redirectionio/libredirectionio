@@ -2,24 +2,12 @@ pub mod header_add;
 pub mod header_remove;
 pub mod header_replace;
 
-use crate::api::HeaderFilter;
+use crate::api::{HeaderFilter, MessageHeader};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Header {
-    pub name: String,
-    pub value: String,
-}
-
-impl Header {
-    pub fn new(name: String, value: String) -> Header {
-        Header { name, value }
-    }
-}
-
 pub trait HeaderAction: Debug + Send {
-    fn filter(&self, headers: Vec<Header>) -> Vec<Header>;
+    fn filter(&self, headers: Vec<MessageHeader>) -> Vec<MessageHeader>;
 }
 
 pub fn create_header_action(header_filter: &HeaderFilter) -> Option<Box<dyn HeaderAction>> {

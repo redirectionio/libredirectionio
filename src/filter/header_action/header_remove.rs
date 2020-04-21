@@ -1,12 +1,13 @@
-use crate::filter::header_action;
+use crate::filter::header_action::HeaderAction;
+use crate::api::MessageHeader;
 
 #[derive(Debug)]
 pub struct HeaderRemoveAction {
     pub name: String,
 }
 
-impl header_action::HeaderAction for HeaderRemoveAction {
-    fn filter(&self, headers: Vec<header_action::Header>) -> Vec<header_action::Header> {
+impl HeaderAction for HeaderRemoveAction {
+    fn filter(&self, headers: Vec<MessageHeader>) -> Vec<MessageHeader> {
         let mut new_headers = Vec::new();
 
         for header in headers {

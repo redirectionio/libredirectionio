@@ -46,10 +46,10 @@ lazy_static! {
 }
 
 impl FilterBodyAction {
-    pub fn new(filters: Vec<BodyFilter>) -> Option<FilterBodyAction> {
+    pub fn new(filters: Vec<&BodyFilter>) -> Option<FilterBodyAction> {
         let mut visitors = Vec::new();
 
-        for filter in &filters {
+        for filter in filters {
             if let Some(action) = body_action::create_body_action(filter) {
                 let visitor = FilterBodyVisitor {
                     enter: Some(action.first()),

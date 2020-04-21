@@ -1,5 +1,6 @@
 use crate::router::{Route, Router};
-use crate::api::{Rule, RulesMessage};
+use crate::api::{Rule, RulesMessage, Request};
+use crate::action::Action;
 use crate::ffi_helpers::{c_char_to_str, c_char_to_string};
 use std::ptr::null;
 use std::ffi::CStr;
@@ -63,4 +64,23 @@ pub unsafe extern fn redirectionio_drop_router(_router: *mut Router<Rule>) {
     }
 
     Box::from_raw(_router);
+}
+
+#[no_mangle]
+pub unsafe extern fn redirectionio_get_action(_router: *const Router<Rule>, _request: *const Request) -> *mut Action {
+    let mut action = Action::new();
+
+    if _router.is_null() || _request.is_null() {
+        return Box::into_raw(Box::new(action));
+    }
+
+    let router = &*_router;
+    let request = &*_request;
+
+    let http_request = request.to_http_request();
+    let routes = router.match_request(&http_request);
+
+    action = Action::from_routes_rule(routes, &http_request);
+
+    Box::into_raw(Box::new(action))
 }

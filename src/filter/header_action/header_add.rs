@@ -1,4 +1,5 @@
-use crate::filter::header_action;
+use crate::filter::header_action::HeaderAction;
+use crate::api::MessageHeader;
 
 #[derive(Debug)]
 pub struct HeaderAddAction {
@@ -6,12 +7,12 @@ pub struct HeaderAddAction {
     pub value: String,
 }
 
-impl header_action::HeaderAction for HeaderAddAction {
-    fn filter(&self, mut headers: Vec<header_action::Header>) -> Vec<header_action::Header> {
-        headers.push(header_action::Header::new(
-            self.name.clone(),
-            self.value.clone(),
-        ));
+impl HeaderAction for HeaderAddAction {
+    fn filter(&self, mut headers: Vec<MessageHeader>) -> Vec<MessageHeader> {
+        headers.push(MessageHeader{
+            name: self.name.clone(),
+            value: self.value.clone(),
+        });
 
         headers
     }

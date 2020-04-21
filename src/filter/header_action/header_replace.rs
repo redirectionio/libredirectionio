@@ -1,4 +1,5 @@
-use crate::filter::header_action;
+use crate::filter::header_action::HeaderAction;
+use crate::api::MessageHeader;
 
 #[derive(Debug)]
 pub struct HeaderReplaceAction {
@@ -6,18 +7,18 @@ pub struct HeaderReplaceAction {
     pub value: String,
 }
 
-impl header_action::HeaderAction for HeaderReplaceAction {
-    fn filter(&self, headers: Vec<header_action::Header>) -> Vec<header_action::Header> {
+impl HeaderAction for HeaderReplaceAction {
+    fn filter(&self, headers: Vec<MessageHeader>) -> Vec<MessageHeader> {
         let mut new_headers = Vec::new();
 
         for header in headers {
             if header.name != self.name {
                 new_headers.push(header);
             } else {
-                new_headers.push(header_action::Header::new(
-                    self.name.clone(),
-                    self.value.clone(),
-                ));
+                new_headers.push(MessageHeader {
+                    name: self.name.clone(),
+                    value: self.value.clone(),
+                });
             }
         }
 

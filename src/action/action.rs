@@ -1,13 +1,15 @@
 use serde::{Deserialize, Serialize};
-use crate::api::{HeaderFilter, BodyFilter, Rule};
+use crate::api::{HeaderFilter, BodyFilter, Rule, MessageHeader};
 use crate::router::{Route, StaticOrDynamic};
 use crate::router::request_matcher::PathAndQueryMatcher;
+use crate::action::StatusCodeUpdate;
+use crate::filter::{FilterHeaderAction, FilterBodyAction};
 use std::collections::HashMap;
 use http::Request;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
-    status_code_update: Option<StatusCodeUpdate>,
+    pub status_code_update: Option<StatusCodeUpdate>,
     header_filters: Vec<HeaderFilterAction>,
     body_filters: Vec<BodyFilterAction>,
     rule_ids: Vec<String>,
@@ -23,13 +25,6 @@ struct HeaderFilterAction {
 struct BodyFilterAction {
     filter: BodyFilter,
     on_response_status_code: u16,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct StatusCodeUpdate {
-    status_code: u16,
-    on_response_status_code: u16,
-    fallback_status_code: u16,
 }
 
 impl Action {
@@ -144,5 +139,38 @@ impl Action {
         }
 
         action
+    }
+
+    pub fn filter_headers(&self, headers: Vec<MessageHeader>, response_status_code: u16) -> Vec<MessageHeader> {
+        let mut filters = Vec::new();
+
+        for filter in &self.header_filters {
+            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
+                continue;
+            }
+
+            filters.push(&filter.filter);
+        }
+
+        match FilterHeaderAction::new(filters) {
+            None => Vec::new(),
+            Some(filter_action) => {
+                filter_action.filter(headers)
+            }
+        }
+    }
+
+    pub fn create_filter_body(&self, response_status_code: u16) -> Option<FilterBodyAction> {
+        let mut filters = Vec::new();
+
+        for filter in &self.body_filters {
+            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
+                continue;
+            }
+
+            filters.push(&filter.filter);
+        }
+
+        FilterBodyAction::new(filters)
     }
 }
