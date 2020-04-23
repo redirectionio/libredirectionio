@@ -1,13 +1,14 @@
 pub mod header_add;
 pub mod header_remove;
 pub mod header_replace;
+pub mod header_override;
 
-use crate::api::{HeaderFilter, MessageHeader};
-use serde::{Deserialize, Serialize};
+use crate::api::HeaderFilter;
+use crate::http::Header;
 use std::fmt::Debug;
 
 pub trait HeaderAction: Debug + Send {
-    fn filter(&self, headers: Vec<MessageHeader>) -> Vec<MessageHeader>;
+    fn filter(&self, headers: Vec<Header>) -> Vec<Header>;
 }
 
 pub fn create_header_action(header_filter: &HeaderFilter) -> Option<Box<dyn HeaderAction>> {
@@ -26,6 +27,13 @@ pub fn create_header_action(header_filter: &HeaderFilter) -> Option<Box<dyn Head
 
     if header_filter.action == "replace" {
         return Some(Box::new(header_replace::HeaderReplaceAction {
+            name: header_filter.header.clone(),
+            value: header_filter.value.clone(),
+        }));
+    }
+
+    if header_filter.action == "override" {
+        return Some(Box::new(header_override::HeaderOverrideAction {
             name: header_filter.header.clone(),
             value: header_filter.value.clone(),
         }));

@@ -17,6 +17,12 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         match route.host() {
             None => self.any_host.insert(route),
             Some(host) => {
+                if host.is_empty() {
+                    self.any_host.insert(route);
+
+                    return;
+                }
+
                 if !self.hosts.contains_key(host) {
                     self.hosts.insert(host.to_string(), HostMatcher::create_sub_matcher());
                 }

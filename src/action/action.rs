@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
-use crate::api::{HeaderFilter, BodyFilter, Rule, MessageHeader};
+use crate::api::{HeaderFilter, BodyFilter, Rule};
 use crate::router::{Route, StaticOrDynamic};
 use crate::router::request_matcher::PathAndQueryMatcher;
 use crate::action::StatusCodeUpdate;
 use crate::filter::{FilterHeaderAction, FilterBodyAction};
-use std::collections::HashMap;
+use crate::http::Header;
 use http::Request;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -39,11 +39,11 @@ impl Action {
 
     pub fn from_route_rule(route: &Route<Rule>, request: &Request<()>) -> Action {
         let rule = route.handler();
-        let mut status_code_update = match rule.redirect_code {
+        let status_code_update = match rule.redirect_code.unwrap_or(0) {
             0 => None,
             redirect_code => {
                 Some(StatusCodeUpdate {
-                    status_code: rule.redirect_code,
+                    status_code: redirect_code,
                     on_response_status_code: rule.match_on_response_status.unwrap_or(0),
                     fallback_status_code: 0,
                 })
@@ -61,7 +61,7 @@ impl Action {
 
                 header_filters.push(HeaderFilterAction{
                     filter: HeaderFilter {
-                        action: "add".to_string(),
+                        action: "override".to_string(),
                         value,
                         header: "Location".to_string(),
                     },
@@ -141,7 +141,16 @@ impl Action {
         action
     }
 
-    pub fn filter_headers(&self, headers: Vec<MessageHeader>, response_status_code: u16) -> Vec<MessageHeader> {
+    pub fn get_status_code(&self, response_status_code: u16) -> u16 {
+        match self.status_code_update.as_ref() {
+            None => 0,
+            Some(status_code_update) => {
+                status_code_update.get_status_code(response_status_code)
+            }
+        }
+    }
+
+    pub fn filter_headers(&self, headers: Vec<Header>, response_status_code: u16) -> Vec<Header> {
         let mut filters = Vec::new();
 
         for filter in &self.header_filters {

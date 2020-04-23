@@ -1,11 +1,14 @@
+use serde::{Deserialize, Serialize};
 use crate::router::{Route, RouteData};
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouteTrace<T: RouteData> {
     traces: Vec<Trace<T>>,
     routes: Vec<Route<T>>,
     final_route: Option<Route<T>>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Trace<T: RouteData> {
     name: String,
     matched: bool,

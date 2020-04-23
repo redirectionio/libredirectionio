@@ -13,7 +13,7 @@ pub struct Rule {
     pub id: String,
     source: Source,
     pub target: Option<String>,
-    pub redirect_code: u16,
+    pub redirect_code: Option<u16>,
     rank: u16,
     markers: Option<Vec<Marker>>,
     pub match_on_response_status: Option<u16>,
@@ -40,45 +40,16 @@ impl Rule {
         Some(rule_result.unwrap())
     }
 
-    pub fn transformers(&self) -> Vec<Transformer> {
-        match self.markers.as_ref() {
-            None => Vec::new(),
-            Some(markers) => {
-                let mut transformers = Vec::new();
-
-                for marker in markers {
-                    let mut transforms = Vec::new();
-
-                    match marker.transformers.as_ref() {
-                        None => (),
-                        Some(marker_transformers) => {
-                            for marker_transformer in marker_transformers {
-                                match marker_transformer.to_transform() {
-                                    None => (),
-                                    Some(transform) => {
-                                        transforms.push(transform);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    transformers.push(Transformer::new(marker.name.clone(), marker.name.clone(), transforms))
-                }
-
-                transformers
-            }
-        }
-    }
-
-    pub fn to_route(self) -> Route<Rule> {
+    pub fn path_and_query(&self) -> StaticOrDynamic {
         let markers = match &self.markers {
             None => Vec::new(),
             Some(rule_markers) => {
                 let mut markers = Vec::new();
 
                 for marker in rule_markers {
-                    markers.push(RouteMarker::new(marker.name.clone(), marker.regex.clone()));
+                    let regex = utf8_percent_encode(marker.regex.as_str(), SIMPLE_ENCODE_SET).to_string();
+
+                    markers.push(RouteMarker::new(marker.name.clone(), regex));
                 }
 
                 markers
@@ -121,6 +92,41 @@ impl Rule {
             path.push_str(format!("?{}", query_string).as_str());
         }
 
+        StaticOrDynamic::new_with_markers(path.as_str(), markers)
+    }
+
+    pub fn transformers(&self) -> Vec<Transformer> {
+        match self.markers.as_ref() {
+            None => Vec::new(),
+            Some(markers) => {
+                let mut transformers = Vec::new();
+
+                for marker in markers {
+                    let mut transforms = Vec::new();
+
+                    match marker.transformers.as_ref() {
+                        None => (),
+                        Some(marker_transformers) => {
+                            for marker_transformer in marker_transformers {
+                                match marker_transformer.to_transform() {
+                                    None => (),
+                                    Some(transform) => {
+                                        transforms.push(transform);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    transformers.push(Transformer::new(marker.name.clone(), marker.name.clone(), transforms))
+                }
+
+                transformers
+            }
+        }
+    }
+
+    pub fn to_route(self) -> Route<Rule> {
         let id = self.id.clone();
         let priority = 0 - self.rank.clone() as i64;
 
@@ -128,7 +134,7 @@ impl Rule {
             self.source.methods.clone(),
             self.source.scheme.clone(),
             self.source.host.clone(),
-            StaticOrDynamic::new_with_markers(path.as_str(), markers),
+            self.path_and_query(),
             self,
             id,
             priority,

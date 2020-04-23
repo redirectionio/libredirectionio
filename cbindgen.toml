@@ -289,7 +289,7 @@ args = "horizontal"
 # "None": keep order in which the functions have been parsed
 #
 # default: "Name"
-#sort_by = "None"
+sort_by = "None"
 
 [struct]
 # A rule to use to rename struct field names. The renaming assumes the input is

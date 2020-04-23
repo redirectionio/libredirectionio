@@ -1,8 +1,6 @@
-use crate::regex_radix_tree::RegexRadixTree;
 use crate::router::request_matcher::{RequestMatcher, PathAndQueryMatcher};
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub struct HeaderMatcher<T> where T: RouteData {

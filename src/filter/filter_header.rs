@@ -1,5 +1,6 @@
 use crate::filter::header_action;
-use crate::api::{HeaderFilter, MessageHeader};
+use crate::api::HeaderFilter;
+use crate::http::Header;
 
 pub struct FilterHeaderAction {
     actions: Vec<Box<dyn header_action::HeaderAction>>,
@@ -26,7 +27,7 @@ impl FilterHeaderAction {
         Some(FilterHeaderAction { actions })
     }
 
-    pub fn filter(&self, mut headers: Vec<MessageHeader>) -> Vec<MessageHeader> {
+    pub fn filter(&self, mut headers: Vec<Header>) -> Vec<Header> {
         for filter in &self.actions {
             headers = filter.filter(headers);
         }

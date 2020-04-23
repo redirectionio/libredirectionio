@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use crate::router::{Transformer as RouteTransformer, Transform, Camelize, Uppercase, Underscorize, Slice, Replace, Dasherize, Lowercase};
+use crate::router::{Transform, Camelize, Uppercase, Underscorize, Slice, Replace, Dasherize, Lowercase};
 use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

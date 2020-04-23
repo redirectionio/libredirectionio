@@ -1,21 +1,21 @@
 use std::collections::HashMap;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 use crate::router::Transformer;
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Marker {
     name: String,
     regex: String,
 }
 
-#[repr(C)]
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum StaticOrDynamic {
     Static(String),
     Dynamic(MarkerString),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MarkerString {
     pub regex: String,
     pub capture: String,
@@ -71,12 +71,13 @@ impl StaticOrDynamic {
             StaticOrDynamic::Static(_) => HashMap::new(),
             StaticOrDynamic::Dynamic(marker_string) => {
                 let mut parameters = HashMap::new();
-                let mut regex_captures = match Regex::new(marker_string.capture.as_str()) {
-                    Err(error) => return parameters,
+                let regex = ["^", marker_string.capture.as_str(), "$"].join("");
+                let regex_captures = match Regex::new(regex.as_str()) {
+                    Err(_) => return parameters,
                     Ok(regex) => regex,
                 };
 
-                let mut capture = match regex_captures.captures(str) {
+                let capture = match regex_captures.captures(str) {
                     None => return parameters,
                     Some(capture) => capture,
                 };

@@ -6,7 +6,6 @@ mod transformer;
 mod header_filter;
 mod body_filter;
 mod rules_message;
-mod request;
 mod ffi;
 
 pub use rule::Rule;
@@ -17,4 +16,3 @@ pub use transformer::Transformer;
 pub use header_filter::HeaderFilter;
 pub use body_filter::BodyFilter;
 pub use rules_message::RulesMessage;
-pub use request::{Request, MessageHeader};

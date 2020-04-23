@@ -1,9 +1,10 @@
 use std::fmt::Debug;
+use serde::{Deserialize, Serialize};
 use crate::router::StaticOrDynamic;
 
 pub trait RouteData: Debug + Clone + Send + Sync + 'static {}
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Route<T: RouteData> {
     handler: T,
     scheme: Option<String>,

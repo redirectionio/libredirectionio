@@ -66,7 +66,7 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
         };
 
         traces.push(Trace::new(
-            "Any method".to_string(),
+            "Any scheme".to_string(),
             true,
             true,
             self.any_scheme.len() as u64,

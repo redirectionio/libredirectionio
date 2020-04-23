@@ -1,15 +1,14 @@
 use log::{Metadata, Record};
-#[cfg(not(target_arch = "wasm32"))]
-use std::intrinsics::transmute;
-#[cfg(not(target_arch = "wasm32"))]
-use std::ptr::null;
+use std::os::raw::{c_char, c_void, c_short};
+use std::sync::Once;
+use crate::ffi_helpers::string_to_c_char;
 
 #[allow(non_camel_case_types)]
-pub type redirectionio_log_callback = extern "C" fn(*const libc::c_char, *const libc::c_void, libc::c_short);
+pub type redirectionio_log_callback = extern fn(*const c_char, *const c_void, c_short);
 
 pub struct CallbackLogger {
     pub callback: Option<redirectionio_log_callback>,
-    pub data: Option<&'static libc::c_void>,
+    pub data: Option<&'static c_void>,
 }
 
 impl log::Log for CallbackLogger {
@@ -28,7 +27,7 @@ impl log::Log for CallbackLogger {
 
         if self.enabled(record.metadata()) {
             let log_str = format!("{} - {}", record.level(), record.args());
-            let cstr = safe_str_to_cstr(log_str);
+            let cstr = unsafe { string_to_c_char(log_str) };
 
             (self.callback.unwrap())(cstr, self.data.unwrap(), record.level() as i16);
         }
@@ -37,17 +36,29 @@ impl log::Log for CallbackLogger {
     fn flush(&self) {}
 }
 
-#[cfg(not(target_arch = "wasm32"))]
-fn safe_str_to_cstr(str: String) -> *const libc::c_char {
-    unsafe {
-        let string_result = std::ffi::CString::new(str.as_bytes());
+static mut LOGGER: CallbackLogger = CallbackLogger {
+    callback: None,
+    data: None,
+};
 
-        if string_result.is_err() {
-            return null();
-        }
+static INIT: Once = Once::new();
 
-        let data: *const std::ffi::CString = transmute(Box::new(string_result.unwrap()));
+#[no_mangle]
+pub extern fn redirectionio_log_init_stderr() {
+    stderrlog::new().module(module_path!()).init().unwrap();
+}
 
-        (&*data).as_ptr()
-    }
+#[no_mangle]
+pub unsafe extern fn redirectionio_log_init_with_callback(
+    callback: redirectionio_log_callback,
+    data: &'static libc::c_void,
+) {
+    LOGGER.callback = Some(callback);
+    LOGGER.data = Some(data);
+
+    INIT.call_once(|| {
+        log::set_logger(&LOGGER)
+            .map(|()| log::set_max_level(log::LevelFilter::Trace))
+            .expect("cannot set logger");
+    });
 }

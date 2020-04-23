@@ -1,9 +1,67 @@
 use crate::action::Action;
-use crate::api::MessageHeader;
-use crate::filter::{FilterHeaderAction, FilterBodyAction};
+use crate::filter::FilterBodyAction;
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
+use crate::http::Header;
 use std::os::raw::c_char;
 use std::ptr::null;
+use serde_json::{from_str as json_decode, to_string as json_encode};
+
+#[no_mangle]
+/// Deserialize a string to an action
+///
+/// Returns null if an error happens, otherwise it returns a pointer to an action
+pub unsafe extern fn redirectionio_action_json_deserialize(str: *mut c_char) -> Option<*mut Action> {
+    let action_str = c_char_to_str(str)?;
+
+    let action = match json_decode(action_str) {
+        Err(error) => {
+            error!(
+                "Unable to deserialize \"{}\" to action: {}",
+                action_str,
+                error,
+            );
+
+            return None;
+        },
+        Ok(action) => action,
+    };
+
+    Some(Box::into_raw(Box::new(action)))
+}
+
+#[no_mangle]
+/// Serialize an action to a string
+///
+/// Returns null if an error happens
+pub unsafe extern fn redirectionio_action_json_serialize(_action: *mut Action) -> *const c_char {
+    if _action.is_null() {
+        return null();
+    }
+
+    let action = &*_action;
+    let action_serialized = match json_encode(action) {
+        Err(error) => {
+            error!(
+                "Unable to serialize to action: {}",
+                error,
+            );
+
+            return null();
+        },
+        Ok(action_serialized) => action_serialized,
+    };
+
+    string_to_c_char(action_serialized)
+}
+
+#[no_mangle]
+pub unsafe extern fn redirectionio_action_drop(_action: *mut Action) {
+    if _action.is_null() {
+        return;
+    }
+
+    Box::from_raw(_action);
+}
 
 #[no_mangle]
 pub unsafe extern fn redirectionio_action_get_status_code(_action: *const Action, response_status_code: u16) -> u16 {
@@ -13,18 +71,13 @@ pub unsafe extern fn redirectionio_action_get_status_code(_action: *const Action
 
     let action = &*_action;
 
-    match action.status_code_update.as_ref() {
-        None => 0,
-        Some(status_code_update) => {
-            status_code_update.get_status_code(response_status_code)
-        }
-    }
+    action.get_status_code(response_status_code)
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_replace_headers(_action: *const Action, _headers: *mut Vec<MessageHeader>, response_status_code: u16) {
+pub unsafe extern fn redirectionio_action_header_filter_filter(_action: *const Action, _headers: *mut Vec<Header>, response_status_code: u16) -> Option<*mut Vec<Header>> {
     if _action.is_null() || _headers.is_null() {
-        return;
+        return None;
     }
 
     let action = &*_action;
@@ -36,10 +89,12 @@ pub unsafe extern fn redirectionio_action_replace_headers(_action: *const Action
     }
 
     headers = action.filter_headers(headers, response_status_code);
+
+    Some(Box::into_raw(Box::new(headers)))
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_create_body_filter(_action: *const Action, response_status_code: u16) -> Option<*mut FilterBodyAction> {
+pub unsafe extern fn redirectionio_action_body_filter_create(_action: *const Action, response_status_code: u16) -> Option<*mut FilterBodyAction> {
     if _action.is_null() {
         return None;
     }
@@ -53,7 +108,7 @@ pub unsafe extern fn redirectionio_action_create_body_filter(_action: *const Act
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_body_filter(_filter: *mut FilterBodyAction, _body: *const c_char) -> *const c_char {
+pub unsafe extern fn redirectionio_action_body_filter_filter(_filter: *mut FilterBodyAction, _body: *const c_char) -> *const c_char {
     if _filter.is_null() {
         return _body;
     }
@@ -70,7 +125,7 @@ pub unsafe extern fn redirectionio_action_body_filter(_filter: *mut FilterBodyAc
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_end_body_filter(_filter: *mut FilterBodyAction) -> *const c_char {
+pub unsafe extern fn redirectionio_action_body_filter_close(_filter: *mut FilterBodyAction) -> *const c_char {
     if _filter.is_null() {
         return null();
     }

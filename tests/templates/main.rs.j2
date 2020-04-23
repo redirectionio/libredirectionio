@@ -1,0 +1,52 @@
+extern crate redirectionio;
+
+use redirectionio::router::Router;
+use redirectionio::api::Rule;
+use redirectionio::http::Request;
+use redirectionio::action::Action;
+
+{% for name, rule_set in rule_sets %}
+fn setup_{{ name }}() -> Router<Rule> {
+    let mut router = Router::<Rule>::new();
+    {% for _, rule in rule_set.rules %}
+    let route_{{ loop.index }}: Rule = serde_json::from_str(r#"{{ rule.agentInput | json_encode() }}"#).expect("cannot deserialize");
+    router.insert(route_{{ loop.index }}.to_route());
+    {% endfor %}
+    router
+}
+
+{% for test in rule_set.tests %}
+#[test]
+fn test_{{ name }}_{{ loop.index }}() {
+    let router = setup_{{ name }}();
+    let request = Request::new(r#"{{ test.uri }}"#.to_string(), None).to_http_request();
+    let matched = router.match_request(&request);
+
+    assert_eq!(!matched.is_empty(), {{ test.match }});
+    {% if test.match %}
+    let action = Action::from_routes_rule(matched, &request);
+    {% if test.status %}
+    assert_eq!(action.get_status_code(0), {{ test.status }});
+    {%- endif -%}
+    {% if test.location %}
+    let headers = action.filter_headers(Vec::new(), 0);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"{{ test.location }}"#);
+    {%- endif -%}
+    {% if test.should_filter_body %}
+    let body_filter = action.create_filter_body(0);
+    assert_eq!(body_filter.is_some(), {{ test.should_filter_body.enable }});
+    {% if test.should_filter_body.enable %}
+    let mut filter = body_filter.unwrap();
+    let mut new_body = filter.filter(r#"{{ test.should_filter_body.original_body }}"#.to_string());
+    new_body.push_str(filter.end().as_str());
+    assert_eq!(new_body, r#"{{ test.should_filter_body.expected_body }}"#)
+    {%- endif -%}
+    {%- endif -%}
+    {%- endif -%}
+}
+{% endfor %}
+{% endfor %}

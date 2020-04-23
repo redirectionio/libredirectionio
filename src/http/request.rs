@@ -1,16 +1,14 @@
 use serde::{Deserialize, Serialize};
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use crate::http::header::Header;
+
+const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Request {
     url: String,
     method: Option<String>,
-    headers: Vec<MessageHeader>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MessageHeader {
-    pub name: String,
-    pub value: String,
+    headers: Vec<Header>,
 }
 
 impl Request {
@@ -23,7 +21,7 @@ impl Request {
     }
 
     pub fn add_header(&mut self, name: String, value: String) {
-        self.headers.push(MessageHeader {
+        self.headers.push(Header {
             name,
             value,
         });
@@ -32,7 +30,9 @@ impl Request {
     pub fn to_http_request(&self) -> http::Request<()> {
         let mut builder = http::Request::<()>::builder();
 
-        builder = builder.uri(self.url.as_str());
+        let url = utf8_percent_encode(self.url.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
+
+        builder = builder.uri(url.as_str());
 
         if let Some(method) = self.method.as_ref() {
             builder = builder.method(method.as_str());

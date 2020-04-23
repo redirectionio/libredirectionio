@@ -4,7 +4,11 @@ use crate::router::request_matcher::regex_item_matcher::RegexItemMatcher;
 use crate::router::{Route, RouteData, Trace};
 use crate::router::marker_string::StaticOrDynamic;
 use http::Request;
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
+use url::form_urlencoded::parse as parse_query;
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+
+const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
 #[derive(Debug, Clone)]
 pub struct PathAndQueryMatcher<T: RouteData> {
@@ -19,7 +23,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
 
         match route.path_and_query() {
             StaticOrDynamic::Static(path) => {
-                if self.static_rules.contains_key(path) {
+                if !self.static_rules.contains_key(path) {
                     self.static_rules.insert(path.clone(), PathAndQueryMatcher::create_sub_matcher());
                 }
 
@@ -85,10 +89,10 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
         };
 
         traces.push(Trace::new(
-            "static_path".to_string(),
+            "Static path".to_string(),
             !static_traces.is_empty(),
             true,
-            static_traces.len() as u64,
+            self.static_rules.len() as u64,
             static_traces,
             Vec::new(),
         ));
@@ -127,11 +131,43 @@ impl<T> PathAndQueryMatcher<T> where T: RouteData {
     pub fn request_to_path(request: &Request<()>) -> String {
         let mut path = request.uri().path().to_string();
 
-        if request.uri().query().is_some() {
-            path = [path, "?".to_string(), request.uri().query().unwrap().to_string()].join("");
+        if let Some(query) = request.uri().query() {
+            match PathAndQueryMatcher::<T>::build_sorted_query(query) {
+                None => (),
+                Some(query_sorted) => {
+                    path = [path.as_str(), "?", query_sorted.as_str()].join("");
+                }
+            }
         }
 
         path
+    }
+
+    fn build_sorted_query(query: &str) -> Option<String> {
+        let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes())
+            .into_owned()
+            .collect();
+
+        let mut query_string = "".to_string();
+
+        for (key, value) in &hash_query {
+            query_string.push_str(&utf8_percent_encode(key, QUERY_ENCODE_SET).to_string());
+
+            if !value.is_empty() {
+                query_string.push_str("=");
+                query_string.push_str(&utf8_percent_encode(value, QUERY_ENCODE_SET).to_string());
+            }
+
+            query_string.push_str("&");
+        }
+
+        query_string.pop();
+
+        if query_string.is_empty() {
+            return None;
+        }
+
+        Some(query_string)
     }
 
     fn node_trace_to_router_trace(trace: NodeTrace<RegexItemMatcher<T>>, request: &Request<()>) -> Trace<T> {

@@ -9,7 +9,7 @@ pub struct StatusCodeUpdate {
 
 impl StatusCodeUpdate {
     pub fn get_status_code(&self, response_status_code: u16) -> u16 {
-        if response_status_code != self.on_response_status_code {
+        if response_status_code == self.on_response_status_code {
             return self.status_code;
         }
 
