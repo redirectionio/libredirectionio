@@ -36,6 +36,10 @@ impl<T: RouteData> Router<T> {
         self.matcher.match_request(request)
     }
 
+    pub fn len(&self) -> usize {
+        self.matcher.len()
+    }
+
     pub fn trace_request(&self, request: &Request<()>) -> Vec<Trace<T>> {
         self.matcher.trace(request)
     }

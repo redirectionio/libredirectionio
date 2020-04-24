@@ -120,7 +120,7 @@ tab_width = 4
 # * "both": typedef struct MyType { ... } MyType;
 #
 # default: "both"
-style = "both"
+style = "tag"
 
 # A list of substitutions for converting cfg's to ifdefs. cfgs which aren't
 # defined here will just be discarded.

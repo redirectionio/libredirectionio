@@ -27,7 +27,7 @@ impl Request {
         });
     }
 
-    pub fn to_http_request(&self) -> http::Request<()> {
+    pub fn to_http_request(&self) -> http::Result<http::Request<()>> {
         let mut builder = http::Request::<()>::builder();
 
         let url = utf8_percent_encode(self.url.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
@@ -42,6 +42,6 @@ impl Request {
             builder = builder.header(header.name.as_str(), header.value.clone());
         }
 
-        builder.body(()).expect("")
+        builder.body(())
     }
 }

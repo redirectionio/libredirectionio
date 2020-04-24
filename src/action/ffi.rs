@@ -1,7 +1,7 @@
 use crate::action::Action;
+use crate::http::ffi::{header_map_to_http_headers, http_headers_to_header_map, HeaderMap};
 use crate::filter::FilterBodyAction;
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
-use crate::http::Header;
 use std::os::raw::c_char;
 use std::ptr::null;
 use serde_json::{from_str as json_decode, to_string as json_encode};
@@ -10,8 +10,11 @@ use serde_json::{from_str as json_decode, to_string as json_encode};
 /// Deserialize a string to an action
 ///
 /// Returns null if an error happens, otherwise it returns a pointer to an action
-pub unsafe extern fn redirectionio_action_json_deserialize(str: *mut c_char) -> Option<*mut Action> {
-    let action_str = c_char_to_str(str)?;
+pub unsafe extern fn redirectionio_action_json_deserialize(str: *mut c_char) -> *const Action {
+    let action_str = match c_char_to_str(str) {
+        None => return null() as *const Action,
+        Some(str) => str,
+    };
 
     let action = match json_decode(action_str) {
         Err(error) => {
@@ -21,12 +24,12 @@ pub unsafe extern fn redirectionio_action_json_deserialize(str: *mut c_char) -> 
                 error,
             );
 
-            return None;
+            return null() as *const Action;
         },
         Ok(action) => action,
     };
 
-    Some(Box::into_raw(Box::new(action)))
+    Box::into_raw(Box::new(action))
 }
 
 #[no_mangle]
@@ -75,22 +78,17 @@ pub unsafe extern fn redirectionio_action_get_status_code(_action: *const Action
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_header_filter_filter(_action: *const Action, _headers: *mut Vec<Header>, response_status_code: u16) -> Option<*mut Vec<Header>> {
-    if _action.is_null() || _headers.is_null() {
-        return None;
+pub unsafe extern fn redirectionio_action_header_filter_filter(_action: *const Action, header_map: *const HeaderMap, response_status_code: u16) -> *const HeaderMap {
+    if _action.is_null() {
+        return header_map;
     }
 
     let action = &*_action;
-    let box_headers = Box::from_raw(_headers);
-    let mut headers = Vec::new();
-
-    for header in box_headers.iter() {
-        headers.push(header.clone());
-    }
+    let mut headers = header_map_to_http_headers(header_map);
 
     headers = action.filter_headers(headers, response_status_code);
 
-    Some(Box::into_raw(Box::new(headers)))
+    http_headers_to_header_map(headers)
 }
 
 #[no_mangle]

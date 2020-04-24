@@ -4,16 +4,59 @@ use serde_json::{from_str as json_decode, to_string as json_encode};
 use crate::http::{Request, Header};
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
 
+#[repr(C)]
+#[derive(Debug)]
+pub struct HeaderMap {
+    name: *const c_char,
+    value: *const c_char,
+    next: *mut HeaderMap,
+}
+
+pub unsafe fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
+    let mut current: *const HeaderMap = null() as *const HeaderMap;
+
+    for header in &headers {
+        current = Box::into_raw(Box::new(HeaderMap {
+            name: string_to_c_char(header.name.clone()),
+            value: string_to_c_char(header.value.clone()),
+            next: current as *mut HeaderMap,
+        }));
+    }
+
+    current
+}
+
+pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<Header> {
+    let mut headers = Vec::new();
+    let mut current = header_map;
+
+    while !current.is_null() {
+        let header = &*current;
+
+        headers.push(Header {
+            name: c_char_to_str(header.name).unwrap().to_string(),
+            value: c_char_to_str(header.value).unwrap().to_string(),
+        });
+
+        current = header.next;
+    }
+
+    headers
+}
+
 #[no_mangle]
-pub unsafe extern fn redirectionio_request_json_deserialize(str: *mut c_char) -> Option<*mut Request> {
-    let request_str = c_char_to_str(str)?;
+pub unsafe extern fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
+    let request_str = match c_char_to_str(str) {
+        None => return null() as *const Request,
+        Some(str) => str,
+    };
 
     let request = match json_decode(request_str) {
-        Err(_) => return None,
+        Err(_) => return null() as *const Request,
         Ok(request) => request,
     };
 
-    Some(Box::into_raw(Box::new(request)))
+    Box::into_raw(Box::new(request))
 }
 
 #[no_mangle]
@@ -32,66 +75,19 @@ pub unsafe extern fn redirectionio_request_json_serialize(_request: *mut Request
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _method: *const c_char) -> Option<*mut Request> {
-    let uri = c_char_to_str(_uri)?;
+pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _method: *const c_char, header_map: *const HeaderMap) -> *const Request {
+    let uri = c_char_to_str(_uri).unwrap_or("/");
     let method = match c_char_to_str(_method) {
         None => None,
         Some(str) => Some(str.to_string()),
     };
 
-    let request = Request::new(uri.to_string(), method);
+    let mut request = Request::new(uri.to_string(), method);
+    let headers = header_map_to_http_headers(header_map);
 
-    Some(Box::into_raw(Box::new(request)))
-}
-
-#[no_mangle]
-pub unsafe extern fn redirectionio_request_add_header(_request: *mut Request, _key: *const c_char, _value: *const c_char) {
-    if _request.is_null() {
-        return;
+    for header in headers {
+        request.add_header(header.name, header.value);
     }
 
-    let key = match c_char_to_str(_key) {
-        None => return,
-        Some(key) => key.to_string(),
-    };
-
-    let value = match c_char_to_str(_value) {
-        None => return,
-        Some(value) => value.to_string(),
-    };
-
-    let mut request = Box::from_raw(_request);
-
-    request.add_header(key, value);
-}
-
-#[no_mangle]
-pub unsafe extern fn redirectionio_header_map_create() -> *mut Vec<Header> {
-    let request_header = Vec::new();
-
-    Box::into_raw(Box::new(request_header))
-}
-
-#[no_mangle]
-pub unsafe extern fn redirectionio_header_map_add_header(_headers: *mut Vec<Header>, _key: *const c_char, _value: *const c_char) {
-    if _headers.is_null() {
-        return;
-    }
-
-    let key = match c_char_to_str(_key) {
-        None => return,
-        Some(key) => key.to_string(),
-    };
-
-    let value = match c_char_to_str(_value) {
-        None => return,
-        Some(value) => value.to_string(),
-    };
-
-    let headers = &mut *_headers;
-
-    headers.push(Header {
-        name: key,
-        value,
-    })
+    Box::into_raw(Box::new(request))
 }

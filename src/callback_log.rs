@@ -45,7 +45,7 @@ static INIT: Once = Once::new();
 
 #[no_mangle]
 pub extern fn redirectionio_log_init_stderr() {
-    stderrlog::new().module(module_path!()).init().unwrap();
+    stderrlog::new().init().unwrap();
 }
 
 #[no_mangle]

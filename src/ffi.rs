@@ -4,6 +4,7 @@ use crate::http::Request;
 use crate::action::Action;
 use crate::ffi_helpers::c_char_to_str;
 use std::os::raw::{c_char, c_ulong};
+use std::ptr::null;
 
 #[no_mangle]
 pub unsafe extern fn redirectionio_route_create(s: *const c_char) -> Option<*mut Route<Rule>> {
@@ -14,21 +15,20 @@ pub unsafe extern fn redirectionio_route_create(s: *const c_char) -> Option<*mut
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_create(_message: *mut RulesMessage, cache: c_ulong) -> Option<*mut Router<Rule>> {
-    if _message.is_null() {
-        return None;
-    }
-
-    let message= Box::from_raw(_message);
+pub unsafe extern fn redirectionio_router_create(_message: *mut RulesMessage, cache: c_ulong) -> *mut Router<Rule> {
     let mut router = Router::<Rule>::new();
 
-    for rule in message.rules {
-        router.insert(rule.to_route());
+    if !_message.is_null() {
+        let message= Box::from_raw(_message);
+
+        for rule in message.rules {
+            router.insert(rule.to_route());
+        }
     }
 
     router.cache(cache);
 
-    Some(Box::into_raw(Box::new(router)))
+    Box::into_raw(Box::new(router))
 }
 
 #[no_mangle]
@@ -66,20 +66,35 @@ pub unsafe extern fn redirectionio_router_drop(_router: *mut Router<Rule>) {
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_match_action(_router: *const Router<Rule>, _request: *const Request) -> *mut Action {
-    let mut action = Action::new();
-
+pub unsafe extern fn redirectionio_router_match_action(_router: *const Router<Rule>, _request: *const Request) -> *const Action {
     if _router.is_null() || _request.is_null() {
-        return Box::into_raw(Box::new(action));
+        return null() as *const Action;
     }
 
     let router = &*_router;
     let request = &*_request;
 
-    let http_request = request.to_http_request();
-    let routes = router.match_request(&http_request);
+    let http_request = match request.to_http_request() {
+        Err(error) => {
+            error!("{}", error);
 
-    action = Action::from_routes_rule(routes, &http_request);
+            return null() as *const Action;
+        },
+        Ok(request) => request,
+    };
+    let routes = router.match_request(&http_request);
+    let action = Action::from_routes_rule(routes, &http_request);
 
     Box::into_raw(Box::new(action))
+}
+
+#[no_mangle]
+pub unsafe extern fn redirectionio_router_len(_router: *const Router<Rule>) -> c_ulong {
+    if _router.is_null() {
+        return 0;
+    }
+
+    let router = &*_router;
+
+    router.len() as c_ulong
 }
