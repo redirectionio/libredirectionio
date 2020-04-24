@@ -1,21 +1,21 @@
 #[macro_use]
 extern crate criterion;
 use criterion::{Criterion, BenchmarkId};
-use serde::{Serialize, Deserialize};
-use redirectionio::{Rule, MainRouter};
 use std::fs::read_to_string;
+use redirectionio::router::Router;
+use redirectionio::api::{Rule, RulesMessage};
+use redirectionio::http::Request;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ApiAgentRuleResponse {
-    #[serde(rename = "hydra:member")]
-    pub rules: Vec<Rule>,
-}
-
-fn create_rules(filename: String) -> String {
+fn create_router(filename: String) -> Router<Rule> {
     let content = read_to_string(filename).expect("Cannot open file");
-    let api: ApiAgentRuleResponse = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
+    let rules: RulesMessage = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
+    let mut router = Router::<Rule>::new();
 
-    serde_json::to_string(&api.rules).expect("Cannot serialize")
+    for rule in rules.rules {
+        router.insert(rule.to_route())
+    }
+
+    router
 }
 
 fn no_match_bench(c: &mut Criterion) {
@@ -31,12 +31,12 @@ fn no_match_bench(c: &mut Criterion) {
     group.sample_size(10);
 
     for filename in files {
-        let rules = create_rules(filename.clone());
-        let router = MainRouter::new_from_data(rules, 0).expect("Cannot create router");
+        let router = create_router(filename.clone());
+        let request = Request::new("/no-match".to_string(), None).to_http_request();
 
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
-                router.match_rule("/no-match".to_string());
+                router.match_request(&request);
             });
         });
     }
@@ -57,12 +57,14 @@ fn no_match_cache_bench(c: &mut Criterion) {
     group.sample_size(10);
 
     for filename in files {
-        let rules = create_rules(filename.clone());
-        let router = MainRouter::new_from_data(rules, 1000).expect("Cannot create router");
+        let mut router = create_router(filename.clone());
+        let request = Request::new("/no-match".to_string(), None).to_http_request();
+
+        router.cache(1000);
 
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
-                router.match_rule("/no-match".to_string());
+                router.match_request(&request);
             });
         });
     }

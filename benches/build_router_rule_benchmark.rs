@@ -1,21 +1,15 @@
 #[macro_use]
 extern crate criterion;
 use criterion::{Criterion, BenchmarkId, BatchSize};
-use serde::{Serialize, Deserialize};
-use redirectionio::{Rule, MainRouter};
 use std::fs::read_to_string;
+use redirectionio::api::{RulesMessage, Rule};
+use redirectionio::router::Router;
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct ApiAgentRuleResponse {
-    #[serde(rename = "hydra:member")]
-    pub rules: Vec<Rule>,
-}
-
-fn create_rules(filename: String) -> String {
+fn create_rules(filename: String) -> RulesMessage {
     let content = read_to_string(filename).expect("Cannot open file");
-    let api: ApiAgentRuleResponse = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
+    let rules: RulesMessage = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
 
-    serde_json::to_string(&api.rules).expect("Cannot serialize")
+    rules
 }
 
 fn build_router_bench(c: &mut Criterion) {
@@ -34,7 +28,13 @@ fn build_router_bench(c: &mut Criterion) {
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, f| {
             b.iter_batched(
                 || create_rules(f.to_string()),
-                |rules| MainRouter::new_from_data(rules, 0),
+                |rules| {
+                    let mut router = Router::<Rule>::new();
+
+                    for rule in rules.rules {
+                        router.insert(rule.to_route());
+                    }
+                },
                 BatchSize::NumIterations(1),
             );
         });
