@@ -1,32 +1,7 @@
-RUST_SOURCES =                                      \
-        Cargo.toml                                  \
-        src/build.rs                                \
-        src/callback_log.rs                         \
-        src/lib.rs                                  \
-        src/filter/mod.rs                           \
-        src/filter/filter_body.rs                   \
-        src/filter/filter_header.rs                 \
-        src/filter/body_action/mod.rs               \
-        src/filter/body_action/body_append.rs       \
-        src/filter/body_action/body_prepend.rs      \
-        src/filter/body_action/body_replace.rs      \
-        src/filter/header_action/mod.rs             \
-        src/filter/header_action/header_add.rs      \
-        src/filter/header_action/header_remove.rs   \
-        src/filter/header_action/header_replace.rs  \
-        src/html/mod.rs                             \
-        src/router/mod.rs                           \
-        src/router/api.rs                           \
-        src/router/router_host.rs                   \
-        src/router/router_path.rs                   \
-        src/router/router_scheme.rs                 \
-        src/router/rule.rs                          \
-        src/router/transform.rs                     \
-        src/router/url_matcher.rs                   \
-        src/router/url_matcher_regex.rs             \
-        src/router/url_matcher_rules.rs
+RUST_SOURCES = $(shell find src/ -type f -name '*.rs')
 
 RUST_EXTRA =                     \
+        Cargo.toml               \
         Cargo.lock
 
 EXTRA_DIST += $(RUST_SOURCES) $(RUST_EXTRA)
@@ -46,9 +21,10 @@ endif
 prefix := @prefix@
 exec_prefix := @exec_prefix@
 
-all: target/redirectionio.h target/release/libredirectionio.a
+.PHONY: all
+all: target/redirectionio.h
 
-target/redirectionio.h target/release/libredirectionio.a:
+target/redirectionio.h: $(EXTRA_DIST)
 	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@
 
 .PHONY: install
@@ -62,4 +38,4 @@ install: target/redirectionio.h target/release/libredirectionio.a
 
 .PHONY:	clean
 clean:
-	rm -rf target
+	rm -rf target/redirectionio.h

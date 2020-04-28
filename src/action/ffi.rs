@@ -92,16 +92,16 @@ pub unsafe extern fn redirectionio_action_header_filter_filter(_action: *const A
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_body_filter_create(_action: *const Action, response_status_code: u16) -> Option<*mut FilterBodyAction> {
+pub unsafe extern fn redirectionio_action_body_filter_create(_action: *const Action, response_status_code: u16) -> *const FilterBodyAction {
     if _action.is_null() {
-        return None;
+        return null() as *const FilterBodyAction;
     }
 
     let action = &*_action;
 
     match action.create_filter_body(response_status_code) {
-        None => None,
-        Some(filter_body) => Some(Box::into_raw(Box::new(filter_body)))
+        None => null(),
+        Some(filter_body) => Box::into_raw(Box::new(filter_body))
     }
 }
 
