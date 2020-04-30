@@ -32,10 +32,18 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
 
     while !current.is_null() {
         let header = &*current;
+        let name = match c_char_to_str(header.name) {
+            None => continue,
+            Some(s) => s,
+        };
+        let value = match c_char_to_str(header.value) {
+            None => continue,
+            Some(s) => s,
+        };
 
         headers.push(Header {
-            name: c_char_to_str(header.name).unwrap().to_string(),
-            value: c_char_to_str(header.value).unwrap().to_string(),
+            name: name.to_string(),
+            value: value.to_string(),
         });
 
         current = header.next;
