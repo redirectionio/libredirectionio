@@ -60,7 +60,7 @@ pub unsafe extern fn redirectionio_request_json_deserialize(str: *mut c_char) ->
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_request_json_serialize(_request: *mut Request) -> *const c_char {
+pub unsafe extern fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
     if _request.is_null() {
         return null();
     }
@@ -90,4 +90,13 @@ pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _method: 
     }
 
     Box::into_raw(Box::new(request))
+}
+
+#[no_mangle]
+pub unsafe extern fn redirectionio_request_drop(_request: *mut Request) {
+    if _request.is_null() {
+        return;
+    }
+
+    Box::from_raw(_request);
 }
