@@ -67,6 +67,8 @@ struct Transformer {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleTest {
     uri: String,
+    host: Option<String>,
+    scheme: Option<String>,
     #[serde(rename = "match")]
     should_match: bool,
     location: Option<String>,

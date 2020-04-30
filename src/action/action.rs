@@ -12,7 +12,7 @@ pub struct Action {
     pub status_code_update: Option<StatusCodeUpdate>,
     header_filters: Vec<HeaderFilterAction>,
     body_filters: Vec<BodyFilterAction>,
-    rule_ids: Vec<String>,
+    pub rule_ids: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

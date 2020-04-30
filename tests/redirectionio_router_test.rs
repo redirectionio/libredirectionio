@@ -19,7 +19,8 @@ fn setup_00_common_rules() -> Router<Rule> {
 #[test]
 fn test_00_common_rules_1() {
     let router = setup_00_common_rules();
-    let request = Request::new(r#"/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -37,7 +38,8 @@ fn test_00_common_rules_1() {
 #[test]
 fn test_00_common_rules_2() {
     let router = setup_00_common_rules();
-    let request = Request::new(r#"/foo2"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo2"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -93,7 +95,8 @@ fn setup_01_straight_rule_match() -> Router<Rule> {
 #[test]
 fn test_01_straight_rule_match_1() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://example.org/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -111,7 +114,8 @@ fn test_01_straight_rule_match_1() {
 #[test]
 fn test_01_straight_rule_match_2() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://example.org/foo?bar=baz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?bar=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -129,7 +133,8 @@ fn test_01_straight_rule_match_2() {
 #[test]
 fn test_01_straight_rule_match_3() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/?q"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/?q"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -138,7 +143,8 @@ fn test_01_straight_rule_match_3() {
 #[test]
 fn test_01_straight_rule_match_4() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/?"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/?"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -156,7 +162,8 @@ fn test_01_straight_rule_match_4() {
 #[test]
 fn test_01_straight_rule_match_5() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://example.org?bar2=baz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"?bar2=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -165,7 +172,8 @@ fn test_01_straight_rule_match_5() {
 #[test]
 fn test_01_straight_rule_match_6() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://foobar.org/foo?bar=baz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?bar=baz"#.to_string(),Some(r#"foobar.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -183,7 +191,8 @@ fn test_01_straight_rule_match_6() {
 #[test]
 fn test_01_straight_rule_match_7() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://example.net/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -201,7 +210,8 @@ fn test_01_straight_rule_match_7() {
 #[test]
 fn test_01_straight_rule_match_8() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://example.net/foo?bar=baz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?bar=baz"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -219,7 +229,8 @@ fn test_01_straight_rule_match_8() {
 #[test]
 fn test_01_straight_rule_match_9() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://example.net/i%20have%20space"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/i%20have%20space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -237,7 +248,8 @@ fn test_01_straight_rule_match_9() {
 #[test]
 fn test_01_straight_rule_match_10() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://example.net/i have space"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/i have space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -255,7 +267,8 @@ fn test_01_straight_rule_match_10() {
 #[test]
 fn test_01_straight_rule_match_11() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"http://www.domain.nl/zwart+janstraat"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/zwart+janstraat"#.to_string(),Some(r#"www.domain.nl"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -299,7 +312,8 @@ fn setup_03_priority_match() -> Router<Rule> {
 #[test]
 fn test_03_priority_match_1() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"http://example.org/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -317,7 +331,8 @@ fn test_03_priority_match_1() {
 #[test]
 fn test_03_priority_match_2() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"http://example.com/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.com"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -335,7 +350,8 @@ fn test_03_priority_match_2() {
 #[test]
 fn test_03_priority_match_3() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"http://example.net/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -353,7 +369,8 @@ fn test_03_priority_match_3() {
 #[test]
 fn test_03_priority_match_4() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"http://example.fr/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.fr"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -388,7 +405,8 @@ fn setup_04_rfc3986_relative_references() -> Router<Rule> {
 #[test]
 fn test_04_rfc3986_relative_references_1() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"http://example.org//xyz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"//xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -406,7 +424,8 @@ fn test_04_rfc3986_relative_references_1() {
 #[test]
 fn test_04_rfc3986_relative_references_2() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"http://example.org/xyz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -415,7 +434,8 @@ fn test_04_rfc3986_relative_references_2() {
 #[test]
 fn test_04_rfc3986_relative_references_3() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"http://example.org/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -433,7 +453,8 @@ fn test_04_rfc3986_relative_references_3() {
 #[test]
 fn test_04_rfc3986_relative_references_4() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"http://yolo.com//doubledragon"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"//doubledragon"#.to_string(),Some(r#"yolo.com"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -465,7 +486,8 @@ fn setup_05_query_parameters_order() -> Router<Rule> {
 #[test]
 fn test_05_query_parameters_order_1() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?a=a&b=b"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?a=a&b=b"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -483,7 +505,8 @@ fn test_05_query_parameters_order_1() {
 #[test]
 fn test_05_query_parameters_order_2() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?b=b&a=a"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?b=b&a=a"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -501,7 +524,8 @@ fn test_05_query_parameters_order_2() {
 #[test]
 fn test_05_query_parameters_order_3() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?a=a&b=b&c=c"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?a=a&b=b&c=c"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -510,7 +534,8 @@ fn test_05_query_parameters_order_3() {
 #[test]
 fn test_05_query_parameters_order_4() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?b=b&c=c"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?b=b&c=c"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -528,7 +553,8 @@ fn test_05_query_parameters_order_4() {
 #[test]
 fn test_05_query_parameters_order_5() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?c=c&b=b"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo?c=c&b=b"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -557,7 +583,8 @@ fn setup_06_emojis() -> Router<Rule> {
 #[test]
 fn test_06_emojis_1() {
     let router = setup_06_emojis();
-    let request = Request::new(r#"http://example.org/🍕"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/🍕"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -586,7 +613,8 @@ fn setup_action_seo_override_meta_author() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_meta_author_1() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -604,7 +632,8 @@ fn test_action_seo_override_meta_author_1() {
 #[test]
 fn test_action_seo_override_meta_author_2() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -622,7 +651,8 @@ fn test_action_seo_override_meta_author_2() {
 #[test]
 fn test_action_seo_override_meta_author_3() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -640,7 +670,8 @@ fn test_action_seo_override_meta_author_3() {
 #[test]
 fn test_action_seo_override_meta_author_4() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -658,7 +689,8 @@ fn test_action_seo_override_meta_author_4() {
 #[test]
 fn test_action_seo_override_meta_author_5() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -676,7 +708,8 @@ fn test_action_seo_override_meta_author_5() {
 #[test]
 fn test_action_seo_override_meta_author_6() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -694,7 +727,8 @@ fn test_action_seo_override_meta_author_6() {
 #[test]
 fn test_action_seo_override_meta_author_7() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -712,7 +746,8 @@ fn test_action_seo_override_meta_author_7() {
 #[test]
 fn test_action_seo_override_meta_author_8() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -741,7 +776,8 @@ fn setup_action_seo_override_meta_description() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_meta_description_1() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -759,7 +795,8 @@ fn test_action_seo_override_meta_description_1() {
 #[test]
 fn test_action_seo_override_meta_description_2() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -777,7 +814,8 @@ fn test_action_seo_override_meta_description_2() {
 #[test]
 fn test_action_seo_override_meta_description_3() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -795,7 +833,8 @@ fn test_action_seo_override_meta_description_3() {
 #[test]
 fn test_action_seo_override_meta_description_4() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -813,7 +852,8 @@ fn test_action_seo_override_meta_description_4() {
 #[test]
 fn test_action_seo_override_meta_description_5() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -831,7 +871,8 @@ fn test_action_seo_override_meta_description_5() {
 #[test]
 fn test_action_seo_override_meta_description_6() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -860,7 +901,8 @@ fn setup_action_seo_override_meta_keywords() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_meta_keywords_1() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -878,7 +920,8 @@ fn test_action_seo_override_meta_keywords_1() {
 #[test]
 fn test_action_seo_override_meta_keywords_2() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -896,7 +939,8 @@ fn test_action_seo_override_meta_keywords_2() {
 #[test]
 fn test_action_seo_override_meta_keywords_3() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -914,7 +958,8 @@ fn test_action_seo_override_meta_keywords_3() {
 #[test]
 fn test_action_seo_override_meta_keywords_4() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -932,7 +977,8 @@ fn test_action_seo_override_meta_keywords_4() {
 #[test]
 fn test_action_seo_override_meta_keywords_5() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -950,7 +996,8 @@ fn test_action_seo_override_meta_keywords_5() {
 #[test]
 fn test_action_seo_override_meta_keywords_6() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -982,7 +1029,8 @@ fn setup_action_seo_override_og_description() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_description_1() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1000,7 +1048,8 @@ fn test_action_seo_override_og_description_1() {
 #[test]
 fn test_action_seo_override_og_description_2() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1018,7 +1067,8 @@ fn test_action_seo_override_og_description_2() {
 #[test]
 fn test_action_seo_override_og_description_3() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1036,7 +1086,8 @@ fn test_action_seo_override_og_description_3() {
 #[test]
 fn test_action_seo_override_og_description_4() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1054,7 +1105,8 @@ fn test_action_seo_override_og_description_4() {
 #[test]
 fn test_action_seo_override_og_description_5() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1072,7 +1124,8 @@ fn test_action_seo_override_og_description_5() {
 #[test]
 fn test_action_seo_override_og_description_6() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1090,7 +1143,8 @@ fn test_action_seo_override_og_description_6() {
 #[test]
 fn test_action_seo_override_og_description_7() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/pizza-rapido"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/pizza-rapido"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1119,7 +1173,8 @@ fn setup_action_seo_override_og_image() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_image_1() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1137,7 +1192,8 @@ fn test_action_seo_override_og_image_1() {
 #[test]
 fn test_action_seo_override_og_image_2() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1155,7 +1211,8 @@ fn test_action_seo_override_og_image_2() {
 #[test]
 fn test_action_seo_override_og_image_3() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1173,7 +1230,8 @@ fn test_action_seo_override_og_image_3() {
 #[test]
 fn test_action_seo_override_og_image_4() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1202,7 +1260,8 @@ fn setup_action_seo_override_og_locale() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_locale_1() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1220,7 +1279,8 @@ fn test_action_seo_override_og_locale_1() {
 #[test]
 fn test_action_seo_override_og_locale_2() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1238,7 +1298,8 @@ fn test_action_seo_override_og_locale_2() {
 #[test]
 fn test_action_seo_override_og_locale_3() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1256,7 +1317,8 @@ fn test_action_seo_override_og_locale_3() {
 #[test]
 fn test_action_seo_override_og_locale_4() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1285,7 +1347,8 @@ fn setup_action_seo_override_og_site_name() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_site_name_1() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1303,7 +1366,8 @@ fn test_action_seo_override_og_site_name_1() {
 #[test]
 fn test_action_seo_override_og_site_name_2() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1321,7 +1385,8 @@ fn test_action_seo_override_og_site_name_2() {
 #[test]
 fn test_action_seo_override_og_site_name_3() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1339,7 +1404,8 @@ fn test_action_seo_override_og_site_name_3() {
 #[test]
 fn test_action_seo_override_og_site_name_4() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1368,7 +1434,8 @@ fn setup_action_seo_override_og_title() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_title_1() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1386,7 +1453,8 @@ fn test_action_seo_override_og_title_1() {
 #[test]
 fn test_action_seo_override_og_title_2() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1404,7 +1472,8 @@ fn test_action_seo_override_og_title_2() {
 #[test]
 fn test_action_seo_override_og_title_3() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1422,7 +1491,8 @@ fn test_action_seo_override_og_title_3() {
 #[test]
 fn test_action_seo_override_og_title_4() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1451,7 +1521,8 @@ fn setup_action_seo_override_og_type() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_type_1() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1469,7 +1540,8 @@ fn test_action_seo_override_og_type_1() {
 #[test]
 fn test_action_seo_override_og_type_2() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1487,7 +1559,8 @@ fn test_action_seo_override_og_type_2() {
 #[test]
 fn test_action_seo_override_og_type_3() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1505,7 +1578,8 @@ fn test_action_seo_override_og_type_3() {
 #[test]
 fn test_action_seo_override_og_type_4() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1534,7 +1608,8 @@ fn setup_action_seo_override_og_url() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_url_1() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1552,7 +1627,8 @@ fn test_action_seo_override_og_url_1() {
 #[test]
 fn test_action_seo_override_og_url_2() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1570,7 +1646,8 @@ fn test_action_seo_override_og_url_2() {
 #[test]
 fn test_action_seo_override_og_url_3() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1588,7 +1665,8 @@ fn test_action_seo_override_og_url_3() {
 #[test]
 fn test_action_seo_override_og_url_4() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1617,7 +1695,8 @@ fn setup_action_seo_override_title() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_title_1() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1635,7 +1714,8 @@ fn test_action_seo_override_title_1() {
 #[test]
 fn test_action_seo_override_title_2() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1653,7 +1733,8 @@ fn test_action_seo_override_title_2() {
 #[test]
 fn test_action_seo_override_title_3() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1671,7 +1752,8 @@ fn test_action_seo_override_title_3() {
 #[test]
 fn test_action_seo_override_title_4() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/source"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1706,7 +1788,8 @@ fn setup_marker() -> Router<Rule> {
 #[test]
 fn test_marker_1() {
     let router = setup_marker();
-    let request = Request::new(r#"/foo/test"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo/test"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1724,7 +1807,8 @@ fn test_marker_1() {
 #[test]
 fn test_marker_2() {
     let router = setup_marker();
-    let request = Request::new(r#"/foo2"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo2"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -1733,7 +1817,8 @@ fn test_marker_2() {
 #[test]
 fn test_marker_3() {
     let router = setup_marker();
-    let request = Request::new(r#"/a/test"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/a/test"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1751,7 +1836,8 @@ fn test_marker_3() {
 #[test]
 fn test_marker_4() {
     let router = setup_marker();
-    let request = Request::new(r#"/a/test_test"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/a/test_test"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1769,7 +1855,8 @@ fn test_marker_4() {
 #[test]
 fn test_marker_5() {
     let router = setup_marker();
-    let request = Request::new(r#"/monthly-tides/North%20Carolina-North%20Shore/test"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/monthly-tides/North%20Carolina-North%20Shore/test"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1801,7 +1888,8 @@ fn setup_marker_in_querystring() -> Router<Rule> {
 #[test]
 fn test_marker_in_querystring_1() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/querystring/from?slug=coucou"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/querystring/from?slug=coucou"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1819,7 +1907,8 @@ fn test_marker_in_querystring_1() {
 #[test]
 fn test_marker_in_querystring_2() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/querystring/from?slug=2048"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/querystring/from?slug=2048"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -1828,7 +1917,8 @@ fn test_marker_in_querystring_2() {
 #[test]
 fn test_marker_in_querystring_3() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/querystring/from"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/querystring/from"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -1837,7 +1927,8 @@ fn test_marker_in_querystring_3() {
 #[test]
 fn test_marker_in_querystring_4() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/a?yolo=yala"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/a?yolo=yala"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1866,7 +1957,8 @@ fn setup_marker_transformation_camelize() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_camelize_1() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/helloPoney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/camelize/from/helloPoney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1884,7 +1976,8 @@ fn test_marker_transformation_camelize_1() {
 #[test]
 fn test_marker_transformation_camelize_2() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/Hello-poney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/camelize/from/Hello-poney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1902,7 +1995,8 @@ fn test_marker_transformation_camelize_2() {
 #[test]
 fn test_marker_transformation_camelize_3() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/HelloPoney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/camelize/from/HelloPoney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1920,7 +2014,8 @@ fn test_marker_transformation_camelize_3() {
 #[test]
 fn test_marker_transformation_camelize_4() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/hello-pOney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/camelize/from/hello-pOney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1949,7 +2044,8 @@ fn setup_marker_transformation_dasherize() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_dasherize_1() {
     let router = setup_marker_transformation_dasherize();
-    let request = Request::new(r#"/dasherize/from/HelloPoney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/dasherize/from/HelloPoney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1967,7 +2063,8 @@ fn test_marker_transformation_dasherize_1() {
 #[test]
 fn test_marker_transformation_dasherize_2() {
     let router = setup_marker_transformation_dasherize();
-    let request = Request::new(r#"/dasherize/from/helloPoney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/dasherize/from/helloPoney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -1985,7 +2082,8 @@ fn test_marker_transformation_dasherize_2() {
 #[test]
 fn test_marker_transformation_dasherize_3() {
     let router = setup_marker_transformation_dasherize();
-    let request = Request::new(r#"/dasherize/from/Hello-Poney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/dasherize/from/Hello-Poney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2014,7 +2112,8 @@ fn setup_marker_transformation_lowercase() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_lowercase_1() {
     let router = setup_marker_transformation_lowercase();
-    let request = Request::new(r#"/lowercase/from/HELLO-PONEY"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/lowercase/from/HELLO-PONEY"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2032,7 +2131,8 @@ fn test_marker_transformation_lowercase_1() {
 #[test]
 fn test_marker_transformation_lowercase_2() {
     let router = setup_marker_transformation_lowercase();
-    let request = Request::new(r#"/lowercase/from/HeLlO-PoNeY"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/lowercase/from/HeLlO-PoNeY"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2050,7 +2150,8 @@ fn test_marker_transformation_lowercase_2() {
 #[test]
 fn test_marker_transformation_lowercase_3() {
     let router = setup_marker_transformation_lowercase();
-    let request = Request::new(r#"/lowercase/from/hello-poney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/lowercase/from/hello-poney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2079,7 +2180,8 @@ fn setup_marker_transformation_replace() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_replace_1() {
     let router = setup_marker_transformation_replace();
-    let request = Request::new(r#"/replace/from/poney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/replace/from/poney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2088,7 +2190,8 @@ fn test_marker_transformation_replace_1() {
 #[test]
 fn test_marker_transformation_replace_2() {
     let router = setup_marker_transformation_replace();
-    let request = Request::new(r#"/replace/from/cat"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/replace/from/cat"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2106,7 +2209,8 @@ fn test_marker_transformation_replace_2() {
 #[test]
 fn test_marker_transformation_replace_3() {
     let router = setup_marker_transformation_replace();
-    let request = Request::new(r#"/replace/from/dog"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/replace/from/dog"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2138,7 +2242,8 @@ fn setup_marker_transformation_slice() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_slice_1() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2156,7 +2261,8 @@ fn test_marker_transformation_slice_1() {
 #[test]
 fn test_marker_transformation_slice_2() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice/from/ABCD"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/slice/from/ABCD"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2174,7 +2280,8 @@ fn test_marker_transformation_slice_2() {
 #[test]
 fn test_marker_transformation_slice_3() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2192,7 +2299,8 @@ fn test_marker_transformation_slice_3() {
 #[test]
 fn test_marker_transformation_slice_4() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice-middle/from/ABCDEFGHIJ"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/slice-middle/from/ABCDEFGHIJ"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2210,7 +2318,8 @@ fn test_marker_transformation_slice_4() {
 #[test]
 fn test_marker_transformation_slice_5() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice-middle/from/ABCD"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/slice-middle/from/ABCD"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2239,7 +2348,8 @@ fn setup_marker_transformation_underscorize() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_underscorize_1() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/hello_poney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/underscorize/from/hello_poney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2257,7 +2367,8 @@ fn test_marker_transformation_underscorize_1() {
 #[test]
 fn test_marker_transformation_underscorize_2() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/hello-poney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/underscorize/from/hello-poney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2275,7 +2386,8 @@ fn test_marker_transformation_underscorize_2() {
 #[test]
 fn test_marker_transformation_underscorize_3() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/HelloPoney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/underscorize/from/HelloPoney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2293,7 +2405,8 @@ fn test_marker_transformation_underscorize_3() {
 #[test]
 fn test_marker_transformation_underscorize_4() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/helloPoney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/underscorize/from/helloPoney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2322,7 +2435,8 @@ fn setup_marker_transformation_uppercase() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_uppercase_1() {
     let router = setup_marker_transformation_uppercase();
-    let request = Request::new(r#"/uppercase/from/HELLO-PONEY"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/uppercase/from/HELLO-PONEY"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2340,7 +2454,8 @@ fn test_marker_transformation_uppercase_1() {
 #[test]
 fn test_marker_transformation_uppercase_2() {
     let router = setup_marker_transformation_uppercase();
-    let request = Request::new(r#"/uppercase/from/HeLlO-PoNeY"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/uppercase/from/HeLlO-PoNeY"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2358,7 +2473,8 @@ fn test_marker_transformation_uppercase_2() {
 #[test]
 fn test_marker_transformation_uppercase_3() {
     let router = setup_marker_transformation_uppercase();
-    let request = Request::new(r#"/uppercase/from/hello-poney"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/uppercase/from/hello-poney"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2387,7 +2503,8 @@ fn setup_marker_type_anything() -> Router<Rule> {
 #[test]
 fn test_marker_type_anything_1() {
     let router = setup_marker_type_anything();
-    let request = Request::new(r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2405,7 +2522,8 @@ fn test_marker_type_anything_1() {
 #[test]
 fn test_marker_type_anything_2() {
     let router = setup_marker_type_anything();
-    let request = Request::new(r#"/anything/from/HELLO"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/anything/from/HELLO"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2423,7 +2541,8 @@ fn test_marker_type_anything_2() {
 #[test]
 fn test_marker_type_anything_3() {
     let router = setup_marker_type_anything();
-    let request = Request::new(r#"/anything/from/🤘"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/anything/from/🤘"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2452,7 +2571,8 @@ fn setup_marker_type_date() -> Router<Rule> {
 #[test]
 fn test_marker_type_date_1() {
     let router = setup_marker_type_date();
-    let request = Request::new(r#"/date/from/2018-11-23"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/date/from/2018-11-23"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2470,7 +2590,8 @@ fn test_marker_type_date_1() {
 #[test]
 fn test_marker_type_date_2() {
     let router = setup_marker_type_date();
-    let request = Request::new(r#"/date/from/2018-23-11"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/date/from/2018-23-11"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2479,7 +2600,8 @@ fn test_marker_type_date_2() {
 #[test]
 fn test_marker_type_date_3() {
     let router = setup_marker_type_date();
-    let request = Request::new(r#"/date/from/some-13-01"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/date/from/some-13-01"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2502,7 +2624,8 @@ fn setup_marker_type_datetime() -> Router<Rule> {
 #[test]
 fn test_marker_type_datetime_1() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime/from/2018-07-15T14:59:12Z"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/datetime/from/2018-07-15T14:59:12Z"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2520,7 +2643,8 @@ fn test_marker_type_datetime_1() {
 #[test]
 fn test_marker_type_datetime_2() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime/from/2018-07-15T14:59:12+02:00"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/datetime/from/2018-07-15T14:59:12+02:00"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2538,7 +2662,8 @@ fn test_marker_type_datetime_2() {
 #[test]
 fn test_marker_type_datetime_3() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime/from/2018-07-15 14:59:12Z"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/datetime/from/2018-07-15 14:59:12Z"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2547,7 +2672,8 @@ fn test_marker_type_datetime_3() {
 #[test]
 fn test_marker_type_datetime_4() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime-transform/from/2018-07-15T14:59:12Z"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/datetime-transform/from/2018-07-15T14:59:12Z"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2576,7 +2702,8 @@ fn setup_marker_type_enum() -> Router<Rule> {
 #[test]
 fn test_marker_type_enum_1() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/cat"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/enum/from/cat"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2594,7 +2721,8 @@ fn test_marker_type_enum_1() {
 #[test]
 fn test_marker_type_enum_2() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/cats-eyes"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/enum/from/cats-eyes"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2603,7 +2731,8 @@ fn test_marker_type_enum_2() {
 #[test]
 fn test_marker_type_enum_3() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/dog"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/enum/from/dog"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2621,7 +2750,8 @@ fn test_marker_type_enum_3() {
 #[test]
 fn test_marker_type_enum_4() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/dogville"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/enum/from/dogville"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2650,7 +2780,8 @@ fn setup_marker_type_integer() -> Router<Rule> {
 #[test]
 fn test_marker_type_integer_1() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer/from/2778"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer/from/2778"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2668,7 +2799,8 @@ fn test_marker_type_integer_1() {
 #[test]
 fn test_marker_type_integer_2() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer/from/42l33t"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer/from/42l33t"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2677,7 +2809,8 @@ fn test_marker_type_integer_2() {
 #[test]
 fn test_marker_type_integer_3() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer/from/42-l33t"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer/from/42-l33t"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2686,7 +2819,8 @@ fn test_marker_type_integer_3() {
 #[test]
 fn test_marker_type_integer_4() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min/from/112"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer-min/from/112"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2704,7 +2838,8 @@ fn test_marker_type_integer_4() {
 #[test]
 fn test_marker_type_integer_5() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min/from/11"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer-min/from/11"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2713,7 +2848,8 @@ fn test_marker_type_integer_5() {
 #[test]
 fn test_marker_type_integer_6() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-max/from/11"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer-max/from/11"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2731,7 +2867,8 @@ fn test_marker_type_integer_6() {
 #[test]
 fn test_marker_type_integer_7() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-max/from/112"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer-max/from/112"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2740,7 +2877,8 @@ fn test_marker_type_integer_7() {
 #[test]
 fn test_marker_type_integer_8() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min-max/from/806"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer-min-max/from/806"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2758,7 +2896,8 @@ fn test_marker_type_integer_8() {
 #[test]
 fn test_marker_type_integer_9() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min-max/from/33"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer-min-max/from/33"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2767,7 +2906,8 @@ fn test_marker_type_integer_9() {
 #[test]
 fn test_marker_type_integer_10() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min-max/from/2048"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/integer-min-max/from/2048"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2829,7 +2969,8 @@ fn setup_marker_type_string() -> Router<Rule> {
 #[test]
 fn test_marker_type_string_1() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string/from/coucou"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string/from/coucou"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2838,7 +2979,8 @@ fn test_marker_type_string_1() {
 #[test]
 fn test_marker_type_string_2() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/coucou"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase/from/coucou"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2856,7 +2998,8 @@ fn test_marker_type_string_2() {
 #[test]
 fn test_marker_type_string_3() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/COUCOU"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase/from/COUCOU"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2865,7 +3008,8 @@ fn test_marker_type_string_3() {
 #[test]
 fn test_marker_type_string_4() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/some-string"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase/from/some-string"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2874,7 +3018,8 @@ fn test_marker_type_string_4() {
 #[test]
 fn test_marker_type_string_5() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/l33t"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase/from/l33t"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2883,7 +3028,8 @@ fn test_marker_type_string_5() {
 #[test]
 fn test_marker_type_string_6() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/COUCOU"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-uppercase/from/COUCOU"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2901,7 +3047,8 @@ fn test_marker_type_string_6() {
 #[test]
 fn test_marker_type_string_7() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/coucou"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-uppercase/from/coucou"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2910,7 +3057,8 @@ fn test_marker_type_string_7() {
 #[test]
 fn test_marker_type_string_8() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/SOME-STRING"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-uppercase/from/SOME-STRING"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2919,7 +3067,8 @@ fn test_marker_type_string_8() {
 #[test]
 fn test_marker_type_string_9() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/L33T"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-uppercase/from/L33T"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2928,7 +3077,8 @@ fn test_marker_type_string_9() {
 #[test]
 fn test_marker_type_string_10() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/coucou"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/coucou"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2946,7 +3096,8 @@ fn test_marker_type_string_10() {
 #[test]
 fn test_marker_type_string_11() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/COUCOU"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/COUCOU"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2964,7 +3115,8 @@ fn test_marker_type_string_11() {
 #[test]
 fn test_marker_type_string_12() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -2973,7 +3125,8 @@ fn test_marker_type_string_12() {
 #[test]
 fn test_marker_type_string_13() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/l33t"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/l33t"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -2991,7 +3144,8 @@ fn test_marker_type_string_13() {
 #[test]
 fn test_marker_type_string_14() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/L33T"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/L33T"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3009,7 +3163,8 @@ fn test_marker_type_string_14() {
 #[test]
 fn test_marker_type_string_15() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters/from/-"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-specificCharacters/from/-"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3027,7 +3182,8 @@ fn test_marker_type_string_15() {
 #[test]
 fn test_marker_type_string_16() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters/from/-_.+_-/._-_."#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-specificCharacters/from/-_.+_-/._-_."#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3045,7 +3201,8 @@ fn test_marker_type_string_16() {
 #[test]
 fn test_marker_type_string_17() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters-other/from/z-a-z-a-zz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-specificCharacters-other/from/z-a-z-a-zz"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3063,7 +3220,8 @@ fn test_marker_type_string_17() {
 #[test]
 fn test_marker_type_string_18() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters-other/from/azerty"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-specificCharacters-other/from/azerty"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3072,7 +3230,8 @@ fn test_marker_type_string_18() {
 #[test]
 fn test_marker_type_string_19() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3090,7 +3249,8 @@ fn test_marker_type_string_19() {
 #[test]
 fn test_marker_type_string_20() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting/from/JOHN-SNOW-knows-nothing"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-starting/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3108,7 +3268,8 @@ fn test_marker_type_string_20() {
 #[test]
 fn test_marker_type_string_21() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3117,7 +3278,8 @@ fn test_marker_type_string_21() {
 #[test]
 fn test_marker_type_string_22() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting-shit/from/COUCOU-you-know-nothing"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-starting-shit/from/COUCOU-you-know-nothing"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3126,7 +3288,8 @@ fn test_marker_type_string_22() {
 #[test]
 fn test_marker_type_string_23() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3144,7 +3307,8 @@ fn test_marker_type_string_23() {
 #[test]
 fn test_marker_type_string_24() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-ending/from/JOHN-SNOW-knows-nothing"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-ending/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3153,7 +3317,8 @@ fn test_marker_type_string_24() {
 #[test]
 fn test_marker_type_string_25() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3171,7 +3336,8 @@ fn test_marker_type_string_25() {
 #[test]
 fn test_marker_type_string_26() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3180,7 +3346,8 @@ fn test_marker_type_string_26() {
 #[test]
 fn test_marker_type_string_27() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3198,7 +3365,8 @@ fn test_marker_type_string_27() {
 #[test]
 fn test_marker_type_string_28() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%3A"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%3A"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3216,7 +3384,8 @@ fn test_marker_type_string_28() {
 #[test]
 fn test_marker_type_string_29() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%2B"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%2B"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3234,7 +3403,8 @@ fn test_marker_type_string_29() {
 #[test]
 fn test_marker_type_string_30() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%26"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%26"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3252,7 +3422,8 @@ fn test_marker_type_string_30() {
 #[test]
 fn test_marker_type_string_31() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3261,7 +3432,8 @@ fn test_marker_type_string_31() {
 #[test]
 fn test_marker_type_string_32() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/+:&"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowPercentEncodedChars/from/+:&"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3270,7 +3442,8 @@ fn test_marker_type_string_32() {
 #[test]
 fn test_marker_type_string_33() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3288,7 +3461,8 @@ fn test_marker_type_string_33() {
 #[test]
 fn test_marker_type_string_34() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3297,7 +3471,8 @@ fn test_marker_type_string_34() {
 #[test]
 fn test_marker_type_string_35() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3315,7 +3490,8 @@ fn test_marker_type_string_35() {
 #[test]
 fn test_marker_type_string_36() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3333,7 +3509,8 @@ fn test_marker_type_string_36() {
 #[test]
 fn test_marker_type_string_37() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-containing/from/L33T"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-containing/from/L33T"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3351,7 +3528,8 @@ fn test_marker_type_string_37() {
 #[test]
 fn test_marker_type_string_38() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-containing/from/L33TL33T"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-containing/from/L33TL33T"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3369,7 +3547,8 @@ fn test_marker_type_string_38() {
 #[test]
 fn test_marker_type_string_39() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-containing/from/42-L33T-42"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-containing/from/42-L33T-42"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3378,7 +3557,8 @@ fn test_marker_type_string_39() {
 #[test]
 fn test_marker_type_string_40() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3396,7 +3576,8 @@ fn test_marker_type_string_40() {
 #[test]
 fn test_marker_type_string_41() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3414,7 +3595,8 @@ fn test_marker_type_string_41() {
 #[test]
 fn test_marker_type_string_42() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3423,7 +3605,8 @@ fn test_marker_type_string_42() {
 #[test]
 fn test_marker_type_string_43() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3432,7 +3615,8 @@ fn test_marker_type_string_43() {
 #[test]
 fn test_marker_type_string_44() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3452,7 +3636,8 @@ fn setup_marker_type_uuid() -> Router<Rule> {
 #[test]
 fn test_marker_type_uuid_1() {
     let router = setup_marker_type_uuid();
-    let request = Request::new(r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3470,7 +3655,8 @@ fn test_marker_type_uuid_1() {
 #[test]
 fn test_marker_type_uuid_2() {
     let router = setup_marker_type_uuid();
-    let request = Request::new(r#"/uuid/from/HELLO"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/uuid/from/HELLO"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3479,7 +3665,8 @@ fn test_marker_type_uuid_2() {
 #[test]
 fn test_marker_type_uuid_3() {
     let router = setup_marker_type_uuid();
-    let request = Request::new(r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), false);
@@ -3499,7 +3686,8 @@ fn setup_rule_query_with_plus() -> Router<Rule> {
 #[test]
 fn test_rule_query_with_plus_1() {
     let router = setup_rule_query_with_plus();
-    let request = Request::new(r#"http://example.org/query-plus?foo=bar+baz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/query-plus?foo=bar+baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3517,7 +3705,8 @@ fn test_rule_query_with_plus_1() {
 #[test]
 fn test_rule_query_with_plus_2() {
     let router = setup_rule_query_with_plus();
-    let request = Request::new(r#"http://example.org/query-plus?foo=bar baz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/query-plus?foo=bar baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3535,7 +3724,8 @@ fn test_rule_query_with_plus_2() {
 #[test]
 fn test_rule_query_with_plus_3() {
     let router = setup_rule_query_with_plus();
-    let request = Request::new(r#"http://example.org/query-plus?foo=bar%20baz"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/query-plus?foo=bar%20baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3564,7 +3754,8 @@ fn setup_rule_querystring() -> Router<Rule> {
 #[test]
 fn test_rule_querystring_1() {
     let router = setup_rule_querystring();
-    let request = Request::new(r#"http://example.org/host-path-query?foo&bar=yolo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/host-path-query?foo&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3582,7 +3773,8 @@ fn test_rule_querystring_1() {
 #[test]
 fn test_rule_querystring_2() {
     let router = setup_rule_querystring();
-    let request = Request::new(r#"http://example.org/host-path-query?foo=&bar=yolo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/host-path-query?foo=&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3611,7 +3803,8 @@ fn setup_rule_with_quotes() -> Router<Rule> {
 #[test]
 fn test_rule_with_quotes_1() {
     let router = setup_rule_with_quotes();
-    let request = Request::new(r#"http://example.org/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3643,7 +3836,8 @@ fn setup_rule_with_slash() -> Router<Rule> {
 #[test]
 fn test_rule_with_slash_1() {
     let router = setup_rule_with_slash();
-    let request = Request::new(r#"/foo"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);
@@ -3661,7 +3855,8 @@ fn test_rule_with_slash_1() {
 #[test]
 fn test_rule_with_slash_2() {
     let router = setup_rule_with_slash();
-    let request = Request::new(r#"/foo/"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"/foo/"#.to_string(),None,None,
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), true);

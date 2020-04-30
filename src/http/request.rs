@@ -6,15 +6,19 @@ const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Request {
-    url: String,
-    method: Option<String>,
-    headers: Vec<Header>,
+    pub path_and_query: String,
+    pub host: Option<String>,
+    pub scheme: Option<String>,
+    pub method: Option<String>,
+    pub headers: Vec<Header>,
 }
 
 impl Request {
-    pub fn new(url: String, method: Option<String>) -> Request {
+    pub fn new(path_and_query: String, host: Option<String>, scheme: Option<String>, method: Option<String>) -> Request {
         Request {
-            url,
+            path_and_query,
+            host,
+            scheme,
             method,
             headers: Vec::new(),
         }
@@ -28,20 +32,31 @@ impl Request {
     }
 
     pub fn to_http_request(&self) -> http::Result<http::Request<()>> {
-        let mut builder = http::Request::<()>::builder();
+        let mut request_builder = http::Request::<()>::builder();
+        let mut uri_builder = http::Uri::builder();
 
-        let url = utf8_percent_encode(self.url.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
+        let url = utf8_percent_encode(self.path_and_query.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
 
-        builder = builder.uri(url.as_str());
+        uri_builder = uri_builder.path_and_query(url.as_str());
+
+        if let Some(host) = self.host.as_ref() {
+            uri_builder = uri_builder.authority(host.as_str());
+        }
+
+        if let Some(scheme) = self.scheme.as_ref() {
+            uri_builder = uri_builder.scheme(scheme.as_str());
+        }
+
+        request_builder = request_builder.uri(uri_builder.build()?);
 
         if let Some(method) = self.method.as_ref() {
-            builder = builder.method(method.as_str());
+            request_builder = request_builder.method(method.as_str());
         }
 
         for header in &self.headers {
-            builder = builder.header(header.name.as_str(), header.value.clone());
+            request_builder = request_builder.header(header.name.as_str(), header.value.clone());
         }
 
-        builder.body(())
+        request_builder.body(())
     }
 }

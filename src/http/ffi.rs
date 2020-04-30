@@ -75,14 +75,22 @@ pub unsafe extern fn redirectionio_request_json_serialize(_request: *const Reque
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _method: *const c_char, header_map: *const HeaderMap) -> *const Request {
+pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _host: *const c_char, _scheme: *const c_char, _method: *const c_char, header_map: *const HeaderMap) -> *const Request {
     let uri = c_char_to_str(_uri).unwrap_or("/");
+    let host = match c_char_to_str(_host) {
+        None => None,
+        Some(str) => Some(str.to_string()),
+    };
+    let scheme = match c_char_to_str(_scheme) {
+        None => None,
+        Some(str) => Some(str.to_string()),
+    };
     let method = match c_char_to_str(_method) {
         None => None,
         Some(str) => Some(str.to_string()),
     };
 
-    let mut request = Request::new(uri.to_string(), method);
+    let mut request = Request::new(uri.to_string(), host, scheme, method);
     let headers = header_map_to_http_headers(header_map);
 
     for header in headers {

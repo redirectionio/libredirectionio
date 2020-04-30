@@ -19,7 +19,10 @@ fn setup_{{ name }}() -> Router<Rule> {
 #[test]
 fn test_{{ name }}_{{ loop.index }}() {
     let router = setup_{{ name }}();
-    let request = Request::new(r#"{{ test.uri }}"#.to_string(), None).to_http_request();
+    let request = Request::new(r#"{{ test.uri }}"#.to_string(),
+    {%- if test.host -%}Some(r#"{{ test.host }}"#.to_string()){% else %}None{%- endif -%},
+    {%- if test.scheme -%}Some(r#"{{ test.scheme }}"#.to_string()){% else %}None{%- endif -%},
+    None).to_http_request().expect("");
     let matched = router.match_request(&request);
 
     assert_eq!(!matched.is_empty(), {{ test.match }});

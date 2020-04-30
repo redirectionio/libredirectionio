@@ -6,6 +6,7 @@ mod transformer;
 mod header_filter;
 mod body_filter;
 mod rules_message;
+mod log;
 mod ffi;
 
 pub use rule::Rule;
