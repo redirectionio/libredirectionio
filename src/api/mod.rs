@@ -17,3 +17,4 @@ pub use transformer::Transformer;
 pub use header_filter::HeaderFilter;
 pub use body_filter::BodyFilter;
 pub use rules_message::RulesMessage;
+pub use self::log::Log;

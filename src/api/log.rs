@@ -3,10 +3,10 @@ use crate::http::{Request, Header};
 use crate::action::Action;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-struct Log {
+pub struct Log {
     code: u16,
     to: Option<String>,
-    time: i64,
+    time: u64,
     proxy: String,
     from: FromLog,
 }
@@ -23,7 +23,7 @@ struct FromLog {
 }
 
 impl Log {
-    pub fn from_proxy(request: &Request, code: u16, response_headers: Vec<Header>, action: &Action, proxy: String, time: i64) -> Log {
+    pub fn from_proxy(request: &Request, code: u16, response_headers: Vec<Header>, action: &Action, proxy: &str, time: u64) -> Log {
         let mut location = None;
         let mut user_agent = None;
         let mut referer = None;
@@ -60,7 +60,7 @@ impl Log {
         Log {
             code,
             from,
-            proxy,
+            proxy: proxy.to_string(),
             time,
             to: location,
         }
