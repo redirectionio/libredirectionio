@@ -1,11 +1,11 @@
-use serde::{Deserialize, Serialize};
-use crate::api::{HeaderFilter, BodyFilter, Rule};
-use crate::router::{Route, StaticOrDynamic};
-use crate::router::request_matcher::PathAndQueryMatcher;
 use crate::action::StatusCodeUpdate;
-use crate::filter::{FilterHeaderAction, FilterBodyAction};
+use crate::api::{BodyFilter, HeaderFilter, Rule};
+use crate::filter::{FilterBodyAction, FilterHeaderAction};
 use crate::http::Header;
+use crate::router::request_matcher::PathAndQueryMatcher;
+use crate::router::{Route, StaticOrDynamic};
 use http::Request;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
@@ -41,13 +41,11 @@ impl Action {
         let rule = route.handler();
         let status_code_update = match rule.redirect_code.unwrap_or(0) {
             0 => None,
-            redirect_code => {
-                Some(StatusCodeUpdate {
-                    status_code: redirect_code,
-                    on_response_status_code: rule.match_on_response_status.unwrap_or(0),
-                    fallback_status_code: 0,
-                })
-            }
+            redirect_code => Some(StatusCodeUpdate {
+                status_code: redirect_code,
+                on_response_status_code: rule.match_on_response_status.unwrap_or(0),
+                fallback_status_code: 0,
+            }),
         };
 
         let mut header_filters = Vec::new();
@@ -57,22 +55,29 @@ impl Action {
             if !target.is_empty() {
                 let path = PathAndQueryMatcher::<Rule>::request_to_path(request);
                 let parameters = route.path_and_query().capture(path.as_str());
-                let value = StaticOrDynamic::replace(target.clone(), parameters, rule.transformers());
+                let value =
+                    StaticOrDynamic::replace(target.clone(), parameters, rule.transformers());
 
-                header_filters.push(HeaderFilterAction{
+                header_filters.push(HeaderFilterAction {
                     filter: HeaderFilter {
                         action: "override".to_string(),
                         value,
                         header: "Location".to_string(),
                     },
-                    on_response_status_code: rule.match_on_response_status.unwrap_or(0),
+                    on_response_status_code: match rule.match_on_response_status {
+                        None => 0,
+                        Some(on_response) => match rule.redirect_code {
+                            None => on_response,
+                            Some(redirect_code) => redirect_code,
+                        },
+                    },
                 })
             }
         }
 
         if let Some(rule_header_filters) = rule.header_filters.as_ref() {
             for filter in rule_header_filters {
-                header_filters.push(HeaderFilterAction{
+                header_filters.push(HeaderFilterAction {
                     filter: filter.clone(),
                     on_response_status_code: rule.match_on_response_status.unwrap_or(0),
                 });
@@ -81,7 +86,7 @@ impl Action {
 
         if let Some(rule_body_filters) = rule.body_filters.as_ref() {
             for filter in rule_body_filters {
-                body_filters.push(BodyFilterAction{
+                body_filters.push(BodyFilterAction {
                     filter: filter.clone(),
                     on_response_status_code: rule.match_on_response_status.unwrap_or(0),
                 });
@@ -102,7 +107,9 @@ impl Action {
             Some(new_status_code_update) => match &self.status_code_update {
                 None => Some(new_status_code_update),
                 Some(old_status_code_update) => {
-                    if old_status_code_update.on_response_status_code != 0 || new_status_code_update.on_response_status_code == 0 {
+                    if old_status_code_update.on_response_status_code != 0
+                        || new_status_code_update.on_response_status_code == 0
+                    {
                         Some(new_status_code_update)
                     } else {
                         Some(StatusCodeUpdate {
@@ -112,7 +119,7 @@ impl Action {
                         })
                     }
                 }
-            }
+            },
         };
 
         for filter in other.header_filters {
@@ -144,9 +151,7 @@ impl Action {
     pub fn get_status_code(&self, response_status_code: u16) -> u16 {
         match self.status_code_update.as_ref() {
             None => 0,
-            Some(status_code_update) => {
-                status_code_update.get_status_code(response_status_code)
-            }
+            Some(status_code_update) => status_code_update.get_status_code(response_status_code),
         }
     }
 
@@ -154,7 +159,9 @@ impl Action {
         let mut filters = Vec::new();
 
         for filter in &self.header_filters {
-            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
+            if filter.on_response_status_code != 0
+                && filter.on_response_status_code != response_status_code
+            {
                 continue;
             }
 
@@ -163,9 +170,7 @@ impl Action {
 
         match FilterHeaderAction::new(filters) {
             None => Vec::new(),
-            Some(filter_action) => {
-                filter_action.filter(headers)
-            }
+            Some(filter_action) => filter_action.filter(headers),
         }
     }
 
@@ -173,7 +178,9 @@ impl Action {
         let mut filters = Vec::new();
 
         for filter in &self.body_filters {
-            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
+            if filter.on_response_status_code != 0
+                && filter.on_response_status_code != response_status_code
+            {
                 continue;
             }
 
