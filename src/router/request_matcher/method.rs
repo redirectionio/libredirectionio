@@ -109,7 +109,7 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.any_method.cache(limit, level);
 
-        for (_, matcher) in &mut self.methods {
+        for matcher in self.methods.values_mut() {
             new_limit = matcher.cache(new_limit, level);
         }
 
@@ -120,21 +120,27 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         self.count
     }
 
+    fn is_empty(&self) -> bool {
+        self.count == 0
+    }
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
         Box::new((*self).clone())
     }
 }
 
-impl<T> MethodMatcher<T> where T: RouteData {
-    pub fn new() -> MethodMatcher<T> {
+impl<T: RouteData> Default for MethodMatcher<T> {
+    fn default() -> Self {
         MethodMatcher {
             methods: HashMap::new(),
             any_method: MethodMatcher::create_sub_matcher(),
             count: 0,
         }
     }
+}
 
+impl<T> MethodMatcher<T> where T: RouteData {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(HeaderMatcher::new())
+        Box::new(HeaderMatcher::default())
     }
 }

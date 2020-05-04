@@ -15,7 +15,7 @@ pub unsafe fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
                 error,
             );
 
-            return None;
+            None
         },
         Ok(string) => Some(string),
     }

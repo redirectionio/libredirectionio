@@ -22,6 +22,9 @@ pub trait Node<T: Item>: Debug + Send + Sync {
     /// Length of node
     fn len(&self) -> usize;
 
+    /// Is node empty
+    fn is_empty(&self) -> bool;
+
     fn can_insert_item(&self, prefix: &str, item: &T) -> bool;
 
     /// Incr level of node by one

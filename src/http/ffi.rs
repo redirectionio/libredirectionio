@@ -12,6 +12,7 @@ pub struct HeaderMap {
     next: *mut HeaderMap,
 }
 
+/// # Safety
 pub unsafe fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
     let mut current: *const HeaderMap = null() as *const HeaderMap;
 
@@ -26,6 +27,7 @@ pub unsafe fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderM
     current
 }
 
+/// # Safety
 pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<Header> {
     let mut headers = Vec::new();
     let mut current = header_map;
@@ -53,6 +55,7 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
 }
 
 #[no_mangle]
+/// # Safety
 pub unsafe extern fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
     let request_str = match c_char_to_str(str) {
         None => return null() as *const Request,
@@ -68,6 +71,7 @@ pub unsafe extern fn redirectionio_request_json_deserialize(str: *mut c_char) ->
 }
 
 #[no_mangle]
+/// # Safety
 pub unsafe extern fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
     if _request.is_null() {
         return null();
@@ -83,6 +87,7 @@ pub unsafe extern fn redirectionio_request_json_serialize(_request: *const Reque
 }
 
 #[no_mangle]
+/// # Safety
 pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _host: *const c_char, _scheme: *const c_char, _method: *const c_char, header_map: *const HeaderMap) -> *const Request {
     let uri = c_char_to_str(_uri).unwrap_or("/");
     let host = match c_char_to_str(_host) {
@@ -109,6 +114,7 @@ pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _host: *c
 }
 
 #[no_mangle]
+/// # Safety
 pub unsafe extern fn redirectionio_request_drop(_request: *mut Request) {
     if _request.is_null() {
         return;

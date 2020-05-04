@@ -40,7 +40,7 @@ impl<T: RouteData> Trace<T> {
         }
     }
 
-    pub fn get_routes_from_traces(traces: &Vec<Trace<T>>) -> Vec<&Route<T>> {
+    pub fn get_routes_from_traces(traces: &[Trace<T>]) -> Vec<&Route<T>> {
         let mut routes = Vec::new();
 
         for trace in traces {

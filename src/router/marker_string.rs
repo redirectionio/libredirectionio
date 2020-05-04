@@ -37,7 +37,7 @@ impl Marker {
 
 impl StaticOrDynamic {
     pub fn new_with_markers(str: &str, mut markers: Vec<Marker>) -> StaticOrDynamic {
-        if markers.len() == 0 {
+        if markers.is_empty() {
             return StaticOrDynamic::Static(str.to_string());
         }
 
@@ -101,20 +101,18 @@ impl StaticOrDynamic {
         }
     }
 
-    pub fn replace(str: String, parameters: HashMap<String, String>, transformers: Vec<Transformer>) -> String {
-        let mut replaced = str.clone();
-
+    pub fn replace(mut str: String, parameters: HashMap<String, String>, transformers: Vec<Transformer>) -> String {
         for transformer in transformers {
             let has_value = parameters.get(transformer.marker.as_str());
 
             match has_value {
                 None => (),
                 Some(value) => {
-                    replaced = transformer.transform(replaced, value.as_str());
+                    str = transformer.transform(str, value.as_str());
                 }
             }
         }
 
-        replaced
+        str
     }
 }

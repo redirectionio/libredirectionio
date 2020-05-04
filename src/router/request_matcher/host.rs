@@ -122,7 +122,7 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = limit;
 
-        for (_, matcher) in &mut self.hosts {
+        for matcher in self.hosts.values_mut() {
             new_limit = matcher.cache(new_limit, level);
         }
 
@@ -133,21 +133,27 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         self.count
     }
 
+    fn is_empty(&self) -> bool {
+        self.count == 0
+    }
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
         Box::new((*self).clone())
     }
 }
 
-impl<T> HostMatcher<T> where T: RouteData {
-    pub fn new() -> HostMatcher<T> {
+impl<T: RouteData> Default for HostMatcher<T> {
+    fn default() -> Self {
         HostMatcher {
             hosts: HashMap::new(),
             any_host: HostMatcher::create_sub_matcher(),
             count: 0,
         }
     }
+}
 
+impl<T> HostMatcher<T> where T: RouteData {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(MethodMatcher::new())
+        Box::new(MethodMatcher::default())
     }
 }

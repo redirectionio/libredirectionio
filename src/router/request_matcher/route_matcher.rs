@@ -7,7 +7,7 @@ pub struct RouteMatcher<T> where T: RouteData {
     routes: Vec<Route<T>>,
 }
 
-impl<T> RequestMatcher<T> for RouteMatcher<T> where T: RouteData {
+impl<T: RouteData> RequestMatcher<T> for RouteMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.routes.push(route)
     }
@@ -56,13 +56,17 @@ impl<T> RequestMatcher<T> for RouteMatcher<T> where T: RouteData {
         self.routes.len()
     }
 
+    fn is_empty(&self) -> bool {
+        self.routes.is_empty()
+    }
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
         Box::new((*self).clone())
     }
 }
 
-impl<T> RouteMatcher<T> where T: RouteData {
-    pub fn new() -> RouteMatcher<T> {
+impl<T: RouteData> Default for RouteMatcher<T> {
+    fn default() -> RouteMatcher<T> {
         RouteMatcher {
             routes: Vec::new(),
         }

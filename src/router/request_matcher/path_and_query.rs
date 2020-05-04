@@ -103,7 +103,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.regex_tree_rule.cache(limit, level);
 
-        for (_, matcher) in &mut self.static_rules {
+        for matcher in self.static_rules.values_mut() {
             new_limit = matcher.cache(new_limit, level)
         }
 
@@ -114,20 +114,26 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
         self.count
     }
 
+    fn is_empty(&self) -> bool {
+        self.count == 0
+    }
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
         Box::new((*self).clone())
     }
 }
 
-impl<T> PathAndQueryMatcher<T> where T: RouteData {
-    pub fn new() -> PathAndQueryMatcher<T> {
+impl<T: RouteData> Default for PathAndQueryMatcher<T> {
+    fn default() -> Self {
         PathAndQueryMatcher {
-            regex_tree_rule: RegexRadixTree::new(),
+            regex_tree_rule: RegexRadixTree::default(),
             static_rules: HashMap::new(),
             count: 0,
         }
     }
+}
 
+impl<T> PathAndQueryMatcher<T> where T: RouteData {
     pub fn request_to_path(request: &Request<()>) -> String {
         let mut path = request.uri().path().to_string();
 
@@ -195,11 +201,11 @@ impl<T> PathAndQueryMatcher<T> where T: RouteData {
         RegexItemMatcher::new(
             path,
             id,
-            Box::new(RouteMatcher::new())
+            Box::new(RouteMatcher::default())
         )
     }
 
     fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(RouteMatcher::new())
+        Box::new(RouteMatcher::default())
     }
 }

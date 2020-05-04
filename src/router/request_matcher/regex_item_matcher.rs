@@ -45,6 +45,10 @@ impl<T> RequestMatcher<T> for RegexItemMatcher<T> where T: RouteData {
         self.matcher.len()
     }
 
+    fn is_empty(&self) -> bool {
+        self.matcher.is_empty()
+    }
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
         Box::new((*self).clone())
     }

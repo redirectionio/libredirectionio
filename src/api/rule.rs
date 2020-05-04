@@ -24,7 +24,7 @@ pub struct Rule {
 impl RouteData for Rule {}
 
 impl Rule {
-    pub fn from_str(rule_str: &str) -> Option<Rule> {
+    pub fn from_json(rule_str: &str) -> Option<Rule> {
         let rule_result= json_decode(&rule_str);
 
         if rule_result.is_err() {
@@ -126,9 +126,9 @@ impl Rule {
         }
     }
 
-    pub fn to_route(self) -> Route<Rule> {
+    pub fn into_route(self) -> Route<Rule> {
         let id = self.id.clone();
-        let priority = 0 - self.rank.clone() as i64;
+        let priority = 0 - self.rank as i64;
 
         Route::new(
             self.source.methods.clone(),

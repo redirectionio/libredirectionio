@@ -9,20 +9,20 @@ use std::ptr::null;
 #[no_mangle]
 pub unsafe extern fn redirectionio_route_create(s: *const c_char) -> Option<*mut Route<Rule>> {
     let rule_string = c_char_to_str(s)?;
-    let route = Rule::from_str(rule_string)?.to_route();
+    let route = Rule::from_json(rule_string)?.into_route();
 
     Some(Box::into_raw(Box::new(route)))
 }
 
 #[no_mangle]
 pub unsafe extern fn redirectionio_router_create(_message: *mut RulesMessage, cache: c_ulong) -> *mut Router<Rule> {
-    let mut router = Router::<Rule>::new();
+    let mut router = Router::<Rule>::default();
 
     if !_message.is_null() {
         let message= Box::from_raw(_message);
 
         for rule in message.rules {
-            router.insert(rule.to_route());
+            router.insert(rule.into_route());
         }
     }
 

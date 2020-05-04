@@ -7,10 +7,10 @@ use redirectionio::action::Action;
 
 {% for name, rule_set in rule_sets %}
 fn setup_{{ name }}() -> Router<Rule> {
-    let mut router = Router::<Rule>::new();
+    let mut router = Router::<Rule>::default();
     {% for _, rule in rule_set.rules %}
     let route_{{ loop.index }}: Rule = serde_json::from_str(r#"{{ rule.agentInput | json_encode() }}"#).expect("cannot deserialize");
-    router.insert(route_{{ loop.index }}.to_route());
+    router.insert(route_{{ loop.index }}.into_route());
     {% endfor %}
     router
 }

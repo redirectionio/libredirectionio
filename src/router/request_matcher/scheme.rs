@@ -115,7 +115,7 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.any_scheme.cache(limit, level);
 
-        for (_, matcher) in &mut self.schemes {
+        for matcher in self.schemes.values_mut() {
             new_limit = matcher.cache(new_limit, level);
         }
 
@@ -126,21 +126,27 @@ impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
         self.count
     }
 
+    fn is_empty(&self) -> bool {
+        self.count == 0
+    }
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
         Box::new((*self).clone())
     }
 }
 
-impl<T> SchemeMatcher<T> where T: RouteData {
-    pub fn new() -> SchemeMatcher<T> {
+impl<T: RouteData> Default for SchemeMatcher<T> {
+    fn default() -> Self {
         SchemeMatcher {
             schemes: HashMap::new(),
             any_scheme: SchemeMatcher::create_sub_matcher(),
             count: 0,
         }
     }
+}
 
+impl<T> SchemeMatcher<T> where T: RouteData {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(HostMatcher::new())
+        Box::new(HostMatcher::default())
     }
 }

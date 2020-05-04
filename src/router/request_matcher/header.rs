@@ -32,20 +32,25 @@ impl<T> RequestMatcher<T> for HeaderMatcher<T> where T: RouteData {
         self.any_header.len()
     }
 
+    fn is_empty(&self) -> bool {
+        self.any_header.is_empty()
+    }
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
         Box::new((*self).clone())
     }
 }
 
-
-impl<T> HeaderMatcher<T> where T: RouteData {
-    pub fn new() -> HeaderMatcher<T> {
+impl<T: RouteData> Default for HeaderMatcher<T> {
+    fn default() -> Self {
         HeaderMatcher {
             any_header: HeaderMatcher::create_sub_matcher(),
         }
     }
+}
 
+impl<T> HeaderMatcher<T> where T: RouteData {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(PathAndQueryMatcher::new())
+        Box::new(PathAndQueryMatcher::default())
     }
 }

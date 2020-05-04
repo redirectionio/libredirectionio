@@ -74,7 +74,7 @@ impl<T: Item> Node<T> for RegexNode<T> {
         }
 
         Trace::new(
-            self.prefix.clone().unwrap_or("".to_string()),
+            self.prefix.clone().unwrap_or_else(|| "".to_string()),
             matched,
             self.count as u64,
             children,
@@ -113,6 +113,10 @@ impl<T: Item> Node<T> for RegexNode<T> {
         self.count
     }
 
+    fn is_empty(&self) -> bool {
+        self.count == 0
+    }
+
     fn can_insert_item(&self, prefix: &str, _item: &T) -> bool {
         match self.prefix.as_ref() {
             None => true,
@@ -129,7 +133,7 @@ impl<T: Item> Node<T> for RegexNode<T> {
     }
 
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
-        if self.level == level && !self.prefix.is_none() {
+        if self.level == level && self.prefix.is_some() {
             self.prefix_compiled = Some(self.create_regex());
 
             return limit - 1;
@@ -149,6 +153,18 @@ impl<T: Item> Node<T> for RegexNode<T> {
     }
 }
 
+impl<T: Item> Default for RegexNode<T> {
+    fn default() -> Self {
+        RegexNode {
+            level: 0,
+            prefix: None,
+            prefix_compiled: None,
+            children: Vec::new(),
+            count: 0,
+        }
+    }
+}
+
 impl<T: Item> RegexNode<T> {
     pub fn new(first: Box<dyn Node<T>>, second: Box<dyn Node<T>>, prefix: String, level: u64) -> RegexNode<T> {
         RegexNode {
@@ -157,16 +173,6 @@ impl<T: Item> RegexNode<T> {
             prefix_compiled: None,
             count: first.len() + second.len(),
             children: vec![first, second],
-        }
-    }
-
-    pub fn new_empty() -> RegexNode<T> {
-        RegexNode {
-            level: 0,
-            prefix: None,
-            prefix_compiled: None,
-            children: Vec::new(),
-            count: 0,
         }
     }
 
@@ -181,6 +187,7 @@ impl<T: Item> RegexNode<T> {
         }
     }
 
+    #[allow(clippy::trivial_regex)]
     fn create_regex(&self) -> Regex {
         match self.prefix.as_ref() {
             None => Regex::new(""),

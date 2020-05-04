@@ -17,13 +17,15 @@ pub struct Router<T: RouteData> {
     matcher: SchemeMatcher<T>,
 }
 
-impl<T: RouteData> Router<T> {
-    pub fn new() -> Router<T> {
+impl<T: RouteData> Default for Router<T> {
+    fn default() -> Self {
         Router {
-            matcher: SchemeMatcher::new()
+            matcher: SchemeMatcher::default()
         }
     }
+}
 
+impl<T: RouteData> Router<T> {
     pub fn insert(&mut self, route: Route<T>) {
         self.matcher.insert(route);
     }
@@ -38,6 +40,10 @@ impl<T: RouteData> Router<T> {
 
     pub fn len(&self) -> usize {
         self.matcher.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.matcher.is_empty()
     }
 
     pub fn trace_request(&self, request: &Request<()>) -> Vec<Trace<T>> {
@@ -55,8 +61,8 @@ impl<T: RouteData> Router<T> {
 
         match routes.get(0) {
             None => None,
-            Some(route) => {
-                Some(route.clone())
+            Some(&route) => {
+                Some(route)
             }
         }
     }
@@ -72,9 +78,11 @@ impl<T: RouteData> Router<T> {
 
         routes_traces.sort_by(|&a, &b| a.priority().cmp(&b.priority()));
 
-        let final_route = match routes_traces.is_empty() {
-            true => None,
-            false => Some(routes_traces.first().unwrap().clone().clone())
+
+
+        let final_route = match routes_traces.first() {
+            None => None,
+            Some(&route) => Some(route.clone())
         };
 
         RouteTrace::new(traces, routes, final_route)

@@ -30,6 +30,8 @@ pub trait RequestMatcher<T>: Debug + Send + Sync where T: RouteData {
 
     fn len(&self) -> usize;
 
+    fn is_empty(&self) -> bool;
+
     fn box_clone(&self) -> Box<dyn RequestMatcher<T>>;
 }
 

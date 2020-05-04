@@ -15,18 +15,16 @@ impl<T: Item> Node<T> for Leaf<T> {
     }
 
     fn find(&self, value: &str) -> Vec<&T> {
-        match self.is_match(value) {
-            true => self.data.iter().collect::<Vec<_>>(),
-            false => Vec::new(),
+        if self.is_match(value) {
+            return self.data.iter().collect::<Vec<_>>();
         }
+
+        Vec::new()
     }
 
     fn trace(&self, value: &str) -> Trace<T> {
         let matched = self.is_match(value);
-        let items = match self.is_match(value) {
-            true => self.data.clone(),
-            false => Vec::new(),
-        };
+        let items = if matched { self.data.clone() } else { Vec::new() };
 
         Trace::new(
             self.prefix.clone(),
@@ -60,6 +58,10 @@ impl<T: Item> Node<T> for Leaf<T> {
 
     fn len(&self) -> usize {
         self.data.len()
+    }
+
+    fn is_empty(&self) -> bool {
+        self.data.is_empty()
     }
 
     fn can_insert_item(&self, _prefix: &str, item: &T) -> bool {
