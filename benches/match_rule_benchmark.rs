@@ -9,10 +9,10 @@ use redirectionio::http::Request;
 fn create_router(filename: String) -> Router<Rule> {
     let content = read_to_string(filename).expect("Cannot open file");
     let rules: RulesMessage = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
-    let mut router = Router::<Rule>::new();
+    let mut router = Router::<Rule>::default();
 
     for rule in rules.rules {
-        router.insert(rule.to_route())
+        router.insert(rule.into_route())
     }
 
     router
@@ -32,7 +32,7 @@ fn no_match_bench(c: &mut Criterion) {
 
     for filename in files {
         let router = create_router(filename.clone());
-        let request = Request::new("/no-match".to_string(), None).to_http_request();
+        let request = Request::new("/no-match".to_string(), None, None, None).to_http_request().expect("");
 
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
@@ -58,7 +58,7 @@ fn no_match_cache_bench(c: &mut Criterion) {
 
     for filename in files {
         let mut router = create_router(filename.clone());
-        let request = Request::new("/no-match".to_string(), None).to_http_request();
+        let request = Request::new("/no-match".to_string(), None, None, None).to_http_request().expect("");
 
         router.cache(1000);
 

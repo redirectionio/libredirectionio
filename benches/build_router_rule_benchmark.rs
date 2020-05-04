@@ -29,10 +29,10 @@ fn build_router_bench(c: &mut Criterion) {
             b.iter_batched(
                 || create_rules(f.to_string()),
                 |rules| {
-                    let mut router = Router::<Rule>::new();
+                    let mut router = Router::<Rule>::default();
 
                     for rule in rules.rules {
-                        router.insert(rule.to_route());
+                        router.insert(rule.into_route());
                     }
                 },
                 BatchSize::NumIterations(1),
