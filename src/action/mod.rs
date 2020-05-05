@@ -6,7 +6,7 @@ use crate::api::{BodyFilter, HeaderFilter, Rule};
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
 use crate::http::Header;
 use crate::router::request_matcher::PathAndQueryMatcher;
-use crate::router::{Route, StaticOrDynamic};
+use crate::router::{Route, StaticOrDynamic, Trace};
 use http::Request;
 use serde::{Deserialize, Serialize};
 
@@ -16,6 +16,12 @@ pub struct Action {
     header_filters: Vec<HeaderFilterAction>,
     body_filters: Vec<BodyFilterAction>,
     pub rule_ids: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TraceAction {
+    action: Action,
+    rule: Rule,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -41,8 +47,29 @@ impl Default for Action {
     }
 }
 
-impl Action {
+impl TraceAction {
+    pub fn from_trace_rules(traces: &[Trace<Rule>], request: &Request<()>) -> Vec<TraceAction> {
+        let mut traces_action = Vec::new();
+        let mut current_action = Action::default();
+        let mut routes = Trace::<Rule>::get_routes_from_traces(traces);
 
+        // Reverse order of sort
+        routes.sort_by(|a, b| b.priority().cmp(&a.priority()));
+
+        for route in routes {
+            current_action.merge(Action::from_route_rule(route, request));
+
+            traces_action.push(TraceAction {
+                action: current_action.clone(),
+                rule: route.handler().clone(),
+            })
+        }
+
+        traces_action
+    }
+}
+
+impl Action {
     pub fn from_route_rule(route: &Route<Rule>, request: &Request<()>) -> Action {
         let rule = route.handler();
         let status_code_update = match rule.redirect_code.unwrap_or(0) {

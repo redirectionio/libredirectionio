@@ -1,5 +1,6 @@
 use crate::regex_radix_tree::Item;
 
+#[derive(Debug, Clone)]
 pub struct Trace<T: Item> {
     pub regex: String,
     pub count: u64,

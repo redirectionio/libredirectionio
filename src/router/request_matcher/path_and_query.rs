@@ -192,7 +192,7 @@ impl<T> PathAndQueryMatcher<T> where T: RouteData {
             trace.matched,
             true,
             trace.count,
-            Vec::new(),
+            children,
             Vec::new(),
         )
     }

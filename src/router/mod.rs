@@ -12,7 +12,7 @@ pub use transformer::{Transform, Transformer, Camelize, Uppercase, Underscorize,
 
 use http::Request;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Router<T: RouteData> {
     matcher: SchemeMatcher<T>,
 }

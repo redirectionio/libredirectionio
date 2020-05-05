@@ -101,7 +101,7 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
             ));
         }
 
-        if Trace::<T>::get_routes_from_traces(&traces).is_empty() {
+        if !Trace::<T>::get_routes_from_traces(&traces).is_empty() {
             return traces;
         }
 

@@ -15,7 +15,7 @@ pub struct Trace<T: RouteData> {
     executed: bool,
     count: u64,
     children: Vec<Trace<T>>,
-    routes: Vec<Route<T>>,
+    pub routes: Vec<Route<T>>,
 }
 
 impl<T: RouteData> RouteTrace<T> {

@@ -6,6 +6,8 @@ mod transformer;
 mod header_filter;
 mod body_filter;
 mod rules_message;
+mod trace;
+mod impact;
 mod log;
 mod ffi;
 
@@ -18,3 +20,5 @@ pub use header_filter::HeaderFilter;
 pub use body_filter::BodyFilter;
 pub use rules_message::RulesMessage;
 pub use self::log::Log;
+pub use trace::RouterTrace;
+pub use impact::{Impact, ImpactResultItem};
