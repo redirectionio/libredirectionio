@@ -13,12 +13,14 @@ pub struct Log {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct FromLog {
+    #[serde(rename = "ruleId")]
     rule_id: Option<String>,
     url: String,
     method: Option<String>,
     scheme: Option<String>,
     host: Option<String>,
     referer: Option<String>,
+    #[serde(rename = "userAgent")]
     user_agent: Option<String>,
 }
 
