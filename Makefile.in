@@ -28,7 +28,7 @@ target/redirectionio.h: $(EXTRA_DIST)
 	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@
 
 .PHONY: install
-install: target/redirectionio.h target/release/libredirectionio.a
+install:
 	mkdir -p $(DESTDIR)@prefix@/include/
 	install -c -m 644 target/redirectionio.h $(DESTDIR)@prefix@/include/
 	mkdir -p $(DESTDIR)@libdir@/
@@ -39,3 +39,7 @@ install: target/redirectionio.h target/release/libredirectionio.a
 .PHONY:	clean
 clean:
 	rm -rf target/redirectionio.h
+
+.PHONY:	fullclean
+fullclean:
+	rm -rf target
