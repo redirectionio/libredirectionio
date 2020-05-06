@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use crate::http::{Request, Header};
 use crate::action::Action;
+use crate::http::{Header, Request};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {

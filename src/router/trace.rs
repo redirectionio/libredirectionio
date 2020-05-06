@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::router::{Route, RouteData};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouteTrace<T: RouteData> {

@@ -1,6 +1,6 @@
-use std::fmt::Debug;
-use serde::{Deserialize, Serialize};
 use crate::router::StaticOrDynamic;
+use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 
 pub trait RouteData: Debug + Clone + Send + Sync + 'static {}
 
@@ -16,7 +16,15 @@ pub struct Route<T: RouteData> {
 }
 
 impl<T: RouteData> Route<T> {
-    pub fn new(methods: Option<Vec<String>>, scheme: Option<String>, host: Option<String>, path_and_query: StaticOrDynamic, handler: T, id: String, priority: i64) -> Route<T> {
+    pub fn new(
+        methods: Option<Vec<String>>,
+        scheme: Option<String>,
+        host: Option<String>,
+        path_and_query: StaticOrDynamic,
+        handler: T,
+        id: String,
+        priority: i64,
+    ) -> Route<T> {
         Route {
             handler,
             scheme,

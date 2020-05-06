@@ -26,11 +26,7 @@ pub trait Transform {
 
 impl Transformer {
     pub fn new(name: String, marker: String, transforms: Vec<Box<dyn Transform>>) -> Transformer {
-        Transformer {
-            name,
-            marker,
-            transforms,
-        }
+        Transformer { name, marker, transforms }
     }
 
     pub fn transform(&self, str: String, value: &str) -> String {

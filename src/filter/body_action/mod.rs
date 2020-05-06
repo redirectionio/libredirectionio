@@ -18,11 +18,7 @@ pub fn evaluate(data: String, expression: String) -> bool {
     let selector_result = scraper::Selector::parse(expression.as_str());
 
     if selector_result.is_err() {
-        error!(
-            "Cannot parse selector {}: {:?}",
-            expression,
-            selector_result.err().unwrap()
-        );
+        error!("Cannot parse selector {}: {:?}", expression, selector_result.err().unwrap());
 
         return false;
     }

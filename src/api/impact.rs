@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use crate::api::{Rule, RouterTrace};
+use crate::api::{RouterTrace, Rule};
 use crate::router::Router;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Impact {

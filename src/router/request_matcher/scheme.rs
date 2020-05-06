@@ -1,4 +1,4 @@
-use crate::router::request_matcher::{RequestMatcher, HostMatcher};
+use crate::router::request_matcher::{HostMatcher, RequestMatcher};
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
@@ -10,7 +10,10 @@ pub struct SchemeMatcher<T: RouteData> {
     count: usize,
 }
 
-impl<T> RequestMatcher<T> for SchemeMatcher<T> where T: RouteData {
+impl<T> RequestMatcher<T> for SchemeMatcher<T>
+where
+    T: RouteData,
+{
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
@@ -145,7 +148,10 @@ impl<T: RouteData> Default for SchemeMatcher<T> {
     }
 }
 
-impl<T> SchemeMatcher<T> where T: RouteData {
+impl<T> SchemeMatcher<T>
+where
+    T: RouteData,
+{
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
         Box::new(HostMatcher::default())
     }

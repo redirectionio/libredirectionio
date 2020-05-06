@@ -1,14 +1,14 @@
+mod marker_string;
 pub mod request_matcher;
 mod route;
-mod marker_string;
 mod trace;
 mod transformer;
 
-pub use route::{RouteData, Route};
-pub use marker_string::{StaticOrDynamic, Marker};
+pub use marker_string::{Marker, StaticOrDynamic};
+pub use request_matcher::{PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
+pub use route::{Route, RouteData};
 pub use trace::{RouteTrace, Trace};
-pub use request_matcher::{PathAndQueryMatcher, SchemeMatcher, RequestMatcher};
-pub use transformer::{Transform, Transformer, Camelize, Uppercase, Underscorize, Slice, Replace, Dasherize, Lowercase};
+pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Transformer, Underscorize, Uppercase};
 
 use http::Request;
 
@@ -20,7 +20,7 @@ pub struct Router<T: RouteData> {
 impl<T: RouteData> Default for Router<T> {
     fn default() -> Self {
         Router {
-            matcher: SchemeMatcher::default()
+            matcher: SchemeMatcher::default(),
         }
     }
 }
@@ -61,9 +61,7 @@ impl<T: RouteData> Router<T> {
 
         match routes.get(0) {
             None => None,
-            Some(&route) => {
-                Some(route)
-            }
+            Some(&route) => Some(route),
         }
     }
 
@@ -78,11 +76,9 @@ impl<T: RouteData> Router<T> {
 
         routes_traces.sort_by(|&a, &b| a.priority().cmp(&b.priority()));
 
-
-
         let final_route = match routes_traces.first() {
             None => None,
-            Some(&route) => Some(route.clone())
+            Some(&route) => Some(route.clone()),
         };
 
         RouteTrace::new(traces, routes, final_route)

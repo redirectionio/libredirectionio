@@ -1,7 +1,7 @@
-use regex::Regex;
-use crate::regex_radix_tree::{Node, Item, Trace};
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
+use crate::regex_radix_tree::{Item, Node, Trace};
+use regex::Regex;
 
 #[derive(Debug, Clone)]
 pub struct RegexNode<T: Item> {
@@ -19,9 +19,9 @@ impl<T: Item> Node<T> for RegexNode<T> {
         let item_regex = item.node_regex();
 
         // for each children node
-        for i in 0 .. self.children.len() {
-            let regex_child= self.children[i].regex();
-            let prefix_size= common_prefix_char_size(item_regex, regex_child);
+        for i in 0..self.children.len() {
+            let regex_child = self.children[i].regex();
+            let prefix_size = common_prefix_char_size(item_regex, regex_child);
 
             if prefix_size == parent_prefix_size {
                 continue;
@@ -105,7 +105,7 @@ impl<T: Item> Node<T> for RegexNode<T> {
     fn regex(&self) -> &str {
         match self.prefix.as_ref() {
             None => "",
-            Some(prefix) => prefix
+            Some(prefix) => prefix,
         }
     }
 
@@ -195,7 +195,8 @@ impl<T: Item> RegexNode<T> {
                 let regex = ["^", prefix.as_str()].join("");
 
                 Regex::new(regex.as_str())
-            },
-        }.expect("Cannot create regex")
+            }
+        }
+        .expect("Cannot create regex")
     }
 }

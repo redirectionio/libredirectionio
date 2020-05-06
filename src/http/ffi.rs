@@ -1,8 +1,8 @@
+use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
+use crate::http::{Header, Request};
+use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::os::raw::c_char;
 use std::ptr::null;
-use serde_json::{from_str as json_decode, to_string as json_encode};
-use crate::http::{Request, Header};
-use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -56,7 +56,7 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
+pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
     let request_str = match c_char_to_str(str) {
         None => return null() as *const Request,
         Some(str) => str,
@@ -72,7 +72,7 @@ pub unsafe extern fn redirectionio_request_json_deserialize(str: *mut c_char) ->
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
     if _request.is_null() {
         return null();
     }
@@ -88,7 +88,13 @@ pub unsafe extern fn redirectionio_request_json_serialize(_request: *const Reque
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _host: *const c_char, _scheme: *const c_char, _method: *const c_char, header_map: *const HeaderMap) -> *const Request {
+pub unsafe extern "C" fn redirectionio_request_create(
+    _uri: *const c_char,
+    _host: *const c_char,
+    _scheme: *const c_char,
+    _method: *const c_char,
+    header_map: *const HeaderMap,
+) -> *const Request {
     let uri = c_char_to_str(_uri).unwrap_or("/");
     let host = match c_char_to_str(_host) {
         None => None,
@@ -115,7 +121,7 @@ pub unsafe extern fn redirectionio_request_create(_uri: *const c_char, _host: *c
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern fn redirectionio_request_drop(_request: *mut Request) {
+pub unsafe extern "C" fn redirectionio_request_drop(_request: *mut Request) {
     if _request.is_null() {
         return;
     }

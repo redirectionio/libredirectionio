@@ -10,11 +10,7 @@ pub struct BodyReplace {
 }
 
 impl BodyReplace {
-    pub fn new(
-        element_tree: Vec<String>,
-        css_selector: Option<String>,
-        content: String,
-    ) -> BodyReplace {
+    pub fn new(element_tree: Vec<String>, css_selector: Option<String>, content: String) -> BodyReplace {
         BodyReplace {
             element_tree,
             css_selector,

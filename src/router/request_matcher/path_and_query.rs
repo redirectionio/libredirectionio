@@ -1,12 +1,12 @@
 use crate::regex_radix_tree::{RegexRadixTree, Trace as NodeTrace};
-use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
-use crate::router::request_matcher::regex_item_matcher::RegexItemMatcher;
-use crate::router::{Route, RouteData, Trace};
 use crate::router::marker_string::StaticOrDynamic;
+use crate::router::request_matcher::regex_item_matcher::RegexItemMatcher;
+use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
+use crate::router::{Route, RouteData, Trace};
 use http::Request;
-use std::collections::{HashMap, BTreeMap};
-use url::form_urlencoded::parse as parse_query;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use std::collections::{BTreeMap, HashMap};
+use url::form_urlencoded::parse as parse_query;
 
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
@@ -28,7 +28,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
                 }
 
                 self.static_rules.get_mut(path).unwrap().insert(route);
-            },
+            }
             StaticOrDynamic::Dynamic(path) => {
                 let mut item_matcher = PathAndQueryMatcher::create_item_matcher(path.regex.clone(), route.id().to_string());
 
@@ -83,9 +83,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
 
         let static_traces = match self.static_rules.get(path.as_str()) {
             None => Vec::new(),
-            Some(static_matcher) => {
-                static_matcher.trace(request)
-            }
+            Some(static_matcher) => static_matcher.trace(request),
         };
 
         traces.push(Trace::new(
@@ -133,7 +131,10 @@ impl<T: RouteData> Default for PathAndQueryMatcher<T> {
     }
 }
 
-impl<T> PathAndQueryMatcher<T> where T: RouteData {
+impl<T> PathAndQueryMatcher<T>
+where
+    T: RouteData,
+{
     pub fn request_to_path(request: &Request<()>) -> String {
         let mut path = request.uri().path().to_string();
 
@@ -150,9 +151,7 @@ impl<T> PathAndQueryMatcher<T> where T: RouteData {
     }
 
     fn build_sorted_query(query: &str) -> Option<String> {
-        let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes())
-            .into_owned()
-            .collect();
+        let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes()).into_owned().collect();
 
         let mut query_string = "".to_string();
 
@@ -198,11 +197,7 @@ impl<T> PathAndQueryMatcher<T> where T: RouteData {
     }
 
     fn create_item_matcher(path: String, id: String) -> RegexItemMatcher<T> {
-        RegexItemMatcher::new(
-            path,
-            id,
-            Box::new(RouteMatcher::default())
-        )
+        RegexItemMatcher::new(path, id, Box::new(RouteMatcher::default()))
     }
 
     fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {

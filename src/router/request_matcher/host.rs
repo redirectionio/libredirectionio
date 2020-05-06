@@ -1,4 +1,4 @@
-use crate::router::request_matcher::{RequestMatcher, MethodMatcher};
+use crate::router::request_matcher::{MethodMatcher, RequestMatcher};
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
@@ -91,14 +91,7 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         }
 
         if request_host != "" && !self.hosts.contains_key(request_host) {
-            traces.push(Trace::new(
-                format!("Host {}", request_host),
-                true,
-                false,
-                0,
-                Vec::new(),
-                Vec::new(),
-            ));
+            traces.push(Trace::new(format!("Host {}", request_host), true, false, 0, Vec::new(), Vec::new()));
         }
 
         if !Trace::<T>::get_routes_from_traces(&traces).is_empty() {
@@ -152,7 +145,10 @@ impl<T: RouteData> Default for HostMatcher<T> {
     }
 }
 
-impl<T> HostMatcher<T> where T: RouteData {
+impl<T> HostMatcher<T>
+where
+    T: RouteData,
+{
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
         Box::new(MethodMatcher::default())
     }

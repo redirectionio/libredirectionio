@@ -2,22 +2,25 @@ mod header;
 mod host;
 mod method;
 mod path_and_query;
-mod scheme;
 mod regex_item_matcher;
 mod route_matcher;
+mod scheme;
 
+use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::fmt::Debug;
-use crate::router::{Route, RouteData, Trace};
 
-pub use scheme::SchemeMatcher;
+pub use header::HeaderMatcher;
 pub use host::HostMatcher;
 pub use method::MethodMatcher;
-pub use header::HeaderMatcher;
 pub use path_and_query::PathAndQueryMatcher;
 pub use route_matcher::RouteMatcher;
+pub use scheme::SchemeMatcher;
 
-pub trait RequestMatcher<T>: Debug + Send + Sync where T: RouteData {
+pub trait RequestMatcher<T>: Debug + Send + Sync
+where
+    T: RouteData,
+{
     fn insert(&mut self, route: Route<T>);
 
     fn remove(&mut self, id: &str) -> Vec<Route<T>>;

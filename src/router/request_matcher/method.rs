@@ -1,4 +1,4 @@
-use crate::router::request_matcher::{RequestMatcher, HeaderMatcher};
+use crate::router::request_matcher::{HeaderMatcher, RequestMatcher};
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
@@ -55,7 +55,7 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
     }
 
     fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
-        let any_traces= self.any_method.trace(request);
+        let any_traces = self.any_method.trace(request);
         let mut traces = Vec::new();
         let request_method = request.method().as_str();
 
@@ -139,7 +139,10 @@ impl<T: RouteData> Default for MethodMatcher<T> {
     }
 }
 
-impl<T> MethodMatcher<T> where T: RouteData {
+impl<T> MethodMatcher<T>
+where
+    T: RouteData,
+{
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
         Box::new(HeaderMatcher::default())
     }

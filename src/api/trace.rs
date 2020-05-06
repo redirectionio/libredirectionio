@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use crate::router::{Router, Trace};
-use crate::api::Rule;
 use crate::action::TraceAction;
+use crate::api::Rule;
+use crate::router::{Router, Trace};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouterTrace {

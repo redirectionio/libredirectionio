@@ -1,13 +1,13 @@
-use crate::router::{Route, Router};
-use crate::api::{Rule, RulesMessage, RouterTrace, Impact, ImpactResultItem};
-use crate::http::Request;
-use crate::action::{Action};
+use crate::action::Action;
+use crate::api::{Impact, ImpactResultItem, RouterTrace, Rule, RulesMessage};
 use crate::ffi_helpers::c_char_to_str;
+use crate::http::Request;
+use crate::router::{Route, Router};
 use std::os::raw::{c_char, c_ulong};
 use std::ptr::null;
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_route_create(s: *const c_char) -> Option<*mut Route<Rule>> {
+pub unsafe extern "C" fn redirectionio_route_create(s: *const c_char) -> Option<*mut Route<Rule>> {
     let rule_string = c_char_to_str(s)?;
     let route = Rule::from_json(rule_string)?.into_route();
 
@@ -15,11 +15,11 @@ pub unsafe extern fn redirectionio_route_create(s: *const c_char) -> Option<*mut
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_create(_message: *mut RulesMessage, cache: c_ulong) -> *mut Router<Rule> {
+pub unsafe extern "C" fn redirectionio_router_create(_message: *mut RulesMessage, cache: c_ulong) -> *mut Router<Rule> {
     let mut router = Router::<Rule>::default();
 
     if !_message.is_null() {
-        let message= Box::from_raw(_message);
+        let message = Box::from_raw(_message);
 
         for rule in message.rules {
             router.insert(rule.into_route());
@@ -32,7 +32,7 @@ pub unsafe extern fn redirectionio_router_create(_message: *mut RulesMessage, ca
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_route_add(_route: *mut Route<Rule>, _router: *mut Router<Rule>) {
+pub unsafe extern "C" fn redirectionio_router_route_add(_route: *mut Route<Rule>, _router: *mut Router<Rule>) {
     let route = Box::from_raw(_route);
     let router = &mut *_router;
 
@@ -40,7 +40,7 @@ pub unsafe extern fn redirectionio_router_route_add(_route: *mut Route<Rule>, _r
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_route_remove(_route_id: *const c_char, _router: *mut Router<Rule>) {
+pub unsafe extern "C" fn redirectionio_router_route_remove(_route_id: *const c_char, _router: *mut Router<Rule>) {
     if _router.is_null() {
         return;
     }
@@ -57,7 +57,7 @@ pub unsafe extern fn redirectionio_router_route_remove(_route_id: *const c_char,
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_drop(_router: *mut Router<Rule>) {
+pub unsafe extern "C" fn redirectionio_router_drop(_router: *mut Router<Rule>) {
     if _router.is_null() {
         return;
     }
@@ -66,7 +66,7 @@ pub unsafe extern fn redirectionio_router_drop(_router: *mut Router<Rule>) {
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_match_action(_router: *const Router<Rule>, _request: *const Request) -> *const Action {
+pub unsafe extern "C" fn redirectionio_router_match_action(_router: *const Router<Rule>, _request: *const Request) -> *const Action {
     if _router.is_null() || _request.is_null() {
         return null() as *const Action;
     }
@@ -79,7 +79,7 @@ pub unsafe extern fn redirectionio_router_match_action(_router: *const Router<Ru
             error!("{}", error);
 
             return null() as *const Action;
-        },
+        }
         Ok(request) => request,
     };
     let routes = router.match_request(&http_request);
@@ -89,7 +89,7 @@ pub unsafe extern fn redirectionio_router_match_action(_router: *const Router<Ru
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_trace(_router: *const Router<Rule>, _request: *const Request) -> *const RouterTrace {
+pub unsafe extern "C" fn redirectionio_router_trace(_router: *const Router<Rule>, _request: *const Request) -> *const RouterTrace {
     if _router.is_null() || _request.is_null() {
         return null() as *const RouterTrace;
     }
@@ -102,7 +102,7 @@ pub unsafe extern fn redirectionio_router_trace(_router: *const Router<Rule>, _r
             error!("{}", error);
 
             return null() as *const RouterTrace;
-        },
+        }
         Ok(request) => request,
     };
 
@@ -112,7 +112,7 @@ pub unsafe extern fn redirectionio_router_trace(_router: *const Router<Rule>, _r
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_impact(_router: *const Router<Rule>, _impact: *const Impact) -> *const Vec<ImpactResultItem> {
+pub unsafe extern "C" fn redirectionio_router_impact(_router: *const Router<Rule>, _impact: *const Impact) -> *const Vec<ImpactResultItem> {
     if _router.is_null() {
         return null() as *const Vec<ImpactResultItem>;
     }
@@ -125,9 +125,8 @@ pub unsafe extern fn redirectionio_router_impact(_router: *const Router<Rule>, _
     Box::into_raw(Box::new(result))
 }
 
-
 #[no_mangle]
-pub unsafe extern fn redirectionio_router_len(_router: *const Router<Rule>) -> c_ulong {
+pub unsafe extern "C" fn redirectionio_router_len(_router: *const Router<Rule>) -> c_ulong {
     if _router.is_null() {
         return 0;
     }

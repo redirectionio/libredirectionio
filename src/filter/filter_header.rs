@@ -1,5 +1,5 @@
-use crate::filter::header_action;
 use crate::api::HeaderFilter;
+use crate::filter::header_action;
 use crate::http::Header;
 
 pub struct FilterHeaderAction {

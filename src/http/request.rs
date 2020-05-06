@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use crate::http::header::Header;
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use serde::{Deserialize, Serialize};
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 
@@ -25,10 +25,7 @@ impl Request {
     }
 
     pub fn add_header(&mut self, name: String, value: String) {
-        self.headers.push(Header {
-            name,
-            value,
-        });
+        self.headers.push(Header { name, value });
     }
 
     pub fn to_http_request(&self) -> http::Result<http::Request<()>> {

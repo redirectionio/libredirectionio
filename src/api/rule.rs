@@ -1,9 +1,9 @@
-use crate::api::{Source, Marker, BodyFilter, HeaderFilter};
+use crate::api::{BodyFilter, HeaderFilter, Marker, Source};
+use crate::router::{Marker as RouteMarker, Route, RouteData, StaticOrDynamic, Transformer};
+use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
-use crate::router::{Route, RouteData, Marker as RouteMarker, StaticOrDynamic, Transformer};
 use std::collections::BTreeMap;
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
@@ -25,14 +25,10 @@ impl RouteData for Rule {}
 
 impl Rule {
     pub fn from_json(rule_str: &str) -> Option<Rule> {
-        let rule_result= json_decode(&rule_str);
+        let rule_result = json_decode(&rule_str);
 
         if rule_result.is_err() {
-            error!(
-                "Unable to create rule from string {}: {}",
-                rule_str,
-                rule_result.err().unwrap()
-            );
+            error!("Unable to create rule from string {}: {}", rule_str, rule_result.err().unwrap());
 
             return None;
         }
@@ -59,9 +55,7 @@ impl Rule {
         let query = match self.source.query.clone() {
             None => None,
             Some(source_query) => {
-                let hash_query: BTreeMap<_, _> = url::form_urlencoded::parse(source_query.as_bytes())
-                    .into_owned()
-                    .collect();
+                let hash_query: BTreeMap<_, _> = url::form_urlencoded::parse(source_query.as_bytes()).into_owned().collect();
 
                 let mut query_string = "".to_string();
 

@@ -1,7 +1,7 @@
 pub mod header_add;
+pub mod header_override;
 pub mod header_remove;
 pub mod header_replace;
-pub mod header_override;
 
 use crate::api::HeaderFilter;
 use crate::http::Header;

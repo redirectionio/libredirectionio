@@ -1,10 +1,10 @@
 macro_rules! next_char_or_return {
-    ($c:expr,$p:expr) => (
+    ($c:expr,$p:expr) => {
         match $c.next() {
             Some(char) => char,
             None => return $p,
         }
-    )
+    };
 }
 
 pub fn common_prefix_char_size(left: &str, right: &str) -> u32 {
@@ -47,7 +47,7 @@ pub fn get_prefix_with_char_size(str: &str, size: u32) -> String {
     let mut chars = str.chars();
     let mut prefix = Vec::new();
 
-    for _i in 0 .. size {
+    for _i in 0..size {
         match chars.next() {
             Some(char) => prefix.push(char),
             None => {

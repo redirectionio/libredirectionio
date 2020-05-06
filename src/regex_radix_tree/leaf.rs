@@ -1,8 +1,11 @@
-use crate::regex_radix_tree::{Node, Item, Trace};
+use crate::regex_radix_tree::{Item, Node, Trace};
 use regex::Regex;
 
 #[derive(Debug, Clone)]
-pub struct Leaf<T: Item> where T: Item {
+pub struct Leaf<T: Item>
+where
+    T: Item,
+{
     data: Vec<T>,
     level: u64,
     prefix: String,
@@ -26,13 +29,7 @@ impl<T: Item> Node<T> for Leaf<T> {
         let matched = self.is_match(value);
         let items = if matched { self.data.clone() } else { Vec::new() };
 
-        Trace::new(
-            self.prefix.clone(),
-            matched,
-            self.data.len() as u64,
-            Vec::new(),
-            items
-        )
+        Trace::new(self.prefix.clone(), matched, self.data.len() as u64, Vec::new(), items)
     }
 
     fn remove(&mut self, id: &str) -> Vec<T> {

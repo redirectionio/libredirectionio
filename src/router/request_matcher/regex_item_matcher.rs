@@ -4,13 +4,19 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 
 #[derive(Debug, Clone)]
-pub struct RegexItemMatcher<T> where T: RouteData {
+pub struct RegexItemMatcher<T>
+where
+    T: RouteData,
+{
     matcher: Box<dyn RequestMatcher<T>>,
     regex: String,
     id: String,
 }
 
-impl<T> Item for RegexItemMatcher<T> where T: RouteData {
+impl<T> Item for RegexItemMatcher<T>
+where
+    T: RouteData,
+{
     fn node_regex(&self) -> &str {
         self.regex.as_str()
     }
@@ -20,7 +26,10 @@ impl<T> Item for RegexItemMatcher<T> where T: RouteData {
     }
 }
 
-impl<T> RequestMatcher<T> for RegexItemMatcher<T> where T: RouteData {
+impl<T> RequestMatcher<T> for RegexItemMatcher<T>
+where
+    T: RouteData,
+{
     fn insert(&mut self, route: Route<T>) {
         self.matcher.insert(route)
     }
@@ -54,12 +63,11 @@ impl<T> RequestMatcher<T> for RegexItemMatcher<T> where T: RouteData {
     }
 }
 
-impl<T> RegexItemMatcher<T> where T: RouteData {
+impl<T> RegexItemMatcher<T>
+where
+    T: RouteData,
+{
     pub fn new(regex: String, id: String, matcher: Box<dyn RequestMatcher<T>>) -> RegexItemMatcher<T> {
-        RegexItemMatcher {
-            matcher,
-            regex,
-            id,
-        }
+        RegexItemMatcher { matcher, regex, id }
     }
 }

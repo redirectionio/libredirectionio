@@ -1,16 +1,16 @@
 use crate::action::Action;
-use crate::http::ffi::{header_map_to_http_headers, http_headers_to_header_map, HeaderMap};
-use crate::filter::FilterBodyAction;
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
+use crate::filter::FilterBodyAction;
+use crate::http::ffi::{header_map_to_http_headers, http_headers_to_header_map, HeaderMap};
+use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::os::raw::c_char;
 use std::ptr::null;
-use serde_json::{from_str as json_decode, to_string as json_encode};
 
 #[no_mangle]
 /// Deserialize a string to an action
 ///
 /// Returns null if an error happens, otherwise it returns a pointer to an action
-pub unsafe extern fn redirectionio_action_json_deserialize(str: *mut c_char) -> *const Action {
+pub unsafe extern "C" fn redirectionio_action_json_deserialize(str: *mut c_char) -> *const Action {
     let action_str = match c_char_to_str(str) {
         None => return null() as *const Action,
         Some(str) => str,
@@ -18,14 +18,10 @@ pub unsafe extern fn redirectionio_action_json_deserialize(str: *mut c_char) -> 
 
     let action = match json_decode(action_str) {
         Err(error) => {
-            error!(
-                "Unable to deserialize \"{}\" to action: {}",
-                action_str,
-                error,
-            );
+            error!("Unable to deserialize \"{}\" to action: {}", action_str, error,);
 
             return null() as *const Action;
-        },
+        }
         Ok(action) => action,
     };
 
@@ -36,7 +32,7 @@ pub unsafe extern fn redirectionio_action_json_deserialize(str: *mut c_char) -> 
 /// Serialize an action to a string
 ///
 /// Returns null if an error happens
-pub unsafe extern fn redirectionio_action_json_serialize(_action: *mut Action) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_action_json_serialize(_action: *mut Action) -> *const c_char {
     if _action.is_null() {
         return null();
     }
@@ -44,13 +40,10 @@ pub unsafe extern fn redirectionio_action_json_serialize(_action: *mut Action) -
     let action = &*_action;
     let action_serialized = match json_encode(action) {
         Err(error) => {
-            error!(
-                "Unable to serialize to action: {}",
-                error,
-            );
+            error!("Unable to serialize to action: {}", error,);
 
             return null();
-        },
+        }
         Ok(action_serialized) => action_serialized,
     };
 
@@ -58,7 +51,7 @@ pub unsafe extern fn redirectionio_action_json_serialize(_action: *mut Action) -
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_drop(_action: *mut Action) {
+pub unsafe extern "C" fn redirectionio_action_drop(_action: *mut Action) {
     if _action.is_null() {
         return;
     }
@@ -67,7 +60,7 @@ pub unsafe extern fn redirectionio_action_drop(_action: *mut Action) {
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_get_status_code(_action: *const Action, response_status_code: u16) -> u16 {
+pub unsafe extern "C" fn redirectionio_action_get_status_code(_action: *const Action, response_status_code: u16) -> u16 {
     if _action.is_null() {
         return 0;
     }
@@ -78,7 +71,11 @@ pub unsafe extern fn redirectionio_action_get_status_code(_action: *const Action
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_header_filter_filter(_action: *const Action, header_map: *const HeaderMap, response_status_code: u16) -> *const HeaderMap {
+pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
+    _action: *const Action,
+    header_map: *const HeaderMap,
+    response_status_code: u16,
+) -> *const HeaderMap {
     if _action.is_null() {
         return header_map;
     }
@@ -92,7 +89,10 @@ pub unsafe extern fn redirectionio_action_header_filter_filter(_action: *const A
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_body_filter_create(_action: *const Action, response_status_code: u16) -> *const FilterBodyAction {
+pub unsafe extern "C" fn redirectionio_action_body_filter_create(
+    _action: *const Action,
+    response_status_code: u16,
+) -> *const FilterBodyAction {
     if _action.is_null() {
         return null() as *const FilterBodyAction;
     }
@@ -101,12 +101,12 @@ pub unsafe extern fn redirectionio_action_body_filter_create(_action: *const Act
 
     match action.create_filter_body(response_status_code) {
         None => null(),
-        Some(filter_body) => Box::into_raw(Box::new(filter_body))
+        Some(filter_body) => Box::into_raw(Box::new(filter_body)),
     }
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_body_filter_filter(_filter: *mut FilterBodyAction, _body: *const c_char) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut FilterBodyAction, _body: *const c_char) -> *const c_char {
     if _filter.is_null() {
         return _body;
     }
@@ -123,7 +123,7 @@ pub unsafe extern fn redirectionio_action_body_filter_filter(_filter: *mut Filte
 }
 
 #[no_mangle]
-pub unsafe extern fn redirectionio_action_body_filter_close(_filter: *mut FilterBodyAction) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut FilterBodyAction) -> *const c_char {
     if _filter.is_null() {
         return null();
     }
@@ -133,5 +133,3 @@ pub unsafe extern fn redirectionio_action_body_filter_close(_filter: *mut Filter
 
     string_to_c_char(end_body)
 }
-
-

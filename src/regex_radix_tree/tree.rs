@@ -1,5 +1,5 @@
-use crate::regex_radix_tree::{Node, Item, Trace};
 use crate::regex_radix_tree::regex_node::RegexNode;
+use crate::regex_radix_tree::{Item, Node, Trace};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
@@ -24,11 +24,11 @@ impl<T: Item> RegexRadixTree<T> {
         self.root.remove(id)
     }
 
-    pub fn len(&self) -> usize{
+    pub fn len(&self) -> usize {
         self.root.len()
     }
 
-    pub fn is_empty(&self) -> bool{
+    pub fn is_empty(&self) -> bool {
         self.root.is_empty()
     }
 
@@ -67,10 +67,7 @@ mod tests {
 
     impl TestItem {
         pub fn new(regex: String) -> TestItem {
-            TestItem {
-                id: regex.clone(),
-                regex,
-            }
+            TestItem { id: regex.clone(), regex }
         }
     }
 
@@ -177,7 +174,6 @@ mod tests {
         assert_eq!(tree.len(), 3);
     }
 
-
     #[test]
     fn test_find_emoji_weird_rule_regex() {
         let mut tree = RegexRadixTree::default();
@@ -186,19 +182,39 @@ mod tests {
         tree.insert(TestItem::new("/string\\-uppercase/from/(?:([\\p{Lu}\\p{Lt}])+?)".to_string()));
         tree.insert(TestItem::new("/string\\-ending/from/(?:([\\p{Ll}]|\\-)+?JOHN\\-SNOW)".to_string()));
         tree.insert(TestItem::new("/string\\-lowercase/from/(?:([\\p{Ll}])+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-starting/from/(?:JOHN\\-SNOW([\\p{Ll}]|\\-)+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-lowercase\\-uppercase\\-digits/from/(?:([\\p{Ll}\\p{Lu}\\p{Lt}0-9])+?)".to_string()));
+        tree.insert(TestItem::new(
+            "/string\\-starting/from/(?:JOHN\\-SNOW([\\p{Ll}]|\\-)+?)".to_string(),
+        ));
+        tree.insert(TestItem::new(
+            "/string\\-lowercase\\-uppercase\\-digits/from/(?:([\\p{Ll}\\p{Lu}\\p{Lt}0-9])+?)".to_string(),
+        ));
         tree.insert(TestItem::new("/string\\-lowercase\\-uppercase\\-digits\\-allowPercentEncodedChars\\-specificCharacters/from/(?:([\\p{Ll}\\p{Lu}\\p{Lt}0-9]|\\-|\\.|\\(|\\)|%[0-9A-Z]{2})+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-starting\\-shit/from/(?:\\(\\[A\\-Z\\]\\)\\+([\\p{Ll}]|\\-)+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-lowercase\\-specificCharacters\\-emoji/from/(?:([\\p{Ll}]|\\-|🤘)+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-lowercase\\-digits\\-allowPercentEncodedChars/from/(?:([\\p{Ll}0-9]|%[0-9A-Z]{2})+?)".to_string()));
+        tree.insert(TestItem::new(
+            "/string\\-starting\\-shit/from/(?:\\(\\[A\\-Z\\]\\)\\+([\\p{Ll}]|\\-)+?)".to_string(),
+        ));
+        tree.insert(TestItem::new(
+            "/string\\-lowercase\\-specificCharacters\\-emoji/from/(?:([\\p{Ll}]|\\-|🤘)+?)".to_string(),
+        ));
+        tree.insert(TestItem::new(
+            "/string\\-lowercase\\-digits\\-allowPercentEncodedChars/from/(?:([\\p{Ll}0-9]|%[0-9A-Z]{2})+?)".to_string(),
+        ));
         tree.insert(TestItem::new("/string\\-allowLowercaseAlphabet\\-specificCharacters\\-starting\\-containing/from/(?:JOHN\\-SNOW(([\\p{Ll}]|\\-)*?L33T([\\p{Ll}]|\\-)*?)+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-allowPercentEncodedChars/from/(?:(%[0-9A-Z]{2})+?)".to_string()));
+        tree.insert(TestItem::new(
+            "/string\\-allowPercentEncodedChars/from/(?:(%[0-9A-Z]{2})+?)".to_string(),
+        ));
         tree.insert(TestItem::new("/string\\-containing/from/(?:(L33T)+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-specificCharacters/from/(?:(\\.|\\-|\\+|_|/)+?)".to_string()));
-        tree.insert(TestItem::new("/string\\-specificCharacters\\-other/from/(?:(a|\\-|z)+?)".to_string()));
+        tree.insert(TestItem::new(
+            "/string\\-specificCharacters/from/(?:(\\.|\\-|\\+|_|/)+?)".to_string(),
+        ));
+        tree.insert(TestItem::new(
+            "/string\\-specificCharacters\\-other/from/(?:(a|\\-|z)+?)".to_string(),
+        ));
 
         assert_eq!(tree.find("/string-lowercase/from/coucou").is_empty(), false);
-        assert_eq!(tree.find("/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘").is_empty(), false);
+        assert_eq!(
+            tree.find("/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘")
+                .is_empty(),
+            false
+        );
     }
 }

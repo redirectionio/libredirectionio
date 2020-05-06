@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+use crate::router::Transformer;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use crate::router::Transformer;
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Marker {
@@ -24,10 +24,7 @@ pub struct MarkerString {
 
 impl Marker {
     pub fn new(name: String, regex: String) -> Marker {
-        Marker {
-            name,
-            regex,
-        }
+        Marker { name, regex }
     }
 
     pub fn format(&self) -> String {

@@ -12,11 +12,7 @@ pub struct BodyAppend {
 }
 
 impl BodyAppend {
-    pub fn new(
-        element_tree: Vec<String>,
-        css_selector: Option<String>,
-        content: String,
-    ) -> BodyAppend {
+    pub fn new(element_tree: Vec<String>, css_selector: Option<String>, content: String) -> BodyAppend {
         BodyAppend {
             element_tree,
             css_selector,
@@ -39,8 +35,7 @@ impl body_action::BodyAction for BodyAppend {
             return (next_enter, next_leave, false, data);
         }
 
-        let should_buffer =
-            self.position + 1 >= self.element_tree.len() && self.css_selector.is_some();
+        let should_buffer = self.position + 1 >= self.element_tree.len() && self.css_selector.is_some();
 
         (next_enter, next_leave, should_buffer, data)
     }
@@ -58,13 +53,8 @@ impl body_action::BodyAction for BodyAppend {
 
         if is_processing {
             if self.css_selector.is_some() && !self.css_selector.as_ref().unwrap().is_empty() {
-                if !body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone())
-                {
-                    return (
-                        next_enter,
-                        next_leave,
-                        append_child(data, self.content.clone()),
-                    );
+                if !body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
+                    return (next_enter, next_leave, append_child(data, self.content.clone()));
                 }
 
                 return (next_enter, next_leave, data);
@@ -101,10 +91,7 @@ fn append_child(content: String, child: String) -> String {
             level += 1;
             let (tag_name, _) = tokenizer.tag_name();
 
-            if filter_body::VOID_ELEMENTS
-                .get(tag_name.unwrap().as_str())
-                .is_some()
-            {
+            if filter_body::VOID_ELEMENTS.get(tag_name.unwrap().as_str()).is_some() {
                 level -= 1;
             }
         }

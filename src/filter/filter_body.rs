@@ -1,6 +1,6 @@
+use crate::api::BodyFilter;
 use crate::filter::body_action;
 use crate::html;
-use crate::api::BodyFilter;
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -91,9 +91,7 @@ impl FilterBodyAction {
 
             let mut token_data = tokenizer.raw().clone();
 
-            while token_type == html::TokenType::TextToken
-                && (token_data.contains('<') || token_data.contains("</"))
-            {
+            while token_type == html::TokenType::TextToken && (token_data.contains('<') || token_data.contains("</")) {
                 token_type = tokenizer.next();
 
                 if token_type == html::TokenType::ErrorToken {
@@ -105,11 +103,7 @@ impl FilterBodyAction {
                 }
 
                 if self.current_buffer.is_some() {
-                    self.current_buffer
-                        .as_mut()
-                        .unwrap()
-                        .buffer
-                        .push_str(token_data.as_str());
+                    self.current_buffer.as_mut().unwrap().buffer.push_str(token_data.as_str());
                 } else {
                     to_return.push_str(token_data.as_str());
                 }
@@ -121,15 +115,13 @@ impl FilterBodyAction {
                 html::TokenType::StartTagToken => {
                     let (tag_name, _) = tokenizer.tag_name();
                     let tag_name_str = tag_name.unwrap_or_else(|| "".to_string());
-                    let (new_buffer_link, new_token_data) =
-                        self.on_start_tag_token(tag_name_str.clone(), token_data);
+                    let (new_buffer_link, new_token_data) = self.on_start_tag_token(tag_name_str.clone(), token_data);
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
 
                     if VOID_ELEMENTS.get(tag_name_str.as_str()).is_some() {
-                        let (new_buffer_link, new_token_data) =
-                            self.on_end_tag_token(tag_name_str.clone(), token_data);
+                        let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name_str.clone(), token_data);
 
                         self.current_buffer = new_buffer_link;
                         token_data = new_token_data;
@@ -137,22 +129,19 @@ impl FilterBodyAction {
                 }
                 html::TokenType::EndTagToken => {
                     let (tag_name, _) = tokenizer.tag_name();
-                    let (new_buffer_link, new_token_data) =
-                        self.on_end_tag_token(tag_name.unwrap(), token_data);
+                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data);
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
                 }
                 html::TokenType::SelfClosingTagToken => {
                     let (tag_name, _) = tokenizer.tag_name();
-                    let (new_buffer_link, new_token_data) =
-                        self.on_start_tag_token(tag_name.as_ref().unwrap().clone(), token_data);
+                    let (new_buffer_link, new_token_data) = self.on_start_tag_token(tag_name.as_ref().unwrap().clone(), token_data);
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
 
-                    let (new_buffer_link, new_token_data) =
-                        self.on_end_tag_token(tag_name.unwrap(), token_data);
+                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data);
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
@@ -161,11 +150,7 @@ impl FilterBodyAction {
             }
 
             if self.current_buffer.is_some() {
-                self.current_buffer
-                    .as_mut()
-                    .unwrap()
-                    .buffer
-                    .push_str(token_data.as_str());
+                self.current_buffer.as_mut().unwrap().buffer.push_str(token_data.as_str());
             } else {
                 to_return.push_str(token_data.as_str());
             }
@@ -186,18 +171,13 @@ impl FilterBodyAction {
         to_return
     }
 
-    fn on_start_tag_token(
-        &mut self,
-        tag_name: String,
-        data: String,
-    ) -> (Option<Box<BufferLink>>, String) {
+    fn on_start_tag_token(&mut self, tag_name: String, data: String) -> (Option<Box<BufferLink>>, String) {
         let mut buffer = data;
         let mut buffer_link_actions = 0;
 
         for visitor in &mut self.visitors {
             if visitor.enter.is_some() && visitor.enter.as_ref().unwrap() == tag_name.as_str() {
-                let (next_enter, next_leave, start_buffer, new_buffer) =
-                    visitor.action.enter(buffer);
+                let (next_enter, next_leave, start_buffer, new_buffer) = visitor.action.enter(buffer);
 
                 buffer = new_buffer;
 
@@ -223,16 +203,10 @@ impl FilterBodyAction {
         (self.current_buffer.take(), buffer)
     }
 
-    fn on_end_tag_token(
-        &mut self,
-        tag_name: String,
-        data: String,
-    ) -> (Option<Box<BufferLink>>, String) {
+    fn on_end_tag_token(&mut self, tag_name: String, data: String) -> (Option<Box<BufferLink>>, String) {
         let mut buffer: String;
 
-        if self.current_buffer.is_some()
-            && self.current_buffer.as_ref().unwrap().tag_name == tag_name
-        {
+        if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {
             buffer = self.current_buffer.as_ref().unwrap().buffer.clone();
             buffer.push_str(data.as_str());
         } else {
@@ -249,13 +223,8 @@ impl FilterBodyAction {
             }
         }
 
-        if self.current_buffer.is_some()
-            && self.current_buffer.as_ref().unwrap().tag_name == tag_name
-        {
-            return (
-                self.current_buffer.as_mut().unwrap().previous.take(),
-                buffer,
-            );
+        if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {
+            return (self.current_buffer.as_mut().unwrap().previous.take(), buffer);
         }
 
         (self.current_buffer.take(), buffer)
@@ -331,8 +300,7 @@ mod tests {
             visitors,
         };
 
-        let mut filtered =
-            filter.filter("<html><head><meta name=\"description\"></head></html>".to_string());
+        let mut filtered = filter.filter("<html><head><meta name=\"description\"></head></html>".to_string());
         let end = filter.end();
 
         filtered.push_str(end.as_str());

@@ -24,9 +24,6 @@ impl Transform for Slice {
 
 impl Slice {
     pub fn new(from: usize, to: Option<usize>) -> Slice {
-        Slice{
-            from,
-            to,
-        }
+        Slice { from, to }
     }
 }

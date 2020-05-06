@@ -1,7 +1,6 @@
 mod ffi;
 mod status_code_update;
 
-pub use status_code_update::StatusCodeUpdate;
 use crate::api::{BodyFilter, HeaderFilter, Rule};
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
 use crate::http::Header;
@@ -9,6 +8,7 @@ use crate::router::request_matcher::PathAndQueryMatcher;
 use crate::router::{Route, StaticOrDynamic, Trace};
 use http::Request;
 use serde::{Deserialize, Serialize};
+pub use status_code_update::StatusCodeUpdate;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
@@ -88,8 +88,7 @@ impl Action {
             if !target.is_empty() {
                 let path = PathAndQueryMatcher::<Rule>::request_to_path(request);
                 let parameters = route.path_and_query().capture(path.as_str());
-                let value =
-                    StaticOrDynamic::replace(target.clone(), parameters, rule.transformers());
+                let value = StaticOrDynamic::replace(target.clone(), parameters, rule.transformers());
 
                 header_filters.push(HeaderFilterAction {
                     filter: HeaderFilter {
@@ -140,9 +139,7 @@ impl Action {
             Some(new_status_code_update) => match &self.status_code_update {
                 None => Some(new_status_code_update),
                 Some(old_status_code_update) => {
-                    if old_status_code_update.on_response_status_code != 0
-                        || new_status_code_update.on_response_status_code == 0
-                    {
+                    if old_status_code_update.on_response_status_code != 0 || new_status_code_update.on_response_status_code == 0 {
                         Some(new_status_code_update)
                     } else {
                         Some(StatusCodeUpdate {
@@ -192,9 +189,7 @@ impl Action {
         let mut filters = Vec::new();
 
         for filter in &self.header_filters {
-            if filter.on_response_status_code != 0
-                && filter.on_response_status_code != response_status_code
-            {
+            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
                 continue;
             }
 
@@ -211,9 +206,7 @@ impl Action {
         let mut filters = Vec::new();
 
         for filter in &self.body_filters {
-            if filter.on_response_status_code != 0
-                && filter.on_response_status_code != response_status_code
-            {
+            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
                 continue;
             }
 

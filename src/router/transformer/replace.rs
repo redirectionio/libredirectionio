@@ -13,6 +13,6 @@ impl Transform for Replace {
 
 impl Replace {
     pub fn new(something: String, with: String) -> Replace {
-        Replace{something, with}
+        Replace { something, with }
     }
 }

@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate criterion;
-use criterion::{Criterion, BenchmarkId, BatchSize};
-use std::fs::read_to_string;
-use redirectionio::api::{RulesMessage, Rule};
+use criterion::{BatchSize, BenchmarkId, Criterion};
+use redirectionio::api::{Rule, RulesMessage};
 use redirectionio::router::Router;
+use std::fs::read_to_string;
 
 fn create_rules(filename: String) -> RulesMessage {
     let content = read_to_string(filename).expect("Cannot open file");

@@ -9,7 +9,7 @@ pub struct HeaderAddAction {
 
 impl HeaderAction for HeaderAddAction {
     fn filter(&self, mut headers: Vec<Header>) -> Vec<Header> {
-        headers.push(Header{
+        headers.push(Header {
             name: self.name.clone(),
             value: self.value.clone(),
         });
