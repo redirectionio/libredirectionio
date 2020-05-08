@@ -8,20 +8,28 @@ pub trait RouteData: Debug + Clone + Send + Sync + 'static {}
 pub struct Route<T: RouteData> {
     handler: T,
     scheme: Option<String>,
-    host: Option<String>,
+    host: Option<StaticOrDynamic>,
     methods: Option<Vec<String>>,
     path_and_query: StaticOrDynamic,
+    headers: Vec<StaticOrDynamic>,
     id: String,
     priority: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RouteHeader {
+    name: StaticOrDynamic,
+    value: StaticOrDynamic,
 }
 
 impl<T: RouteData> Route<T> {
     pub fn new(
         methods: Option<Vec<String>>,
         scheme: Option<String>,
-        host: Option<String>,
+        host: Option<StaticOrDynamic>,
         path_and_query: StaticOrDynamic,
         handler: T,
+        headers: Vec<StaticOrDynamic>,
         id: String,
         priority: i64,
     ) -> Route<T> {
@@ -31,6 +39,7 @@ impl<T: RouteData> Route<T> {
             host,
             methods,
             path_and_query,
+            headers,
             id,
             priority,
         }
@@ -40,12 +49,16 @@ impl<T: RouteData> Route<T> {
         &self.handler
     }
 
-    pub fn host(&self) -> Option<&str> {
-        Some(self.host.as_ref()?.as_str())
+    pub fn host(&self) -> Option<&StaticOrDynamic> {
+        self.host.as_ref()
     }
 
     pub fn scheme(&self) -> Option<&str> {
         Some(self.scheme.as_ref()?.as_str())
+    }
+
+    pub fn headers(&self) -> &Vec<StaticOrDynamic> {
+        self.headers.as_ref()
     }
 
     pub fn methods(&self) -> Option<&Vec<String>> {

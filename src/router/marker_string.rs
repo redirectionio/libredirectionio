@@ -51,9 +51,15 @@ impl StaticOrDynamic {
             let marker_regex = format!("(?:{})", marker.regex);
             let marker_capture = format!("(?P<{}>{})", marker.name, marker.regex);
 
-            regex = regex.replace(marker.format().as_str(), marker_regex.as_str());
-            capture = capture.replace(marker.format().as_str(), marker_capture.as_str());
-            marker_map.insert(marker.name.clone(), marker_capture);
+            if regex.contains(marker.format().as_str()) {
+                regex = regex.replace(marker.format().as_str(), marker_regex.as_str());
+                capture = capture.replace(marker.format().as_str(), marker_capture.as_str());
+                marker_map.insert(marker.name.clone(), marker_capture);
+            }
+        }
+
+        if marker_map.is_empty() {
+            return StaticOrDynamic::Static(str.to_string());
         }
 
         StaticOrDynamic::Dynamic(MarkerString {

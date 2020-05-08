@@ -1,12 +1,10 @@
 use crate::api::{BodyFilter, HeaderFilter, Marker, Source};
-use crate::router::{Marker as RouteMarker, Route, RouteData, StaticOrDynamic, Transformer};
+use crate::router::{Marker as RouteMarker, PathAndQueryMatcher, Route, RouteData, StaticOrDynamic, Transformer};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
-use std::collections::BTreeMap;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
-const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Rule {
@@ -36,8 +34,8 @@ impl Rule {
         Some(rule_result.unwrap())
     }
 
-    pub fn path_and_query(&self) -> StaticOrDynamic {
-        let markers = match &self.markers {
+    fn markers(&self) -> Vec<RouteMarker> {
+        match &self.markers {
             None => Vec::new(),
             Some(rule_markers) => {
                 let mut markers = Vec::new();
@@ -50,34 +48,15 @@ impl Rule {
 
                 markers
             }
-        };
+        }
+    }
+
+    fn path_and_query(&self) -> StaticOrDynamic {
+        let markers = self.markers();
 
         let query = match self.source.query.clone() {
             None => None,
-            Some(source_query) => {
-                let hash_query: BTreeMap<_, _> = url::form_urlencoded::parse(source_query.as_bytes()).into_owned().collect();
-
-                let mut query_string = "".to_string();
-
-                for (key, value) in &hash_query {
-                    query_string.push_str(&utf8_percent_encode(key, QUERY_ENCODE_SET).to_string());
-
-                    if !value.is_empty() {
-                        query_string.push_str("=");
-                        query_string.push_str(&utf8_percent_encode(value, QUERY_ENCODE_SET).to_string());
-                    }
-
-                    query_string.push_str("&");
-                }
-
-                query_string.pop();
-
-                if query_string.is_empty() {
-                    None
-                } else {
-                    Some(query_string)
-                }
-            }
+            Some(source_query) => PathAndQueryMatcher::<Rule>::build_sorted_query(source_query.as_str()),
         };
 
         let mut path = utf8_percent_encode(self.source.path.as_str(), SIMPLE_ENCODE_SET).to_string();
@@ -87,6 +66,13 @@ impl Rule {
         }
 
         StaticOrDynamic::new_with_markers(path.as_str(), markers)
+    }
+
+    fn host(&self) -> Option<StaticOrDynamic> {
+        Some(StaticOrDynamic::new_with_markers(
+            self.source.host.as_ref()?.as_str(),
+            self.markers(),
+        ))
     }
 
     pub fn transformers(&self) -> Vec<Transformer> {
@@ -127,9 +113,10 @@ impl Rule {
         Route::new(
             self.source.methods.clone(),
             self.source.scheme.clone(),
-            self.source.host.clone(),
+            self.host(),
             self.path_and_query(),
             self,
+            Vec::new(),
             id,
             priority,
         )
