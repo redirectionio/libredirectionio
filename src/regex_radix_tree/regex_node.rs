@@ -93,9 +93,10 @@ impl<T: Item, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
 
             let new_len = child.len();
 
-            self.count += new_len - prev_len;
+            self.count += new_len;
+            self.count -= prev_len;
 
-            if child.len() == 0 {
+            if new_len == 0 {
                 self.children.remove(i);
             } else {
                 i += 1;
