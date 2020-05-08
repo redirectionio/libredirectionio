@@ -1,18 +1,18 @@
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
-use crate::regex_radix_tree::{Item, Node, Trace};
+use crate::regex_radix_tree::{Item, Node, Trace, Storage};
 use regex::Regex;
 
 #[derive(Debug, Clone)]
-pub struct RegexNode<T: Item> {
+pub struct RegexNode<T: Item, S: Storage<T>> {
     prefix: Option<String>,
     prefix_compiled: Option<Regex>,
     level: u64,
-    children: Vec<Box<dyn Node<T>>>,
+    children: Vec<Box<dyn Node<T, S>>>,
     count: usize,
 }
 
-impl<T: Item> Node<T> for RegexNode<T> {
+impl<T: Item, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
     fn insert(&mut self, item: T, parent_prefix_size: u32) {
         self.count += 1;
 
@@ -51,7 +51,7 @@ impl<T: Item> Node<T> for RegexNode<T> {
         self.children.push(Box::new(Leaf::new(item, self.level + 1)));
     }
 
-    fn find(&self, value: &str) -> Vec<&T> {
+    fn find(&self, value: &str) -> Vec<&S> {
         let mut values = Vec::new();
 
         if self.is_match(value) {
@@ -63,7 +63,7 @@ impl<T: Item> Node<T> for RegexNode<T> {
         values
     }
 
-    fn trace(&self, value: &str) -> Trace<T> {
+    fn trace(&self, value: &str) -> Trace<T, S> {
         let mut children = Vec::new();
         let matched = self.is_match(value);
 
@@ -78,17 +78,22 @@ impl<T: Item> Node<T> for RegexNode<T> {
             matched,
             self.count as u64,
             children,
-            Vec::new(),
+            S::default(),
         )
     }
 
-    fn remove(&mut self, id: &str) -> Vec<T> {
-        let mut removed = Vec::new();
+    fn remove(&mut self, id: &str) {
         let mut i = 0;
 
         while i != self.children.len() {
             let child = &mut self.children[i];
-            removed.extend(child.remove(id));
+            let prev_len = child.len();
+
+            child.remove(id);
+
+            let new_len = child.len();
+
+            self.count += new_len - prev_len;
 
             if child.len() == 0 {
                 self.children.remove(i);
@@ -96,10 +101,6 @@ impl<T: Item> Node<T> for RegexNode<T> {
                 i += 1;
             }
         }
-
-        self.count -= removed.len();
-
-        removed
     }
 
     fn regex(&self) -> &str {
@@ -148,12 +149,12 @@ impl<T: Item> Node<T> for RegexNode<T> {
         new_limit
     }
 
-    fn box_clone(&self) -> Box<dyn Node<T>> {
+    fn box_clone(&self) -> Box<dyn Node<T, S>> {
         Box::new(self.clone())
     }
 }
 
-impl<T: Item> Default for RegexNode<T> {
+impl<T: Item, S: Storage<T>> Default for RegexNode<T, S> {
     fn default() -> Self {
         RegexNode {
             level: 0,
@@ -165,8 +166,8 @@ impl<T: Item> Default for RegexNode<T> {
     }
 }
 
-impl<T: Item> RegexNode<T> {
-    pub fn new(first: Box<dyn Node<T>>, second: Box<dyn Node<T>>, prefix: String, level: u64) -> RegexNode<T> {
+impl<T: Item, S: Storage<T>> RegexNode<T, S> {
+    pub fn new(first: Box<dyn Node<T, S>>, second: Box<dyn Node<T, S>>, prefix: String, level: u64) -> RegexNode<T, S> {
         RegexNode {
             level,
             prefix: Some(prefix),

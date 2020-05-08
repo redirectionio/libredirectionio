@@ -1,13 +1,13 @@
 use crate::regex_radix_tree::regex_node::RegexNode;
-use crate::regex_radix_tree::{Item, Node, Trace};
+use crate::regex_radix_tree::{Item, Node, Trace, Storage};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
-pub struct RegexRadixTree<T: Item> {
-    root: RegexNode<T>,
+pub struct RegexRadixTree<T: Item, S: Storage<T>> {
+    root: RegexNode<T, S>,
 }
 
-impl<T: Item> Default for RegexRadixTree<T> {
+impl<T: Item, S: Storage<T>> Default for RegexRadixTree<T, S> {
     fn default() -> Self {
         RegexRadixTree {
             root: RegexNode::default(),
@@ -15,12 +15,12 @@ impl<T: Item> Default for RegexRadixTree<T> {
     }
 }
 
-impl<T: Item> RegexRadixTree<T> {
+impl<T: Item, S: Storage<T>> RegexRadixTree<T, S> {
     pub fn insert(&mut self, item: T) {
         self.root.insert(item, 0)
     }
 
-    pub fn remove(&mut self, id: &str) -> Vec<T> {
+    pub fn remove(&mut self, id: &str) {
         self.root.remove(id)
     }
 
@@ -32,11 +32,11 @@ impl<T: Item> RegexRadixTree<T> {
         self.root.is_empty()
     }
 
-    pub fn trace(&self, value: &str) -> Trace<T> {
+    pub fn trace(&self, value: &str) -> Trace<T, S> {
         self.root.trace(value)
     }
 
-    pub fn find(&self, value: &str) -> Vec<&T> {
+    pub fn find(&self, value: &str) -> Vec<&S> {
         self.root.find(value)
     }
 
@@ -73,7 +73,7 @@ mod tests {
 
     #[test]
     fn test_find_no_rule() {
-        let tree: RegexRadixTree<TestItem> = RegexRadixTree::default();
+        let tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         assert_eq!(tree.find("tata").is_empty(), true);
         assert_eq!(tree.find("test").is_empty(), true);
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn test_find_one_rule() {
         let item1 = TestItem::new("tata".to_string());
-        let mut tree = RegexRadixTree::default();
+        let mut tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         tree.insert(item1);
 
@@ -94,7 +94,7 @@ mod tests {
 
     #[test]
     fn test_find_emoji_rule_regex() {
-        let mut tree = RegexRadixTree::default();
+        let mut tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         tree.insert(TestItem::new("/emoji/(([\\p{Ll}]|\\-|➡️|🤘)+?)".to_string()));
 
@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn test_find_multiple_rule() {
-        let mut tree = RegexRadixTree::default();
+        let mut tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         tree.insert(TestItem::new("/a/b".to_string()));
         tree.insert(TestItem::new("/a/b/c".to_string()));
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn test_find_rule_with_regex() {
-        let mut tree = RegexRadixTree::default();
+        let mut tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         tree.insert(TestItem::new("/a/(.+?)/c".to_string()));
 
@@ -139,7 +139,7 @@ mod tests {
 
     #[test]
     fn test_find_multiple_rule_with_regex() {
-        let mut tree = RegexRadixTree::default();
+        let mut tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         tree.insert(TestItem::new("/a/(.+?)/c".to_string()));
         tree.insert(TestItem::new("/a/(.+?)/b".to_string()));
@@ -156,7 +156,7 @@ mod tests {
 
     #[test]
     fn test_find_multiple_rule_after_remove() {
-        let mut tree = RegexRadixTree::default();
+        let mut tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         tree.insert(TestItem::new("/a/b".to_string()));
         tree.insert(TestItem::new("/a/b/c".to_string()));
@@ -176,7 +176,7 @@ mod tests {
 
     #[test]
     fn test_find_emoji_weird_rule_regex() {
-        let mut tree = RegexRadixTree::default();
+        let mut tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
         tree.insert(TestItem::new("/string/from/(?:)".to_string()));
         tree.insert(TestItem::new("/string\\-uppercase/from/(?:([\\p{Lu}\\p{Lt}])+?)".to_string()));

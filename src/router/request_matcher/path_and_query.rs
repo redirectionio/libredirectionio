@@ -12,7 +12,7 @@ const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(
 
 #[derive(Debug, Clone)]
 pub struct PathAndQueryMatcher<T: RouteData> {
-    regex_tree_rule: RegexRadixTree<RegexItemMatcher<T>>,
+    regex_tree_rule: RegexRadixTree<RegexItemMatcher<T>, Vec<RegexItemMatcher<T>>>,
     static_rules: HashMap<String, Box<dyn RequestMatcher<T>>>,
     count: usize,
 }
@@ -39,12 +39,9 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
     }
 
     fn remove(&mut self, id: &str) -> Vec<Route<T>> {
-        let mut removed_matchers = self.regex_tree_rule.remove(id);
         let mut routes = Vec::new();
 
-        for matcher in &mut removed_matchers {
-            routes.extend(matcher.remove(id));
-        }
+        self.regex_tree_rule.remove(id);
 
         self.static_rules.retain(|_, matcher| {
             routes.extend(matcher.remove(id));
@@ -52,7 +49,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
             matcher.len() > 0
         });
 
-        self.count -= routes.len();
+        self.count = self.static_rules.len() + self.regex_tree_rule.len();
 
         routes
     }
@@ -62,8 +59,10 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
         let matchers = self.regex_tree_rule.find(path.as_str());
         let mut routes = Vec::new();
 
-        for matcher in matchers {
-            routes.extend(matcher.match_request(request));
+        for vec_matcher in matchers {
+            for matcher in vec_matcher {
+                routes.extend(matcher.match_request(request));
+            }
         }
 
         match self.static_rules.get(path.as_str()) {
@@ -131,10 +130,7 @@ impl<T: RouteData> Default for PathAndQueryMatcher<T> {
     }
 }
 
-impl<T> PathAndQueryMatcher<T>
-where
-    T: RouteData,
-{
+impl<T: RouteData> PathAndQueryMatcher<T> {
     pub fn request_to_path(request: &Request<()>) -> String {
         let mut path = request.uri().path().to_string();
 
@@ -150,7 +146,7 @@ where
         path
     }
 
-    fn build_sorted_query(query: &str) -> Option<String> {
+    pub fn build_sorted_query(query: &str) -> Option<String> {
         let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes()).into_owned().collect();
 
         let mut query_string = "".to_string();
@@ -175,14 +171,14 @@ where
         Some(query_string)
     }
 
-    fn node_trace_to_router_trace(trace: NodeTrace<RegexItemMatcher<T>>, request: &Request<()>) -> Trace<T> {
+    fn node_trace_to_router_trace(trace: NodeTrace<RegexItemMatcher<T>, Vec<RegexItemMatcher<T>>>, request: &Request<()>) -> Trace<T> {
         let mut children = Vec::new();
 
         for child in trace.children {
             children.push(PathAndQueryMatcher::<T>::node_trace_to_router_trace(child, request));
         }
 
-        for matcher in trace.items {
+        for matcher in &trace.storage {
             children.extend(matcher.trace(request));
         }
 

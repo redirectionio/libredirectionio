@@ -1,20 +1,20 @@
-use crate::regex_radix_tree::{Item, Trace};
+use crate::regex_radix_tree::{Item, Trace, Storage};
 use std::fmt::Debug;
 
-pub trait Node<T: Item>: Debug + Send + Sync {
+pub trait Node<T: Item, S: Storage<T>>: Debug + Send + Sync {
     /// Insert a new item into this node
     fn insert(&mut self, item: T, parent_prefix_size: u32);
 
-    /// Find all possible item matching this value
-    fn find(&self, value: &str) -> Vec<&T>;
+    /// Find storage associated to this value
+    fn find(&self, value: &str) -> Vec<&S>;
 
     /// Traces when finding a value
-    fn trace(&self, value: &str) -> Trace<T>;
+    fn trace(&self, value: &str) -> Trace<T, S>;
 
     /// Remove an item on this tree
     ///
     /// This method returns true if there is no more data so it can be cleaned up
-    fn remove(&mut self, id: &str) -> Vec<T>;
+    fn remove(&mut self, id: &str);
 
     /// Return regex used by this node
     fn regex(&self) -> &str;
@@ -44,10 +44,10 @@ pub trait Node<T: Item>: Debug + Send + Sync {
     fn cache(&mut self, limit: u64, level: u64) -> u64;
 
     /// Allow to clone object
-    fn box_clone(&self) -> Box<dyn Node<T>>;
+    fn box_clone(&self) -> Box<dyn Node<T, S>>;
 }
 
-impl<T: Item> Clone for Box<dyn Node<T>> {
+impl<T: Item, S: Storage<T>> Clone for Box<dyn Node<T, S>> {
     fn clone(&self) -> Self {
         self.box_clone()
     }
