@@ -3,10 +3,7 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 
 #[derive(Debug, Clone)]
-pub struct RouteMatcher<T>
-where
-    T: RouteData,
-{
+pub struct RouteMatcher<T: RouteData> {
     routes: Vec<Route<T>>,
 }
 

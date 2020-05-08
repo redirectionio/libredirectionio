@@ -17,10 +17,7 @@ pub use path_and_query::PathAndQueryMatcher;
 pub use route_matcher::RouteMatcher;
 pub use scheme::SchemeMatcher;
 
-pub trait RequestMatcher<T>: Debug + Send + Sync
-where
-    T: RouteData,
-{
+pub trait RequestMatcher<T: RouteData>: Debug + Send + Sync {
     fn insert(&mut self, route: Route<T>);
 
     fn remove(&mut self, id: &str) -> Vec<Route<T>>;

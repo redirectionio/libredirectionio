@@ -3,17 +3,11 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 
 #[derive(Debug, Clone)]
-pub struct HeaderMatcher<T>
-where
-    T: RouteData,
-{
+pub struct HeaderMatcher<T: RouteData> {
     any_header: Box<dyn RequestMatcher<T>>,
 }
 
-impl<T> RequestMatcher<T> for HeaderMatcher<T>
-where
-    T: RouteData,
-{
+impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.any_header.insert(route);
     }
@@ -55,10 +49,7 @@ impl<T: RouteData> Default for HeaderMatcher<T> {
     }
 }
 
-impl<T> HeaderMatcher<T>
-where
-    T: RouteData,
-{
+impl<T: RouteData> HeaderMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
         Box::new(PathAndQueryMatcher::default())
     }

@@ -10,10 +10,7 @@ pub struct SchemeMatcher<T: RouteData> {
     count: usize,
 }
 
-impl<T> RequestMatcher<T> for SchemeMatcher<T>
-where
-    T: RouteData,
-{
+impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
@@ -148,10 +145,7 @@ impl<T: RouteData> Default for SchemeMatcher<T> {
     }
 }
 
-impl<T> SchemeMatcher<T>
-where
-    T: RouteData,
-{
+impl<T: RouteData> SchemeMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
         Box::new(HostMatcher::default())
     }
