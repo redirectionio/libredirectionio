@@ -1,7 +1,7 @@
-use crate::regex_radix_tree::{Item, Trace, Storage};
+use crate::regex_radix_tree::{NodeItem, Trace, Storage};
 use std::fmt::Debug;
 
-pub trait Node<T: Item, S: Storage<T>>: Debug + Send + Sync {
+pub trait Node<T: NodeItem, S: Storage<T>>: Debug + Send + Sync {
     /// Insert a new item into this node
     fn insert(&mut self, item: T, parent_prefix_size: u32);
 
@@ -47,7 +47,7 @@ pub trait Node<T: Item, S: Storage<T>>: Debug + Send + Sync {
     fn box_clone(&self) -> Box<dyn Node<T, S>>;
 }
 
-impl<T: Item, S: Storage<T>> Clone for Box<dyn Node<T, S>> {
+impl<T: NodeItem, S: Storage<T>> Clone for Box<dyn Node<T, S>> {
     fn clone(&self) -> Self {
         self.box_clone()
     }

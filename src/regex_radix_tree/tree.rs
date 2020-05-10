@@ -1,13 +1,13 @@
 use crate::regex_radix_tree::regex_node::RegexNode;
-use crate::regex_radix_tree::{Item, Node, Trace, Storage};
+use crate::regex_radix_tree::{NodeItem, Node, Trace, Storage};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
-pub struct RegexRadixTree<T: Item, S: Storage<T>> {
+pub struct RegexRadixTree<T: NodeItem, S: Storage<T>> {
     root: RegexNode<T, S>,
 }
 
-impl<T: Item, S: Storage<T>> Default for RegexRadixTree<T, S> {
+impl<T: NodeItem, S: Storage<T>> Default for RegexRadixTree<T, S> {
     fn default() -> Self {
         RegexRadixTree {
             root: RegexNode::default(),
@@ -15,7 +15,7 @@ impl<T: Item, S: Storage<T>> Default for RegexRadixTree<T, S> {
     }
 }
 
-impl<T: Item, S: Storage<T>> RegexRadixTree<T, S> {
+impl<T: NodeItem, S: Storage<T>> RegexRadixTree<T, S> {
     pub fn insert(&mut self, item: T) {
         self.root.insert(item, 0)
     }
@@ -48,6 +48,7 @@ impl<T: Item, S: Storage<T>> RegexRadixTree<T, S> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::regex_radix_tree::VecStorageItem;
 
     #[derive(Debug, Clone)]
     struct TestItem {
@@ -55,11 +56,13 @@ mod tests {
         id: String,
     }
 
-    impl Item for TestItem {
+    impl NodeItem for TestItem {
         fn regex(&self) -> &str {
             self.regex.as_str()
         }
+    }
 
+    impl VecStorageItem for TestItem {
         fn id(&self) -> &str {
             self.id.as_str()
         }

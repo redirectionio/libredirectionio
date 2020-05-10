@@ -1,9 +1,9 @@
-use crate::regex_radix_tree::{Item, Node, Trace, Storage};
+use crate::regex_radix_tree::{NodeItem, Node, Trace, Storage};
 use std::marker::PhantomData;
 use regex::Regex;
 
 #[derive(Debug, Clone)]
-pub struct Leaf<T: Item, S: Storage<T>> {
+pub struct Leaf<T: NodeItem, S: Storage<T>> {
     storage: S,
     level: u64,
     prefix: String,
@@ -11,7 +11,7 @@ pub struct Leaf<T: Item, S: Storage<T>> {
     phantom: PhantomData<T>,
 }
 
-impl<T: Item, S: Storage<T>> Node<T, S> for Leaf<T, S> {
+impl<T: NodeItem, S: Storage<T>> Node<T, S> for Leaf<T, S> {
     fn insert(&mut self, item: T, _parent_prefix_size: u32) {
         self.storage.push(item)
     }
@@ -75,7 +75,7 @@ impl<T: Item, S: Storage<T>> Node<T, S> for Leaf<T, S> {
     }
 }
 
-impl<T: Item, S: Storage<T>> Leaf<T, S> {
+impl<T: NodeItem, S: Storage<T>> Leaf<T, S> {
     pub fn new(item: T, level: u64) -> Leaf<T, S> {
         let mut storage = S::new(item.regex());
         let prefix = item.regex().to_string();

@@ -1,10 +1,10 @@
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
-use crate::regex_radix_tree::{Item, Node, Trace, Storage};
+use crate::regex_radix_tree::{NodeItem, Node, Trace, Storage};
 use regex::Regex;
 
 #[derive(Debug, Clone)]
-pub struct RegexNode<T: Item, S: Storage<T>> {
+pub struct RegexNode<T: NodeItem, S: Storage<T>> {
     prefix: Option<String>,
     prefix_compiled: Option<Regex>,
     level: u64,
@@ -12,7 +12,7 @@ pub struct RegexNode<T: Item, S: Storage<T>> {
     count: usize,
 }
 
-impl<T: Item, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
+impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
     fn insert(&mut self, item: T, parent_prefix_size: u32) {
         self.count += 1;
 
@@ -155,7 +155,7 @@ impl<T: Item, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
     }
 }
 
-impl<T: Item, S: Storage<T>> Default for RegexNode<T, S> {
+impl<T: NodeItem, S: Storage<T>> Default for RegexNode<T, S> {
     fn default() -> Self {
         RegexNode {
             level: 0,
@@ -167,7 +167,7 @@ impl<T: Item, S: Storage<T>> Default for RegexNode<T, S> {
     }
 }
 
-impl<T: Item, S: Storage<T>> RegexNode<T, S> {
+impl<T: NodeItem, S: Storage<T>> RegexNode<T, S> {
     pub fn new(first: Box<dyn Node<T, S>>, second: Box<dyn Node<T, S>>, prefix: String, level: u64) -> RegexNode<T, S> {
         RegexNode {
             level,

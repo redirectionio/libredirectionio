@@ -1,4 +1,4 @@
-use crate::regex_radix_tree::Item;
+use crate::regex_radix_tree::{VecStorageItem, NodeItem};
 use crate::router::request_matcher::RequestMatcher;
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
@@ -10,11 +10,13 @@ pub struct RegexItemMatcher<T: RouteData> {
     id: String,
 }
 
-impl<T: RouteData> Item for RegexItemMatcher<T> {
+impl<T: RouteData> NodeItem for RegexItemMatcher<T> {
     fn regex(&self) -> &str {
         self.regex.as_str()
     }
+}
 
+impl<T: RouteData> VecStorageItem for RegexItemMatcher<T> {
     fn id(&self) -> &str {
         self.id.as_str()
     }

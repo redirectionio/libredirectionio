@@ -1,4 +1,4 @@
-use crate::regex_radix_tree::{Storage, Item};
+use crate::regex_radix_tree::{Storage, NodeItem};
 use crate::router::{RouteData, RequestMatcher, Route};
 use std::marker::PhantomData;
 
@@ -9,7 +9,7 @@ pub struct MatcherTreeStorage<T: RouteData, M: RequestMatcher<T> + Default + Clo
     phantom: PhantomData<T>,
 }
 
-pub trait ItemRoute<T: RouteData>: Item {
+pub trait ItemRoute<T: RouteData>: NodeItem {
     fn route(&self) -> Route<T>;
 }
 
