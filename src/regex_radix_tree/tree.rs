@@ -56,7 +56,7 @@ mod tests {
     }
 
     impl Item for TestItem {
-        fn node_regex(&self) -> &str {
+        fn regex(&self) -> &str {
             self.regex.as_str()
         }
 

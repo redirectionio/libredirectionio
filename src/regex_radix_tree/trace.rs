@@ -7,12 +7,12 @@ pub struct Trace<T: Item, S: Storage<T>> {
     pub count: u64,
     pub matched: bool,
     pub children: Vec<Trace<T, S>>,
-    pub storage: S,
+    pub storage: Option<S>,
     phantom: PhantomData<T>,
 }
 
 impl<T: Item, S: Storage<T>> Trace<T, S> {
-    pub fn new(regex: String, matched: bool, count: u64, children: Vec<Trace<T, S>>, storage: S) -> Trace<T, S> {
+    pub fn new(regex: String, matched: bool, count: u64, children: Vec<Trace<T, S>>, storage: Option<S>) -> Trace<T, S> {
         Trace {
             regex,
             matched,

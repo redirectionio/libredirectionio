@@ -4,7 +4,7 @@ use regex::Regex;
 
 #[derive(Debug, Clone)]
 pub struct Leaf<T: Item, S: Storage<T>> {
-    data: S,
+    storage: S,
     level: u64,
     prefix: String,
     prefix_compiled: Option<Regex>,
@@ -13,12 +13,12 @@ pub struct Leaf<T: Item, S: Storage<T>> {
 
 impl<T: Item, S: Storage<T>> Node<T, S> for Leaf<T, S> {
     fn insert(&mut self, item: T, _parent_prefix_size: u32) {
-        self.data.push(item)
+        self.storage.push(item)
     }
 
     fn find(&self, value: &str) -> Vec<&S> {
         if self.is_match(value) {
-            return vec![&self.data];
+            return vec![&self.storage];
         }
 
         Vec::new()
@@ -26,13 +26,13 @@ impl<T: Item, S: Storage<T>> Node<T, S> for Leaf<T, S> {
 
     fn trace(&self, value: &str) -> Trace<T, S> {
         let matched = self.is_match(value);
-        let storage = if matched { self.data.clone() } else { S::default() };
+        let storage = if matched { Some(self.storage.clone()) } else { None };
 
-        Trace::new(self.prefix.clone(), matched, self.data.len() as u64, Vec::new(), storage)
+        Trace::new(self.prefix.clone(), matched, self.storage.len() as u64, Vec::new(), storage)
     }
 
     fn remove(&mut self, id: &str) {
-        self.data.remove(id);
+        self.storage.remove(id);
     }
 
     fn regex(&self) -> &str {
@@ -40,15 +40,15 @@ impl<T: Item, S: Storage<T>> Node<T, S> for Leaf<T, S> {
     }
 
     fn len(&self) -> usize {
-        self.data.len()
+        self.storage.len()
     }
 
     fn is_empty(&self) -> bool {
-        self.data.is_empty()
+        self.storage.is_empty()
     }
 
     fn can_insert_item(&self, _prefix: &str, item: &T) -> bool {
-        item.node_regex() == self.prefix
+        item.regex() == self.prefix
     }
 
     fn incr_level(&mut self) {
@@ -77,14 +77,14 @@ impl<T: Item, S: Storage<T>> Node<T, S> for Leaf<T, S> {
 
 impl<T: Item, S: Storage<T>> Leaf<T, S> {
     pub fn new(item: T, level: u64) -> Leaf<T, S> {
-        let mut storage = S::default();
-        let prefix = item.node_regex().to_string();
+        let mut storage = S::new(item.regex());
+        let prefix = item.regex().to_string();
 
         storage.push(item);
 
         Leaf {
             prefix,
-            data: storage,
+            storage: storage,
             level,
             prefix_compiled: None,
             phantom: PhantomData,

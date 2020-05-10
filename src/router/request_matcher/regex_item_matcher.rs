@@ -11,7 +11,7 @@ pub struct RegexItemMatcher<T: RouteData> {
 }
 
 impl<T: RouteData> Item for RegexItemMatcher<T> {
-    fn node_regex(&self) -> &str {
+    fn regex(&self) -> &str {
         self.regex.as_str()
     }
 

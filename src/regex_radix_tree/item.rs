@@ -6,7 +6,7 @@ pub trait Item: Debug + Clone + Send + Sync + 'static {
     ///
     /// Regex should not contains `^` at the start and `$` at the end, those are inserted for you
     /// automatically
-    fn node_regex(&self) -> &str;
+    fn regex(&self) -> &str;
 
     /// Unique identifier for an item
     ///

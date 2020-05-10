@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use crate::regex_radix_tree::Item;
 
-pub trait Storage<T: Item>: Default + Debug + Clone + Send + Sync + 'static  {
+pub trait Storage<T: Item>: Debug + Clone + Send + Sync + 'static  {
     fn push(&mut self, item: T);
 
     fn remove(&mut self, id: &str);
@@ -10,7 +10,7 @@ pub trait Storage<T: Item>: Default + Debug + Clone + Send + Sync + 'static  {
 
     fn is_empty(&self) -> bool;
 
-    fn regex(&self) -> &str;
+    fn new(regex: &str) -> Self;
 }
 
 impl<T: Item> Storage<T> for Vec<T> {
@@ -32,10 +32,7 @@ impl<T: Item> Storage<T> for Vec<T> {
         self.is_empty()
     }
 
-    fn regex(&self) -> &str {
-        match self.first() {
-            None => "",
-            Some(item) => item.node_regex(),
-        }
+    fn new(_regex: &str) -> Self {
+        Vec::new()
     }
 }

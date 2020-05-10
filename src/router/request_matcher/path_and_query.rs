@@ -178,8 +178,10 @@ impl<T: RouteData> PathAndQueryMatcher<T> {
             children.push(PathAndQueryMatcher::<T>::node_trace_to_router_trace(child, request));
         }
 
-        for matcher in &trace.storage {
-            children.extend(matcher.trace(request));
+        if let Some(storage) = trace.storage.as_ref() {
+            for matcher in storage {
+                children.extend(matcher.trace(request));
+            }
         }
 
         Trace::new(

@@ -16,7 +16,7 @@ impl<T: Item, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
     fn insert(&mut self, item: T, parent_prefix_size: u32) {
         self.count += 1;
 
-        let item_regex = item.node_regex();
+        let item_regex = item.regex();
 
         // for each children node
         for i in 0..self.children.len() {
@@ -78,7 +78,7 @@ impl<T: Item, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
             matched,
             self.count as u64,
             children,
-            S::default(),
+            None,
         )
     }
 
