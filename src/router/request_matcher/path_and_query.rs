@@ -1,6 +1,6 @@
-use crate::regex_radix_tree::{RegexRadixTree, Trace as NodeTrace};
+use crate::regex_radix_tree::{RegexRadixTree, Trace as NodeTrace, NodeItem};
 use crate::router::marker_string::StaticOrDynamic;
-use crate::router::request_matcher::regex_item_matcher::RegexItemMatcher;
+use crate::router::request_matcher::matcher_tree_storage::{MatcherTreeStorage, ItemRoute};
 use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
@@ -11,8 +11,27 @@ use url::form_urlencoded::parse as parse_query;
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
 #[derive(Debug, Clone)]
+pub struct PathAndQueryRegexNodeItem<T: RouteData> {
+    route: Route<T>,
+    path_regex: String,
+}
+
+impl<T: RouteData> NodeItem for PathAndQueryRegexNodeItem<T> {
+    fn regex(&self) -> &str {
+        self.path_regex.as_str()
+    }
+}
+impl<T: RouteData> ItemRoute<T> for PathAndQueryRegexNodeItem<T> {
+    fn route(self) -> Route<T> {
+        self.route
+    }
+}
+
+type PathAndQueryRegexTreeMatcher<T> = MatcherTreeStorage<T, PathAndQueryRegexNodeItem<T>, RouteMatcher<T>>;
+
+#[derive(Debug, Clone)]
 pub struct PathAndQueryMatcher<T: RouteData> {
-    regex_tree_rule: RegexRadixTree<RegexItemMatcher<T>, Vec<RegexItemMatcher<T>>>,
+    regex_tree_rule: RegexRadixTree<PathAndQueryRegexNodeItem<T>, PathAndQueryRegexTreeMatcher<T>>,
     static_rules: HashMap<String, Box<dyn RequestMatcher<T>>>,
     count: usize,
 }
@@ -30,10 +49,12 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
                 self.static_rules.get_mut(path).unwrap().insert(route);
             }
             StaticOrDynamic::Dynamic(path) => {
-                let mut item_matcher = PathAndQueryMatcher::create_item_matcher(path.regex.clone(), route.id().to_string());
+                let item = PathAndQueryRegexNodeItem {
+                    path_regex: path.regex.clone(),
+                    route,
+                };
 
-                item_matcher.insert(route);
-                self.regex_tree_rule.insert(item_matcher)
+                self.regex_tree_rule.insert(item)
             }
         }
     }
@@ -56,13 +77,11 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
         let path = PathAndQueryMatcher::<T>::request_to_path(request);
-        let matchers = self.regex_tree_rule.find(path.as_str());
+        let storages = self.regex_tree_rule.find(path.as_str());
         let mut routes = Vec::new();
 
-        for vec_matcher in matchers {
-            for matcher in vec_matcher {
-                routes.extend(matcher.match_request(request));
-            }
+        for storage in storages {
+            routes.extend(storage.matcher.match_request(request));
         }
 
         match self.static_rules.get(path.as_str()) {
@@ -171,7 +190,7 @@ impl<T: RouteData> PathAndQueryMatcher<T> {
         Some(query_string)
     }
 
-    fn node_trace_to_router_trace(trace: NodeTrace<RegexItemMatcher<T>, Vec<RegexItemMatcher<T>>>, request: &Request<()>) -> Trace<T> {
+    fn node_trace_to_router_trace(trace: NodeTrace<PathAndQueryRegexNodeItem<T>, PathAndQueryRegexTreeMatcher<T>>, request: &Request<()>) -> Trace<T> {
         let mut children = Vec::new();
 
         for child in trace.children {
@@ -179,9 +198,7 @@ impl<T: RouteData> PathAndQueryMatcher<T> {
         }
 
         if let Some(storage) = trace.storage.as_ref() {
-            for matcher in storage {
-                children.extend(matcher.trace(request));
-            }
+            children.extend(storage.matcher.trace(request));
         }
 
         Trace::new(
@@ -192,10 +209,6 @@ impl<T: RouteData> PathAndQueryMatcher<T> {
             children,
             Vec::new(),
         )
-    }
-
-    fn create_item_matcher(path: String, id: String) -> RegexItemMatcher<T> {
-        RegexItemMatcher::new(path, id, Box::new(RouteMatcher::default()))
     }
 
     fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {

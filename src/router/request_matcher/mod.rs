@@ -2,7 +2,6 @@ mod header;
 mod host;
 mod method;
 mod path_and_query;
-mod regex_item_matcher;
 mod route_matcher;
 mod scheme;
 mod matcher_tree_storage;
