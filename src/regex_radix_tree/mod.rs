@@ -11,6 +11,6 @@ mod tree;
 pub use item::NodeItem;
 pub use node::Node;
 pub use storage::Storage;
+pub use storage_vec::VecStorageItem;
 pub use trace::Trace;
 pub use tree::RegexRadixTree;
-pub use storage_vec::VecStorageItem;

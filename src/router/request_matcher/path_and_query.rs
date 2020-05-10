@@ -1,6 +1,6 @@
-use crate::regex_radix_tree::{RegexRadixTree, Trace as NodeTrace, NodeItem};
+use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
 use crate::router::marker_string::StaticOrDynamic;
-use crate::router::request_matcher::matcher_tree_storage::{MatcherTreeStorage, ItemRoute};
+use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
 use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
@@ -11,7 +11,7 @@ use url::form_urlencoded::parse as parse_query;
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
 #[derive(Debug, Clone)]
-pub struct PathAndQueryRegexNodeItem<T: RouteData> {
+struct PathAndQueryRegexNodeItem<T: RouteData> {
     route: Route<T>,
     path_regex: String,
 }
@@ -49,30 +49,34 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
                 self.static_rules.get_mut(path).unwrap().insert(route);
             }
             StaticOrDynamic::Dynamic(path) => {
-                let item = PathAndQueryRegexNodeItem {
+                self.regex_tree_rule.insert(PathAndQueryRegexNodeItem {
                     path_regex: path.regex.clone(),
                     route,
-                };
-
-                self.regex_tree_rule.insert(item)
+                });
             }
         }
     }
 
-    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
-        let mut routes = Vec::new();
+    fn remove(&mut self, id: &str) -> bool {
+        let mut removed = false;
 
-        self.regex_tree_rule.remove(id);
+        if self.regex_tree_rule.remove(id) {
+            self.count -= 1;
+
+            return true;
+        }
 
         self.static_rules.retain(|_, matcher| {
-            routes.extend(matcher.remove(id));
+            removed = removed || matcher.remove(id);
 
             matcher.len() > 0
         });
 
-        self.count = self.static_rules.len() + self.regex_tree_rule.len();
+        if removed {
+            self.count -= 1;
+        }
 
-        routes
+        removed
     }
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
@@ -97,7 +101,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
     fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
         let path = PathAndQueryMatcher::<T>::request_to_path(request);
         let node_trace = self.regex_tree_rule.trace(path.as_str());
-        let mut traces = vec![PathAndQueryMatcher::<T>::node_trace_to_router_trace(node_trace, request)];
+        let mut traces = vec![PathAndQueryRegexTreeMatcher::<T>::node_trace_to_router_trace(node_trace, request)];
 
         let static_traces = match self.static_rules.get(path.as_str()) {
             None => Vec::new(),
@@ -188,27 +192,6 @@ impl<T: RouteData> PathAndQueryMatcher<T> {
         }
 
         Some(query_string)
-    }
-
-    fn node_trace_to_router_trace(trace: NodeTrace<PathAndQueryRegexNodeItem<T>, PathAndQueryRegexTreeMatcher<T>>, request: &Request<()>) -> Trace<T> {
-        let mut children = Vec::new();
-
-        for child in trace.children {
-            children.push(PathAndQueryMatcher::<T>::node_trace_to_router_trace(child, request));
-        }
-
-        if let Some(storage) = trace.storage.as_ref() {
-            children.extend(storage.matcher.trace(request));
-        }
-
-        Trace::new(
-            format!("Regex tree prefix {}", trace.regex),
-            trace.matched,
-            true,
-            trace.count,
-            children,
-            Vec::new(),
-        )
     }
 
     fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {

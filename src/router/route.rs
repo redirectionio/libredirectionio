@@ -23,6 +23,7 @@ pub struct RouteHeader {
 }
 
 impl<T: RouteData> Route<T> {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         methods: Option<Vec<String>>,
         scheme: Option<String>,

@@ -12,15 +12,17 @@ impl<T: RouteData> RequestMatcher<T> for RouteMatcher<T> {
         self.routes.push(route)
     }
 
-    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
+    fn remove(&mut self, id: &str) -> bool {
         let mut i = 0;
-        let mut removed = Vec::new();
+        let mut removed = false;
 
         while i != self.routes.len() {
             let item = &mut self.routes[i];
 
             if item.id() == id {
-                removed.push(self.routes.remove(i));
+                self.routes.remove(i);
+
+                removed = true;
             } else {
                 i += 1;
             }

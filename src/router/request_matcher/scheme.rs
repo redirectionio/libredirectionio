@@ -26,18 +26,24 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
         }
     }
 
-    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
-        let mut removed = Vec::new();
+    fn remove(&mut self, id: &str) -> bool {
+        let mut removed = false;
 
-        removed.extend(self.any_scheme.remove(id));
+        if self.any_scheme.remove(id) {
+            self.count -= 1;
+
+            return true;
+        }
 
         self.schemes.retain(|_, matcher| {
-            removed.extend(matcher.remove(id));
+            removed = removed || matcher.remove(id);
 
             matcher.len() > 0
         });
 
-        self.count -= removed.len();
+        if removed {
+            self.count -= 1;
+        }
 
         removed
     }

@@ -5,7 +5,7 @@ mod trace;
 mod transformer;
 
 pub use marker_string::{Marker, StaticOrDynamic};
-pub use request_matcher::{PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
+pub use request_matcher::{HostMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
 pub use route::{Route, RouteData};
 pub use trace::{RouteTrace, Trace};
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Transformer, Underscorize, Uppercase};
@@ -30,7 +30,7 @@ impl<T: RouteData> Router<T> {
         self.matcher.insert(route);
     }
 
-    pub fn remove(&mut self, id: &str) -> Vec<Route<T>> {
+    pub fn remove(&mut self, id: &str) -> bool {
         self.matcher.remove(id)
     }
 

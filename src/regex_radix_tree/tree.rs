@@ -1,5 +1,5 @@
 use crate::regex_radix_tree::regex_node::RegexNode;
-use crate::regex_radix_tree::{NodeItem, Node, Trace, Storage};
+use crate::regex_radix_tree::{Node, NodeItem, Storage, Trace};
 use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
@@ -20,7 +20,7 @@ impl<T: NodeItem, S: Storage<T>> RegexRadixTree<T, S> {
         self.root.insert(item, 0)
     }
 
-    pub fn remove(&mut self, id: &str) {
+    pub fn remove(&mut self, id: &str) -> bool {
         self.root.remove(id)
     }
 

@@ -1,5 +1,6 @@
-use crate::regex_radix_tree::{Storage, NodeItem};
-use crate::router::{RouteData, RequestMatcher, Route};
+use crate::regex_radix_tree::{NodeItem, Storage, Trace as NodeTrace};
+use crate::router::{RequestMatcher, Route, RouteData, Trace};
+use http::Request;
 use std::marker::PhantomData;
 
 #[derive(Debug, Clone)]
@@ -19,8 +20,8 @@ impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'st
         self.matcher.insert(item.route());
     }
 
-    fn remove(&mut self, id: &str) {
-        self.matcher.remove(id);
+    fn remove(&mut self, id: &str) -> bool {
+        self.matcher.remove(id)
     }
 
     fn len(&self) -> usize {
@@ -41,3 +42,25 @@ impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'st
     }
 }
 
+impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'static> MatcherTreeStorage<T, S, M> {
+    pub fn node_trace_to_router_trace(trace: NodeTrace<S, Self>, request: &Request<()>) -> Trace<T> {
+        let mut children = Vec::new();
+
+        for child in trace.children {
+            children.push(Self::node_trace_to_router_trace(child, request));
+        }
+
+        if let Some(storage) = trace.storage.as_ref() {
+            children.extend(storage.matcher.trace(request));
+        }
+
+        Trace::new(
+            format!("Regex tree prefix {}", trace.regex),
+            trace.matched,
+            true,
+            trace.count,
+            children,
+            Vec::new(),
+        )
+    }
+}

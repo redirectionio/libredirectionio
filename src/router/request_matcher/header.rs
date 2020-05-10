@@ -12,7 +12,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         self.any_header.insert(route);
     }
 
-    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
+    fn remove(&mut self, id: &str) -> bool {
         self.any_header.remove(id)
     }
 

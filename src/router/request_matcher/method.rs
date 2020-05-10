@@ -28,18 +28,24 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         }
     }
 
-    fn remove(&mut self, id: &str) -> Vec<Route<T>> {
-        let mut removed = Vec::new();
+    fn remove(&mut self, id: &str) -> bool {
+        let mut removed = false;
 
-        removed.extend(self.any_method.remove(id));
+        if self.any_method.remove(id) {
+            self.count -= 1;
+
+            return true;
+        }
 
         self.methods.retain(|_, matcher| {
-            removed.extend(matcher.remove(id));
+            removed = removed || matcher.remove(id);
 
             matcher.len() > 0
         });
 
-        self.count -= removed.len();
+        if removed {
+            self.count -= 1;
+        }
 
         removed
     }

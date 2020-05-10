@@ -87,7 +87,14 @@ impl Action {
         if let Some(target) = &rule.target {
             if !target.is_empty() {
                 let path = PathAndQueryMatcher::<Rule>::request_to_path(request);
-                let parameters = route.path_and_query().capture(path.as_str());
+                let mut parameters = route.path_and_query().capture(path.as_str());
+
+                if let Some(host) = route.host() {
+                    if let Some(request_host) = request.uri().host() {
+                        parameters.extend(host.capture(request_host));
+                    }
+                }
+
                 let value = StaticOrDynamic::replace(target.clone(), parameters, rule.transformers());
 
                 header_filters.push(HeaderFilterAction {

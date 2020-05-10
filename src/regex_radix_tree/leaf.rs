@@ -1,6 +1,6 @@
-use crate::regex_radix_tree::{NodeItem, Node, Trace, Storage};
-use std::marker::PhantomData;
+use crate::regex_radix_tree::{Node, NodeItem, Storage, Trace};
 use regex::Regex;
+use std::marker::PhantomData;
 
 #[derive(Debug, Clone)]
 pub struct Leaf<T: NodeItem, S: Storage<T>> {
@@ -31,8 +31,8 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for Leaf<T, S> {
         Trace::new(self.prefix.clone(), matched, self.storage.len() as u64, Vec::new(), storage)
     }
 
-    fn remove(&mut self, id: &str) {
-        self.storage.remove(id);
+    fn remove(&mut self, id: &str) -> bool {
+        self.storage.remove(id)
     }
 
     fn regex(&self) -> &str {
@@ -84,7 +84,7 @@ impl<T: NodeItem, S: Storage<T>> Leaf<T, S> {
 
         Leaf {
             prefix,
-            storage: storage,
+            storage,
             level,
             prefix_compiled: None,
             phantom: PhantomData,

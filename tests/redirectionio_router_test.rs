@@ -1962,6 +1962,59 @@ fn test_marker_5() {
 }
 
 
+fn setup_marker_in_host() -> Router<Rule> {
+    let mut router = Router::<Rule>::default();
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"id":"marker-in-host-rule","markers":[{"name":"marker","regex":"(?:.+?)","transformers":[]}],"rank":0,"redirect_code":302,"source":{"host":"@marker.test.com","path":"/","query":""},"target":"https://@marker.test.io"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route());
+
+    router
+}
+
+
+#[test]
+fn test_marker_in_host_1() {
+    let router = setup_marker_in_host();
+    let request = Request::new(r#"/"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
+    let matched = router.match_request(&request);
+
+    assert_eq!(!matched.is_empty(), false);
+
+}
+
+#[test]
+fn test_marker_in_host_2() {
+    let router = setup_marker_in_host();
+    let request = Request::new(r#"/"#.to_string(),Some(r#"test.com"#.to_string()),Some(r#"http"#.to_string()),
+    None).to_http_request().expect("");
+    let matched = router.match_request(&request);
+
+    assert_eq!(!matched.is_empty(), false);
+
+}
+
+#[test]
+fn test_marker_in_host_3() {
+    let router = setup_marker_in_host();
+    let request = Request::new(r#"/"#.to_string(),Some(r#"www.test.com"#.to_string()),Some(r#"https"#.to_string()),
+    None).to_http_request().expect("");
+    let matched = router.match_request(&request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 302);
+    let headers = action.filter_headers(Vec::new(), 0);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"https://www.test.io"#);
+}
+
+
 fn setup_marker_in_querystring() -> Router<Rule> {
     let mut router = Router::<Rule>::default();
 

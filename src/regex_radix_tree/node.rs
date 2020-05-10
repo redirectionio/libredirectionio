@@ -1,4 +1,4 @@
-use crate::regex_radix_tree::{NodeItem, Trace, Storage};
+use crate::regex_radix_tree::{NodeItem, Storage, Trace};
 use std::fmt::Debug;
 
 pub trait Node<T: NodeItem, S: Storage<T>>: Debug + Send + Sync {
@@ -14,7 +14,7 @@ pub trait Node<T: NodeItem, S: Storage<T>>: Debug + Send + Sync {
     /// Remove an item on this tree
     ///
     /// This method returns true if there is no more data so it can be cleaned up
-    fn remove(&mut self, id: &str);
+    fn remove(&mut self, id: &str) -> bool;
 
     /// Return regex used by this node
     fn regex(&self) -> &str;

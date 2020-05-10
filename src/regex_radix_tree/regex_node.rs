@@ -1,6 +1,6 @@
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
-use crate::regex_radix_tree::{NodeItem, Node, Trace, Storage};
+use crate::regex_radix_tree::{Node, NodeItem, Storage, Trace};
 use regex::Regex;
 
 #[derive(Debug, Clone)]
@@ -82,14 +82,15 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
         )
     }
 
-    fn remove(&mut self, id: &str) {
+    fn remove(&mut self, id: &str) -> bool {
         let mut i = 0;
+        let mut removed = false;
 
         while i != self.children.len() {
             let child = &mut self.children[i];
             let prev_len = child.len();
 
-            child.remove(id);
+            removed = child.remove(id);
 
             let new_len = child.len();
 
@@ -102,6 +103,8 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
                 i += 1;
             }
         }
+
+        removed
     }
 
     fn regex(&self) -> &str {

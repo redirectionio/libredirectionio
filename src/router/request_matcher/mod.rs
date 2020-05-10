@@ -1,10 +1,10 @@
 mod header;
 mod host;
+mod matcher_tree_storage;
 mod method;
 mod path_and_query;
 mod route_matcher;
 mod scheme;
-mod matcher_tree_storage;
 
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
@@ -20,7 +20,7 @@ pub use scheme::SchemeMatcher;
 pub trait RequestMatcher<T: RouteData>: Debug + Send + Sync {
     fn insert(&mut self, route: Route<T>);
 
-    fn remove(&mut self, id: &str) -> Vec<Route<T>>;
+    fn remove(&mut self, id: &str) -> bool;
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>>;
 

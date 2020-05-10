@@ -10,10 +10,14 @@ impl<T: VecStorageItem> Storage<T> for Vec<T> {
         self.push(item);
     }
 
-    fn remove(&mut self, id: &str) {
-        if let Some(index) = self.iter().position(|item| item.id() == id ) {
+    fn remove(&mut self, id: &str) -> bool {
+        if let Some(index) = self.iter().position(|item| item.id() == id) {
             self.remove(index);
+
+            return true;
         }
+
+        false
     }
 
     fn len(&self) -> usize {
