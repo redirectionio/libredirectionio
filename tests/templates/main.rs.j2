@@ -5,7 +5,7 @@ mod generated_tests {
 
 use redirectionio::router::Router;
 use redirectionio::api::Rule;
-use redirectionio::http::Request;
+use redirectionio::http::{Request, Header};
 use redirectionio::action::Action;
 
 {% for name, rule_set in rule_sets %}
@@ -49,16 +49,33 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(target_header.value, r#"{{ test.location }}"#);
     {%- endif -%}
 {% if test.should_filter_body %}
-    let body_filter = action.create_filter_body(0);
-    assert_eq!(body_filter.is_some(), {{ test.should_filter_body.enable }});
+    let body_filter_opt = action.create_filter_body(0);
+    assert_eq!(body_filter_opt.is_some(), {{ test.should_filter_body.enable }});
 {% if test.should_filter_body.enable %}
-    let mut filter = body_filter.unwrap();
-    let mut new_body = filter.filter(r#"{{ test.should_filter_body.original_body }}"#.to_string());
-    new_body.push_str(filter.end().as_str());
+    let mut body_filter = body_filter_opt.unwrap();
+    let mut new_body = body_filter.filter(r#"{{ test.should_filter_body.original_body }}"#.to_string());
+    new_body.push_str(body_filter.end().as_str());
     assert_eq!(new_body, r#"{{ test.should_filter_body.expected_body }}"#)
     {%- endif -%}
     {%- endif -%}
 {% endif %}
+{%- if test.should_filter_header and test.should_filter_header.enable %}
+    let mut response_headers = Vec::new();
+{% for header in test.should_filter_header.original_headers %}
+    response_headers.push(Header {
+        name: r#"{{ header.name }}"#.to_string(),
+        value: r#"{{ header.value }}"#.to_string(),
+    });
+{% endfor %}
+    let filtered_headers = action.filter_headers(response_headers, 0);
+    let header_map = Header::create_header_map(filtered_headers);
+{% for header in test.should_filter_header.expected_headers %}
+    let value = header_map.get(r#"{{ header.name }}"#);
+
+    assert!(value.is_some());
+    assert_eq!(value.unwrap(), r#"{{ header.value }}"#);
+{% endfor -%}
+{%- endif %}
 }
 {% endfor %}
 {% endfor %}

@@ -30,6 +30,7 @@ struct Rule {
     source: Source,
     target: Option<String>,
     redirect_code: Option<u16>,
+    header_filters: Option<Vec<HeaderFilter>>,
     body_filters: Option<Vec<BodyFilter>>,
     rank: Option<u16>,
     markers: Option<Vec<Marker>>,
@@ -47,6 +48,13 @@ struct Source {
 struct SourceHeader {
     name: String,
     value: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct HeaderFilter {
+    action: String,
+    header: String,
+    value: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -82,6 +90,7 @@ struct RuleTest {
     location: Option<String>,
     status: Option<u16>,
     should_filter_body: Option<ShouldFilterBody>,
+    should_filter_header: Option<ShouldFilterHeader>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -95,6 +104,13 @@ struct ShouldFilterBody {
     enable: bool,
     original_body: String,
     expected_body: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct ShouldFilterHeader {
+    enable: bool,
+    original_headers: Vec<RuleTestHeader>,
+    expected_headers: Vec<RuleTestHeader>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -9,6 +9,7 @@ use crate::router::{Route, StaticOrDynamic, Trace};
 use http::Request;
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
@@ -70,8 +71,41 @@ impl TraceAction {
 }
 
 impl Action {
+    fn get_parameters(route: &Route<Rule>, request: &Request<()>) -> HashMap<String, String> {
+        let path = PathAndQueryMatcher::<Rule>::request_to_path(request);
+        let mut parameters = route.path_and_query().capture(path.as_str());
+
+        if let Some(host) = route.host() {
+            if let Some(request_host) = request.uri().host() {
+                parameters.extend(host.capture(request_host));
+            }
+        }
+
+        for header in route.headers() {
+            let header_values = request.headers().get_all(header.name.as_str());
+
+            match header.value.as_ref() {
+                None => continue,
+                Some(header_marker) => {
+                    for value in header_values {
+                        match value.to_str() {
+                            Err(_) => continue,
+                            Ok(value_str) => {
+                                parameters.extend(header_marker.capture(value_str));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        parameters
+    }
+
     pub fn from_route_rule(route: &Route<Rule>, request: &Request<()>) -> Action {
+        let parameters = Self::get_parameters(route, request);
         let rule = route.handler();
+        let transformers = rule.transformers();
         let status_code_update = match rule.redirect_code.unwrap_or(0) {
             0 => None,
             redirect_code => Some(StatusCodeUpdate {
@@ -86,34 +120,7 @@ impl Action {
 
         if let Some(target) = &rule.target {
             if !target.is_empty() {
-                let path = PathAndQueryMatcher::<Rule>::request_to_path(request);
-                let mut parameters = route.path_and_query().capture(path.as_str());
-
-                if let Some(host) = route.host() {
-                    if let Some(request_host) = request.uri().host() {
-                        parameters.extend(host.capture(request_host));
-                    }
-                }
-
-                for header in route.headers() {
-                    let header_values = request.headers().get_all(header.name.as_str());
-
-                    match header.value.as_ref() {
-                        None => continue,
-                        Some(header_marker) => {
-                            for value in header_values {
-                                match value.to_str() {
-                                    Err(_) => continue,
-                                    Ok(value_str) => {
-                                        parameters.extend(header_marker.capture(value_str));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                let value = StaticOrDynamic::replace(target.clone(), parameters, rule.transformers());
+                let value = StaticOrDynamic::replace(target.clone(), &parameters, &transformers);
 
                 header_filters.push(HeaderFilterAction {
                     filter: HeaderFilter {
@@ -135,7 +142,11 @@ impl Action {
         if let Some(rule_header_filters) = rule.header_filters.as_ref() {
             for filter in rule_header_filters {
                 header_filters.push(HeaderFilterAction {
-                    filter: filter.clone(),
+                    filter: HeaderFilter {
+                        action: filter.action.clone(),
+                        header: filter.header.clone(),
+                        value: StaticOrDynamic::replace(filter.value.clone(), &parameters, &transformers),
+                    },
                     on_response_status_code: rule.match_on_response_status.unwrap_or(0),
                 });
             }
@@ -144,7 +155,12 @@ impl Action {
         if let Some(rule_body_filters) = rule.body_filters.as_ref() {
             for filter in rule_body_filters {
                 body_filters.push(BodyFilterAction {
-                    filter: filter.clone(),
+                    filter: BodyFilter {
+                        action: filter.action.clone(),
+                        css_selector: filter.css_selector.clone(),
+                        element_tree: filter.element_tree.clone(),
+                        value: StaticOrDynamic::replace(filter.value.clone(), &parameters, &transformers),
+                    },
                     on_response_status_code: rule.match_on_response_status.unwrap_or(0),
                 });
             }

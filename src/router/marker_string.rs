@@ -104,7 +104,7 @@ impl StaticOrDynamic {
         }
     }
 
-    pub fn replace(mut str: String, parameters: HashMap<String, String>, transformers: Vec<Transformer>) -> String {
+    pub fn replace(mut str: String, parameters: &HashMap<String, String>, transformers: &[Transformer]) -> String {
         for transformer in transformers {
             let has_value = parameters.get(transformer.marker.as_str());
 
