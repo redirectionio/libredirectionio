@@ -11,15 +11,15 @@ pub struct Route<T: RouteData> {
     host: Option<StaticOrDynamic>,
     methods: Option<Vec<String>>,
     path_and_query: StaticOrDynamic,
-    headers: Vec<StaticOrDynamic>,
+    headers: Vec<RouteHeader>,
     id: String,
     priority: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouteHeader {
-    name: StaticOrDynamic,
-    value: StaticOrDynamic,
+    pub name: StaticOrDynamic,
+    pub value: StaticOrDynamic,
 }
 
 impl<T: RouteData> Route<T> {
@@ -30,7 +30,7 @@ impl<T: RouteData> Route<T> {
         host: Option<StaticOrDynamic>,
         path_and_query: StaticOrDynamic,
         handler: T,
-        headers: Vec<StaticOrDynamic>,
+        headers: Vec<RouteHeader>,
         id: String,
         priority: i64,
     ) -> Route<T> {
@@ -58,7 +58,7 @@ impl<T: RouteData> Route<T> {
         Some(self.scheme.as_ref()?.as_str())
     }
 
-    pub fn headers(&self) -> &Vec<StaticOrDynamic> {
+    pub fn headers(&self) -> &Vec<RouteHeader> {
         self.headers.as_ref()
     }
 
