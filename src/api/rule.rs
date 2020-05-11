@@ -1,5 +1,5 @@
 use crate::api::{BodyFilter, HeaderFilter, Marker, Source};
-use crate::router::{Marker as RouteMarker, PathAndQueryMatcher, Route, RouteData, StaticOrDynamic, Transformer};
+use crate::router::{Marker as RouteMarker, PathAndQueryMatcher, Route, RouteData, RouteHeader, StaticOrDynamic, Transformer};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
@@ -75,6 +75,24 @@ impl Rule {
         ))
     }
 
+    fn headers(&self) -> Vec<RouteHeader> {
+        let mut headers = Vec::new();
+
+        if let Some(source_headers) = self.source.headers.as_ref() {
+            for header in source_headers {
+                headers.push(RouteHeader {
+                    name: header.name.clone(),
+                    value: match header.value.as_ref() {
+                        None => None,
+                        Some(value) => Some(StaticOrDynamic::new_with_markers(value.as_str(), self.markers())),
+                    },
+                })
+            }
+        }
+
+        headers
+    }
+
     pub fn transformers(&self) -> Vec<Transformer> {
         match self.markers.as_ref() {
             None => Vec::new(),
@@ -107,18 +125,15 @@ impl Rule {
     }
 
     pub fn into_route(self) -> Route<Rule> {
-        let id = self.id.clone();
-        let priority = 0 - self.rank as i64;
-
         Route::new(
             self.source.methods.clone(),
             self.source.scheme.clone(),
             self.host(),
             self.path_and_query(),
+            self.headers(),
+            self.id.clone(),
+            0 - self.rank as i64,
             self,
-            Vec::new(),
-            id,
-            priority,
         )
     }
 }

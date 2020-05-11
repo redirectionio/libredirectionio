@@ -18,8 +18,8 @@ pub struct Route<T: RouteData> {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouteHeader {
-    pub name: StaticOrDynamic,
-    pub value: StaticOrDynamic,
+    pub name: String,
+    pub value: Option<StaticOrDynamic>,
 }
 
 impl<T: RouteData> Route<T> {
@@ -29,10 +29,10 @@ impl<T: RouteData> Route<T> {
         scheme: Option<String>,
         host: Option<StaticOrDynamic>,
         path_and_query: StaticOrDynamic,
-        handler: T,
         headers: Vec<RouteHeader>,
         id: String,
         priority: i64,
+        handler: T,
     ) -> Route<T> {
         Route {
             handler,

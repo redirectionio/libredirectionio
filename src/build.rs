@@ -40,6 +40,13 @@ struct Source {
     host: String,
     path: String,
     query: String,
+    headers: Option<Vec<SourceHeader>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct SourceHeader {
+    name: String,
+    value: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -69,11 +76,18 @@ struct RuleTest {
     uri: String,
     host: Option<String>,
     scheme: Option<String>,
+    headers: Option<Vec<RuleTestHeader>>,
     #[serde(rename = "match")]
     should_match: bool,
     location: Option<String>,
     status: Option<u16>,
     should_filter_body: Option<ShouldFilterBody>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct RuleTestHeader {
+    name: String,
+    value: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

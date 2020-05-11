@@ -22,15 +22,21 @@ fn setup_{{ name }}() -> Router<Rule> {
 #[test]
 fn test_{{ name }}_{{ loop.index }}() {
     let router = setup_{{ name }}();
-    let request = Request::new(r#"{{ test.uri }}"#.to_string(),
+    let{% if test.headers %} mut{% endif %} request = Request::new(r#"{{ test.uri }}"#.to_string(),
     {%- if test.host -%}Some(r#"{{ test.host }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.scheme -%}Some(r#"{{ test.scheme }}"#.to_string()){% else %}None{%- endif -%},
-    None).to_http_request().expect("");
-    let matched = router.match_request(&request);
+    None);
+    {%- if test.headers -%}
+    {% for header in test.headers %}
+    request.add_header(r#"{{ header.name }}"#.to_string(), r#"{{ header.value }}"#.to_string());
+    {%- endfor -%}
+    {%- endif -%}
+    let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), {{ test.match }});
 {% if test.match %}
-    let action = Action::from_routes_rule(matched, &request);
+    let action = Action::from_routes_rule(matched, &http_request);
 {% if test.status %}
     assert_eq!(action.get_status_code(0), {{ test.status }});
     {%- endif -%}

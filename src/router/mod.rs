@@ -6,7 +6,7 @@ mod transformer;
 
 pub use marker_string::{Marker, StaticOrDynamic};
 pub use request_matcher::{HostMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
-pub use route::{Route, RouteData};
+pub use route::{Route, RouteData, RouteHeader};
 pub use trace::{RouteTrace, Trace};
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Transformer, Underscorize, Uppercase};
 

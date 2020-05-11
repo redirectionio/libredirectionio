@@ -95,6 +95,24 @@ impl Action {
                     }
                 }
 
+                for header in route.headers() {
+                    let header_values = request.headers().get_all(header.name.as_str());
+
+                    match header.value.as_ref() {
+                        None => continue,
+                        Some(header_marker) => {
+                            for value in header_values {
+                                match value.to_str() {
+                                    Err(_) => continue,
+                                    Ok(value_str) => {
+                                        parameters.extend(header_marker.capture(value_str));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 let value = StaticOrDynamic::replace(target.clone(), parameters, rule.transformers());
 
                 header_filters.push(HeaderFilterAction {
