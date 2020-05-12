@@ -51,4 +51,26 @@ impl HeaderMap {
     pub fn add_header(&mut self, name: String, value: String) {
         self.headers.push(Header { name, value })
     }
+
+    pub fn len(&self) -> usize {
+        self.headers.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.headers.is_empty()
+    }
+
+    pub fn get_header_name(&self, index: usize) -> String {
+        match self.headers.get(index) {
+            None => "".to_string(),
+            Some(header) => header.name.clone(),
+        }
+    }
+
+    pub fn get_header_value(&self, index: usize) -> String {
+        match self.headers.get(index) {
+            None => "".to_string(),
+            Some(header) => header.value.clone(),
+        }
+    }
 }
