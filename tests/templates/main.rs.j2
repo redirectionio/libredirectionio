@@ -41,7 +41,7 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(action.get_status_code(0), {{ test.status }});
     {%- endif -%}
 {% if test.location %}
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -67,7 +67,7 @@ fn test_{{ name }}_{{ loop.index }}() {
         value: r#"{{ header.value }}"#.to_string(),
     });
 {% endfor %}
-    let filtered_headers = action.filter_headers(response_headers, 0);
+    let filtered_headers = action.filter_headers(response_headers, 0, false);
     let header_map = Header::create_header_map(filtered_headers);
 {% for header in test.should_filter_header.expected_headers %}
     let value = header_map.get(r#"{{ header.name }}"#);

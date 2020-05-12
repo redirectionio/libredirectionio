@@ -31,7 +31,7 @@ fn test_00_common_rules_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -109,7 +109,7 @@ fn test_01_straight_rule_match_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -129,7 +129,7 @@ fn test_01_straight_rule_match_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -160,7 +160,7 @@ fn test_01_straight_rule_match_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -191,7 +191,7 @@ fn test_01_straight_rule_match_6() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -211,7 +211,7 @@ fn test_01_straight_rule_match_7() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -231,7 +231,7 @@ fn test_01_straight_rule_match_8() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -251,7 +251,7 @@ fn test_01_straight_rule_match_9() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -271,7 +271,7 @@ fn test_01_straight_rule_match_10() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -291,7 +291,7 @@ fn test_01_straight_rule_match_11() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -337,7 +337,7 @@ fn test_03_priority_match_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -357,7 +357,7 @@ fn test_03_priority_match_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -377,7 +377,7 @@ fn test_03_priority_match_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -397,7 +397,7 @@ fn test_03_priority_match_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -434,7 +434,7 @@ fn test_04_rfc3986_relative_references_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -465,7 +465,7 @@ fn test_04_rfc3986_relative_references_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -485,7 +485,7 @@ fn test_04_rfc3986_relative_references_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -519,7 +519,7 @@ fn test_05_query_parameters_order_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -539,7 +539,7 @@ fn test_05_query_parameters_order_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -570,7 +570,7 @@ fn test_05_query_parameters_order_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -590,7 +590,7 @@ fn test_05_query_parameters_order_5() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -621,7 +621,7 @@ fn test_06_emojis_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -1882,7 +1882,7 @@ fn test_marker_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -1913,7 +1913,7 @@ fn test_marker_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -1933,7 +1933,7 @@ fn test_marker_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -1953,7 +1953,7 @@ fn test_marker_5() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2021,7 +2021,7 @@ fn test_marker_in_header_filter_1() {
         value: r#"foo"#.to_string(),
     });
 
-    let filtered_headers = action.filter_headers(response_headers, 0);
+    let filtered_headers = action.filter_headers(response_headers, 0, false);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-Test"#);
@@ -2076,7 +2076,7 @@ fn test_marker_in_host_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2110,7 +2110,7 @@ fn test_marker_in_querystring_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2152,7 +2152,7 @@ fn test_marker_in_querystring_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2183,7 +2183,7 @@ fn test_marker_transformation_camelize_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2203,7 +2203,7 @@ fn test_marker_transformation_camelize_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2223,7 +2223,7 @@ fn test_marker_transformation_camelize_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2243,7 +2243,7 @@ fn test_marker_transformation_camelize_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2274,7 +2274,7 @@ fn test_marker_transformation_dasherize_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2294,7 +2294,7 @@ fn test_marker_transformation_dasherize_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2314,7 +2314,7 @@ fn test_marker_transformation_dasherize_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2345,7 +2345,7 @@ fn test_marker_transformation_lowercase_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2365,7 +2365,7 @@ fn test_marker_transformation_lowercase_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2385,7 +2385,7 @@ fn test_marker_transformation_lowercase_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2427,7 +2427,7 @@ fn test_marker_transformation_replace_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2447,7 +2447,7 @@ fn test_marker_transformation_replace_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2481,7 +2481,7 @@ fn test_marker_transformation_slice_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2501,7 +2501,7 @@ fn test_marker_transformation_slice_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2521,7 +2521,7 @@ fn test_marker_transformation_slice_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2541,7 +2541,7 @@ fn test_marker_transformation_slice_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2561,7 +2561,7 @@ fn test_marker_transformation_slice_5() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2592,7 +2592,7 @@ fn test_marker_transformation_underscorize_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2612,7 +2612,7 @@ fn test_marker_transformation_underscorize_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2632,7 +2632,7 @@ fn test_marker_transformation_underscorize_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2652,7 +2652,7 @@ fn test_marker_transformation_underscorize_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2683,7 +2683,7 @@ fn test_marker_transformation_uppercase_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2703,7 +2703,7 @@ fn test_marker_transformation_uppercase_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2723,7 +2723,7 @@ fn test_marker_transformation_uppercase_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2754,7 +2754,7 @@ fn test_marker_type_anything_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2774,7 +2774,7 @@ fn test_marker_type_anything_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2794,7 +2794,7 @@ fn test_marker_type_anything_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2825,7 +2825,7 @@ fn test_marker_type_date_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2881,7 +2881,7 @@ fn test_marker_type_datetime_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2901,7 +2901,7 @@ fn test_marker_type_datetime_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2932,7 +2932,7 @@ fn test_marker_type_datetime_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2963,7 +2963,7 @@ fn test_marker_type_enum_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -2994,7 +2994,7 @@ fn test_marker_type_enum_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3045,7 +3045,7 @@ fn test_marker_type_integer_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3087,7 +3087,7 @@ fn test_marker_type_integer_4() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3118,7 +3118,7 @@ fn test_marker_type_integer_6() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3149,7 +3149,7 @@ fn test_marker_type_integer_8() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3255,7 +3255,7 @@ fn test_marker_type_string_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3308,7 +3308,7 @@ fn test_marker_type_string_6() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3361,7 +3361,7 @@ fn test_marker_type_string_10() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3381,7 +3381,7 @@ fn test_marker_type_string_11() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3412,7 +3412,7 @@ fn test_marker_type_string_13() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3432,7 +3432,7 @@ fn test_marker_type_string_14() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3452,7 +3452,7 @@ fn test_marker_type_string_15() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3472,7 +3472,7 @@ fn test_marker_type_string_16() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3492,7 +3492,7 @@ fn test_marker_type_string_17() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3523,7 +3523,7 @@ fn test_marker_type_string_19() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3543,7 +3543,7 @@ fn test_marker_type_string_20() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3585,7 +3585,7 @@ fn test_marker_type_string_23() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3616,7 +3616,7 @@ fn test_marker_type_string_25() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3647,7 +3647,7 @@ fn test_marker_type_string_27() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3667,7 +3667,7 @@ fn test_marker_type_string_28() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3687,7 +3687,7 @@ fn test_marker_type_string_29() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3707,7 +3707,7 @@ fn test_marker_type_string_30() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3749,7 +3749,7 @@ fn test_marker_type_string_33() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3780,7 +3780,7 @@ fn test_marker_type_string_35() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3800,7 +3800,7 @@ fn test_marker_type_string_36() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3820,7 +3820,7 @@ fn test_marker_type_string_37() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3840,7 +3840,7 @@ fn test_marker_type_string_38() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3871,7 +3871,7 @@ fn test_marker_type_string_40() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3891,7 +3891,7 @@ fn test_marker_type_string_41() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3955,7 +3955,7 @@ fn test_marker_type_uuid_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4008,7 +4008,7 @@ fn test_rule_query_with_plus_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4028,7 +4028,7 @@ fn test_rule_query_with_plus_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4048,7 +4048,7 @@ fn test_rule_query_with_plus_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4079,7 +4079,7 @@ fn test_rule_querystring_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4099,7 +4099,7 @@ fn test_rule_querystring_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4136,7 +4136,7 @@ fn test_rule_with_header_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4157,7 +4157,7 @@ fn test_rule_with_header_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4178,7 +4178,7 @@ fn test_rule_with_header_3() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4212,7 +4212,7 @@ fn test_rule_with_header_5() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4243,7 +4243,7 @@ fn test_rule_with_quotes_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 301);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4277,7 +4277,7 @@ fn test_rule_with_slash_1() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4297,7 +4297,7 @@ fn test_rule_with_slash_2() {
     let action = Action::from_routes_rule(matched, &http_request);
 
     assert_eq!(action.get_status_code(0), 302);
-    let headers = action.filter_headers(Vec::new(), 0);
+    let headers = action.filter_headers(Vec::new(), 0, false);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();

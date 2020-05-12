@@ -75,6 +75,7 @@ pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
     _action: *const Action,
     header_map: *const HeaderMap,
     response_status_code: u16,
+    add_rule_ids_header: bool,
 ) -> *const HeaderMap {
     if _action.is_null() {
         return header_map;
@@ -83,7 +84,7 @@ pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
     let action = &*_action;
     let mut headers = header_map_to_http_headers(header_map);
 
-    headers = action.filter_headers(headers, response_status_code);
+    headers = action.filter_headers(headers, response_status_code, add_rule_ids_header);
 
     http_headers_to_header_map(headers)
 }

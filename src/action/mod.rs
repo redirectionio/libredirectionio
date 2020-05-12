@@ -226,7 +226,7 @@ impl Action {
         }
     }
 
-    pub fn filter_headers(&self, headers: Vec<Header>, response_status_code: u16) -> Vec<Header> {
+    pub fn filter_headers(&self, headers: Vec<Header>, response_status_code: u16, add_rule_ids_header: bool) -> Vec<Header> {
         let mut filters = Vec::new();
 
         for filter in &self.header_filters {
@@ -237,10 +237,19 @@ impl Action {
             filters.push(&filter.filter);
         }
 
-        match FilterHeaderAction::new(filters) {
+        let mut new_filters = match FilterHeaderAction::new(filters) {
             None => Vec::new(),
             Some(filter_action) => filter_action.filter(headers),
+        };
+
+        if add_rule_ids_header {
+            new_filters.push(Header {
+                name: "X-RedirectionIo-RuleIds".to_string(),
+                value: self.rule_ids.join(";"),
+            });
         }
+
+        new_filters
     }
 
     pub fn create_filter_body(&self, response_status_code: u16) -> Option<FilterBodyAction> {
