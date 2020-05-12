@@ -4,7 +4,7 @@ use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
 use crate::http::ffi::{header_map_to_http_headers, HeaderMap};
 use crate::http::Request;
 use serde_json::{from_str as json_decode, to_string as json_encode};
-use std::os::raw::{c_char, c_ulong, c_ushort};
+use std::os::raw::{c_char, c_ushort};
 use std::ptr::null;
 
 #[no_mangle]
@@ -30,7 +30,7 @@ pub unsafe extern "C" fn redirectionio_api_create_log_in_json(
     _response_headers: *const HeaderMap,
     _action: *mut Action,
     _proxy: *const c_char,
-    time: c_ulong,
+    time: u64,
 ) -> *const c_char {
     if _action.is_null() || _request.is_null() {
         return null();

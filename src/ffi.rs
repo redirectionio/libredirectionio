@@ -15,7 +15,7 @@ pub unsafe extern "C" fn redirectionio_route_create(s: *const c_char) -> Option<
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_router_create(_message: *mut RulesMessage, cache: c_ulong) -> *mut Router<Rule> {
+pub unsafe extern "C" fn redirectionio_router_create(_message: *mut RulesMessage, cache: u64) -> *mut Router<Rule> {
     let mut router = Router::<Rule>::default();
 
     if !_message.is_null() {

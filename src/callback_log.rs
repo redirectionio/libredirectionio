@@ -49,7 +49,7 @@ pub extern "C" fn redirectionio_log_init_stderr() {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_log_init_with_callback(callback: redirectionio_log_callback, data: &'static libc::c_void) {
+pub unsafe extern "C" fn redirectionio_log_init_with_callback(callback: redirectionio_log_callback, data: &'static c_void) {
     LOGGER.callback = Some(callback);
     LOGGER.data = Some(data);
 

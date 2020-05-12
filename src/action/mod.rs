@@ -1,5 +1,8 @@
+#[cfg(not(target_arch = "wasm32"))]
 mod ffi;
 mod status_code_update;
+#[cfg(target_arch = "wasm32")]
+mod wasm;
 
 use crate::api::{BodyFilter, HeaderFilter, Rule};
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
