@@ -240,19 +240,19 @@ impl Action {
             filters.push(&filter.filter);
         }
 
-        let mut new_filters = match FilterHeaderAction::new(filters) {
-            None => Vec::new(),
+        let mut new_headers = match FilterHeaderAction::new(filters) {
+            None => headers,
             Some(filter_action) => filter_action.filter(headers),
         };
 
         if add_rule_ids_header {
-            new_filters.push(Header {
+            new_headers.push(Header {
                 name: "X-RedirectionIo-RuleIds".to_string(),
                 value: self.rule_ids.join(";"),
             });
         }
 
-        new_filters
+        new_headers
     }
 
     pub fn create_filter_body(&self, response_status_code: u16) -> Option<FilterBodyAction> {
