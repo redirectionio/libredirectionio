@@ -11,6 +11,7 @@ mod rules_message;
 mod source;
 mod trace;
 mod transformer;
+pub mod wasm;
 
 pub use self::log::Log;
 pub use body_filter::BodyFilter;

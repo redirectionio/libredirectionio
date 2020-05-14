@@ -4,7 +4,8 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct Request {
-    request: RedirectionioRequest,
+    #[wasm_bindgen(skip)]
+    pub request: RedirectionioRequest,
 }
 
 #[wasm_bindgen]

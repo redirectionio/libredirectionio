@@ -7,3 +7,4 @@ configure
 libredirectionio.pc
 Makefile
 wrangler.toml
+worker/generated

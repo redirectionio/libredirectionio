@@ -17,9 +17,9 @@ addEventListener('fetch', async event => {
 async function respondWithCallback(request) {
     const libredirectionio = wasm_bindgen;
     await wasm_bindgen(wasm);
-    const [response, rule] = await handle(request, libredirectionio);
+    const [response, redirectionioRequest, action] = await handle(request, libredirectionio);
 
-    await log(request, response, rule);
+    await log(request, response, redirectionioRequest, action, libredirectionio);
 
     return response;
 }
@@ -28,6 +28,7 @@ async function respondWithCallback(request) {
 async function handle(request, libredirectionio) {
     const urlObject = new URL(request.url);
     const redirectionioRequest = new libredirectionio.Request(urlObject.pathname, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
+    let action = libredirectionio.Action.empty();
 
     for (const pair of request.headers.entries()) {
         redirectionioRequest.add_header(pair[0], pair[1]);
@@ -35,7 +36,7 @@ async function handle(request, libredirectionio) {
 
     try {
         const agentResponse = await Promise.race([
-            fetch('https://agent.redirection.tech/' + options.token + '/action', {
+            fetch('https://agent.redirection.io/' + options.token + '/action', {
                 method: 'POST',
                 body: redirectionioRequest.serialize(),
                 headers: {
@@ -50,10 +51,10 @@ async function handle(request, libredirectionio) {
         const actionStr = await agentResponse.text();
 
         if (actionStr === "") {
-            return [await fetch(request), null];
+            return [await fetch(request), redirectionioRequest, action];
         }
 
-        const action = new libredirectionio.Action(actionStr);
+        action = new libredirectionio.Action(actionStr);
         const statusCodeBeforeResponse = action.get_status_code(0);
 
         let response = null;
@@ -97,16 +98,16 @@ async function handle(request, libredirectionio) {
 
         // Skip body filtering
         if (bodyFilter.is_null()) {
-            return [response, action];
+            return [response, redirectionioRequest, action];
         }
 
         const { readable, writable } = new TransformStream();
 
         filter_body(response.body, writable, bodyFilter);
 
-        return [new Response(readable, response), action];
+        return [new Response(readable, response), redirectionioRequest, action];
     } catch (error) {
-        return [await fetch(request), null]
+        return [await fetch(request), redirectionioRequest, action]
     }
 }
 
@@ -137,45 +138,41 @@ async function filter_body(readable, writable, bodyFilter) {
     await writer.close();
 }
 
-async function log(request, response, rule) {
+async function log(request, response, redirectionioRequest, action, libredirectionio) {
     if (response === null) {
         return;
     }
 
-    const urlObject = new URL(request.url);
-    const context = {
-        status_code: response.status,
-        host: urlObject.host,
-        method: request.method,
-        request_uri: urlObject.pathname,
-        user_agent: request.headers.get('user-agent'),
-        referer: request.headers.get('referer'),
-        scheme: urlObject.protocol.includes('https') ? 'https' : 'http',
-        use_json: true,
-    };
+    const timestamp = Date.now();
+    const responseHeaderMap = new libredirectionio.HeaderMap();
 
-    if (response.headers.get('Location')) {
-        context.target = response.headers.get('Location');
+    for (const pair of response.headers.entries()) {
+        responseHeaderMap.add_header(pair[0], pair[1]);
     }
 
-    if (rule !== null) {
-        context.rule_id = rule.id;
-    }
+    const log = libredirectionio.create_log_in_json(
+        redirectionioRequest,
+        response.status,
+        responseHeaderMap,
+        action,
+        "cloudflare-service-worker/0.1.0",
+        BigInt(timestamp),
+    );
+
+    console.log(log);
 
     try {
         return await fetch(
-            'https://proxy.redirection.io/' + options.token + '/log',
+            'https://agent.redirection.io/' + options.token + '/log',
             {
                 method: 'POST',
-                body: JSON.stringify(context),
+                body: log,
                 headers: {
                     'User-Agent': 'cloudflare-service-worker/0.1.0'
                 },
             }
         );
     } catch (error) {
-        // Do nothing, do not matters if some logs are in errors
-        console.log('could not log');
         console.log(error)
     }
 }

@@ -25,7 +25,7 @@ struct FromLog {
 }
 
 impl Log {
-    pub fn from_proxy(request: &Request, code: u16, response_headers: Vec<Header>, action: &Action, proxy: &str, time: u64) -> Log {
+    pub fn from_proxy(request: &Request, code: u16, response_headers: Vec<Header>, action: Option<&Action>, proxy: &str, time: u64) -> Log {
         let mut location = None;
         let mut user_agent = None;
         let mut referer = None;
@@ -47,9 +47,12 @@ impl Log {
         }
 
         let from = FromLog {
-            rule_id: match action.rule_ids.last() {
+            rule_id: match action {
                 None => None,
-                Some(s) => Some(s.clone()),
+                Some(action) => match action.rule_ids.last() {
+                    None => None,
+                    Some(s) => Some(s.clone()),
+                },
             },
             url: request.path_and_query.clone(),
             method: request.method.clone(),

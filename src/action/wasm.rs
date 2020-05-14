@@ -5,12 +5,14 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct Action {
-    action: Option<RedirectionioAction>,
+    #[wasm_bindgen(skip)]
+    pub action: Option<RedirectionioAction>,
 }
 
 #[wasm_bindgen]
 pub struct BodyFilter {
-    filter: Option<FilterBodyAction>,
+    #[wasm_bindgen(skip)]
+    pub filter: Option<FilterBodyAction>,
 }
 
 #[wasm_bindgen]
@@ -29,6 +31,10 @@ impl Action {
         Action { action }
     }
 
+    pub fn empty() -> Action {
+        Action { action: None }
+    }
+
     pub fn get_status_code(&self, response_status_code: u16) -> u16 {
         if let Some(action) = self.action.as_ref() {
             return action.get_status_code(response_status_code);
@@ -43,7 +49,7 @@ impl Action {
         }
 
         let action = self.action.as_ref().unwrap();
-        let new_headers = action.filter_headers(headers.headers.clone(), response_status_code, add_rule_ids_header);
+        let new_headers = action.filter_headers(headers.headers, response_status_code, add_rule_ids_header);
 
         HeaderMap { headers: new_headers }
     }

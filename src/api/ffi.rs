@@ -32,12 +32,12 @@ pub unsafe extern "C" fn redirectionio_api_create_log_in_json(
     _proxy: *const c_char,
     time: u64,
 ) -> *const c_char {
-    if _action.is_null() || _request.is_null() {
+    if _request.is_null() {
         return null();
     }
 
     let proxy = c_char_to_str(_proxy).unwrap_or("");
-    let action = &*_action;
+    let action = if _action.is_null() { None } else { Some(&*_action) };
     let request = &*_request;
     let response_headers = header_map_to_http_headers(_response_headers);
 
