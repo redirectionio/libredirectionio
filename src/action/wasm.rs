@@ -62,6 +62,10 @@ impl Action {
 
 #[wasm_bindgen]
 impl BodyFilter {
+    pub fn is_null(&self) -> bool {
+        self.filter.is_none()
+    }
+
     pub fn filter(&mut self, body: String) -> String {
         if self.filter.is_none() {
             return body;

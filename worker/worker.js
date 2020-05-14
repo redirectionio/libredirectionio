@@ -1,7 +1,8 @@
 /* redirection.io options */
 const options = {
-    token: YOUR_OWN_TOKEN,
-    timeout: 2000,
+    token: "TOKEN",
+    timeout: 1000,
+    add_rule_ids_header: false,
 };
 
 /* attaching the event listener */
@@ -26,20 +27,17 @@ async function respondWithCallback(request) {
 /* Redirection.io logic */
 async function handle(request, libredirectionio) {
     const urlObject = new URL(request.url);
-    const context = {
-        host: urlObject.host,
-        request_uri: urlObject.pathname,
-        user_agent: request.headers.get('user-agent'),
-        referer: request.headers.get('referer'),
-        scheme: urlObject.protocol.includes('https') ? 'https' : 'http',
-        use_json: true,
-    };
+    const redirectionioRequest = new libredirectionio.Request(urlObject.pathname, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
+
+    for (const pair of request.headers.entries()) {
+        redirectionioRequest.add_header(pair[0], pair[1]);
+    }
 
     try {
-        const response = await Promise.race([
-            fetch('https://proxy.redirection.io/' + options.token + '/match-rule', {
+        const agentResponse = await Promise.race([
+            fetch('https://agent.redirection.tech/' + options.token + '/action', {
                 method: 'POST',
-                body: JSON.stringify(context),
+                body: redirectionioRequest.serialize(),
                 headers: {
                     'User-Agent': 'cloudflare-service-worker/0.1.0'
                 },
@@ -49,105 +47,70 @@ async function handle(request, libredirectionio) {
             ),
         ]);
 
-        const ruleStr = await response.text();
+        const actionStr = await agentResponse.text();
 
-        if (ruleStr === "") {
+        if (actionStr === "") {
             return [await fetch(request), null];
         }
 
-        const rule = JSON.parse(ruleStr);
+        const action = new libredirectionio.Action(actionStr);
+        const statusCodeBeforeResponse = action.get_status_code(0);
 
-        // No rule matching
-        if (rule.id === "") {
-            return [await fetch(request), null];
-        }
+        let response = null;
 
-        // Get redirect when no response
-        const redirectStr = libredirectionio.get_redirect(ruleStr, request.url, 0);
-
-        if (redirectStr) {
-            const redirect = JSON.parse(redirectStr);
-
-            if (redirect.status_code !== 0) {
-                return [
-                    new Response('', {
-                        status: Number(redirect.status_code),
-                        headers: {
-                            Location: redirect.location,
-                        },
-                    }),
-                    rule
-                ];
-            }
-        }
-
-        let backendResponse = await fetch(request);
-        const redirectAfterResponseStr = libredirectionio.get_redirect(ruleStr, request.url, backendResponse.status);
-
-        if (redirectAfterResponseStr) {
-            const redirectAfterResponse = JSON.parse(redirectAfterResponseStr);
-
-            // Get redirect with response
-            if (redirectAfterResponse.status_code !== 0) {
-                return [
-                    new Response('', {
-                        status: Number(redirect.status_code),
-                        headers: {
-                            Location: redirect.location,
-                        },
-                    }),
-                    rule
-                ];
-            }
-        }
-
-        const headers = [];
-
-        for (const pair of backendResponse.headers.entries()) {
-            headers.push({
-                name: pair[0],
-                value: pair[1],
+        if (statusCodeBeforeResponse === 0) {
+            response = await fetch(request);
+        } else {
+            response = new Response('', {
+                status: Number(statusCodeBeforeResponse),
             });
         }
 
-        const newHeadersStr = libredirectionio.header_filter(ruleStr, JSON.stringify(headers));
+        const statusCodeAfterResponse = action.get_status_code(response.status);
 
-        if (newHeadersStr && newHeadersStr !== "") {
-            const newHeaders = JSON.parse(newHeadersStr);
-            const newHeadersObject = new Headers();
+        if (statusCodeAfterResponse !== 0) {
+            response.status = Number(statusCodeAfterResponse);
+        }
 
-            for (const newHeader of newHeaders) {
-                newHeadersObject.append(newHeader.name, newHeader.value);
+        const headerMap = new libredirectionio.HeaderMap();
+
+        for (const pair of response.headers.entries()) {
+            headerMap.add_header(pair[0], pair[1]);
+        }
+
+        const newHeaderMap = action.filter_headers(headerMap, response.status, options.add_rule_ids_header);
+        const newHeaders = new Headers();
+
+        for (let i = 0; i < newHeaderMap.len(); i++) {
+            newHeaders.append(newHeaderMap.get_header_name(i), newHeaderMap.get_header_value(i));
+        }
+
+        response = new Response(
+            response.body, {
+                status: response.status,
+                statusText: response.statusText,
+                headers: newHeaders,
             }
+        );
 
-            newHeadersObject.append("X-RedirectionIO-Rule", rule.id);
+        const bodyFilter = action.create_body_filter(response.status);
 
-            backendResponse = new Response(
-                backendResponse.body, {
-                    status: backendResponse.status,
-                    statusText: backendResponse.statusText,
-                    headers: newHeadersObject,
-                }
-            );
+        // Skip body filtering
+        if (bodyFilter.is_null()) {
+            return [response, action];
         }
 
-        const filterBodyId = libredirectionio.create_body_filter(ruleStr, "filter_id");
+        const { readable, writable } = new TransformStream();
 
-        if (filterBodyId && filterBodyId !== "") {
-            let { readable, writable } = new TransformStream();
+        filter_body(response.body, writable, bodyFilter);
 
-            filter_body(backendResponse.body, writable, filterBodyId, libredirectionio);
-
-            return [new Response(readable, backendResponse), rule];
-        }
-
-        return [backendResponse, rule];
+        return [new Response(readable, response), action];
     } catch (error) {
         return [await fetch(request), null]
     }
 }
 
-async function filter_body(readable, writable, filterBodyId, libredirectionio) {
+async function filter_body(readable, writable, bodyFilter) {
     let writer = writable.getWriter();
     let reader = readable.getReader();
     const decoder = new TextDecoder("utf-8");
@@ -156,7 +119,7 @@ async function filter_body(readable, writable, filterBodyId, libredirectionio) {
 
     while (!data.done) {
         const chunk = decoder.decode(data.value);
-        const filteredData = libredirectionio.body_filter(filterBodyId, chunk);
+        const filteredData = bodyFilter.filter(chunk);
 
         if (filteredData) {
             await writer.write(encoder.encode(filteredData));
@@ -165,7 +128,7 @@ async function filter_body(readable, writable, filterBodyId, libredirectionio) {
         data = await reader.read();
     }
 
-    const lastData = libredirectionio.body_filter_end(filterBodyId);
+    const lastData = bodyFilter.end();
 
     if (lastData) {
         await writer.write(encoder.encode(lastData));
