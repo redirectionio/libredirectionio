@@ -57,7 +57,7 @@ impl<T: RouteData> Router<T> {
             return None;
         }
 
-        routes.sort_by(|a, b| a.priority().cmp(&b.priority()));
+        routes.sort_by(|a, b| b.priority().cmp(&a.priority()));
 
         match routes.get(0) {
             None => None,
@@ -74,7 +74,7 @@ impl<T: RouteData> Router<T> {
             routes.push(route.clone());
         }
 
-        routes_traces.sort_by(|&a, &b| a.priority().cmp(&b.priority()));
+        routes_traces.sort_by(|&a, &b| b.priority().cmp(&a.priority()));
 
         let final_route = match routes_traces.first() {
             None => None,

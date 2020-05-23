@@ -2,9 +2,9 @@
     "body_part": "script",
     "bindings": [
         {
-            "name": "REDIRECTIONIO_MODULE",
+            "name": "wasm",
             "type": "wasm_module",
-            "part": "wasmprogram"
+            "part": "wasm"
         }
     ]
 }

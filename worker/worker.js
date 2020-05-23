@@ -1,31 +1,41 @@
-/* redirection.io options */
-const options = {
-    token: "TOKEN",
-    timeout: 1000,
-    add_rule_ids_header: false,
-};
-
 /* attaching the event listener */
-addEventListener('fetch', async event => {
-    try {
-        event.respondWith(respondWithCallback(event.request));
-    } catch (e) {
-        event.respondWith(event.request);
-    }
+addEventListener('fetch', event => {
+    event.respondWith(handle(event.request));
 });
 
-async function respondWithCallback(request) {
+async function handle(request) {
+    try {
+        return await redirectionio_fetch(request)
+    } catch (err) {
+        console.error(err);
+
+        // Display the error stack.
+        return await fetch(request);
+    }
+}
+
+async function redirectionio_fetch(request) {
+    const options = {
+        token: REDIRECTIONIO_TOKEN || null,
+        timeout: parseInt(REDIRECTIONIO_TIMEOUT, 10),
+        add_rule_ids_header: REDIRECTIONIO_ADD_HEADER_RULE_IDS === 'true',
+    }
+
+    if (options.token === null) {
+        return await fetch(request);
+    }
+
     const libredirectionio = wasm_bindgen;
     await wasm_bindgen(wasm);
-    const [response, redirectionioRequest, action] = await handle(request, libredirectionio);
+    const [response, redirectionioRequest, action] = await proxy(request, libredirectionio, options);
 
-    await log(request, response, redirectionioRequest, action, libredirectionio);
+    await log(request, response, redirectionioRequest, action, libredirectionio, options);
 
     return response;
 }
 
 /* Redirection.io logic */
-async function handle(request, libredirectionio) {
+async function proxy(request, libredirectionio, options) {
     const urlObject = new URL(request.url);
     const redirectionioRequest = new libredirectionio.Request(urlObject.pathname, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
     let action = libredirectionio.Action.empty();
@@ -35,10 +45,11 @@ async function handle(request, libredirectionio) {
     }
 
     try {
+        const requestSerialized = redirectionioRequest.serialize();
         const agentResponse = await Promise.race([
             fetch('https://agent.redirection.io/' + options.token + '/action', {
                 method: 'POST',
-                body: redirectionioRequest.serialize(),
+                body: requestSerialized,
                 headers: {
                     'User-Agent': 'cloudflare-service-worker/0.1.0'
                 },
@@ -106,7 +117,9 @@ async function handle(request, libredirectionio) {
         filter_body(response.body, writable, bodyFilter);
 
         return [new Response(readable, response), redirectionioRequest, action];
-    } catch (error) {
+    } catch (err) {
+        console.error(err);
+
         return [await fetch(request), redirectionioRequest, action]
     }
 }
@@ -138,7 +151,7 @@ async function filter_body(readable, writable, bodyFilter) {
     await writer.close();
 }
 
-async function log(request, response, redirectionioRequest, action, libredirectionio) {
+async function log(request, response, redirectionioRequest, action, libredirectionio, options) {
     if (response === null) {
         return;
     }
@@ -150,29 +163,27 @@ async function log(request, response, redirectionioRequest, action, libredirecti
         responseHeaderMap.add_header(pair[0], pair[1]);
     }
 
-    const log = libredirectionio.create_log_in_json(
-        redirectionioRequest,
-        response.status,
-        responseHeaderMap,
-        action,
-        "cloudflare-service-worker/0.1.0",
-        BigInt(timestamp),
-    );
-
-    console.log(log);
-
     try {
+        const logAsJson = libredirectionio.create_log_in_json(
+            redirectionioRequest,
+            response.status,
+            responseHeaderMap,
+            action,
+            "cloudflare-service-worker/0.1.0",
+            BigInt(timestamp),
+        );
+
         return await fetch(
             'https://agent.redirection.io/' + options.token + '/log',
             {
                 method: 'POST',
-                body: log,
+                body: logAsJson,
                 headers: {
                     'User-Agent': 'cloudflare-service-worker/0.1.0'
                 },
             }
         );
-    } catch (error) {
-        console.log(error)
+    } catch (err) {
+        console.error(err);
     }
 }

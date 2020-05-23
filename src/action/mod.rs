@@ -57,7 +57,7 @@ impl TraceAction {
         let mut routes = Trace::<Rule>::get_routes_from_traces(traces);
 
         // Reverse order of sort
-        routes.sort_by(|a, b| b.priority().cmp(&a.priority()));
+        routes.sort_by(|a, b| a.priority().cmp(&b.priority()));
 
         for route in routes {
             current_action.merge(Action::from_route_rule(route, request));
@@ -211,8 +211,8 @@ impl Action {
     pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request<()>) -> Action {
         let mut action = Action::default();
 
-        // Reverse order of sort
-        routes.sort_by(|a, b| b.priority().cmp(&a.priority()));
+        // Sort by priority, with lower ones in first
+        routes.sort_by(|a, b| a.priority().cmp(&b.priority()));
 
         for route in routes {
             action.merge(Action::from_route_rule(route, request));

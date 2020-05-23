@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {
     code: u16,
-    to: Option<String>,
+    to: String,
     time: u64,
     proxy: String,
     from: FromLog,
@@ -67,7 +67,7 @@ impl Log {
             from,
             proxy: proxy.to_string(),
             time,
-            to: location,
+            to: location.unwrap_or_else(|| "".to_string()),
         }
     }
 }

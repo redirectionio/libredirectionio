@@ -4,3 +4,4 @@ type = "rust"
 route = "YOUR_ROUTE_WHERE"
 workers_dev = false
 zone_id = "YOUR_ZONE_ID"
+vars = { REDIRECTIONIO_TIMEOUT = "5000", REDIRECTIONIO_ADD_HEADER_RULE_IDS  = "false" }
