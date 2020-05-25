@@ -9,4 +9,3 @@ libredirectionio.pc
 Makefile
 wrangler.toml
 worker/generated
-wasm-dev
