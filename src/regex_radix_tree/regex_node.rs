@@ -139,9 +139,13 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
 
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
         if self.level == level && self.prefix.is_some() {
-            self.prefix_compiled = Some(self.create_regex());
+            self.prefix_compiled = self.create_regex();
 
-            return limit - 1;
+            if self.prefix_compiled.is_some() {
+                return limit - 1;
+            }
+
+            return limit;
         }
 
         let mut new_limit = limit;
@@ -188,20 +192,24 @@ impl<T: NodeItem, S: Storage<T>> RegexNode<T, S> {
 
         match self.prefix_compiled.as_ref() {
             Some(regex) => regex.is_match(value),
-            None => self.create_regex().is_match(value),
+            None => match self.create_regex() {
+                None => false,
+                Some(regex) => regex.is_match(value),
+            },
         }
     }
 
-    #[allow(clippy::trivial_regex)]
-    fn create_regex(&self) -> Regex {
-        match self.prefix.as_ref() {
-            None => Regex::new(""),
-            Some(prefix) => {
-                let regex = ["^", prefix.as_str()].join("");
+    fn create_regex(&self) -> Option<Regex> {
+        let prefix = self.prefix.as_ref()?;
+        let regex = ["^", prefix.as_str()].join("");
 
-                Regex::new(regex.as_str())
+        match Regex::new(regex.as_str()) {
+            Err(e) => {
+                error!("Cannot create regex: {:?}", e);
+
+                None
             }
+            Ok(regex) => Some(regex),
         }
-        .expect("Cannot create regex")
     }
 }

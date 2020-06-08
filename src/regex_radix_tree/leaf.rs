@@ -64,10 +64,13 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for Leaf<T, S> {
             return limit;
         }
 
-        // @TODO handle error
-        self.prefix_compiled = Some(self.create_regex());
+        self.prefix_compiled = self.create_regex();
 
-        limit - 1
+        if self.prefix_compiled.is_some() {
+            return limit - 1;
+        }
+
+        limit
     }
 
     fn box_clone(&self) -> Box<dyn Node<T, S>> {
@@ -94,13 +97,23 @@ impl<T: NodeItem, S: Storage<T>> Leaf<T, S> {
     fn is_match(&self, value: &str) -> bool {
         match self.prefix_compiled.as_ref() {
             Some(regex) => regex.is_match(value),
-            None => self.create_regex().is_match(value),
+            None => match self.create_regex() {
+                None => false,
+                Some(regex) => regex.is_match(value),
+            },
         }
     }
 
-    fn create_regex(&self) -> Regex {
-        // @TODO Change this to error handler
+    fn create_regex(&self) -> Option<Regex> {
         let regex = ["^", self.prefix.as_str(), "$"].join("");
-        Regex::new(regex.as_str()).expect("Cannot create regex")
+
+        match Regex::new(regex.as_str()) {
+            Err(e) => {
+                error!("Cannot create regex: {:?}", e);
+
+                None
+            }
+            Ok(regex) => Some(regex),
+        }
     }
 }
