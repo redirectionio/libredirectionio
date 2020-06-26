@@ -1,5 +1,6 @@
 autom4te.cache
 target/
+target-musl/
 rules.json
 config.log
 config.status
