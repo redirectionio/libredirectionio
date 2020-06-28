@@ -122,7 +122,15 @@ fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
     let package_name = env::var("CARGO_PKG_NAME").unwrap();
-    let output_file = target_dir().join(format!("{}.h", package_name)).display().to_string();
+    let mut build_dir = target_dir();
+
+    if env::var("CARGO_CFG_TARGET_ENV").unwrap() == "musl" {
+        build_dir = build_dir.join("x86_64-unknown-linux-musl");
+    }
+
+    build_dir = build_dir.join(env::var("PROFILE").unwrap());
+
+    let output_file = build_dir.join(format!("{}.h", package_name)).display().to_string();
 
     cbindgen::generate(crate_dir)
         .expect("Unable to generate bindings")

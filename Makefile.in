@@ -30,7 +30,7 @@ target/redirectionio.h: $(EXTRA_DIST)
 .PHONY: install
 install:
 	mkdir -p $(DESTDIR)@prefix@/include/
-	install -c -m 644 target/redirectionio.h $(DESTDIR)@prefix@/include/
+	install -c -m 644 target/@RUST_TARGET_SUBDIR@/redirectionio.h $(DESTDIR)@prefix@/include/
 	mkdir -p $(DESTDIR)@libdir@/
 	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
 	mkdir -p $(DESTDIR)@libdir@/pkgconfig/
