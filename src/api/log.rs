@@ -22,6 +22,8 @@ struct FromLog {
     referer: Option<String>,
     #[serde(rename = "userAgent")]
     user_agent: Option<String>,
+    #[serde(rename = "contentType")]
+    content_type: Option<String>,
 }
 
 impl Log {
@@ -29,6 +31,7 @@ impl Log {
         let mut location = None;
         let mut user_agent = None;
         let mut referer = None;
+        let mut content_type = None;
 
         for header in &request.headers {
             if header.name.to_lowercase() == "user-agent" {
@@ -43,6 +46,10 @@ impl Log {
         for header in &response_headers {
             if header.name.to_lowercase() == "location" {
                 location = Some(header.value.clone())
+            }
+
+            if header.name.to_lowercase() == "content-type" {
+                content_type = Some(header.value.clone())
             }
         }
 
@@ -60,6 +67,7 @@ impl Log {
             host: request.host.clone(),
             referer,
             user_agent,
+            content_type,
         };
 
         Log {
