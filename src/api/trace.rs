@@ -1,7 +1,7 @@
 use crate::action::TraceAction;
 use crate::api::Rule;
+use crate::http::Request;
 use crate::router::{Router, Trace};
-use crate::http::{Request};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

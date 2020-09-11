@@ -1,7 +1,7 @@
+use super::header::Header;
+use super::query::PathAndQueryWithSkipped;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
-use super::query::PathAndQueryWithSkipped;
-use super::header::Header;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 

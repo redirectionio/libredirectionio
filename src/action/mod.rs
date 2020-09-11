@@ -87,7 +87,7 @@ impl Action {
                 Some(header_marker) => {
                     for request_header in &request.headers {
                         if request_header.name != header.name {
-                            continue
+                            continue;
                         }
 
                         parameters.extend(header_marker.capture(request_header.value.as_str()));

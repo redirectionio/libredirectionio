@@ -1,7 +1,7 @@
 use crate::api::{RouterTrace, Rule};
+use crate::http::{Request, STATIC_QUERY_PARAM_SKIP_BUILDER};
 use crate::router::Router;
 use serde::{Deserialize, Serialize};
-use crate::http::{Request, STATIC_QUERY_PARAM_SKIP_BUILDER};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Impact {

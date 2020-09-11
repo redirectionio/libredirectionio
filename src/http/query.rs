@@ -22,9 +22,7 @@ impl Default for QueryParamSkipBuilder {
         parameters.insert("utm_term".to_string());
         parameters.insert("utm_content".to_string());
 
-        QueryParamSkipBuilder {
-            parameters,
-        }
+        QueryParamSkipBuilder { parameters }
     }
 }
 
@@ -42,7 +40,7 @@ impl QueryParamSkipBuilder {
 
         if let Some(query) = path_and_query.query() {
             let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes()).into_owned().collect();
-            let mut query_string= "".to_string();
+            let mut query_string = "".to_string();
 
             for (key, value) in &hash_query {
                 let mut query_param = "".to_string();
@@ -78,7 +76,11 @@ impl QueryParamSkipBuilder {
         PathAndQueryWithSkipped {
             original: path_and_query_str.to_string(),
             path_and_query: new_path_and_query,
-            skipped_query_params: if skipped_query_params.is_empty() { None } else { Some(skipped_query_params) },
+            skipped_query_params: if skipped_query_params.is_empty() {
+                None
+            } else {
+                Some(skipped_query_params)
+            },
         }
     }
 }

@@ -1,7 +1,7 @@
+use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 use super::{Header, Request as RedirectionioRequest};
 use serde_json::to_string as json_encode;
 use wasm_bindgen::prelude::*;
-use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 
 #[wasm_bindgen]
 pub struct Request {

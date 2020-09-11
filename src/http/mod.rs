@@ -1,6 +1,6 @@
 mod header;
-mod request;
 mod query;
+mod request;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod ffi;
@@ -13,7 +13,5 @@ use lazy_static::lazy_static;
 pub use query::QueryParamSkipBuilder;
 
 lazy_static! {
-    pub static ref STATIC_QUERY_PARAM_SKIP_BUILDER: QueryParamSkipBuilder = {
-        QueryParamSkipBuilder::default()
-    };
+    pub static ref STATIC_QUERY_PARAM_SKIP_BUILDER: QueryParamSkipBuilder = QueryParamSkipBuilder::default();
 }
