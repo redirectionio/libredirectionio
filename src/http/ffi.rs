@@ -3,6 +3,7 @@ use crate::http::{Header, Request};
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::os::raw::c_char;
 use std::ptr::null;
+use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -109,7 +110,7 @@ pub unsafe extern "C" fn redirectionio_request_create(
         Some(str) => Some(str.to_string()),
     };
 
-    let mut request = Request::new(uri.to_string(), host, scheme, method);
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(uri), host, scheme, method);
     let headers = header_map_to_http_headers(header_map);
 
     for header in headers {

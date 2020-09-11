@@ -61,7 +61,7 @@ impl Log {
                     Some(s) => Some(s.clone()),
                 },
             },
-            url: request.path_and_query.clone(),
+            url: request.path_and_query.original.clone(),
             method: request.method.clone(),
             scheme: request.scheme.clone(),
             host: request.host.clone(),

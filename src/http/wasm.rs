@@ -1,6 +1,7 @@
 use super::{Header, Request as RedirectionioRequest};
 use serde_json::to_string as json_encode;
 use wasm_bindgen::prelude::*;
+use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 
 #[wasm_bindgen]
 pub struct Request {
@@ -24,7 +25,7 @@ impl Request {
                 host: Some(host),
                 method: Some(method),
                 scheme: Some(scheme),
-                path_and_query: uri,
+                path_and_query: STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(uri.as_str()),
             },
         }
     }

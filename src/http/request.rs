@@ -1,12 +1,13 @@
-use crate::http::header::Header;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
+use super::query::PathAndQueryWithSkipped;
+use super::header::Header;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Request {
-    pub path_and_query: String,
+    pub path_and_query: PathAndQueryWithSkipped,
     pub host: Option<String>,
     pub scheme: Option<String>,
     pub method: Option<String>,
@@ -14,7 +15,7 @@ pub struct Request {
 }
 
 impl Request {
-    pub fn new(path_and_query: String, host: Option<String>, scheme: Option<String>, method: Option<String>) -> Request {
+    pub fn new(path_and_query: PathAndQueryWithSkipped, host: Option<String>, scheme: Option<String>, method: Option<String>) -> Request {
         Request {
             path_and_query,
             host,
@@ -32,7 +33,7 @@ impl Request {
         let mut request_builder = http::Request::<()>::builder();
         let mut uri_builder = http::Uri::builder();
 
-        let url = utf8_percent_encode(self.path_and_query.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
+        let url = utf8_percent_encode(self.path_and_query.path_and_query.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
 
         uri_builder = uri_builder.path_and_query(url.as_str());
 

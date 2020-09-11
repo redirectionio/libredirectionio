@@ -5,7 +5,7 @@ mod generated_tests {
 
 use redirectionio::router::Router;
 use redirectionio::api::Rule;
-use redirectionio::http::{Request, Header};
+use redirectionio::http::{Request, Header, STATIC_QUERY_PARAM_SKIP_BUILDER};
 use redirectionio::action::Action;
 
 {% for name, rule_set in rule_sets %}
@@ -22,7 +22,7 @@ fn setup_{{ name }}() -> Router<Rule> {
 #[test]
 fn test_{{ name }}_{{ loop.index }}() {
     let router = setup_{{ name }}();
-    let{% if test.headers %} mut{% endif %} request = Request::new(r#"{{ test.uri }}"#.to_string(),
+    let{% if test.headers %} mut{% endif %} request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"{{ test.uri }}"#),
     {%- if test.host -%}Some(r#"{{ test.host }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.scheme -%}Some(r#"{{ test.scheme }}"#.to_string()){% else %}None{%- endif -%},
     None);
@@ -36,7 +36,7 @@ fn test_{{ name }}_{{ loop.index }}() {
 
     assert_eq!(!matched.is_empty(), {{ test.match }});
 {% if test.match %}
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 {% if test.status %}
     assert_eq!(action.get_status_code(0), {{ test.status }});
     {%- endif -%}

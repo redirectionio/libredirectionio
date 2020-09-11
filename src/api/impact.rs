@@ -1,6 +1,7 @@
 use crate::api::{RouterTrace, Rule};
 use crate::router::Router;
 use serde::{Deserialize, Serialize};
+use crate::http::{Request, STATIC_QUERY_PARAM_SKIP_BUILDER};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Impact {
@@ -45,15 +46,31 @@ impl Impact {
         let mut items = Vec::new();
 
         for url in &impact.urls {
-            let request_res = http::Request::<()>::builder().uri(url.as_str()).method("GET").body(());
+            let http_request_res = http::Request::<()>::builder().uri(url.as_str()).method("GET").body(());
 
-            if request_res.is_err() {
+            if http_request_res.is_err() {
                 continue;
             }
 
-            let request = request_res.unwrap();
-            let trace_before_update = RouterTrace::create_from_router(router, &request);
-            let trace_after_update = RouterTrace::create_from_router(&next_router, &request);
+            let http_request = http_request_res.unwrap();
+            let request = Request::new(
+                STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(match http_request.uri().path_and_query() {
+                    None => "",
+                    Some(path_and_query) => path_and_query.as_str(),
+                }),
+                match http_request.uri().host() {
+                    None => None,
+                    Some(host) => Some(host.to_string()),
+                },
+                match http_request.uri().scheme_str() {
+                    None => None,
+                    Some(scheme) => Some(scheme.to_string()),
+                },
+                None,
+            );
+
+            let trace_before_update = RouterTrace::create_from_router(router, &request, &http_request);
+            let trace_after_update = RouterTrace::create_from_router(&next_router, &request, &http_request);
 
             items.push(ImpactResultItem {
                 url: url.clone(),

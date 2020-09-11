@@ -5,7 +5,7 @@ mod generated_tests {
 
 use redirectionio::router::Router;
 use redirectionio::api::Rule;
-use redirectionio::http::{Request, Header};
+use redirectionio::http::{Request, Header, STATIC_QUERY_PARAM_SKIP_BUILDER};
 use redirectionio::action::Action;
 
 
@@ -22,13 +22,13 @@ fn setup_00_common_rules() -> Router<Rule> {
 #[test]
 fn test_00_common_rules_1() {
     let router = setup_00_common_rules();
-    let request = Request::new(r#"/foo"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -42,7 +42,7 @@ fn test_00_common_rules_1() {
 #[test]
 fn test_00_common_rules_2() {
     let router = setup_00_common_rules();
-    let request = Request::new(r#"/foo2"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo2"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -100,13 +100,13 @@ fn setup_01_straight_rule_match() -> Router<Rule> {
 #[test]
 fn test_01_straight_rule_match_1() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -120,13 +120,13 @@ fn test_01_straight_rule_match_1() {
 #[test]
 fn test_01_straight_rule_match_2() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/foo?bar=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?bar=baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -140,7 +140,7 @@ fn test_01_straight_rule_match_2() {
 #[test]
 fn test_01_straight_rule_match_3() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/?q"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/?q"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -151,13 +151,13 @@ fn test_01_straight_rule_match_3() {
 #[test]
 fn test_01_straight_rule_match_4() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/?"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/?"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -171,7 +171,7 @@ fn test_01_straight_rule_match_4() {
 #[test]
 fn test_01_straight_rule_match_5() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"?bar2=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"?bar2=baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -182,13 +182,13 @@ fn test_01_straight_rule_match_5() {
 #[test]
 fn test_01_straight_rule_match_6() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/foo?bar=baz"#.to_string(),Some(r#"foobar.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?bar=baz"#),Some(r#"foobar.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -202,13 +202,13 @@ fn test_01_straight_rule_match_6() {
 #[test]
 fn test_01_straight_rule_match_7() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -222,13 +222,13 @@ fn test_01_straight_rule_match_7() {
 #[test]
 fn test_01_straight_rule_match_8() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/foo?bar=baz"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?bar=baz"#),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -242,13 +242,13 @@ fn test_01_straight_rule_match_8() {
 #[test]
 fn test_01_straight_rule_match_9() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/i%20have%20space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/i%20have%20space"#),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -262,13 +262,13 @@ fn test_01_straight_rule_match_9() {
 #[test]
 fn test_01_straight_rule_match_10() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/i have space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/i have space"#),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -282,13 +282,13 @@ fn test_01_straight_rule_match_10() {
 #[test]
 fn test_01_straight_rule_match_11() {
     let router = setup_01_straight_rule_match();
-    let request = Request::new(r#"/zwart+janstraat"#.to_string(),Some(r#"www.domain.nl"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/zwart+janstraat"#),Some(r#"www.domain.nl"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -328,13 +328,13 @@ fn setup_03_priority_match() -> Router<Rule> {
 #[test]
 fn test_03_priority_match_1() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -348,13 +348,13 @@ fn test_03_priority_match_1() {
 #[test]
 fn test_03_priority_match_2() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.com"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),Some(r#"example.com"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -368,13 +368,13 @@ fn test_03_priority_match_2() {
 #[test]
 fn test_03_priority_match_3() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -388,13 +388,13 @@ fn test_03_priority_match_3() {
 #[test]
 fn test_03_priority_match_4() {
     let router = setup_03_priority_match();
-    let request = Request::new(r#"/foo"#.to_string(),Some(r#"example.fr"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),Some(r#"example.fr"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -425,13 +425,13 @@ fn setup_04_rfc3986_relative_references() -> Router<Rule> {
 #[test]
 fn test_04_rfc3986_relative_references_1() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"//xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"//xyz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -445,7 +445,7 @@ fn test_04_rfc3986_relative_references_1() {
 #[test]
 fn test_04_rfc3986_relative_references_2() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"/xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/xyz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -456,13 +456,13 @@ fn test_04_rfc3986_relative_references_2() {
 #[test]
 fn test_04_rfc3986_relative_references_3() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"/source"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -476,13 +476,13 @@ fn test_04_rfc3986_relative_references_3() {
 #[test]
 fn test_04_rfc3986_relative_references_4() {
     let router = setup_04_rfc3986_relative_references();
-    let request = Request::new(r#"//doubledragon"#.to_string(),Some(r#"yolo.com"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"//doubledragon"#),Some(r#"yolo.com"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -510,13 +510,13 @@ fn setup_05_query_parameters_order() -> Router<Rule> {
 #[test]
 fn test_05_query_parameters_order_1() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?a=a&b=b"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?a=a&b=b"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -530,13 +530,13 @@ fn test_05_query_parameters_order_1() {
 #[test]
 fn test_05_query_parameters_order_2() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?b=b&a=a"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?b=b&a=a"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -550,7 +550,7 @@ fn test_05_query_parameters_order_2() {
 #[test]
 fn test_05_query_parameters_order_3() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?a=a&b=b&c=c"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?a=a&b=b&c=c"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -561,13 +561,13 @@ fn test_05_query_parameters_order_3() {
 #[test]
 fn test_05_query_parameters_order_4() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?b=b&c=c"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?b=b&c=c"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -581,13 +581,13 @@ fn test_05_query_parameters_order_4() {
 #[test]
 fn test_05_query_parameters_order_5() {
     let router = setup_05_query_parameters_order();
-    let request = Request::new(r#"/foo?c=c&b=b"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo?c=c&b=b"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -612,13 +612,13 @@ fn setup_06_emojis() -> Router<Rule> {
 #[test]
 fn test_06_emojis_1() {
     let router = setup_06_emojis();
-    let request = Request::new(r#"/🍕"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/🍕"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -643,13 +643,13 @@ fn setup_action_seo_override_meta_author() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_meta_author_1() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -663,13 +663,13 @@ fn test_action_seo_override_meta_author_1() {
 #[test]
 fn test_action_seo_override_meta_author_2() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -683,13 +683,13 @@ fn test_action_seo_override_meta_author_2() {
 #[test]
 fn test_action_seo_override_meta_author_3() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -703,13 +703,13 @@ fn test_action_seo_override_meta_author_3() {
 #[test]
 fn test_action_seo_override_meta_author_4() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -723,13 +723,13 @@ fn test_action_seo_override_meta_author_4() {
 #[test]
 fn test_action_seo_override_meta_author_5() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -743,13 +743,13 @@ fn test_action_seo_override_meta_author_5() {
 #[test]
 fn test_action_seo_override_meta_author_6() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -763,13 +763,13 @@ fn test_action_seo_override_meta_author_6() {
 #[test]
 fn test_action_seo_override_meta_author_7() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -783,13 +783,13 @@ fn test_action_seo_override_meta_author_7() {
 #[test]
 fn test_action_seo_override_meta_author_8() {
     let router = setup_action_seo_override_meta_author();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -814,13 +814,13 @@ fn setup_action_seo_override_meta_description() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_meta_description_1() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -834,13 +834,13 @@ fn test_action_seo_override_meta_description_1() {
 #[test]
 fn test_action_seo_override_meta_description_2() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -854,13 +854,13 @@ fn test_action_seo_override_meta_description_2() {
 #[test]
 fn test_action_seo_override_meta_description_3() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -874,13 +874,13 @@ fn test_action_seo_override_meta_description_3() {
 #[test]
 fn test_action_seo_override_meta_description_4() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -894,13 +894,13 @@ fn test_action_seo_override_meta_description_4() {
 #[test]
 fn test_action_seo_override_meta_description_5() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -914,13 +914,13 @@ fn test_action_seo_override_meta_description_5() {
 #[test]
 fn test_action_seo_override_meta_description_6() {
     let router = setup_action_seo_override_meta_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -945,13 +945,13 @@ fn setup_action_seo_override_meta_keywords() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_meta_keywords_1() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -965,13 +965,13 @@ fn test_action_seo_override_meta_keywords_1() {
 #[test]
 fn test_action_seo_override_meta_keywords_2() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -985,13 +985,13 @@ fn test_action_seo_override_meta_keywords_2() {
 #[test]
 fn test_action_seo_override_meta_keywords_3() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1005,13 +1005,13 @@ fn test_action_seo_override_meta_keywords_3() {
 #[test]
 fn test_action_seo_override_meta_keywords_4() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1025,13 +1025,13 @@ fn test_action_seo_override_meta_keywords_4() {
 #[test]
 fn test_action_seo_override_meta_keywords_5() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1045,13 +1045,13 @@ fn test_action_seo_override_meta_keywords_5() {
 #[test]
 fn test_action_seo_override_meta_keywords_6() {
     let router = setup_action_seo_override_meta_keywords();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1079,13 +1079,13 @@ fn setup_action_seo_override_og_description() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_description_1() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1099,13 +1099,13 @@ fn test_action_seo_override_og_description_1() {
 #[test]
 fn test_action_seo_override_og_description_2() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1119,13 +1119,13 @@ fn test_action_seo_override_og_description_2() {
 #[test]
 fn test_action_seo_override_og_description_3() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1139,13 +1139,13 @@ fn test_action_seo_override_og_description_3() {
 #[test]
 fn test_action_seo_override_og_description_4() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1159,13 +1159,13 @@ fn test_action_seo_override_og_description_4() {
 #[test]
 fn test_action_seo_override_og_description_5() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1179,13 +1179,13 @@ fn test_action_seo_override_og_description_5() {
 #[test]
 fn test_action_seo_override_og_description_6() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1199,13 +1199,13 @@ fn test_action_seo_override_og_description_6() {
 #[test]
 fn test_action_seo_override_og_description_7() {
     let router = setup_action_seo_override_og_description();
-    let request = Request::new(r#"/pizza-rapido"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/pizza-rapido"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1230,13 +1230,13 @@ fn setup_action_seo_override_og_image() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_image_1() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1250,13 +1250,13 @@ fn test_action_seo_override_og_image_1() {
 #[test]
 fn test_action_seo_override_og_image_2() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1270,13 +1270,13 @@ fn test_action_seo_override_og_image_2() {
 #[test]
 fn test_action_seo_override_og_image_3() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1290,13 +1290,13 @@ fn test_action_seo_override_og_image_3() {
 #[test]
 fn test_action_seo_override_og_image_4() {
     let router = setup_action_seo_override_og_image();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1321,13 +1321,13 @@ fn setup_action_seo_override_og_locale() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_locale_1() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1341,13 +1341,13 @@ fn test_action_seo_override_og_locale_1() {
 #[test]
 fn test_action_seo_override_og_locale_2() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1361,13 +1361,13 @@ fn test_action_seo_override_og_locale_2() {
 #[test]
 fn test_action_seo_override_og_locale_3() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1381,13 +1381,13 @@ fn test_action_seo_override_og_locale_3() {
 #[test]
 fn test_action_seo_override_og_locale_4() {
     let router = setup_action_seo_override_og_locale();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1412,13 +1412,13 @@ fn setup_action_seo_override_og_site_name() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_site_name_1() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1432,13 +1432,13 @@ fn test_action_seo_override_og_site_name_1() {
 #[test]
 fn test_action_seo_override_og_site_name_2() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1452,13 +1452,13 @@ fn test_action_seo_override_og_site_name_2() {
 #[test]
 fn test_action_seo_override_og_site_name_3() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1472,13 +1472,13 @@ fn test_action_seo_override_og_site_name_3() {
 #[test]
 fn test_action_seo_override_og_site_name_4() {
     let router = setup_action_seo_override_og_site_name();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1503,13 +1503,13 @@ fn setup_action_seo_override_og_title() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_title_1() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1523,13 +1523,13 @@ fn test_action_seo_override_og_title_1() {
 #[test]
 fn test_action_seo_override_og_title_2() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1543,13 +1543,13 @@ fn test_action_seo_override_og_title_2() {
 #[test]
 fn test_action_seo_override_og_title_3() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1563,13 +1563,13 @@ fn test_action_seo_override_og_title_3() {
 #[test]
 fn test_action_seo_override_og_title_4() {
     let router = setup_action_seo_override_og_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1594,13 +1594,13 @@ fn setup_action_seo_override_og_type() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_type_1() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1614,13 +1614,13 @@ fn test_action_seo_override_og_type_1() {
 #[test]
 fn test_action_seo_override_og_type_2() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1634,13 +1634,13 @@ fn test_action_seo_override_og_type_2() {
 #[test]
 fn test_action_seo_override_og_type_3() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1654,13 +1654,13 @@ fn test_action_seo_override_og_type_3() {
 #[test]
 fn test_action_seo_override_og_type_4() {
     let router = setup_action_seo_override_og_type();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1685,13 +1685,13 @@ fn setup_action_seo_override_og_url() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_og_url_1() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1705,13 +1705,13 @@ fn test_action_seo_override_og_url_1() {
 #[test]
 fn test_action_seo_override_og_url_2() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1725,13 +1725,13 @@ fn test_action_seo_override_og_url_2() {
 #[test]
 fn test_action_seo_override_og_url_3() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1745,13 +1745,13 @@ fn test_action_seo_override_og_url_3() {
 #[test]
 fn test_action_seo_override_og_url_4() {
     let router = setup_action_seo_override_og_url();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1776,13 +1776,13 @@ fn setup_action_seo_override_title() -> Router<Rule> {
 #[test]
 fn test_action_seo_override_title_1() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1796,13 +1796,13 @@ fn test_action_seo_override_title_1() {
 #[test]
 fn test_action_seo_override_title_2() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1816,13 +1816,13 @@ fn test_action_seo_override_title_2() {
 #[test]
 fn test_action_seo_override_title_3() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1836,13 +1836,13 @@ fn test_action_seo_override_title_3() {
 #[test]
 fn test_action_seo_override_title_4() {
     let router = setup_action_seo_override_title();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -1873,13 +1873,13 @@ fn setup_marker() -> Router<Rule> {
 #[test]
 fn test_marker_1() {
     let router = setup_marker();
-    let request = Request::new(r#"/foo/test"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo/test"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -1893,7 +1893,7 @@ fn test_marker_1() {
 #[test]
 fn test_marker_2() {
     let router = setup_marker();
-    let request = Request::new(r#"/foo2"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo2"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -1904,13 +1904,13 @@ fn test_marker_2() {
 #[test]
 fn test_marker_3() {
     let router = setup_marker();
-    let request = Request::new(r#"/a/test"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/a/test"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -1924,13 +1924,13 @@ fn test_marker_3() {
 #[test]
 fn test_marker_4() {
     let router = setup_marker();
-    let request = Request::new(r#"/a/test_test"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/a/test_test"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -1944,13 +1944,13 @@ fn test_marker_4() {
 #[test]
 fn test_marker_5() {
     let router = setup_marker();
-    let request = Request::new(r#"/monthly-tides/North%20Carolina-North%20Shore/test"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/monthly-tides/North%20Carolina-North%20Shore/test"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -1975,13 +1975,13 @@ fn setup_marker_in_body_filter() -> Router<Rule> {
 #[test]
 fn test_marker_in_body_filter_1() {
     let router = setup_marker_in_body_filter();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let body_filter_opt = action.create_filter_body(0);
     assert_eq!(body_filter_opt.is_some(), true);
@@ -2006,13 +2006,13 @@ fn setup_marker_in_header_filter() -> Router<Rule> {
 #[test]
 fn test_marker_in_header_filter_1() {
     let router = setup_marker_in_header_filter();
-    let request = Request::new(r#"/source"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     let mut response_headers = Vec::new();
 
@@ -2045,7 +2045,7 @@ fn setup_marker_in_host() -> Router<Rule> {
 #[test]
 fn test_marker_in_host_1() {
     let router = setup_marker_in_host();
-    let request = Request::new(r#"/"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2056,7 +2056,7 @@ fn test_marker_in_host_1() {
 #[test]
 fn test_marker_in_host_2() {
     let router = setup_marker_in_host();
-    let request = Request::new(r#"/"#.to_string(),Some(r#"test.com"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/"#),Some(r#"test.com"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2067,13 +2067,13 @@ fn test_marker_in_host_2() {
 #[test]
 fn test_marker_in_host_3() {
     let router = setup_marker_in_host();
-    let request = Request::new(r#"/"#.to_string(),Some(r#"www.test.com"#.to_string()),Some(r#"https"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/"#),Some(r#"www.test.com"#.to_string()),Some(r#"https"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2101,13 +2101,13 @@ fn setup_marker_in_querystring() -> Router<Rule> {
 #[test]
 fn test_marker_in_querystring_1() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/querystring/from?slug=coucou"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/querystring/from?slug=coucou"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2121,7 +2121,7 @@ fn test_marker_in_querystring_1() {
 #[test]
 fn test_marker_in_querystring_2() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/querystring/from?slug=2048"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/querystring/from?slug=2048"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2132,7 +2132,7 @@ fn test_marker_in_querystring_2() {
 #[test]
 fn test_marker_in_querystring_3() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/querystring/from"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/querystring/from"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2143,13 +2143,13 @@ fn test_marker_in_querystring_3() {
 #[test]
 fn test_marker_in_querystring_4() {
     let router = setup_marker_in_querystring();
-    let request = Request::new(r#"/a?yolo=yala"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/a?yolo=yala"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2174,13 +2174,13 @@ fn setup_marker_transformation_camelize() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_camelize_1() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/helloPoney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/camelize/from/helloPoney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2194,13 +2194,13 @@ fn test_marker_transformation_camelize_1() {
 #[test]
 fn test_marker_transformation_camelize_2() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/Hello-poney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/camelize/from/Hello-poney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2214,13 +2214,13 @@ fn test_marker_transformation_camelize_2() {
 #[test]
 fn test_marker_transformation_camelize_3() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/HelloPoney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/camelize/from/HelloPoney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2234,13 +2234,13 @@ fn test_marker_transformation_camelize_3() {
 #[test]
 fn test_marker_transformation_camelize_4() {
     let router = setup_marker_transformation_camelize();
-    let request = Request::new(r#"/camelize/from/hello-pOney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/camelize/from/hello-pOney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2265,13 +2265,13 @@ fn setup_marker_transformation_dasherize() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_dasherize_1() {
     let router = setup_marker_transformation_dasherize();
-    let request = Request::new(r#"/dasherize/from/HelloPoney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/dasherize/from/HelloPoney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2285,13 +2285,13 @@ fn test_marker_transformation_dasherize_1() {
 #[test]
 fn test_marker_transformation_dasherize_2() {
     let router = setup_marker_transformation_dasherize();
-    let request = Request::new(r#"/dasherize/from/helloPoney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/dasherize/from/helloPoney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2305,13 +2305,13 @@ fn test_marker_transformation_dasherize_2() {
 #[test]
 fn test_marker_transformation_dasherize_3() {
     let router = setup_marker_transformation_dasherize();
-    let request = Request::new(r#"/dasherize/from/Hello-Poney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/dasherize/from/Hello-Poney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2336,13 +2336,13 @@ fn setup_marker_transformation_lowercase() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_lowercase_1() {
     let router = setup_marker_transformation_lowercase();
-    let request = Request::new(r#"/lowercase/from/HELLO-PONEY"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/lowercase/from/HELLO-PONEY"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2356,13 +2356,13 @@ fn test_marker_transformation_lowercase_1() {
 #[test]
 fn test_marker_transformation_lowercase_2() {
     let router = setup_marker_transformation_lowercase();
-    let request = Request::new(r#"/lowercase/from/HeLlO-PoNeY"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/lowercase/from/HeLlO-PoNeY"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2376,13 +2376,13 @@ fn test_marker_transformation_lowercase_2() {
 #[test]
 fn test_marker_transformation_lowercase_3() {
     let router = setup_marker_transformation_lowercase();
-    let request = Request::new(r#"/lowercase/from/hello-poney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/lowercase/from/hello-poney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2407,7 +2407,7 @@ fn setup_marker_transformation_replace() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_replace_1() {
     let router = setup_marker_transformation_replace();
-    let request = Request::new(r#"/replace/from/poney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/replace/from/poney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2418,13 +2418,13 @@ fn test_marker_transformation_replace_1() {
 #[test]
 fn test_marker_transformation_replace_2() {
     let router = setup_marker_transformation_replace();
-    let request = Request::new(r#"/replace/from/cat"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/replace/from/cat"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2438,13 +2438,13 @@ fn test_marker_transformation_replace_2() {
 #[test]
 fn test_marker_transformation_replace_3() {
     let router = setup_marker_transformation_replace();
-    let request = Request::new(r#"/replace/from/dog"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/replace/from/dog"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2472,13 +2472,13 @@ fn setup_marker_transformation_slice() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_slice_1() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2492,13 +2492,13 @@ fn test_marker_transformation_slice_1() {
 #[test]
 fn test_marker_transformation_slice_2() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice/from/ABCD"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/slice/from/ABCD"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2512,13 +2512,13 @@ fn test_marker_transformation_slice_2() {
 #[test]
 fn test_marker_transformation_slice_3() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2532,13 +2532,13 @@ fn test_marker_transformation_slice_3() {
 #[test]
 fn test_marker_transformation_slice_4() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice-middle/from/ABCDEFGHIJ"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/slice-middle/from/ABCDEFGHIJ"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2552,13 +2552,13 @@ fn test_marker_transformation_slice_4() {
 #[test]
 fn test_marker_transformation_slice_5() {
     let router = setup_marker_transformation_slice();
-    let request = Request::new(r#"/slice-middle/from/ABCD"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/slice-middle/from/ABCD"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2583,13 +2583,13 @@ fn setup_marker_transformation_underscorize() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_underscorize_1() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/hello_poney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/underscorize/from/hello_poney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2603,13 +2603,13 @@ fn test_marker_transformation_underscorize_1() {
 #[test]
 fn test_marker_transformation_underscorize_2() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/hello-poney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/underscorize/from/hello-poney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2623,13 +2623,13 @@ fn test_marker_transformation_underscorize_2() {
 #[test]
 fn test_marker_transformation_underscorize_3() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/HelloPoney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/underscorize/from/HelloPoney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2643,13 +2643,13 @@ fn test_marker_transformation_underscorize_3() {
 #[test]
 fn test_marker_transformation_underscorize_4() {
     let router = setup_marker_transformation_underscorize();
-    let request = Request::new(r#"/underscorize/from/helloPoney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/underscorize/from/helloPoney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2674,13 +2674,13 @@ fn setup_marker_transformation_uppercase() -> Router<Rule> {
 #[test]
 fn test_marker_transformation_uppercase_1() {
     let router = setup_marker_transformation_uppercase();
-    let request = Request::new(r#"/uppercase/from/HELLO-PONEY"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/uppercase/from/HELLO-PONEY"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2694,13 +2694,13 @@ fn test_marker_transformation_uppercase_1() {
 #[test]
 fn test_marker_transformation_uppercase_2() {
     let router = setup_marker_transformation_uppercase();
-    let request = Request::new(r#"/uppercase/from/HeLlO-PoNeY"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/uppercase/from/HeLlO-PoNeY"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2714,13 +2714,13 @@ fn test_marker_transformation_uppercase_2() {
 #[test]
 fn test_marker_transformation_uppercase_3() {
     let router = setup_marker_transformation_uppercase();
-    let request = Request::new(r#"/uppercase/from/hello-poney"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/uppercase/from/hello-poney"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2745,13 +2745,13 @@ fn setup_marker_type_anything() -> Router<Rule> {
 #[test]
 fn test_marker_type_anything_1() {
     let router = setup_marker_type_anything();
-    let request = Request::new(r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2765,13 +2765,13 @@ fn test_marker_type_anything_1() {
 #[test]
 fn test_marker_type_anything_2() {
     let router = setup_marker_type_anything();
-    let request = Request::new(r#"/anything/from/HELLO"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/anything/from/HELLO"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2785,13 +2785,13 @@ fn test_marker_type_anything_2() {
 #[test]
 fn test_marker_type_anything_3() {
     let router = setup_marker_type_anything();
-    let request = Request::new(r#"/anything/from/🤘"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/anything/from/🤘"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2816,13 +2816,13 @@ fn setup_marker_type_date() -> Router<Rule> {
 #[test]
 fn test_marker_type_date_1() {
     let router = setup_marker_type_date();
-    let request = Request::new(r#"/date/from/2018-11-23"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/date/from/2018-11-23"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2836,7 +2836,7 @@ fn test_marker_type_date_1() {
 #[test]
 fn test_marker_type_date_2() {
     let router = setup_marker_type_date();
-    let request = Request::new(r#"/date/from/2018-23-11"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/date/from/2018-23-11"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2847,7 +2847,7 @@ fn test_marker_type_date_2() {
 #[test]
 fn test_marker_type_date_3() {
     let router = setup_marker_type_date();
-    let request = Request::new(r#"/date/from/some-13-01"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/date/from/some-13-01"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2872,13 +2872,13 @@ fn setup_marker_type_datetime() -> Router<Rule> {
 #[test]
 fn test_marker_type_datetime_1() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime/from/2018-07-15T14:59:12Z"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/datetime/from/2018-07-15T14:59:12Z"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2892,13 +2892,13 @@ fn test_marker_type_datetime_1() {
 #[test]
 fn test_marker_type_datetime_2() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime/from/2018-07-15T14:59:12+02:00"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/datetime/from/2018-07-15T14:59:12+02:00"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2912,7 +2912,7 @@ fn test_marker_type_datetime_2() {
 #[test]
 fn test_marker_type_datetime_3() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime/from/2018-07-15 14:59:12Z"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/datetime/from/2018-07-15 14:59:12Z"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2923,13 +2923,13 @@ fn test_marker_type_datetime_3() {
 #[test]
 fn test_marker_type_datetime_4() {
     let router = setup_marker_type_datetime();
-    let request = Request::new(r#"/datetime-transform/from/2018-07-15T14:59:12Z"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/datetime-transform/from/2018-07-15T14:59:12Z"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2954,13 +2954,13 @@ fn setup_marker_type_enum() -> Router<Rule> {
 #[test]
 fn test_marker_type_enum_1() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/cat"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/enum/from/cat"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -2974,7 +2974,7 @@ fn test_marker_type_enum_1() {
 #[test]
 fn test_marker_type_enum_2() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/cats-eyes"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/enum/from/cats-eyes"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -2985,13 +2985,13 @@ fn test_marker_type_enum_2() {
 #[test]
 fn test_marker_type_enum_3() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/dog"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/enum/from/dog"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3005,7 +3005,7 @@ fn test_marker_type_enum_3() {
 #[test]
 fn test_marker_type_enum_4() {
     let router = setup_marker_type_enum();
-    let request = Request::new(r#"/enum/from/dogville"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/enum/from/dogville"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3036,13 +3036,13 @@ fn setup_marker_type_integer() -> Router<Rule> {
 #[test]
 fn test_marker_type_integer_1() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer/from/2778"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer/from/2778"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3056,7 +3056,7 @@ fn test_marker_type_integer_1() {
 #[test]
 fn test_marker_type_integer_2() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer/from/42l33t"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer/from/42l33t"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3067,7 +3067,7 @@ fn test_marker_type_integer_2() {
 #[test]
 fn test_marker_type_integer_3() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer/from/42-l33t"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer/from/42-l33t"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3078,13 +3078,13 @@ fn test_marker_type_integer_3() {
 #[test]
 fn test_marker_type_integer_4() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min/from/112"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer-min/from/112"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3098,7 +3098,7 @@ fn test_marker_type_integer_4() {
 #[test]
 fn test_marker_type_integer_5() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min/from/11"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer-min/from/11"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3109,13 +3109,13 @@ fn test_marker_type_integer_5() {
 #[test]
 fn test_marker_type_integer_6() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-max/from/11"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer-max/from/11"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3129,7 +3129,7 @@ fn test_marker_type_integer_6() {
 #[test]
 fn test_marker_type_integer_7() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-max/from/112"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer-max/from/112"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3140,13 +3140,13 @@ fn test_marker_type_integer_7() {
 #[test]
 fn test_marker_type_integer_8() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min-max/from/806"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer-min-max/from/806"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3160,7 +3160,7 @@ fn test_marker_type_integer_8() {
 #[test]
 fn test_marker_type_integer_9() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min-max/from/33"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer-min-max/from/33"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3171,7 +3171,7 @@ fn test_marker_type_integer_9() {
 #[test]
 fn test_marker_type_integer_10() {
     let router = setup_marker_type_integer();
-    let request = Request::new(r#"/integer-min-max/from/2048"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/integer-min-max/from/2048"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3235,7 +3235,7 @@ fn setup_marker_type_string() -> Router<Rule> {
 #[test]
 fn test_marker_type_string_1() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string/from/coucou"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string/from/coucou"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3246,13 +3246,13 @@ fn test_marker_type_string_1() {
 #[test]
 fn test_marker_type_string_2() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/coucou"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase/from/coucou"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3266,7 +3266,7 @@ fn test_marker_type_string_2() {
 #[test]
 fn test_marker_type_string_3() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/COUCOU"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase/from/COUCOU"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3277,7 +3277,7 @@ fn test_marker_type_string_3() {
 #[test]
 fn test_marker_type_string_4() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/some-string"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase/from/some-string"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3288,7 +3288,7 @@ fn test_marker_type_string_4() {
 #[test]
 fn test_marker_type_string_5() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase/from/l33t"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase/from/l33t"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3299,13 +3299,13 @@ fn test_marker_type_string_5() {
 #[test]
 fn test_marker_type_string_6() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/COUCOU"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-uppercase/from/COUCOU"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3319,7 +3319,7 @@ fn test_marker_type_string_6() {
 #[test]
 fn test_marker_type_string_7() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/coucou"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-uppercase/from/coucou"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3330,7 +3330,7 @@ fn test_marker_type_string_7() {
 #[test]
 fn test_marker_type_string_8() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/SOME-STRING"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-uppercase/from/SOME-STRING"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3341,7 +3341,7 @@ fn test_marker_type_string_8() {
 #[test]
 fn test_marker_type_string_9() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-uppercase/from/L33T"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-uppercase/from/L33T"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3352,13 +3352,13 @@ fn test_marker_type_string_9() {
 #[test]
 fn test_marker_type_string_10() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/coucou"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-uppercase-digits/from/coucou"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3372,13 +3372,13 @@ fn test_marker_type_string_10() {
 #[test]
 fn test_marker_type_string_11() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/COUCOU"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-uppercase-digits/from/COUCOU"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3392,7 +3392,7 @@ fn test_marker_type_string_11() {
 #[test]
 fn test_marker_type_string_12() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3403,13 +3403,13 @@ fn test_marker_type_string_12() {
 #[test]
 fn test_marker_type_string_13() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/l33t"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-uppercase-digits/from/l33t"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3423,13 +3423,13 @@ fn test_marker_type_string_13() {
 #[test]
 fn test_marker_type_string_14() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits/from/L33T"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-uppercase-digits/from/L33T"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3443,13 +3443,13 @@ fn test_marker_type_string_14() {
 #[test]
 fn test_marker_type_string_15() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters/from/-"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-specificCharacters/from/-"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3463,13 +3463,13 @@ fn test_marker_type_string_15() {
 #[test]
 fn test_marker_type_string_16() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters/from/-_.+_-/._-_."#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-specificCharacters/from/-_.+_-/._-_."#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3483,13 +3483,13 @@ fn test_marker_type_string_16() {
 #[test]
 fn test_marker_type_string_17() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters-other/from/z-a-z-a-zz"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-specificCharacters-other/from/z-a-z-a-zz"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3503,7 +3503,7 @@ fn test_marker_type_string_17() {
 #[test]
 fn test_marker_type_string_18() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-specificCharacters-other/from/azerty"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-specificCharacters-other/from/azerty"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3514,13 +3514,13 @@ fn test_marker_type_string_18() {
 #[test]
 fn test_marker_type_string_19() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3534,13 +3534,13 @@ fn test_marker_type_string_19() {
 #[test]
 fn test_marker_type_string_20() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-starting/from/JOHN-SNOW-knows-nothing"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3554,7 +3554,7 @@ fn test_marker_type_string_20() {
 #[test]
 fn test_marker_type_string_21() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3565,7 +3565,7 @@ fn test_marker_type_string_21() {
 #[test]
 fn test_marker_type_string_22() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting-shit/from/COUCOU-you-know-nothing"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-starting-shit/from/COUCOU-you-know-nothing"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3576,13 +3576,13 @@ fn test_marker_type_string_22() {
 #[test]
 fn test_marker_type_string_23() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3596,7 +3596,7 @@ fn test_marker_type_string_23() {
 #[test]
 fn test_marker_type_string_24() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-ending/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-ending/from/JOHN-SNOW-knows-nothing"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3607,13 +3607,13 @@ fn test_marker_type_string_24() {
 #[test]
 fn test_marker_type_string_25() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3627,7 +3627,7 @@ fn test_marker_type_string_25() {
 #[test]
 fn test_marker_type_string_26() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3638,13 +3638,13 @@ fn test_marker_type_string_26() {
 #[test]
 fn test_marker_type_string_27() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3658,13 +3658,13 @@ fn test_marker_type_string_27() {
 #[test]
 fn test_marker_type_string_28() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%3A"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowPercentEncodedChars/from/%3A"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3678,13 +3678,13 @@ fn test_marker_type_string_28() {
 #[test]
 fn test_marker_type_string_29() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%2B"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowPercentEncodedChars/from/%2B"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3698,13 +3698,13 @@ fn test_marker_type_string_29() {
 #[test]
 fn test_marker_type_string_30() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/%26"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowPercentEncodedChars/from/%26"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3718,7 +3718,7 @@ fn test_marker_type_string_30() {
 #[test]
 fn test_marker_type_string_31() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3729,7 +3729,7 @@ fn test_marker_type_string_31() {
 #[test]
 fn test_marker_type_string_32() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowPercentEncodedChars/from/+:&"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowPercentEncodedChars/from/+:&"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3740,13 +3740,13 @@ fn test_marker_type_string_32() {
 #[test]
 fn test_marker_type_string_33() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3760,7 +3760,7 @@ fn test_marker_type_string_33() {
 #[test]
 fn test_marker_type_string_34() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3771,13 +3771,13 @@ fn test_marker_type_string_34() {
 #[test]
 fn test_marker_type_string_35() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3791,13 +3791,13 @@ fn test_marker_type_string_35() {
 #[test]
 fn test_marker_type_string_36() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3811,13 +3811,13 @@ fn test_marker_type_string_36() {
 #[test]
 fn test_marker_type_string_37() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-containing/from/L33T"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-containing/from/L33T"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3831,13 +3831,13 @@ fn test_marker_type_string_37() {
 #[test]
 fn test_marker_type_string_38() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-containing/from/L33TL33T"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-containing/from/L33TL33T"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3851,7 +3851,7 @@ fn test_marker_type_string_38() {
 #[test]
 fn test_marker_type_string_39() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-containing/from/42-L33T-42"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-containing/from/42-L33T-42"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3862,13 +3862,13 @@ fn test_marker_type_string_39() {
 #[test]
 fn test_marker_type_string_40() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3882,13 +3882,13 @@ fn test_marker_type_string_40() {
 #[test]
 fn test_marker_type_string_41() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3902,7 +3902,7 @@ fn test_marker_type_string_41() {
 #[test]
 fn test_marker_type_string_42() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3913,7 +3913,7 @@ fn test_marker_type_string_42() {
 #[test]
 fn test_marker_type_string_43() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3924,7 +3924,7 @@ fn test_marker_type_string_43() {
 #[test]
 fn test_marker_type_string_44() {
     let router = setup_marker_type_string();
-    let request = Request::new(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3946,13 +3946,13 @@ fn setup_marker_type_uuid() -> Router<Rule> {
 #[test]
 fn test_marker_type_uuid_1() {
     let router = setup_marker_type_uuid();
-    let request = Request::new(r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -3966,7 +3966,7 @@ fn test_marker_type_uuid_1() {
 #[test]
 fn test_marker_type_uuid_2() {
     let router = setup_marker_type_uuid();
-    let request = Request::new(r#"/uuid/from/HELLO"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/uuid/from/HELLO"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3977,7 +3977,7 @@ fn test_marker_type_uuid_2() {
 #[test]
 fn test_marker_type_uuid_3() {
     let router = setup_marker_type_uuid();
-    let request = Request::new(r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
@@ -3999,13 +3999,13 @@ fn setup_rule_query_with_plus() -> Router<Rule> {
 #[test]
 fn test_rule_query_with_plus_1() {
     let router = setup_rule_query_with_plus();
-    let request = Request::new(r#"/query-plus?foo=bar+baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query-plus?foo=bar+baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4019,13 +4019,13 @@ fn test_rule_query_with_plus_1() {
 #[test]
 fn test_rule_query_with_plus_2() {
     let router = setup_rule_query_with_plus();
-    let request = Request::new(r#"/query-plus?foo=bar baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query-plus?foo=bar baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4039,13 +4039,13 @@ fn test_rule_query_with_plus_2() {
 #[test]
 fn test_rule_query_with_plus_3() {
     let router = setup_rule_query_with_plus();
-    let request = Request::new(r#"/query-plus?foo=bar%20baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query-plus?foo=bar%20baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4070,13 +4070,13 @@ fn setup_rule_querystring() -> Router<Rule> {
 #[test]
 fn test_rule_querystring_1() {
     let router = setup_rule_querystring();
-    let request = Request::new(r#"/host-path-query?foo&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/host-path-query?foo&bar=yolo"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4090,13 +4090,13 @@ fn test_rule_querystring_1() {
 #[test]
 fn test_rule_querystring_2() {
     let router = setup_rule_querystring();
-    let request = Request::new(r#"/host-path-query?foo=&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/host-path-query?foo=&bar=yolo"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4105,6 +4105,100 @@ fn test_rule_querystring_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
+}
+
+
+fn setup_rule_skipped_query_parameters() -> Router<Rule> {
+    let mut router = Router::<Rule>::default();
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-1","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"","path":"/source","query":""},"target":"/target"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route());
+
+    let route_2: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-2","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"","path":"/source?toto=tata","query":""},"target":"/target?tutu=titi"}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route());
+
+    router
+}
+
+
+#[test]
+fn test_rule_skipped_query_parameters_1() {
+    let router = setup_rule_skipped_query_parameters();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source"#),None,None,
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target"#);
+}
+
+#[test]
+fn test_rule_skipped_query_parameters_2() {
+    let router = setup_rule_skipped_query_parameters();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source?utm_source=test"#),None,None,
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target?utm_source=test"#);
+}
+
+#[test]
+fn test_rule_skipped_query_parameters_3() {
+    let router = setup_rule_skipped_query_parameters();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source?toto=tata"#),None,None,
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target?tutu=titi"#);
+}
+
+#[test]
+fn test_rule_skipped_query_parameters_4() {
+    let router = setup_rule_skipped_query_parameters();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/source?toto=tata&utm_source=test&utm_content=test"#),None,None,
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target?tutu=titi&utm_content=test&utm_source=test"#);
 }
 
 
@@ -4127,13 +4221,13 @@ fn setup_rule_with_header() -> Router<Rule> {
 #[test]
 fn test_rule_with_header_1() {
     let router = setup_rule_with_header();
-    let request = Request::new(r#"/test"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4147,14 +4241,14 @@ fn test_rule_with_header_1() {
 #[test]
 fn test_rule_with_header_2() {
     let router = setup_rule_with_header();
-    let mut request = Request::new(r#"/test"#.to_string(),None,None,
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,
     None);
     request.add_header(r#"X-Test"#.to_string(), r#"foo"#.to_string());let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4168,14 +4262,14 @@ fn test_rule_with_header_2() {
 #[test]
 fn test_rule_with_header_3() {
     let router = setup_rule_with_header();
-    let mut request = Request::new(r#"/test"#.to_string(),None,None,
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,
     None);
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"foo"#.to_string());let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4189,7 +4283,7 @@ fn test_rule_with_header_3() {
 #[test]
 fn test_rule_with_header_4() {
     let router = setup_rule_with_header();
-    let mut request = Request::new(r#"/test"#.to_string(),None,None,
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,
     None);
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"unknown"#.to_string());let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
@@ -4201,7 +4295,7 @@ fn test_rule_with_header_4() {
 #[test]
 fn test_rule_with_header_5() {
     let router = setup_rule_with_header();
-    let mut request = Request::new(r#"/test"#.to_string(),None,None,
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,
     None);
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"unknown"#.to_string());
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"foofoo"#.to_string());let http_request = request.to_http_request().expect("");
@@ -4209,7 +4303,7 @@ fn test_rule_with_header_5() {
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4234,13 +4328,13 @@ fn setup_rule_with_quotes() -> Router<Rule> {
 #[test]
 fn test_rule_with_quotes_1() {
     let router = setup_rule_with_quotes();
-    let request = Request::new(r#"/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 301);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4268,13 +4362,13 @@ fn setup_rule_with_slash() -> Router<Rule> {
 #[test]
 fn test_rule_with_slash_1() {
     let router = setup_rule_with_slash();
-    let request = Request::new(r#"/foo"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);
@@ -4288,13 +4382,13 @@ fn test_rule_with_slash_1() {
 #[test]
 fn test_rule_with_slash_2() {
     let router = setup_rule_with_slash();
-    let request = Request::new(r#"/foo/"#.to_string(),None,None,
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo/"#),None,None,
     None);let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
 
     assert_eq!(!matched.is_empty(), true);
 
-    let action = Action::from_routes_rule(matched, &http_request);
+    let action = Action::from_routes_rule(matched, &request);
 
     assert_eq!(action.get_status_code(0), 302);
     let headers = action.filter_headers(Vec::new(), 0, false);

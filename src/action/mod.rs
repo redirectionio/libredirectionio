@@ -5,10 +5,8 @@ pub mod wasm;
 
 use crate::api::{BodyFilter, HeaderFilter, Rule};
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
-use crate::http::Header;
-use crate::router::request_matcher::PathAndQueryMatcher;
+use crate::http::{Header, Request};
 use crate::router::{Route, StaticOrDynamic, Trace};
-use http::Request;
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
 use std::collections::HashMap;
@@ -51,7 +49,7 @@ impl Default for Action {
 }
 
 impl TraceAction {
-    pub fn from_trace_rules(traces: &[Trace<Rule>], request: &Request<()>) -> Vec<TraceAction> {
+    pub fn from_trace_rules(traces: &[Trace<Rule>], request: &Request) -> Vec<TraceAction> {
         let mut traces_action = Vec::new();
         let mut current_action = Action::default();
         let mut routes = Trace::<Rule>::get_routes_from_traces(traces);
@@ -73,29 +71,26 @@ impl TraceAction {
 }
 
 impl Action {
-    fn get_parameters(route: &Route<Rule>, request: &Request<()>) -> HashMap<String, String> {
-        let path = PathAndQueryMatcher::<Rule>::request_to_path(request);
+    fn get_parameters(route: &Route<Rule>, request: &Request) -> HashMap<String, String> {
+        let path = request.path_and_query.path_and_query.clone();
         let mut parameters = route.path_and_query().capture(path.as_str());
 
         if let Some(host) = route.host() {
-            if let Some(request_host) = request.uri().host() {
+            if let Some(request_host) = request.host.as_ref() {
                 parameters.extend(host.capture(request_host));
             }
         }
 
         for header in route.headers() {
-            let header_values = request.headers().get_all(header.name.as_str());
-
             match header.value.as_ref() {
                 None => continue,
                 Some(header_marker) => {
-                    for value in header_values {
-                        match value.to_str() {
-                            Err(_) => continue,
-                            Ok(value_str) => {
-                                parameters.extend(header_marker.capture(value_str));
-                            }
+                    for request_header in &request.headers {
+                        if request_header.name != header.name {
+                            continue
                         }
+
+                        parameters.extend(header_marker.capture(request_header.value.as_str()));
                     }
                 }
             }
@@ -104,7 +99,7 @@ impl Action {
         parameters
     }
 
-    pub fn from_route_rule(route: &Route<Rule>, request: &Request<()>) -> Action {
+    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> Action {
         let parameters = Self::get_parameters(route, request);
         let rule = route.handler();
         let transformers = rule.transformers();
@@ -122,7 +117,17 @@ impl Action {
 
         if let Some(target) = &rule.target {
             if !target.is_empty() {
-                let value = StaticOrDynamic::replace(target.clone(), &parameters, &transformers);
+                let mut value = StaticOrDynamic::replace(target.clone(), &parameters, &transformers);
+
+                if let Some(skipped_query_params) = request.path_and_query.skipped_query_params.as_ref() {
+                    if value.contains("?") {
+                        value.push_str("&");
+                        value.push_str(skipped_query_params.as_str());
+                    } else {
+                        value.push_str("?");
+                        value.push_str(skipped_query_params.as_str());
+                    }
+                }
 
                 header_filters.push(HeaderFilterAction {
                     filter: HeaderFilter {
@@ -208,7 +213,7 @@ impl Action {
         }
     }
 
-    pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request<()>) -> Action {
+    pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request) -> Action {
         let mut action = Action::default();
 
         // Sort by priority, with lower ones in first
