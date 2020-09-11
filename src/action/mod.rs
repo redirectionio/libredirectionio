@@ -120,7 +120,7 @@ impl Action {
                 let mut value = StaticOrDynamic::replace(target.clone(), &parameters, &transformers);
 
                 if let Some(skipped_query_params) = request.path_and_query.skipped_query_params.as_ref() {
-                    if value.contains("?") {
+                    if value.contains('?') {
                         value.push_str("&");
                         value.push_str(skipped_query_params.as_str());
                     } else {
