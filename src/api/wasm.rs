@@ -16,7 +16,7 @@ pub fn create_log_in_json(
     let log = Log::from_proxy(
         &request.request,
         status_code,
-        response_headers.headers,
+        &response_headers.headers,
         action.action.as_ref(),
         proxy.as_str(),
         time,
