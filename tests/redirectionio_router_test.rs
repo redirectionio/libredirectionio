@@ -4114,7 +4114,7 @@ fn setup_rule_skipped_query_parameters() -> Router<Rule> {
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-1","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"","path":"/source","query":""},"target":"/target"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route());
 
-    let route_2: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-2","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"","path":"/source?toto=tata","query":""},"target":"/target?tutu=titi"}"#).expect("cannot deserialize");
+    let route_2: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-2","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"","path":"/source","query":"toto=tata"},"target":"/target?tutu=titi"}"#).expect("cannot deserialize");
     router.insert(route_2.into_route());
 
     router
