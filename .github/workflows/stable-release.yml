@@ -1,0 +1,13 @@
+name: Keep the versions up-to-date
+
+on:
+    release:
+        types: [released]
+
+jobs:
+    actions-tagger:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo $REF
+              env:
+                  ref: ${{ github.ref }}

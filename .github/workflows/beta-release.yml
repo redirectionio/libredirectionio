@@ -1,0 +1,13 @@
+name: Keep the versions up-to-date
+
+on:
+    release:
+        types: [prereleased]
+
+jobs:
+    trigger-circlecir:
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo $REF
+              env:
+                  ref: ${{ github.ref }}
