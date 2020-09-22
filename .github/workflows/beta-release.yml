@@ -1,11 +1,11 @@
-name: Keep the versions up-to-date
+name: Release beta release
 
 on:
     release:
         types: [prereleased]
 
 jobs:
-    trigger-circlecir:
+    trigger-circleci:
         runs-on: ubuntu-latest
         steps:
             - run: echo $REF
