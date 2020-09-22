@@ -8,6 +8,33 @@ jobs:
     trigger-circleci:
         runs-on: ubuntu-latest
         steps:
-            - run: echo $REF
-              env:
-                  ref: ${{ github.ref }}
+            -
+                name: Set major version
+                env:
+                    VERSION: ${{ github.ref }}
+                run: MAJOR_VERSION=`sed -E 's/[^0-9]+?([0-9]+)\.([0-9]+)\.([0-9]+).+?/\1/' <<< $VERSION` && echo "::set-env name=MAJOR_VERSION::$MAJOR_VERSION"
+
+            -
+                name: Trigger Circle CI API
+                env:
+                    VERSION: ${{ github.ref }}
+                    CIRCLE_API_TOKEN: ${{ secrets.CIRCLE_API_TOKEN }}
+                run: >
+                  curl --request POST
+                  --url https://circleci.com/api/v2/project/github/jolicode/redirection.io/pipeline
+                  --header "Circle-Token: $CIRCLE_API_TOKEN"
+                  --header "Content-Type: application/json"
+                  --data "
+                    {
+                      \"branch\":\"master\",
+                      \"parameters\": {
+                        \"run_main\":false,
+                        \"run_php_sdk\": false,
+                        \"run_lint\": false,
+                        \"release_env\": \"production\",
+                        \"release_channel\": \"stable\",
+                        \"release_main_version_dir\": \"$MAJOR_VERSION\",
+                        \"release_webassembly_version\": \"$VERSION\"
+                      }
+                    }
+                  "
