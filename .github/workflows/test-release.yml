@@ -10,6 +10,14 @@ jobs:
     trigger-circleci:
         runs-on: ubuntu-latest
         steps:
-            - run: echo $REF
-              env:
-                  ref: ${{ github.ref }}
+            -
+                name: Set major version
+                run: MAJOR_VERSION=`sed -E 's/[^0-9]+?([0-9]+)\.([0-9]+)\.([0-9]+).+?/\1/' <<< $VERSION` echo "::set-env name=action_state::$MAJOR_VERSION"
+                env:
+                    VERSION: v1.0.0
+
+            -
+                name: Debug
+                run: echo "$MAJOR_VERSION $VERSION"
+                env:
+                    VERSION: v1.0.0
