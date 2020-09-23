@@ -39,6 +39,7 @@ install:
 .PHONY:	clean
 clean:
 	rm -rf target/redirectionio.h
+	@CARGO_BIN@ clean --package redirectionio @RUST_RELEASE@
 
 .PHONY:	fullclean
 fullclean:
