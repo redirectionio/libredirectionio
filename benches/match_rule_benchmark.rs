@@ -2,7 +2,7 @@
 extern crate criterion;
 use criterion::{BenchmarkId, Criterion};
 use redirectionio::api::{Rule, RulesMessage};
-use redirectionio::http::Request;
+use redirectionio::http::{QueryParamSkipBuilder, Request};
 use redirectionio::router::Router;
 use std::fs::read_to_string;
 
@@ -32,7 +32,9 @@ fn no_match_bench(c: &mut Criterion) {
 
     for filename in files {
         let router = create_router(filename.clone());
-        let request = Request::new("/no-match".to_string(), None, None, None).to_http_request().expect("");
+        let path_builder = QueryParamSkipBuilder::default();
+        let path = path_builder.build_query_param_skipped("/no-match");
+        let request = Request::new(path, None, None, None).to_http_request().expect("");
 
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
@@ -58,7 +60,9 @@ fn no_match_cache_bench(c: &mut Criterion) {
 
     for filename in files {
         let mut router = create_router(filename.clone());
-        let request = Request::new("/no-match".to_string(), None, None, None).to_http_request().expect("");
+        let path_builder = QueryParamSkipBuilder::default();
+        let path = path_builder.build_query_param_skipped("/no-match");
+        let request = Request::new(path, None, None, None).to_http_request().expect("");
 
         router.cache(1000);
 

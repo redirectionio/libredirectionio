@@ -64,7 +64,11 @@ pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char
     };
 
     let request = match json_decode(request_str) {
-        Err(_) => return null() as *const Request,
+        Err(err) => {
+            error!("cannot deserialize request {} for string {}", err, request_str);
+
+            return null() as *const Request;
+        }
         Ok(request) => request,
     };
 

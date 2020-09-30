@@ -19,6 +19,7 @@ async function redirectionio_fetch(request) {
         token: REDIRECTIONIO_TOKEN || null,
         timeout: parseInt(REDIRECTIONIO_TIMEOUT, 10),
         add_rule_ids_header: REDIRECTIONIO_ADD_HEADER_RULE_IDS === 'true',
+        version: REDIRECTIONIO_VERSION || 'dev',
     }
 
     if (options.token === null) {
@@ -49,9 +50,9 @@ async function proxy(request, libredirectionio, options) {
         const agentResponse = await Promise.race([
             fetch('https://agent.redirection.io/' + options.token + '/action', {
                 method: 'POST',
-                body: requestSerialized,
+                body: requestSerialized.toString(),
                 headers: {
-                    'User-Agent': 'cloudflare-service-worker/0.1.0'
+                    'User-Agent': 'cloudflare-worker/' + options.version
                 },
             }),
             new Promise((_, reject) =>
@@ -179,7 +180,7 @@ async function log(request, response, redirectionioRequest, action, libredirecti
                 method: 'POST',
                 body: logAsJson,
                 headers: {
-                    'User-Agent': 'cloudflare-service-worker/0.1.0'
+                    'User-Agent': 'cloudflare-worker/' + options.version
                 },
             }
         );
