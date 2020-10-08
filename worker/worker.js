@@ -20,7 +20,7 @@ async function redirectionio_fetch(request) {
         timeout: parseInt(REDIRECTIONIO_TIMEOUT, 10),
         add_rule_ids_header: REDIRECTIONIO_ADD_HEADER_RULE_IDS === 'true',
         version: REDIRECTIONIO_VERSION || 'dev',
-        instance_id: REDIRECTIONIO_INSTANCE_ID || 'undefined',
+        instance_name: REDIRECTIONIO_INSTANCE_NAME || 'undefined',
     }
 
     if (options.token === null) {
@@ -54,7 +54,7 @@ async function proxy(request, libredirectionio, options) {
                 body: requestSerialized.toString(),
                 headers: {
                     'User-Agent': 'cloudflare-worker/' + options.version,
-                    'x-redirectionio-instance-id': options.instance_id,
+                    'x-redirectionio-instance-name': options.instance_name,
                 },
             }),
             new Promise((_, reject) =>
@@ -172,7 +172,7 @@ async function log(request, response, redirectionioRequest, action, libredirecti
             response.status,
             responseHeaderMap,
             action,
-            "cloudflare-service-worker/0.1.0",
+            'cloudflare-worker/' + options.version,
             BigInt(timestamp),
         );
 
@@ -183,7 +183,7 @@ async function log(request, response, redirectionioRequest, action, libredirecti
                 body: logAsJson,
                 headers: {
                     'User-Agent': 'cloudflare-worker/' + options.version,
-                    'x-redirectionio-instance-id': options.instance_id,
+                    'x-redirectionio-instance-name': options.instance_name,
                 },
             }
         );
