@@ -3,6 +3,7 @@ use super::query::PathAndQueryWithSkipped;
 use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 
@@ -15,19 +16,11 @@ pub struct Request {
     pub headers: Vec<Header>,
 }
 
-impl Request {
-    pub fn new(path_and_query: PathAndQueryWithSkipped, host: Option<String>, scheme: Option<String>, method: Option<String>) -> Request {
-        Request {
-            path_and_query,
-            host,
-            scheme,
-            method,
-            headers: Vec::new(),
-        }
-    }
+impl FromStr for Request {
+    type Err = http::Error;
 
-    pub fn from_str(url: &str) -> Result<Request, http::Error> {
-        let http_request = http::Request::<()>::builder().uri(url).method("GET").body(())?;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let http_request = http::Request::<()>::builder().uri(s).method("GET").body(())?;
 
         Ok(Request::new(
             STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(match http_request.uri().path_and_query() {
@@ -44,6 +37,18 @@ impl Request {
             },
             None,
         ))
+    }
+}
+
+impl Request {
+    pub fn new(path_and_query: PathAndQueryWithSkipped, host: Option<String>, scheme: Option<String>, method: Option<String>) -> Request {
+        Request {
+            path_and_query,
+            host,
+            scheme,
+            method,
+            headers: Vec::new(),
+        }
     }
 
     pub fn add_header(&mut self, name: String, value: String) {
