@@ -27,6 +27,7 @@ fn build_router_bench(c: &mut Criterion) {
         "../bench-files/large-rules-1k.json".to_string(),
         "../bench-files/large-rules-10k.json".to_string(),
         "../bench-files/large-rules-50k.json".to_string(),
+        "../bench-files/large-rules-100k.json".to_string(),
         "../bench-files/large-rules-150k.json".to_string(),
         "../bench-files/large-rules-200k.json".to_string(),
     ];

@@ -276,7 +276,7 @@ fn longest_prefix(left_prefix: String, right_prefix: String) -> String {
     let mut i = 0;
 
     'main: while i < end && left_prefix_utf8[i] == right_prefix_utf8[i] {
-        if '(' == left_prefix_utf8[i] {
+        if '(' == left_prefix_utf8[i] && (i == 0 || left_prefix_utf8[i-1] != '\\') {
             let mut n = 1;
             let mut j = 1 + i;
 

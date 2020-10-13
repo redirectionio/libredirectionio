@@ -62,3 +62,7 @@ opt-level = "s"
 [[test]]
 name = "small-stack"
 harness = false
+
+[[test]]
+name = "playground"
+harness = false
