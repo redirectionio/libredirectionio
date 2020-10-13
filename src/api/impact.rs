@@ -35,6 +35,9 @@ impl Impact {
         // Update rules
         for rule in &impact.change_set.update {
             next_router.remove(rule.id.as_str());
+        }
+
+        for rule in &impact.change_set.update {
             next_router.insert(rule.clone().into_route());
         }
 

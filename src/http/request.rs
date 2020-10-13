@@ -1,5 +1,6 @@
 use super::header::Header;
 use super::query::PathAndQueryWithSkipped;
+use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 
@@ -23,6 +24,26 @@ impl Request {
             method,
             headers: Vec::new(),
         }
+    }
+
+    pub fn from_str(url: &str) -> Result<Request, http::Error> {
+        let http_request = http::Request::<()>::builder().uri(url).method("GET").body(())?;
+
+        Ok(Request::new(
+            STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(match http_request.uri().path_and_query() {
+                None => "",
+                Some(path_and_query) => path_and_query.as_str(),
+            }),
+            match http_request.uri().host() {
+                None => None,
+                Some(host) => Some(host.to_string()),
+            },
+            match http_request.uri().scheme_str() {
+                None => None,
+                Some(scheme) => Some(scheme.to_string()),
+            },
+            None,
+        ))
     }
 
     pub fn add_header(&mut self, name: String, value: String) {

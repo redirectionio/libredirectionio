@@ -126,6 +126,23 @@ pub unsafe extern "C" fn redirectionio_request_create(
 
 #[no_mangle]
 /// # Safety
+pub unsafe extern "C" fn redirectionio_request_from_str(
+    _url: *const c_char,
+) -> *const Request {
+    let url = c_char_to_str(_url).unwrap_or("/");
+
+    match Request::from_str(url) {
+        Err(err) => {
+            error!("cannot create request for url {}: {}", url, err);
+
+            return null() as *const Request;
+        }
+        Ok(request) => Box::into_raw(Box::new(request)),
+    }
+}
+
+#[no_mangle]
+/// # Safety
 pub unsafe extern "C" fn redirectionio_request_drop(_request: *mut Request) {
     if _request.is_null() {
         return;
