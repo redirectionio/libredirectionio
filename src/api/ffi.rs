@@ -8,6 +8,11 @@ use std::os::raw::{c_char, c_ushort};
 use std::ptr::null;
 
 #[no_mangle]
+pub unsafe extern "C" fn redirectionio_api_get_rule_api_version() -> *const c_char {
+    string_to_c_char("2.0.0".to_string())
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn redirectionio_api_create_rules_message_from_json(content: *mut c_char) -> *const RulesMessage {
     let message_string = match c_char_to_str(content) {
         None => return null() as *const RulesMessage,
