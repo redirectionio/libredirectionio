@@ -1,12 +1,14 @@
 mod marker_string;
 pub mod request_matcher;
 mod route;
+mod route_header;
 mod trace;
 mod transformer;
 
-pub use marker_string::{Marker, StaticOrDynamic};
+pub use marker_string::{Marker, MarkerString, StaticOrDynamic};
 pub use request_matcher::{HostMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
-pub use route::{Route, RouteData, RouteHeader};
+pub use route::{Route, RouteData};
+pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use trace::{RouteTrace, Trace};
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Transformer, Underscorize, Uppercase};
 

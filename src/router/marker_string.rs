@@ -32,12 +32,8 @@ impl Marker {
     }
 }
 
-impl StaticOrDynamic {
-    pub fn new_with_markers(str: &str, mut markers: Vec<Marker>) -> StaticOrDynamic {
-        if markers.is_empty() {
-            return StaticOrDynamic::Static(str.to_string());
-        }
-
+impl MarkerString {
+    pub fn new(str: &str, mut markers: Vec<Marker>) -> Option<MarkerString> {
         // Create regex string
         let mut regex = regex::escape(str);
         let mut capture = regex.clone();
@@ -59,10 +55,10 @@ impl StaticOrDynamic {
         }
 
         if marker_map.is_empty() {
-            return StaticOrDynamic::Static(str.to_string());
+            return None;
         }
 
-        StaticOrDynamic::Dynamic(MarkerString {
+        Some(MarkerString {
             regex,
             capture,
             markers: marker_map,
@@ -70,37 +66,52 @@ impl StaticOrDynamic {
     }
 
     pub fn capture(&self, str: &str) -> HashMap<String, String> {
+        let mut parameters = HashMap::new();
+        let regex = ["^", self.capture.as_str(), "$"].join("");
+        let regex_captures = match Regex::new(regex.as_str()) {
+            Err(_) => return parameters,
+            Ok(regex) => regex,
+        };
+
+        let capture = match regex_captures.captures(str) {
+            None => return parameters,
+            Some(capture) => capture,
+        };
+
+        for named_group in regex_captures.capture_names() {
+            let name = match named_group {
+                None => continue,
+                Some(group) => group,
+            };
+
+            let value = match capture.name(name) {
+                None => continue,
+                Some(matched) => matched.as_str().to_string(),
+            };
+
+            parameters.insert(name.to_string(), value);
+        }
+
+        parameters
+    }
+}
+
+impl StaticOrDynamic {
+    pub fn new_with_markers(str: &str, markers: Vec<Marker>) -> StaticOrDynamic {
+        if markers.is_empty() {
+            return StaticOrDynamic::Static(str.to_string());
+        }
+
+        match MarkerString::new(str, markers) {
+            None => StaticOrDynamic::Static(str.to_string()),
+            Some(marker) => StaticOrDynamic::Dynamic(marker),
+        }
+    }
+
+    pub fn capture(&self, str: &str) -> HashMap<String, String> {
         match &self {
             StaticOrDynamic::Static(_) => HashMap::new(),
-            StaticOrDynamic::Dynamic(marker_string) => {
-                let mut parameters = HashMap::new();
-                let regex = ["^", marker_string.capture.as_str(), "$"].join("");
-                let regex_captures = match Regex::new(regex.as_str()) {
-                    Err(_) => return parameters,
-                    Ok(regex) => regex,
-                };
-
-                let capture = match regex_captures.captures(str) {
-                    None => return parameters,
-                    Some(capture) => capture,
-                };
-
-                for named_group in regex_captures.capture_names() {
-                    let name = match named_group {
-                        None => continue,
-                        Some(group) => group,
-                    };
-
-                    let value = match capture.name(name) {
-                        None => continue,
-                        Some(matched) => matched.as_str().to_string(),
-                    };
-
-                    parameters.insert(name.to_string(), value);
-                }
-
-                parameters
-            }
+            StaticOrDynamic::Dynamic(marker_string) => marker_string.capture(str),
         }
     }
 

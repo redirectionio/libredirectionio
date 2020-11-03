@@ -1,3 +1,4 @@
+use super::RouteHeader;
 use crate::router::StaticOrDynamic;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -14,12 +15,6 @@ pub struct Route<T: RouteData> {
     headers: Vec<RouteHeader>,
     id: String,
     priority: i64,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct RouteHeader {
-    pub name: String,
-    pub value: Option<StaticOrDynamic>,
 }
 
 impl<T: RouteData> Route<T> {

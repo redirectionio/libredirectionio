@@ -47,6 +47,8 @@ struct Source {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct SourceHeader {
     name: String,
+    #[serde(rename = "type")]
+    kind: String,
     value: Option<String>,
 }
 

@@ -4259,13 +4259,13 @@ fn test_rule_skipped_query_parameters_4() {
 fn setup_rule_with_header() -> Router<Rule> {
     let mut router = Router::<Rule>::default();
 
-    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-header-marker","markers":[{"name":"marker","regex":"(?:f.+?)","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Test-Marker","value":"@marker"}],"host":"","path":"/test","query":""},"target":"/baz/@marker"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-header-marker","markers":[{"name":"marker","regex":"(?:f.+?)","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Test-Marker","type":"match_regex","value":"@marker"}],"host":"","path":"/test","query":""},"target":"/baz/@marker"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route());
 
-    let route_2: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-header-not-existing","markers":null,"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Test","value":null},{"name":"X-Test-Marker","value":null}],"host":"","path":"/test","query":""},"target":"/bor"}"#).expect("cannot deserialize");
+    let route_2: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-header-not-existing","markers":null,"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Test","type":"is_not_defined","value":null},{"name":"X-Test-Marker","type":"is_not_defined","value":null}],"host":"","path":"/test","query":""},"target":"/bor"}"#).expect("cannot deserialize");
     router.insert(route_2.into_route());
 
-    let route_3: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-header-static","markers":null,"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Test","value":"foo"}],"host":"","path":"/test","query":""},"target":"/baz"}"#).expect("cannot deserialize");
+    let route_3: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-header-static","markers":null,"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Test","type":"contains","value":"foo"}],"host":"","path":"/test","query":""},"target":"/baz"}"#).expect("cannot deserialize");
     router.insert(route_3.into_route());
 
     router

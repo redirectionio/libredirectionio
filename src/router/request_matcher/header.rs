@@ -1,5 +1,5 @@
 use crate::router::request_matcher::{PathAndQueryMatcher, RequestMatcher};
-use crate::router::{Route, RouteData, StaticOrDynamic, Trace};
+use crate::router::{Route, RouteData, RouteHeaderKind, Trace};
 use http::Request;
 use regex::Regex;
 use std::collections::BTreeMap;
@@ -15,9 +15,15 @@ pub struct HeaderMatcher<T: RouteData> {
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 enum ValueCondition {
-    Static(String),
-    Regex(String),
-    NotExist,
+    IsDefined,
+    IsNotDefined,
+    Equals(String),
+    IsNotEqualTo(String),
+    Contains(String),
+    DoesNotContain(String),
+    EndsWith(String),
+    StartsWith(String),
+    MatchRegex(String),
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
@@ -37,12 +43,16 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         let mut condition_group = BTreeSet::new();
 
         for header in route.headers() {
-            let condition = match &header.value {
-                None => ValueCondition::NotExist,
-                Some(value) => match value {
-                    StaticOrDynamic::Static(string) => ValueCondition::Static(string.clone()),
-                    StaticOrDynamic::Dynamic(dynamic) => ValueCondition::Regex(dynamic.regex.clone()),
-                },
+            let condition = match &header.kind {
+                RouteHeaderKind::IsDefined => ValueCondition::IsDefined,
+                RouteHeaderKind::IsNotDefined => ValueCondition::IsNotDefined,
+                RouteHeaderKind::Equals(str) => ValueCondition::Equals(str.clone()),
+                RouteHeaderKind::IsNotEqualTo(str) => ValueCondition::IsNotEqualTo(str.clone()),
+                RouteHeaderKind::Contains(str) => ValueCondition::Contains(str.clone()),
+                RouteHeaderKind::DoesNotContain(str) => ValueCondition::DoesNotContain(str.clone()),
+                RouteHeaderKind::EndsWith(str) => ValueCondition::EndsWith(str.clone()),
+                RouteHeaderKind::StartsWith(str) => ValueCondition::StartsWith(str.clone()),
+                RouteHeaderKind::MatchRegex(marker) => ValueCondition::MatchRegex(marker.regex.clone()),
             };
 
             let header_condition = HeaderCondition {
@@ -213,18 +223,85 @@ impl<T: RouteData> HeaderMatcher<T> {
 impl ValueCondition {
     pub fn match_value(&self, request: &Request<()>, name: &str) -> bool {
         match self {
-            ValueCondition::NotExist => !request.headers().contains_key(name),
-            ValueCondition::Static(static_string) => {
+            ValueCondition::IsNotDefined => !request.headers().contains_key(name),
+            ValueCondition::IsDefined => request.headers().contains_key(name),
+            ValueCondition::Equals(str) => {
                 let values = request.headers().get_all(name);
                 let mut result = false;
 
                 for value in values {
-                    result = result || value == static_string;
+                    result = result || value == str;
                 }
 
                 result
             }
-            ValueCondition::Regex(regex_string) => match Regex::new(regex_string.as_str()) {
+            ValueCondition::IsNotEqualTo(str) => {
+                let values = request.headers().get_all(name);
+                let mut result = true;
+
+                for value in values {
+                    result = result && value != str;
+                }
+
+                result
+            }
+            ValueCondition::Contains(str) => {
+                let values = request.headers().get_all(name);
+                let mut result = false;
+
+                for value in values {
+                    result = result
+                        || match value.to_str() {
+                            Ok(value_str) => value_str.contains(str.as_str()),
+                            _ => false,
+                        };
+                }
+
+                result
+            }
+            ValueCondition::DoesNotContain(str) => {
+                let values = request.headers().get_all(name);
+                let mut result = true;
+
+                for value in values {
+                    result = result
+                        && match value.to_str() {
+                            Ok(value_str) => !value_str.contains(str.as_str()),
+                            _ => true,
+                        };
+                }
+
+                result
+            }
+            ValueCondition::EndsWith(str) => {
+                let values = request.headers().get_all(name);
+                let mut result = false;
+
+                for value in values {
+                    result = result
+                        || match value.to_str() {
+                            Ok(value_str) => value_str.ends_with(str.as_str()),
+                            _ => false,
+                        };
+                }
+
+                result
+            }
+            ValueCondition::StartsWith(str) => {
+                let values = request.headers().get_all(name);
+                let mut result = false;
+
+                for value in values {
+                    result = result
+                        || match value.to_str() {
+                            Ok(value_str) => value_str.starts_with(str.as_str()),
+                            _ => false,
+                        };
+                }
+
+                result
+            }
+            ValueCondition::MatchRegex(regex_string) => match Regex::new(regex_string.as_str()) {
                 Err(_) => false,
                 Ok(regex) => {
                     let values = request.headers().get_all(name);
@@ -245,9 +322,15 @@ impl ValueCondition {
 
     pub fn format(&self) -> String {
         match self {
-            ValueCondition::NotExist => "Not existing header".to_string(),
-            ValueCondition::Static(static_string) => format!("Match value {}", static_string),
-            ValueCondition::Regex(regex_string) => format!("Match regex {}", regex_string),
+            ValueCondition::IsDefined => "Header is defined".to_string(),
+            ValueCondition::IsNotDefined => "Header is not defined".to_string(),
+            ValueCondition::Equals(str) => format!("Header equals {}", str),
+            ValueCondition::IsNotEqualTo(str) => format!("Header is not equal to {}", str),
+            ValueCondition::Contains(str) => format!("Header contains {}", str),
+            ValueCondition::DoesNotContain(str) => format!("Header does not contain {}", str),
+            ValueCondition::EndsWith(str) => format!("Header ends with {}", str),
+            ValueCondition::StartsWith(str) => format!("Header starts with {}", str),
+            ValueCondition::MatchRegex(str) => format!("Header match regex {}", str),
         }
     }
 }

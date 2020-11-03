@@ -1,5 +1,7 @@
 use crate::api::{BodyFilter, HeaderFilter, Marker, Source};
-use crate::router::{Marker as RouteMarker, PathAndQueryMatcher, Route, RouteData, RouteHeader, StaticOrDynamic, Transformer};
+use crate::router::{
+    Marker as RouteMarker, MarkerString, PathAndQueryMatcher, Route, RouteData, RouteHeader, RouteHeaderKind, StaticOrDynamic, Transformer,
+};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
@@ -82,9 +84,41 @@ impl Rule {
             for header in source_headers {
                 headers.push(RouteHeader {
                     name: header.name.clone(),
-                    value: match header.value.as_ref() {
-                        None => None,
-                        Some(value) => Some(StaticOrDynamic::new_with_markers(value.as_str(), self.markers())),
+                    kind: match header.kind.as_ref() {
+                        "is_defined" => RouteHeaderKind::IsDefined,
+                        "is_not_defined" => RouteHeaderKind::IsNotDefined,
+                        "is_equals" => match &header.value {
+                            None => continue,
+                            Some(str) => RouteHeaderKind::Equals(str.clone()),
+                        },
+                        "is_not_equal_to" => match &header.value {
+                            None => continue,
+                            Some(str) => RouteHeaderKind::IsNotEqualTo(str.clone()),
+                        },
+                        "contains" => match &header.value {
+                            None => continue,
+                            Some(str) => RouteHeaderKind::Contains(str.clone()),
+                        },
+                        "does_not_contain" => match &header.value {
+                            None => continue,
+                            Some(str) => RouteHeaderKind::DoesNotContain(str.clone()),
+                        },
+                        "ends_with" => match &header.value {
+                            None => continue,
+                            Some(str) => RouteHeaderKind::EndsWith(str.clone()),
+                        },
+                        "starts_with" => match &header.value {
+                            None => continue,
+                            Some(str) => RouteHeaderKind::StartsWith(str.clone()),
+                        },
+                        "match_regex" => match &header.value {
+                            None => continue,
+                            Some(str) => match MarkerString::new(str, self.markers()) {
+                                None => continue,
+                                Some(marker) => RouteHeaderKind::MatchRegex(marker),
+                            },
+                        },
+                        _ => continue,
                     },
                 })
             }

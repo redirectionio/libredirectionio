@@ -82,17 +82,12 @@ impl Action {
         }
 
         for header in route.headers() {
-            match header.value.as_ref() {
-                None => continue,
-                Some(header_marker) => {
-                    for request_header in &request.headers {
-                        if request_header.name != header.name {
-                            continue;
-                        }
-
-                        parameters.extend(header_marker.capture(request_header.value.as_str()));
-                    }
+            for request_header in &request.headers {
+                if request_header.name != header.name {
+                    continue;
                 }
+
+                parameters.extend(header.capture(request_header.value.as_str()));
             }
         }
 
