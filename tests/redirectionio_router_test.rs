@@ -4040,6 +4040,148 @@ fn test_rule_query_with_pipe_2() {
 }
 
 
+fn setup_rule_query_with_pipe_2() -> Router<Rule> {
+    let mut router = Router::<Rule>::default();
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"host-path-query-pipe","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"example.org","path":"/query-pipe","query":"foo=bar|baz"},"target":"/target"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route());
+
+    router
+}
+
+
+#[test]
+fn test_rule_query_with_pipe_2_1() {
+    let router = setup_rule_query_with_pipe_2();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query-pipe?foo=bar|baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target"#);
+}
+
+#[test]
+fn test_rule_query_with_pipe_2_2() {
+    let router = setup_rule_query_with_pipe_2();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query-pipe?foo=bar%7Cbaz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target"#);
+}
+
+
+fn setup_rule_query_with_pipe_3() -> Router<Rule> {
+    let mut router = Router::<Rule>::default();
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"host-path-query-pipe","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"example.org","path":"/query%7Cpipe","query":"foo=bar|baz"},"target":"/target"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route());
+
+    router
+}
+
+
+#[test]
+fn test_rule_query_with_pipe_3_1() {
+    let router = setup_rule_query_with_pipe_3();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query|pipe?foo=bar|baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target"#);
+}
+
+#[test]
+fn test_rule_query_with_pipe_3_2() {
+    let router = setup_rule_query_with_pipe_3();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query|pipe?foo=bar%7Cbaz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target"#);
+}
+
+#[test]
+fn test_rule_query_with_pipe_3_3() {
+    let router = setup_rule_query_with_pipe_3();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query%7Cpipe?foo=bar|baz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target"#);
+}
+
+#[test]
+fn test_rule_query_with_pipe_3_4() {
+    let router = setup_rule_query_with_pipe_3();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/query%7Cpipe?foo=bar%7Cbaz"#),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),
+    None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+
+    assert_eq!(action.get_status_code(0), 301);
+    let headers = action.filter_headers(Vec::new(), 0, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/target"#);
+}
+
+
 fn setup_rule_query_with_plus() -> Router<Rule> {
     let mut router = Router::<Rule>::default();
 
