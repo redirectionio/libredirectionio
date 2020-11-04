@@ -38,9 +38,9 @@ struct Rule {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct Source {
-    host: String,
+    host: Option<String>,
     path: String,
-    query: String,
+    query: Option<String>,
     headers: Option<Vec<SourceHeader>>,
 }
 
