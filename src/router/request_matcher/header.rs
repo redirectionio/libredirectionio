@@ -34,6 +34,8 @@ pub struct HeaderCondition {
 
 impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
+        self.count += 1;
+
         if route.headers().is_empty() {
             self.any_header.insert(route);
 
@@ -74,15 +76,19 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
     }
 
     fn remove(&mut self, id: &str) -> bool {
-        for matcher in self.condition_groups.values_mut() {
-            if matcher.remove(id) {
-                self.count -= 1;
+        let mut removed = false;
 
-                return true;
-            }
+        for matcher in self.condition_groups.values_mut() {
+            removed = removed || matcher.remove(id);
         }
 
-        self.any_header.remove(id)
+        removed = removed || self.any_header.remove(id);
+
+        if removed {
+            self.count -= 1;
+        }
+
+        removed
     }
 
     fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {

@@ -28,13 +28,13 @@ pub struct TraceAction {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct HeaderFilterAction {
     filter: HeaderFilter,
-    on_response_status_code: u16,
+    on_response_status_codes: Vec<u16>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct BodyFilterAction {
     filter: BodyFilter,
-    on_response_status_code: u16,
+    on_response_status_codes: Vec<u16>,
 }
 
 impl Default for Action {
@@ -102,7 +102,10 @@ impl Action {
             0 => None,
             redirect_code => Some(StatusCodeUpdate {
                 status_code: redirect_code,
-                on_response_status_code: rule.match_on_response_status.unwrap_or(0),
+                on_response_status_codes: match rule.source.response_status_codes.as_ref() {
+                    None => Vec::new(),
+                    Some(codes) => codes.clone(),
+                },
                 fallback_status_code: 0,
             }),
         };
@@ -130,11 +133,11 @@ impl Action {
                         value,
                         header: "Location".to_string(),
                     },
-                    on_response_status_code: match rule.match_on_response_status {
-                        None => 0,
+                    on_response_status_codes: match rule.source.response_status_codes.as_ref() {
+                        None => Vec::new(),
                         Some(on_response) => match rule.redirect_code {
-                            None => on_response,
-                            Some(redirect_code) => redirect_code,
+                            None => on_response.clone(),
+                            Some(redirect_code) => vec![redirect_code],
                         },
                     },
                 })
@@ -149,7 +152,10 @@ impl Action {
                         header: filter.header.clone(),
                         value: StaticOrDynamic::replace(filter.value.clone(), &parameters, &transformers),
                     },
-                    on_response_status_code: rule.match_on_response_status.unwrap_or(0),
+                    on_response_status_codes: match rule.source.response_status_codes.as_ref() {
+                        None => Vec::new(),
+                        Some(codes) => codes.clone(),
+                    },
                 });
             }
         }
@@ -163,7 +169,10 @@ impl Action {
                         element_tree: filter.element_tree.clone(),
                         value: StaticOrDynamic::replace(filter.value.clone(), &parameters, &transformers),
                     },
-                    on_response_status_code: rule.match_on_response_status.unwrap_or(0),
+                    on_response_status_codes: match rule.source.response_status_codes.as_ref() {
+                        None => Vec::new(),
+                        Some(codes) => codes.clone(),
+                    },
                 });
             }
         }
@@ -182,12 +191,12 @@ impl Action {
             Some(new_status_code_update) => match &self.status_code_update {
                 None => Some(new_status_code_update),
                 Some(old_status_code_update) => {
-                    if old_status_code_update.on_response_status_code != 0 || new_status_code_update.on_response_status_code == 0 {
+                    if !old_status_code_update.on_response_status_codes.is_empty() || new_status_code_update.on_response_status_codes.is_empty() {
                         Some(new_status_code_update)
                     } else {
                         Some(StatusCodeUpdate {
                             status_code: new_status_code_update.status_code,
-                            on_response_status_code: new_status_code_update.on_response_status_code,
+                            on_response_status_codes: new_status_code_update.on_response_status_codes,
                             fallback_status_code: old_status_code_update.status_code,
                         })
                     }
@@ -232,7 +241,7 @@ impl Action {
         let mut filters = Vec::new();
 
         for filter in &self.header_filters {
-            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
+            if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
                 continue;
             }
 
@@ -258,7 +267,7 @@ impl Action {
         let mut filters = Vec::new();
 
         for filter in &self.body_filters {
-            if filter.on_response_status_code != 0 && filter.on_response_status_code != response_status_code {
+            if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
                 continue;
             }
 

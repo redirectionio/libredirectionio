@@ -11,12 +11,11 @@ const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Rule {
     pub id: String,
-    source: Source,
+    pub source: Source,
     pub target: Option<String>,
     pub redirect_code: Option<u16>,
     rank: u16,
     markers: Option<Vec<Marker>>,
-    pub match_on_response_status: Option<u16>,
     pub body_filters: Option<Vec<BodyFilter>>,
     pub header_filters: Option<Vec<HeaderFilter>>,
 }

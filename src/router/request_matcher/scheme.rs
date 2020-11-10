@@ -17,11 +17,15 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
         match route.scheme() {
             None => self.any_scheme.insert(route),
             Some(scheme) => {
-                if !self.schemes.contains_key(scheme) {
-                    self.schemes.insert(scheme.to_string(), SchemeMatcher::create_sub_matcher());
-                }
+                if scheme.is_empty() {
+                    self.any_scheme.insert(route)
+                } else {
+                    if !self.schemes.contains_key(scheme) {
+                        self.schemes.insert(scheme.to_string(), SchemeMatcher::create_sub_matcher());
+                    }
 
-                self.schemes.get_mut(scheme).unwrap().insert(route);
+                    self.schemes.get_mut(scheme).unwrap().insert(route);
+                }
             }
         }
     }

@@ -9,4 +9,5 @@ pub struct Source {
     pub query: Option<String>,
     pub headers: Option<Vec<Header>>,
     pub methods: Option<Vec<String>>,
+    pub response_status_codes: Option<Vec<u16>>,
 }
