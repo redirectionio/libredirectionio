@@ -191,7 +191,9 @@ impl Action {
             Some(new_status_code_update) => match &self.status_code_update {
                 None => Some(new_status_code_update),
                 Some(old_status_code_update) => {
-                    if !old_status_code_update.on_response_status_codes.is_empty() || new_status_code_update.on_response_status_codes.is_empty() {
+                    if !old_status_code_update.on_response_status_codes.is_empty()
+                        || new_status_code_update.on_response_status_codes.is_empty()
+                    {
                         Some(new_status_code_update)
                     } else {
                         Some(StatusCodeUpdate {
