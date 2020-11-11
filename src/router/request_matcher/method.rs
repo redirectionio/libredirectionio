@@ -17,12 +17,16 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         match route.methods() {
             None => self.any_method.insert(route),
             Some(methods) => {
-                for method in methods {
-                    if !self.methods.contains_key(method) {
-                        self.methods.insert(method.to_string(), MethodMatcher::create_sub_matcher());
-                    }
+                if methods.is_empty() {
+                    self.any_method.insert(route);
+                } else {
+                    for method in methods {
+                        if !self.methods.contains_key(method) {
+                            self.methods.insert(method.to_string(), MethodMatcher::create_sub_matcher());
+                        }
 
-                    self.methods.get_mut(method).unwrap().insert(route.clone());
+                        self.methods.get_mut(method).unwrap().insert(route.clone());
+                    }
                 }
             }
         }
