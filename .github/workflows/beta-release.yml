@@ -12,11 +12,11 @@ jobs:
                 name: Set version
                 env:
                     REF: ${{ github.ref }}
-                run: VERSION=`sed -E 's/[^0-9]+?([0-9]+\.[0-9]+\.[0-9]+.+?)/\1/' <<< $REF` && echo "::set-env name=VERSION::$VERSION"
+                run: VERSION=`sed -E 's/[^0-9]+?([0-9]+\.[0-9]+\.[0-9]+.+?)/\1/' <<< $REF` && echo "VERSION=$VERSION" >> $GITHUB_ENV
 
             -
                 name: Set major version
-                run: MAJOR_VERSION=`sed -E 's/[^0-9]+?([0-9]+)\.([0-9]+)\.([0-9]+).+?/\1/' <<< $VERSION` && echo "::set-env name=MAJOR_VERSION::$MAJOR_VERSION"
+                run: MAJOR_VERSION=`sed -E 's/[^0-9]+?([0-9]+)\.([0-9]+)\.([0-9]+).+?/\1/' <<< $VERSION` && echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
 
             -
                 name: Trigger Circle CI API
