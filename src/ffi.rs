@@ -7,11 +7,18 @@ use std::os::raw::{c_char, c_ulong};
 use std::ptr::null;
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_route_create(s: *const c_char) -> Option<*mut Route<Rule>> {
-    let rule_string = c_char_to_str(s)?;
-    let route = Rule::from_json(rule_string)?.into_route();
+pub unsafe extern "C" fn redirectionio_route_create(s: *const c_char) -> *const Route<Rule> {
+    let rule_string = c_char_to_str(s);
 
-    Some(Box::into_raw(Box::new(route)))
+    match rule_string {
+        None => null() as *const Route<Rule>,
+        Some(str) => {
+            match Rule::from_json(str) {
+                None => null() as *const Route<Rule>,
+                Some(rule) => Box::into_raw(Box::new(rule.into_route()))
+            }
+        }
+    }
 }
 
 #[no_mangle]
