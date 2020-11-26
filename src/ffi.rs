@@ -12,12 +12,10 @@ pub unsafe extern "C" fn redirectionio_route_create(s: *const c_char) -> *const 
 
     match rule_string {
         None => null() as *const Route<Rule>,
-        Some(str) => {
-            match Rule::from_json(str) {
-                None => null() as *const Route<Rule>,
-                Some(rule) => Box::into_raw(Box::new(rule.into_route()))
-            }
-        }
+        Some(str) => match Rule::from_json(str) {
+            None => null() as *const Route<Rule>,
+            Some(rule) => Box::into_raw(Box::new(rule.into_route())),
+        },
     }
 }
 
