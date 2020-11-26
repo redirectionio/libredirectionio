@@ -14,9 +14,8 @@ use crate::router::router_scheme::RouterScheme;
 use crate::router::rule::build_sorted_query;
 use regex::Regex;
 use std::time;
-use url;
 use url::Url;
-use http::Request;
+use http::{Request, Result as HttpResult};
 
 pub trait Router {
     fn match_rule(&self, request: &Request<()>) -> Result<Vec<&rule::Rule>, Box<dyn std::error::Error>>;
@@ -79,10 +78,8 @@ impl MainRouter {
         }
     }
 
-    fn create_request(url_str: String) -> Result<Request<()>, url::ParseError> {
-        let url = MainRouter::parse_url(url_str)?;
-
-        Ok(Request::builder().uri(url.to_string()).body(()).unwrap())
+    fn create_request(url_str: String) -> HttpResult<Request<()>> {
+        Request::builder().uri(url_str).body(())
     }
 
     fn parse_url(url_str: String) -> Result<Url, url::ParseError> {
