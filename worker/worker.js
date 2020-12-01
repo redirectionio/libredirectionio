@@ -31,7 +31,7 @@ async function redirectionio_fetch(request) {
     await wasm_bindgen(wasm);
     const [response, redirectionioRequest, action] = await proxy(request, libredirectionio, options);
 
-    await log(request, response, redirectionioRequest, action, libredirectionio, options);
+    await log(response, redirectionioRequest, action, libredirectionio, options);
 
     return response;
 }
@@ -39,7 +39,7 @@ async function redirectionio_fetch(request) {
 /* Redirection.io logic */
 async function proxy(request, libredirectionio, options) {
     const urlObject = new URL(request.url);
-    const redirectionioRequest = new libredirectionio.Request(urlObject.pathname, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
+    const redirectionioRequest = new libredirectionio.Request(urlObject.pathname + urlObject.search, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
     let action = libredirectionio.Action.empty();
 
     for (const pair of request.headers.entries()) {
@@ -154,7 +154,7 @@ async function filter_body(readable, writable, bodyFilter) {
     await writer.close();
 }
 
-async function log(request, response, redirectionioRequest, action, libredirectionio, options) {
+async function log(response, redirectionioRequest, action, libredirectionio, options) {
     if (response === null) {
         return;
     }
