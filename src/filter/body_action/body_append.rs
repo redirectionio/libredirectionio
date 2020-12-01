@@ -35,7 +35,8 @@ impl body_action::BodyAction for BodyAppend {
             return (next_enter, next_leave, false, data);
         }
 
-        let should_buffer = self.position + 1 >= self.element_tree.len() && self.css_selector.is_some();
+        let should_buffer =
+            self.position + 1 >= self.element_tree.len() && self.css_selector.is_some() && !self.css_selector.as_ref().unwrap().is_empty();
 
         (next_enter, next_leave, should_buffer, data)
     }

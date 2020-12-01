@@ -235,8 +235,8 @@ impl FilterBodyAction {
 mod tests {
     use super::*;
     use crate::filter::body_action::body_append::BodyAppend;
-    use crate::filter::body_action::body_replace::BodyReplace;
     use crate::filter::body_action::body_prepend::BodyPrepend;
+    use crate::filter::body_action::body_replace::BodyReplace;
 
     #[test]
     pub fn test_filter() {
@@ -360,7 +360,7 @@ mod tests {
         let mut visitors = Vec::new();
         let prepend = Box::new(BodyPrepend::new(
             vec!["html".to_string(), "body".to_string()],
-            None,
+            Some("".to_string()),
             "<p>This is as test</p>".to_string(),
         ));
 
