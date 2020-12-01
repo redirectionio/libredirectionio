@@ -69,8 +69,7 @@ impl Impact {
                 .method(match &example.method {
                     None => "GET",
                     Some(method) => method.as_str(),
-                })
-            ;
+                });
 
             if example.headers.is_some() {
                 for header in example.headers.as_ref().unwrap() {
