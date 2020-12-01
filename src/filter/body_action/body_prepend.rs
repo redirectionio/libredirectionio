@@ -36,7 +36,7 @@ impl body_action::BodyAction for BodyPrepend {
         }
 
         if self.position + 1 >= self.element_tree.len() {
-            if self.css_selector.is_none() {
+            if self.css_selector.is_none() || self.css_selector.as_ref().unwrap().is_empty() {
                 new_data.push_str(self.content.as_str());
             } else {
                 self.is_buffering = true;

@@ -235,6 +235,7 @@ impl FilterBodyAction {
 mod tests {
     use super::*;
     use crate::filter::body_action::body_append::BodyAppend;
+    use crate::filter::body_action::body_prepend::BodyPrepend;
     use crate::filter::body_action::body_replace::BodyReplace;
 
     #[test]
@@ -350,6 +351,38 @@ mod tests {
 
         assert_eq!(
             "<html><head><meta><meta name=\"description\" content=\"New Description\" /></head></html>",
+            filtered
+        );
+    }
+
+    #[test]
+    pub fn test_prepend() {
+        let mut visitors = Vec::new();
+        let prepend = Box::new(BodyPrepend::new(
+            vec!["html".to_string(), "body".to_string()],
+            Some("".to_string()),
+            "<p>This is as test</p>".to_string(),
+        ));
+
+        visitors.push(FilterBodyVisitor {
+            enter: Some("html".to_string()),
+            leave: None,
+            action: prepend,
+        });
+
+        let mut filter = FilterBodyAction {
+            last_buffer: "".to_string(),
+            current_buffer: None,
+            visitors,
+        };
+
+        let mut filtered = filter.filter("<html><head></head><body class=\"page\"><div>Yolo</div></body></html>".to_string());
+        let end = filter.end();
+
+        filtered.push_str(end.as_str());
+
+        assert_eq!(
+            "<html><head></head><body class=\"page\"><p>This is as test</p><div>Yolo</div></body></html>",
             filtered
         );
     }
