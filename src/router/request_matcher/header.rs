@@ -328,15 +328,15 @@ impl ValueCondition {
 
     pub fn format(&self) -> String {
         match self {
-            ValueCondition::IsDefined => "Header is defined".to_string(),
-            ValueCondition::IsNotDefined => "Header is not defined".to_string(),
-            ValueCondition::Equals(str) => format!("Header equals {}", str),
-            ValueCondition::IsNotEqualTo(str) => format!("Header is not equal to {}", str),
-            ValueCondition::Contains(str) => format!("Header contains {}", str),
-            ValueCondition::DoesNotContain(str) => format!("Header does not contain {}", str),
-            ValueCondition::EndsWith(str) => format!("Header ends with {}", str),
-            ValueCondition::StartsWith(str) => format!("Header starts with {}", str),
-            ValueCondition::MatchRegex(str) => format!("Header match regex {}", str),
+            ValueCondition::IsDefined => "is defined".to_string(),
+            ValueCondition::IsNotDefined => "is not defined".to_string(),
+            ValueCondition::Equals(str) => format!("equals {}", str),
+            ValueCondition::IsNotEqualTo(str) => format!("is not equal to {}", str),
+            ValueCondition::Contains(str) => format!("contains {}", str),
+            ValueCondition::DoesNotContain(str) => format!("does not contain {}", str),
+            ValueCondition::EndsWith(str) => format!("ends with {}", str),
+            ValueCondition::StartsWith(str) => format!("starts with {}", str),
+            ValueCondition::MatchRegex(str) => format!("match regex {}", str),
         }
     }
 }
