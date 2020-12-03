@@ -2,6 +2,8 @@
 
 rust library that process redirect and filtering from rules coming of https://redirection.io/
 
+This library is mainly used in proxies and agent of redirectionio.
+
 ## Installation
 
 You only to install this library if you wish to compile apache or nginx proxies or build the web assembly module.
@@ -16,7 +18,7 @@ autoreconf -i
 make
 ```
 
-You can run `make install` (with root permissions) to install this library into your system, this is required if you need to 
+You can run `make install` (with root permissions) to install this library into your system, this is required if you need to
 compile some of our modules against this library.
 
 ### Web Assembly
