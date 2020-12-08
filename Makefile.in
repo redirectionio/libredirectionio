@@ -25,14 +25,14 @@ exec_prefix := @exec_prefix@
 all: target/redirectionio.h
 
 target/redirectionio.h: $(EXTRA_DIST)
-	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@
+	CARGO_TARGET_DIR=@RUST_TARGET_DIR@ @CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_TARGET_DIR@
 
 .PHONY: install
 install:
 	mkdir -p $(DESTDIR)@prefix@/include/
-	install -c -m 644 target/@RUST_TARGET_SUBDIR@/redirectionio.h $(DESTDIR)@prefix@/include/
+	install -c -m 644 @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/redirectionio.h $(DESTDIR)@prefix@/include/
 	mkdir -p $(DESTDIR)@libdir@/
-	install -c -m 644 target/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
+	install -c -m 644 @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
 	mkdir -p $(DESTDIR)@libdir@/pkgconfig/
 	install -c -m 644 libredirectionio.pc $(DESTDIR)@libdir@/pkgconfig/
 

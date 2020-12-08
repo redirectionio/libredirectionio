@@ -20,6 +20,10 @@ AC_ARG_ENABLE(debug,
               [debug_release=$enableval],
               [debug_release=no])
 
+AC_ARG_WITH([target_dir], [AS_HELP_STRING([--with-target-dir],
+    [target directory])],
+    [TARGET_DIR=$withval], [TARGET_DIR=])
+
 AC_MSG_CHECKING(whether to build Rust code with debugging information)
 if test "x$debug_release" = "xyes" ; then
     AC_MSG_RESULT(yes)
@@ -31,8 +35,17 @@ else
     RUST_TARGET_SUBDIR=release
 fi
 
+AC_ARG_VAR([target_dir], [Target directory to use])
+
+if test "x$TARGET_DIR" = "x" ; then
+    RUST_TARGET_DIR=target
+else
+    RUST_TARGET_DIR=$TARGET_DIR
+fi
+
 AC_SUBST([CARGO_BIN])
 AC_SUBST([RUST_RELEASE])
+AC_SUBST([RUST_TARGET_DIR])
 AC_SUBST([RUST_TARGET_SUBDIR])
 
 AC_MSG_NOTICE([summary of build options:
