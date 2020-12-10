@@ -41,7 +41,7 @@ stderrlog = "0.4.3"
 console_log = "0.1.2"
 scraper = "0.11.0"
 http = "0.2.1"
-string_cache = "0.8.0"
+string_cache = "0.8.1"
 
 [dev-dependencies]
 criterion = "0.3.1"
