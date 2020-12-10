@@ -34,7 +34,7 @@ console_error_panic_hook = { version = "0.1.1", optional = true }
 wee_alloc = { version = "0.4.2", optional = true }
 cfg-if = "0.1.10"
 uuid = { version = "0.7", features = ["serde", "v4", "wasm-bindgen"] }
-libc = "0.2.69"
+libc = "0.2.81"
 heck = "0.3.1"
 log = "0.4.8"
 stderrlog = "0.4.3"
