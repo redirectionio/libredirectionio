@@ -36,7 +36,7 @@ cfg-if = "0.1.10"
 uuid = { version = "0.8", features = ["serde", "v4", "wasm-bindgen"] }
 libc = "0.2.81"
 heck = "0.3.1"
-log = "0.4.8"
+log = "0.4.11"
 stderrlog = "0.4.3"
 console_log = "0.2.0"
 scraper = "0.12.0"
