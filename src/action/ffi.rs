@@ -134,3 +134,12 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut Fi
 
     string_to_c_char(end_body)
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn redirectionio_action_body_filter_drop(_filter: *mut FilterBodyAction) {
+    if _filter.is_null() {
+        return;
+    }
+
+    Box::from_raw(_filter);
+}
