@@ -27,6 +27,7 @@ pub struct ImpactExampleHeader {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImpactResultItem {
     example: ImpactExample,
+    trace_unique: RouterTrace,
     trace_before_update: RouterTrace,
     trace_after_update: RouterTrace,
 }
@@ -40,6 +41,7 @@ pub struct ChangeSet {
 
 impl Impact {
     pub fn create_result(router: &Router<Rule>, impact: &Impact) -> Vec<ImpactResultItem> {
+        let mut trace_router: Router<Rule> = Router::default();
         let mut next_router = router.clone();
 
         // Remove rules
@@ -54,11 +56,13 @@ impl Impact {
 
         for rule in &impact.change_set.update {
             next_router.insert(rule.clone().into_route());
+            trace_router.insert(rule.clone().into_route());
         }
 
         // Add rules
         for rule in &impact.change_set.new {
             next_router.insert(rule.clone().into_route());
+            trace_router.insert(rule.clone().into_route());
         }
 
         let mut items = Vec::new();
@@ -108,11 +112,13 @@ impl Impact {
 
             let trace_before_update = RouterTrace::create_from_router(router, &request, &http_request);
             let trace_after_update = RouterTrace::create_from_router(&next_router, &request, &http_request);
+            let trace_unique = RouterTrace::create_from_router(&trace_router, &request, &http_request);
 
             items.push(ImpactResultItem {
                 example: example.clone(),
                 trace_before_update,
                 trace_after_update,
+                trace_unique,
             });
         }
 
