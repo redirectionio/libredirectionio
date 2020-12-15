@@ -4147,6 +4147,72 @@ fn test_marker_type_uuid_3() {
 }
 
 
+fn setup_rule_multiple_headers() -> Router<Rule> {
+    let mut router = Router::<Rule>::default();
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-multiple-headers","markers":null,"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Foo","type":"is_defined","value":null},{"name":"X-Bar","type":"is_defined","value":null}],"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":null},"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route());
+
+    router
+}
+
+
+#[test]
+fn test_rule_multiple_headers_1() {
+    let router = setup_rule_multiple_headers();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),None,None,None);let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_multiple_headers_2() {
+    let router = setup_rule_multiple_headers();
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),None,None,None);
+    request.add_header(r#"X-Foo"#.to_string(), r#"foo"#.to_string());let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_multiple_headers_3() {
+    let router = setup_rule_multiple_headers();
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),None,None,None);
+    request.add_header(r#"X-Bar"#.to_string(), r#"bar"#.to_string());let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_multiple_headers_4() {
+    let router = setup_rule_multiple_headers();
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/foo"#),None,None,None);
+    request.add_header(r#"X-Foo"#.to_string(), r#"foo"#.to_string());
+    request.add_header(r#"X-Bar"#.to_string(), r#"bar"#.to_string());let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+
+    assert_eq!(!matched.is_empty(), true);
+
+    let action = Action::from_routes_rule(matched, &request);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar"#);
+}
+
+
 fn setup_rule_query_with_pipe() -> Router<Rule> {
     let mut router = Router::<Rule>::default();
 
