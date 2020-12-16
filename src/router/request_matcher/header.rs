@@ -1,7 +1,9 @@
 use crate::router::request_matcher::{PathAndQueryMatcher, RequestMatcher};
+use crate::router::trace::{TraceInfo, TraceInfoHeaderCondition};
 use crate::router::{Route, RouteData, RouteHeaderKind, Trace};
 use http::Request;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 
@@ -13,8 +15,10 @@ pub struct HeaderMatcher<T: RouteData> {
     count: usize,
 }
 
-#[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
-enum ValueCondition {
+#[derive(Serialize, Deserialize, Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", content = "value")]
+pub enum ValueCondition {
     IsDefined,
     IsNotDefined,
     Equals(String),
@@ -129,6 +133,8 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
 
         for (conditions, matcher) in &self.condition_groups {
             let mut matched = true;
+            let mut executed = true;
+            let mut traces_info_header = Vec::new();
 
             for condition in conditions {
                 match execute_conditions.get(condition) {
@@ -136,51 +142,42 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
                         // Execute condition
                         matched = matched && condition.condition.match_value(request, condition.header_name.as_str());
 
-                        // Save result
-                        execute_conditions.insert(condition.clone(), matched);
-
-                        traces.push(Trace::new(
-                            format!("Header condition on {}: {}", condition.header_name, condition.condition.format()),
-                            matched,
-                            true,
-                            0,
-                            Vec::new(),
-                            Vec::new(),
-                        ));
-
-                        if !matched {
-                            break;
+                        // Save result (only if executed to mimic cache behavior)
+                        if executed {
+                            execute_conditions.insert(condition.clone(), matched);
                         }
+
+                        traces_info_header.push(TraceInfoHeaderCondition {
+                            name: condition.header_name.clone(),
+                            condition: condition.condition.clone(),
+                            cached: false,
+                        });
+
+                        executed = matched;
                     }
                     Some(result) => {
                         matched = matched && *result;
 
-                        if !matched {
-                            break;
-                        }
+                        traces_info_header.push(TraceInfoHeaderCondition {
+                            name: condition.header_name.clone(),
+                            condition: condition.condition.clone(),
+                            cached: true,
+                        });
+
+                        executed = matched;
                     }
                 }
             }
 
-            if matched {
-                traces.push(Trace::new(
-                    "Header condition group result".to_string(),
-                    matched,
-                    true,
-                    0,
-                    matcher.trace(request),
-                    Vec::new(),
-                ));
-            } else {
-                traces.push(Trace::new(
-                    "Header condition group result".to_string(),
-                    matched,
-                    true,
-                    0,
-                    Vec::new(),
-                    Vec::new(),
-                ));
-            }
+            traces.push(Trace::new(
+                matched,
+                true,
+                0,
+                if matched { matcher.trace(request) } else { Vec::new() },
+                TraceInfo::HeaderGroup {
+                    conditions: traces_info_header,
+                },
+            ));
         }
 
         traces

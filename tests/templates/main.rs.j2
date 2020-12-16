@@ -3,7 +3,7 @@ extern crate redirectionio;
 #[rustfmt::skip]
 mod generated_tests {
 
-use redirectionio::router::Router;
+use redirectionio::router::{Router, Trace};
 use redirectionio::api::Rule;
 use redirectionio::http::{Request, Header, STATIC_QUERY_PARAM_SKIP_BUILDER};
 use redirectionio::action::Action;
@@ -31,11 +31,14 @@ fn test_{{ name }}_{{ loop.index }}() {
     {% for header in test.headers %}
     request.add_header(r#"{{ header.name }}"#.to_string(), r#"{{ header.value }}"#.to_string());
     {%- endfor -%}
-    {%- endif -%}
+    {%- endif %}
     let http_request = request.to_http_request().expect("");
     let matched = router.match_request(&http_request);
+    let traces = router.trace_request(&http_request);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
 
     assert_eq!(!matched.is_empty(), {{ test.match }});
+    assert_eq!(!routes_traces.is_empty(), {{ test.match }});
 {% if test.match %}
     let action = Action::from_routes_rule(matched, &request);
     let mut response_status_code = {% if test.response_status_code %}{{ test.response_status_code }}{% else %}0{% endif %};

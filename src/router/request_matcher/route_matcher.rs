@@ -1,4 +1,5 @@
 use crate::router::request_matcher::RequestMatcher;
+use crate::router::trace::TraceInfo;
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 
@@ -37,12 +38,13 @@ impl<T: RouteData> RequestMatcher<T> for RouteMatcher<T> {
 
     fn trace(&self, _request: &Request<()>) -> Vec<Trace<T>> {
         let traces = vec![Trace::new(
-            "route_matcher".to_string(),
             true,
             true,
             self.routes.len() as u64,
             Vec::new(),
-            self.routes.clone(),
+            TraceInfo::Storage {
+                routes: self.routes.clone(),
+            },
         )];
 
         traces

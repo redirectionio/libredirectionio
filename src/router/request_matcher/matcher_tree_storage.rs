@@ -1,4 +1,5 @@
 use crate::regex_radix_tree::{NodeItem, Storage, Trace as NodeTrace};
+use crate::router::trace::TraceInfo;
 use crate::router::{RequestMatcher, Route, RouteData, Trace};
 use http::Request;
 use std::marker::PhantomData;
@@ -43,11 +44,11 @@ impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'st
 }
 
 impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'static> MatcherTreeStorage<T, S, M> {
-    pub fn node_trace_to_router_trace(trace: NodeTrace<S, Self>, request: &Request<()>) -> Trace<T> {
+    pub fn node_trace_to_router_trace(value: &str, trace: NodeTrace<S, Self>, request: &Request<()>) -> Trace<T> {
         let mut children = Vec::new();
 
         for child in trace.children {
-            children.push(Self::node_trace_to_router_trace(child, request));
+            children.push(Self::node_trace_to_router_trace(value, child, request));
         }
 
         if let Some(storage) = trace.storage.as_ref() {
@@ -55,12 +56,14 @@ impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'st
         }
 
         Trace::new(
-            format!("Regex tree prefix {}", trace.regex),
             trace.matched,
             true,
             trace.count,
             children,
-            Vec::new(),
+            TraceInfo::Regex {
+                request: value.to_string(),
+                against: trace.regex,
+            },
         )
     }
 }

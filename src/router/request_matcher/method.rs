@@ -1,4 +1,5 @@
 use crate::router::request_matcher::{HeaderMatcher, RequestMatcher};
+use crate::router::trace::TraceInfo;
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
@@ -70,12 +71,15 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         let request_method = request.method().as_str();
 
         traces.push(Trace::new(
-            "Any method".to_string(),
             true,
             true,
             self.any_method.len() as u64,
             any_traces,
-            Vec::new(),
+            TraceInfo::Method {
+                request: request_method.to_string(),
+                against: None,
+                any: true,
+            },
         ));
 
         for (method, matcher) in &self.methods {
@@ -83,33 +87,42 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
                 let method_traces = matcher.trace(request);
 
                 traces.push(Trace::new(
-                    format!("Method {}", method),
                     true,
                     true,
                     matcher.len() as u64,
                     method_traces,
-                    Vec::new(),
+                    TraceInfo::Method {
+                        request: request_method.to_string(),
+                        against: Some(method.clone()),
+                        any: false,
+                    },
                 ));
             } else {
                 traces.push(Trace::new(
-                    format!("Method {}", method),
                     false,
                     false,
                     matcher.len() as u64,
                     Vec::new(),
-                    Vec::new(),
+                    TraceInfo::Method {
+                        request: request_method.to_string(),
+                        against: Some(method.clone()),
+                        any: false,
+                    },
                 ));
             }
         }
 
         if !self.methods.contains_key(request_method) {
             traces.push(Trace::new(
-                format!("Method {}", request_method),
                 true,
                 false,
                 0,
                 Vec::new(),
-                Vec::new(),
+                TraceInfo::Method {
+                    request: request_method.to_string(),
+                    against: None,
+                    any: false,
+                },
             ));
         }
 

@@ -2,6 +2,7 @@ use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
 use crate::router::marker_string::StaticOrDynamic;
 use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
 use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
+use crate::router::trace::TraceInfo;
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
@@ -101,7 +102,11 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
     fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
         let path = PathAndQueryMatcher::<T>::request_to_path(request);
         let node_trace = self.regex_tree_rule.trace(path.as_str());
-        let mut traces = vec![PathAndQueryRegexTreeMatcher::<T>::node_trace_to_router_trace(node_trace, request)];
+        let mut traces = vec![PathAndQueryRegexTreeMatcher::<T>::node_trace_to_router_trace(
+            path.as_str(),
+            node_trace,
+            request,
+        )];
 
         let static_traces = match self.static_rules.get(path.as_str()) {
             None => Vec::new(),
@@ -109,12 +114,11 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
         };
 
         traces.push(Trace::new(
-            "Static path".to_string(),
             !static_traces.is_empty(),
             true,
             self.static_rules.len() as u64,
             static_traces,
-            Vec::new(),
+            TraceInfo::PathAndQueryStatic { request: path },
         ));
 
         traces

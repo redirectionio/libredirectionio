@@ -10,7 +10,7 @@ use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::fmt::Debug;
 
-pub use header::HeaderMatcher;
+pub use header::{HeaderMatcher, ValueCondition as HeaderValueCondition};
 pub use host::HostMatcher;
 pub use method::MethodMatcher;
 pub use path_and_query::PathAndQueryMatcher;

@@ -1,3 +1,4 @@
+use crate::router::request_matcher::HeaderValueCondition;
 use crate::router::{Route, RouteData};
 use serde::{Deserialize, Serialize};
 
@@ -10,12 +11,53 @@ pub struct RouteTrace<T: RouteData> {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Trace<T: RouteData> {
-    name: String,
     matched: bool,
     executed: bool,
     count: u64,
+    #[serde(flatten)]
+    info: TraceInfo<T>,
     children: Vec<Trace<T>>,
-    pub routes: Vec<Route<T>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "type")]
+pub enum TraceInfo<T: RouteData> {
+    Scheme {
+        request: String,
+        against: Option<String>,
+        any: bool,
+    },
+    Host {
+        request: String,
+        against: Option<String>,
+        any: bool,
+    },
+    Method {
+        request: String,
+        against: Option<String>,
+        any: bool,
+    },
+    HeaderGroup {
+        conditions: Vec<TraceInfoHeaderCondition>,
+    },
+    PathAndQueryStatic {
+        request: String,
+    },
+    Regex {
+        request: String,
+        against: String,
+    },
+    Storage {
+        routes: Vec<Route<T>>,
+    },
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TraceInfoHeaderCondition {
+    pub name: String,
+    pub condition: HeaderValueCondition,
+    pub cached: bool,
 }
 
 impl<T: RouteData> RouteTrace<T> {
@@ -29,14 +71,13 @@ impl<T: RouteData> RouteTrace<T> {
 }
 
 impl<T: RouteData> Trace<T> {
-    pub fn new(name: String, matched: bool, executed: bool, count: u64, children: Vec<Trace<T>>, routes: Vec<Route<T>>) -> Trace<T> {
+    pub fn new(matched: bool, executed: bool, count: u64, children: Vec<Trace<T>>, info: TraceInfo<T>) -> Trace<T> {
         Trace {
-            name,
             matched,
             executed,
+            info,
             children,
             count,
-            routes,
         }
     }
 
@@ -44,7 +85,9 @@ impl<T: RouteData> Trace<T> {
         let mut routes = Vec::new();
 
         for trace in traces {
-            routes.extend(trace.routes.iter().collect::<Vec<_>>());
+            if let TraceInfo::Storage { routes: routes_stored } = &trace.info {
+                routes.extend(routes_stored.iter().collect::<Vec<_>>());
+            }
 
             if !trace.children.is_empty() {
                 routes.extend(Trace::get_routes_from_traces(&trace.children));

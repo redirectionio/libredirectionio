@@ -12,6 +12,7 @@ pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use trace::{RouteTrace, Trace};
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Transformer, Underscorize, Uppercase};
 
+use core::cmp::Reverse;
 use http::Request;
 
 #[derive(Debug, Clone)]
@@ -59,7 +60,7 @@ impl<T: RouteData> Router<T> {
             return None;
         }
 
-        routes.sort_by(|a, b| b.priority().cmp(&a.priority()));
+        routes.sort_by_key(|&b| Reverse(b.priority()));
 
         match routes.get(0) {
             None => None,

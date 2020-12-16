@@ -1,4 +1,5 @@
 use crate::router::request_matcher::{HostMatcher, RequestMatcher};
+use crate::router::trace::TraceInfo;
 use crate::router::{Route, RouteData, Trace};
 use http::Request;
 use std::collections::HashMap;
@@ -76,12 +77,15 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
         };
 
         traces.push(Trace::new(
-            "Any scheme".to_string(),
             true,
             true,
             self.any_scheme.len() as u64,
             any_traces,
-            Vec::new(),
+            TraceInfo::Scheme {
+                request: request_scheme.to_string(),
+                against: None,
+                any: true,
+            },
         ));
 
         for (scheme, matcher) in &self.schemes {
@@ -89,33 +93,42 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
                 let scheme_traces = matcher.trace(request);
 
                 traces.push(Trace::new(
-                    format!("Scheme {}", scheme),
                     true,
                     true,
                     matcher.len() as u64,
                     scheme_traces,
-                    Vec::new(),
+                    TraceInfo::Scheme {
+                        request: request_scheme.to_string(),
+                        against: Some(scheme.clone()),
+                        any: false,
+                    },
                 ));
             } else {
                 traces.push(Trace::new(
-                    format!("Scheme {}", scheme),
                     false,
                     false,
                     matcher.len() as u64,
                     Vec::new(),
-                    Vec::new(),
+                    TraceInfo::Scheme {
+                        request: request_scheme.to_string(),
+                        against: Some(scheme.clone()),
+                        any: false,
+                    },
                 ));
             }
         }
 
         if request_scheme != "" && !self.schemes.contains_key(request_scheme) {
             traces.push(Trace::new(
-                format!("Scheme {}", request_scheme),
                 true,
                 false,
                 0,
                 Vec::new(),
-                Vec::new(),
+                TraceInfo::Scheme {
+                    request: request_scheme.to_string(),
+                    against: Some(request_scheme.to_string()),
+                    any: false,
+                },
             ));
         }
 
