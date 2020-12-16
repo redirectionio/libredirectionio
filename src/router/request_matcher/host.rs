@@ -125,10 +125,9 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
                     true,
                     matcher.len() as u64,
                     host_traces,
-                    TraceInfo::Host {
+                    TraceInfo::HostStatic {
                         request: request_host.to_string(),
                         against: Some(host.clone()),
-                        any: false,
                     },
                 ));
             } else {
@@ -137,10 +136,9 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
                     false,
                     matcher.len() as u64,
                     Vec::new(),
-                    TraceInfo::Host {
+                    TraceInfo::HostStatic {
                         request: request_host.to_string(),
                         against: Some(host.clone()),
-                        any: false,
                     },
                 ));
             }
@@ -148,7 +146,12 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
 
         if let Some(host) = request.uri().host() {
             let node_trace = self.regex_tree_rule.trace(host);
-            traces.push(HostRegexTreeMatcher::<T>::node_trace_to_router_trace(host, node_trace, request));
+            traces.push(HostRegexTreeMatcher::<T>::node_trace_to_router_trace(
+                host,
+                node_trace,
+                request,
+                Some(TraceInfo::HostRegex),
+            ));
 
             if !self.static_hosts.contains_key(host) {
                 traces.push(Trace::new(
@@ -156,10 +159,9 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
                     false,
                     0,
                     Vec::new(),
-                    TraceInfo::Host {
+                    TraceInfo::HostStatic {
                         request: request_host.to_string(),
                         against: None,
-                        any: false,
                     },
                 ));
             }
@@ -169,19 +171,7 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
             return traces;
         }
 
-        let any_traces = self.any_host.trace(request);
-
-        traces.push(Trace::new(
-            true,
-            true,
-            self.any_host.len() as u64,
-            any_traces,
-            TraceInfo::Host {
-                request: request_host.to_string(),
-                against: None,
-                any: true,
-            },
-        ));
+        traces.extend(self.any_host.trace(request));
 
         traces
     }

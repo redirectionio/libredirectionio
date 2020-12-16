@@ -44,26 +44,34 @@ impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'st
 }
 
 impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'static> MatcherTreeStorage<T, S, M> {
-    pub fn node_trace_to_router_trace(value: &str, trace: NodeTrace<S, Self>, request: &Request<()>) -> Trace<T> {
+    pub fn node_trace_to_router_trace(
+        value: &str,
+        trace: NodeTrace<S, Self>,
+        request: &Request<()>,
+        root_trace_info: Option<TraceInfo<T>>,
+    ) -> Trace<T> {
         let mut children = Vec::new();
 
         for child in trace.children {
-            children.push(Self::node_trace_to_router_trace(value, child, request));
+            children.push(Self::node_trace_to_router_trace(value, child, request, None));
         }
 
         if let Some(storage) = trace.storage.as_ref() {
             children.extend(storage.matcher.trace(request));
         }
 
-        Trace::new(
-            trace.matched,
-            true,
-            trace.count,
-            children,
-            TraceInfo::Regex {
-                request: value.to_string(),
-                against: trace.regex,
-            },
-        )
+        match root_trace_info {
+            None => Trace::new(
+                trace.matched,
+                true,
+                trace.count,
+                children,
+                TraceInfo::Regex {
+                    request: value.to_string(),
+                    against: trace.regex,
+                },
+            ),
+            Some(trace_info) => Trace::new(trace.matched, true, trace.count, children, trace_info),
+        }
     }
 }

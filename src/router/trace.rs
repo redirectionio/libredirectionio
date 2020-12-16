@@ -23,38 +23,20 @@ pub struct Trace<T: RouteData> {
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum TraceInfo<T: RouteData> {
-    Scheme {
-        request: String,
-        against: Option<String>,
-        any: bool,
-    },
-    Host {
-        request: String,
-        against: Option<String>,
-        any: bool,
-    },
-    Method {
-        request: String,
-        against: Option<String>,
-        any: bool,
-    },
-    HeaderGroup {
-        conditions: Vec<TraceInfoHeaderCondition>,
-    },
-    PathAndQueryStatic {
-        request: String,
-    },
-    Regex {
-        request: String,
-        against: String,
-    },
-    Storage {
-        routes: Vec<Route<T>>,
-    },
+    Scheme { request: String, against: Option<String> },
+    HostStatic { request: String, against: Option<String> },
+    HostRegex,
+    Method { request: String, against: Option<String> },
+    HeaderGroup { conditions: Vec<TraceInfoHeaderCondition> },
+    PathAndQueryStatic { request: String },
+    PathRegex,
+    Regex { request: String, against: String },
+    Storage { routes: Vec<Route<T>> },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TraceInfoHeaderCondition {
+    pub result: Option<bool>,
     pub name: String,
     pub condition: HeaderValueCondition,
     pub cached: bool,

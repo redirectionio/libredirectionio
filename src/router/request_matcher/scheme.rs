@@ -69,24 +69,11 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
     }
 
     fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
-        let any_traces = self.any_scheme.trace(request);
-        let mut traces = Vec::new();
+        let mut traces = self.any_scheme.trace(request);
         let request_scheme = match request.uri().scheme() {
             None => "",
             Some(scheme) => scheme.as_str(),
         };
-
-        traces.push(Trace::new(
-            true,
-            true,
-            self.any_scheme.len() as u64,
-            any_traces,
-            TraceInfo::Scheme {
-                request: request_scheme.to_string(),
-                against: None,
-                any: true,
-            },
-        ));
 
         for (scheme, matcher) in &self.schemes {
             if scheme == request_scheme && request_scheme != "" {
@@ -100,7 +87,6 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
                     TraceInfo::Scheme {
                         request: request_scheme.to_string(),
                         against: Some(scheme.clone()),
-                        any: false,
                     },
                 ));
             } else {
@@ -112,7 +98,6 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
                     TraceInfo::Scheme {
                         request: request_scheme.to_string(),
                         against: Some(scheme.clone()),
-                        any: false,
                     },
                 ));
             }
@@ -127,7 +112,6 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
                 TraceInfo::Scheme {
                     request: request_scheme.to_string(),
                     against: Some(request_scheme.to_string()),
-                    any: false,
                 },
             ));
         }

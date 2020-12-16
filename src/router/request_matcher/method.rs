@@ -66,21 +66,8 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
     }
 
     fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
-        let any_traces = self.any_method.trace(request);
-        let mut traces = Vec::new();
+        let mut traces = self.any_method.trace(request);
         let request_method = request.method().as_str();
-
-        traces.push(Trace::new(
-            true,
-            true,
-            self.any_method.len() as u64,
-            any_traces,
-            TraceInfo::Method {
-                request: request_method.to_string(),
-                against: None,
-                any: true,
-            },
-        ));
 
         for (method, matcher) in &self.methods {
             if method == request_method {
@@ -94,7 +81,6 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
                     TraceInfo::Method {
                         request: request_method.to_string(),
                         against: Some(method.clone()),
-                        any: false,
                     },
                 ));
             } else {
@@ -106,7 +92,6 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
                     TraceInfo::Method {
                         request: request_method.to_string(),
                         against: Some(method.clone()),
-                        any: false,
                     },
                 ));
             }
@@ -121,7 +106,6 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
                 TraceInfo::Method {
                     request: request_method.to_string(),
                     against: None,
-                    any: false,
                 },
             ));
         }

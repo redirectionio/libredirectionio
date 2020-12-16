@@ -140,7 +140,8 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
                 match execute_conditions.get(condition) {
                     None => {
                         // Execute condition
-                        matched = matched && condition.condition.match_value(request, condition.header_name.as_str());
+                        let result = condition.condition.match_value(request, condition.header_name.as_str());
+                        matched = matched && result;
 
                         // Save result (only if executed to mimic cache behavior)
                         if executed {
@@ -148,6 +149,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
                         }
 
                         traces_info_header.push(TraceInfoHeaderCondition {
+                            result: if executed { Some(result) } else { None },
                             name: condition.header_name.clone(),
                             condition: condition.condition.clone(),
                             cached: false,
@@ -159,6 +161,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
                         matched = matched && *result;
 
                         traces_info_header.push(TraceInfoHeaderCondition {
+                            result: if executed { Some(*result) } else { None },
                             name: condition.header_name.clone(),
                             condition: condition.condition.clone(),
                             cached: true,
@@ -172,7 +175,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
             traces.push(Trace::new(
                 matched,
                 true,
-                0,
+                matcher.len() as u64,
                 if matched { matcher.trace(request) } else { Vec::new() },
                 TraceInfo::HeaderGroup {
                     conditions: traces_info_header,
