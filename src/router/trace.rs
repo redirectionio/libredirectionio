@@ -29,7 +29,7 @@ pub enum TraceInfo<T: RouteData> {
     Method { request: String, against: Option<String> },
     HeaderGroup { conditions: Vec<TraceInfoHeaderCondition> },
     PathAndQueryStatic { request: String },
-    PathRegex,
+    PathAndQueryRegex,
     Regex { request: String, against: String },
     Storage { routes: Vec<Route<T>> },
 }

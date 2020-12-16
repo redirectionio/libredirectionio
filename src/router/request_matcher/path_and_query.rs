@@ -106,7 +106,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
             path.as_str(),
             node_trace,
             request,
-            Some(TraceInfo::PathRegex),
+            Some(TraceInfo::PathAndQueryRegex),
         )];
 
         let static_traces = match self.static_rules.get(path.as_str()) {
