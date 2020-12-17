@@ -81,7 +81,7 @@ impl BodyFilter {
 
         let body = match String::from_utf8(data) {
             Err(error) => return error.into_bytes(),
-            Ok(body) => body
+            Ok(body) => body,
         };
 
         let new_body = filter.filter(body);

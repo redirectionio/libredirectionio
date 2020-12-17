@@ -118,7 +118,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut F
 
     let body = match String::from_utf8(bytes) {
         Err(error) => return Buffer::from_vec(error.into_bytes()),
-        Ok(body) => body
+        Ok(body) => body,
     };
 
     let new_body = filter.filter(body.to_string());

@@ -8,10 +8,7 @@ pub struct Buffer {
 
 impl Default for Buffer {
     fn default() -> Self {
-        Buffer {
-            data: null_mut(),
-            len: 0,
-        }
+        Buffer { data: null_mut(), len: 0 }
     }
 }
 
@@ -32,10 +29,7 @@ impl Buffer {
 
         core::mem::forget(vec);
 
-        Buffer {
-            data,
-            len,
-        }
+        Buffer { data, len }
     }
 
     pub unsafe fn from_string(mut str: String) -> Self {
@@ -48,10 +42,7 @@ impl Buffer {
 
         core::mem::forget(str);
 
-        Buffer {
-            data,
-            len,
-        }
+        Buffer { data, len }
     }
 
     pub unsafe fn to_vec(&self) -> Vec<u8> {
