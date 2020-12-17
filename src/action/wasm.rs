@@ -72,19 +72,26 @@ impl BodyFilter {
         self.filter.is_none()
     }
 
-    pub fn filter(&mut self, body: String) -> String {
+    pub fn filter(&mut self, data: Vec<u8>) -> Vec<u8> {
         if self.filter.is_none() {
-            return body;
+            return data;
         }
 
         let filter = self.filter.as_mut().unwrap();
 
-        filter.filter(body)
+        let body = match String::from_utf8(data) {
+            Err(error) => return error.into_bytes(),
+            Ok(body) => body
+        };
+
+        let new_body = filter.filter(body);
+
+        new_body.into_bytes()
     }
 
-    pub fn end(&mut self) -> String {
+    pub fn end(&mut self) -> Vec<u8> {
         if self.filter.is_none() {
-            return "".to_string();
+            return Vec::new();
         }
 
         let filter = self.filter.as_mut().unwrap();
@@ -92,6 +99,6 @@ impl BodyFilter {
 
         self.filter = None;
 
-        end
+        end.into_bytes()
     }
 }

@@ -130,16 +130,13 @@ async function proxy(request, libredirectionio, options) {
 async function filter_body(readable, writable, bodyFilter) {
     let writer = writable.getWriter();
     let reader = readable.getReader();
-    const decoder = new TextDecoder("utf-8");
-    const encoder = new TextEncoder("utf-8");
     let data = await reader.read();
 
     while (!data.done) {
-        const chunk = decoder.decode(data.value);
-        const filteredData = bodyFilter.filter(chunk);
+        const filteredData = bodyFilter.filter(data.value);
 
         if (filteredData) {
-            await writer.write(encoder.encode(filteredData));
+            await writer.write(filteredData);
         }
 
         data = await reader.read();
