@@ -1,5 +1,6 @@
 use crate::action::Action;
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
+use crate::filter::buffer::Buffer;
 use crate::filter::FilterBodyAction;
 use crate::http::ffi::{header_map_to_http_headers, http_headers_to_header_map, HeaderMap};
 use serde_json::{from_str as json_decode, to_string as json_encode};
@@ -107,32 +108,34 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_create(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut FilterBodyAction, _body: *const c_char) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut FilterBodyAction, buffer: Buffer) -> Buffer {
     if _filter.is_null() {
-        return _body;
+        return buffer.clone();
     }
 
     let filter = &mut *_filter;
-    let body = match c_char_to_str(_body) {
-        None => return _body,
-        Some(str) => str,
+    let bytes = buffer.into_vec();
+
+    let body = match String::from_utf8(bytes) {
+        Err(error) => return Buffer::from_vec(error.into_bytes()),
+        Ok(body) => body
     };
 
     let new_body = filter.filter(body.to_string());
 
-    string_to_c_char(new_body)
+    Buffer::from_string(new_body)
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut FilterBodyAction) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut FilterBodyAction) -> Buffer {
     if _filter.is_null() {
-        return null();
+        return Buffer::default();
     }
 
     let mut filter = Box::from_raw(_filter);
     let end_body = filter.end();
 
-    string_to_c_char(end_body)
+    Buffer::from_string(end_body)
 }
 
 #[no_mangle]
