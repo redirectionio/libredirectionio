@@ -15,6 +15,8 @@ pub struct Log {
 struct FromLog {
     #[serde(rename = "ruleId")]
     rule_id: Option<String>,
+    #[serde(rename = "ruleIds")]
+    rule_ids: Option<Vec<String>>,
     url: String,
     method: Option<String>,
     scheme: Option<String>,
@@ -60,6 +62,10 @@ impl Log {
                     None => None,
                     Some(s) => Some(s.clone()),
                 },
+            },
+            rule_ids: match action {
+                None => None,
+                Some(action) => Some(action.rule_ids.clone()),
             },
             url: request.path_and_query.original.clone(),
             method: request.method.clone(),
