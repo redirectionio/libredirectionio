@@ -35,6 +35,8 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
 
     while !current.is_null() {
         let header = &*current;
+        current = header.next;
+
         let name = match c_char_to_str(header.name) {
             None => continue,
             Some(s) => s,
@@ -48,8 +50,6 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
             name: name.to_string(),
             value: value.to_string(),
         });
-
-        current = header.next;
     }
 
     headers
