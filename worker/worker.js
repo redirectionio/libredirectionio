@@ -145,7 +145,7 @@ async function filter_body(readable, writable, bodyFilter) {
     const lastData = bodyFilter.end();
 
     if (lastData) {
-        await writer.write(encoder.encode(lastData));
+        await writer.write(lastData);
     }
 
     await writer.close();
