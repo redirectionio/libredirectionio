@@ -88,7 +88,7 @@ impl Rule {
                         "is_not_defined" => RouteHeaderKind::IsNotDefined,
                         "is_equals" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::Equals(str.clone()),
+                            Some(str) => RouteHeaderKind::IsEquals(str.clone()),
                         },
                         "is_not_equal_to" => match &header.value {
                             None => continue,

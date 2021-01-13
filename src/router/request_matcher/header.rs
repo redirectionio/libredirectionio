@@ -21,7 +21,7 @@ pub struct HeaderMatcher<T: RouteData> {
 pub enum ValueCondition {
     IsDefined,
     IsNotDefined,
-    Equals(String),
+    IsEquals(String),
     IsNotEqualTo(String),
     Contains(String),
     DoesNotContain(String),
@@ -52,7 +52,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
             let condition = match &header.kind {
                 RouteHeaderKind::IsDefined => ValueCondition::IsDefined,
                 RouteHeaderKind::IsNotDefined => ValueCondition::IsNotDefined,
-                RouteHeaderKind::Equals(str) => ValueCondition::Equals(str.clone()),
+                RouteHeaderKind::IsEquals(str) => ValueCondition::IsEquals(str.clone()),
                 RouteHeaderKind::IsNotEqualTo(str) => ValueCondition::IsNotEqualTo(str.clone()),
                 RouteHeaderKind::Contains(str) => ValueCondition::Contains(str.clone()),
                 RouteHeaderKind::DoesNotContain(str) => ValueCondition::DoesNotContain(str.clone()),
@@ -231,7 +231,7 @@ impl ValueCondition {
         match self {
             ValueCondition::IsNotDefined => !request.headers().contains_key(name),
             ValueCondition::IsDefined => request.headers().contains_key(name),
-            ValueCondition::Equals(str) => {
+            ValueCondition::IsEquals(str) => {
                 let values = request.headers().get_all(name);
                 let mut result = false;
 
@@ -330,7 +330,7 @@ impl ValueCondition {
         match self {
             ValueCondition::IsDefined => "is defined".to_string(),
             ValueCondition::IsNotDefined => "is not defined".to_string(),
-            ValueCondition::Equals(str) => format!("equals {}", str),
+            ValueCondition::IsEquals(str) => format!("equals {}", str),
             ValueCondition::IsNotEqualTo(str) => format!("is not equal to {}", str),
             ValueCondition::Contains(str) => format!("contains {}", str),
             ValueCondition::DoesNotContain(str) => format!("does not contain {}", str),

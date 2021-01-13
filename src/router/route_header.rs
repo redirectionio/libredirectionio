@@ -6,7 +6,7 @@ use std::collections::HashMap;
 pub enum RouteHeaderKind {
     IsDefined,
     IsNotDefined,
-    Equals(String),
+    IsEquals(String),
     IsNotEqualTo(String),
     Contains(String),
     DoesNotContain(String),
