@@ -254,7 +254,7 @@ impl Action {
                 self.apply_rule_id(rule_applied);
 
                 status
-            },
+            }
         }
     }
 
