@@ -1,6 +1,7 @@
 use crate::action::Action;
 use crate::http::{Header, Request};
 use serde::{Deserialize, Serialize};
+use std::iter::FromIterator;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {
@@ -13,8 +14,6 @@ pub struct Log {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct FromLog {
-    #[serde(rename = "ruleId")]
-    rule_id: Option<String>,
     #[serde(rename = "ruleIds")]
     rule_ids: Option<Vec<String>>,
     url: String,
@@ -56,16 +55,12 @@ impl Log {
         }
 
         let from = FromLog {
-            rule_id: match action {
-                None => None,
-                Some(action) => match action.rule_ids.last() {
-                    None => None,
-                    Some(s) => Some(s.clone()),
-                },
-            },
             rule_ids: match action {
                 None => None,
-                Some(action) => Some(action.rule_ids.clone()),
+                Some(action) => match action.rules_applied.as_ref() {
+                    None => Some(action.rule_ids.clone()),
+                    Some(ids) => Some(Vec::from_iter(ids.clone())),
+                },
             },
             url: request.path_and_query.original.clone(),
             method: request.method.clone(),

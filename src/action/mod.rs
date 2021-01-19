@@ -10,6 +10,7 @@ use crate::router::{Route, StaticOrDynamic, Trace};
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
@@ -17,6 +18,7 @@ pub struct Action {
     header_filters: Vec<HeaderFilterAction>,
     body_filters: Vec<BodyFilterAction>,
     pub rule_ids: Vec<String>,
+    pub rules_applied: Option<HashSet<String>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -29,12 +31,14 @@ pub struct TraceAction {
 struct HeaderFilterAction {
     filter: HeaderFilter,
     on_response_status_codes: Vec<u16>,
+    rule_id: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct BodyFilterAction {
     filter: BodyFilter,
     on_response_status_codes: Vec<u16>,
+    rule_id: Option<String>,
 }
 
 impl Default for Action {
@@ -44,6 +48,7 @@ impl Default for Action {
             header_filters: Vec::new(),
             body_filters: Vec::new(),
             rule_ids: Vec::new(),
+            rules_applied: None,
         }
     }
 }
@@ -107,6 +112,8 @@ impl Action {
                     Some(codes) => codes.clone(),
                 },
                 fallback_status_code: 0,
+                rule_id: Some(rule.id.clone()),
+                fallback_rule_id: None,
             }),
         };
 
@@ -140,6 +147,7 @@ impl Action {
                             Some(redirect_code) => vec![redirect_code],
                         },
                     },
+                    rule_id: Some(rule.id.clone()),
                 })
             }
         }
@@ -156,6 +164,7 @@ impl Action {
                         None => Vec::new(),
                         Some(codes) => codes.clone(),
                     },
+                    rule_id: Some(rule.id.clone()),
                 });
             }
         }
@@ -173,6 +182,7 @@ impl Action {
                         None => Vec::new(),
                         Some(codes) => codes.clone(),
                     },
+                    rule_id: Some(rule.id.clone()),
                 });
             }
         }
@@ -182,6 +192,7 @@ impl Action {
             header_filters,
             body_filters,
             rule_ids: vec![rule.id.clone()],
+            rules_applied: None,
         }
     }
 
@@ -200,6 +211,8 @@ impl Action {
                             status_code: new_status_code_update.status_code,
                             on_response_status_codes: new_status_code_update.on_response_status_codes,
                             fallback_status_code: old_status_code_update.status_code,
+                            rule_id: new_status_code_update.rule_id.clone(),
+                            fallback_rule_id: old_status_code_update.rule_id.clone(),
                         })
                     }
                 }
@@ -232,22 +245,29 @@ impl Action {
         action
     }
 
-    pub fn get_status_code(&self, response_status_code: u16) -> u16 {
+    pub fn get_status_code(&mut self, response_status_code: u16) -> u16 {
         match self.status_code_update.as_ref() {
             None => 0,
-            Some(status_code_update) => status_code_update.get_status_code(response_status_code),
+            Some(status_code_update) => {
+                let (status, rule_applied) = status_code_update.get_status_code(response_status_code);
+
+                self.apply_rule_id(rule_applied);
+
+                status
+            },
         }
     }
 
-    pub fn filter_headers(&self, headers: Vec<Header>, response_status_code: u16, add_rule_ids_header: bool) -> Vec<Header> {
+    pub fn filter_headers(&mut self, headers: Vec<Header>, response_status_code: u16, add_rule_ids_header: bool) -> Vec<Header> {
         let mut filters = Vec::new();
 
-        for filter in &self.header_filters {
+        for filter in self.header_filters.clone() {
             if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
                 continue;
             }
 
-            filters.push(&filter.filter);
+            self.apply_rule_id(filter.rule_id);
+            filters.push(filter.filter);
         }
 
         let mut new_headers = match FilterHeaderAction::new(filters) {
@@ -265,17 +285,30 @@ impl Action {
         new_headers
     }
 
-    pub fn create_filter_body(&self, response_status_code: u16) -> Option<FilterBodyAction> {
+    pub fn create_filter_body(&mut self, response_status_code: u16) -> Option<FilterBodyAction> {
         let mut filters = Vec::new();
 
-        for filter in &self.body_filters {
+        for filter in self.body_filters.clone() {
             if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
                 continue;
             }
 
-            filters.push(&filter.filter);
+            self.apply_rule_id(filter.rule_id);
+            filters.push(filter.filter);
         }
 
         FilterBodyAction::new(filters)
+    }
+
+    fn apply_rule_id(&mut self, rule_id: Option<String>) {
+        if rule_id.is_none() {
+            return;
+        }
+
+        if self.rules_applied.is_none() {
+            self.rules_applied = Some(HashSet::new());
+        }
+
+        self.rules_applied.as_mut().unwrap().insert(rule_id.unwrap());
     }
 }

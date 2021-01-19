@@ -61,19 +61,19 @@ pub unsafe extern "C" fn redirectionio_action_drop(_action: *mut Action) {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_action_get_status_code(_action: *const Action, response_status_code: u16) -> u16 {
+pub unsafe extern "C" fn redirectionio_action_get_status_code(_action: *mut Action, response_status_code: u16) -> u16 {
     if _action.is_null() {
         return 0;
     }
 
-    let action = &*_action;
+    let action = &mut *_action;
 
     action.get_status_code(response_status_code)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
-    _action: *const Action,
+    _action: *mut Action,
     header_map: *const HeaderMap,
     response_status_code: u16,
     add_rule_ids_header: bool,
@@ -82,7 +82,7 @@ pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
         return header_map;
     }
 
-    let action = &*_action;
+    let action = &mut *_action;
     let mut headers = header_map_to_http_headers(header_map);
 
     headers = action.filter_headers(headers, response_status_code, add_rule_ids_header);
@@ -92,14 +92,14 @@ pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
 
 #[no_mangle]
 pub unsafe extern "C" fn redirectionio_action_body_filter_create(
-    _action: *const Action,
+    _action: *mut Action,
     response_status_code: u16,
 ) -> *const FilterBodyAction {
     if _action.is_null() {
         return null() as *const FilterBodyAction;
     }
 
-    let action = &*_action;
+    let action = &mut *_action;
 
     match action.create_filter_body(response_status_code) {
         None => null(),

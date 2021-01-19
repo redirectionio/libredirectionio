@@ -7,14 +7,14 @@ pub struct FilterHeaderAction {
 }
 
 impl FilterHeaderAction {
-    pub fn new(filters: Vec<&HeaderFilter>) -> Option<FilterHeaderAction> {
+    pub fn new(filters: Vec<HeaderFilter>) -> Option<FilterHeaderAction> {
         if filters.is_empty() {
             return None;
         }
 
         let mut actions = Vec::new();
 
-        for filter in filters {
+        for filter in &filters {
             if let Some(action_filter) = header_action::create_header_action(filter) {
                 actions.push(action_filter);
             }

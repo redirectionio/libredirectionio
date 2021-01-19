@@ -35,31 +35,31 @@ impl Action {
         Action { action: None }
     }
 
-    pub fn get_status_code(&self, response_status_code: u16) -> u16 {
-        if let Some(action) = self.action.as_ref() {
+    pub fn get_status_code(&mut self, response_status_code: u16) -> u16 {
+        if let Some(action) = self.action.as_mut() {
             return action.get_status_code(response_status_code);
         }
 
         0
     }
 
-    pub fn filter_headers(&self, headers: HeaderMap, response_status_code: u16, add_rule_ids_header: bool) -> HeaderMap {
+    pub fn filter_headers(&mut self, headers: HeaderMap, response_status_code: u16, add_rule_ids_header: bool) -> HeaderMap {
         if self.action.is_none() {
             return headers;
         }
 
-        let action = self.action.as_ref().unwrap();
+        let action = self.action.as_mut().unwrap();
         let new_headers = action.filter_headers(headers.headers, response_status_code, add_rule_ids_header);
 
         HeaderMap { headers: new_headers }
     }
 
-    pub fn create_body_filter(&self, response_status_code: u16) -> BodyFilter {
+    pub fn create_body_filter(&mut self, response_status_code: u16) -> BodyFilter {
         if self.action.is_none() {
             return BodyFilter { filter: None };
         }
 
-        let action = self.action.as_ref().unwrap();
+        let action = self.action.as_mut().unwrap();
         let filter = action.create_filter_body(response_status_code);
 
         BodyFilter { filter }
