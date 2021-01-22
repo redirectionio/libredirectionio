@@ -4,6 +4,7 @@ mod route;
 mod route_header;
 mod trace;
 mod transformer;
+mod config;
 
 pub use marker_string::{Marker, MarkerString, StaticOrDynamic};
 pub use request_matcher::{HostMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
@@ -14,16 +15,19 @@ pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform,
 
 use core::cmp::Reverse;
 use http::Request;
+use crate::router::config::RouterConfig;
 
 #[derive(Debug, Clone)]
 pub struct Router<T: RouteData> {
     matcher: SchemeMatcher<T>,
+    config: RouterConfig,
 }
 
 impl<T: RouteData> Default for Router<T> {
     fn default() -> Self {
         Router {
             matcher: SchemeMatcher::default(),
+            config: RouterConfig::default(),
         }
     }
 }
