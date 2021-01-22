@@ -4915,6 +4915,72 @@ fn test_marker_type_uuid_3() {
 }
 
 
+fn setup_rule_header_regex() -> Router<Rule> {
+    let mut router = Router::<Rule>::default();
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-multiple-headers","markers":[{"name":"marker","regex":"^(ES|FR|IT)$","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-GeoIP","type":"match_regex","value":"@marker"}],"host":null,"methods":null,"path":"/test","query":null,"response_status_codes":null},"target":"/es"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route());
+
+    router
+}
+
+
+#[test]
+fn test_rule_header_regex_1() {
+    let router = setup_rule_header_regex();
+    let request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,None);
+    let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+    let traces = router.trace_request(&http_request);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_header_regex_2() {
+    let router = setup_rule_header_regex();
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,None);
+    request.add_header(r#"X-GeoIP"#.to_string(), r#"EN"#.to_string());
+    let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+    let traces = router.trace_request(&http_request);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_header_regex_3() {
+    let router = setup_rule_header_regex();
+    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"/test"#),None,None,None);
+    request.add_header(r#"X-GeoIP"#.to_string(), r#"FR"#.to_string());
+    let http_request = request.to_http_request().expect("");
+    let matched = router.match_request(&http_request);
+    let traces = router.trace_request(&http_request);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/es"#);
+}
+
+
 fn setup_rule_multiple_headers() -> Router<Rule> {
     let mut router = Router::<Rule>::default();
 
