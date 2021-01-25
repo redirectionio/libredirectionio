@@ -44,7 +44,7 @@ http = "0.2.3"
 string_cache = "0.8.1"
 
 [dev-dependencies]
-criterion = "0.3.3"
+criterion = "0.3.4"
 
 [[bench]]
 name = "match_rule_benchmark"
