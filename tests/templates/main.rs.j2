@@ -3,17 +3,18 @@ extern crate redirectionio;
 #[rustfmt::skip]
 mod generated_tests {
 
-use redirectionio::router::{Router, Trace};
+use redirectionio::router::{Router, RouterConfig, Trace};
 use redirectionio::api::Rule;
-use redirectionio::http::{Request, Header, STATIC_QUERY_PARAM_SKIP_BUILDER};
+use redirectionio::http::{Request, Header, PathAndQueryWithSkipped};
 use redirectionio::action::Action;
 
 {% for name, rule_set in rule_sets %}
 fn setup_{{ name }}() -> Router<Rule> {
-    let mut router = Router::<Rule>::default();
+    let config: RouterConfig = serde_json::from_str(r#"{{ rule_set.config | json_encode() }}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
 {% for _, rule in rule_set.rules %}
     let route_{{ loop.index }}: Rule = serde_json::from_str(r#"{{ rule.agentInput | json_encode() }}"#).expect("cannot deserialize");
-    router.insert(route_{{ loop.index }}.into_route());
+    router.insert(route_{{ loop.index }}.into_route(&router.config));
 {% endfor %}
     router
 }
@@ -22,25 +23,26 @@ fn setup_{{ name }}() -> Router<Rule> {
 #[test]
 fn test_{{ name }}_{{ loop.index }}() {
     let router = setup_{{ name }}();
-    let{% if test.headers %} mut{% endif %} request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(r#"{{ test.uri }}"#),
+    let default_config = RouterConfig::default();
+    let{% if test.headers %} mut{% endif %} request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"{{ test.uri }}"#), r#"{{ test.uri }}"#.to_string(),
     {%- if test.host -%}Some(r#"{{ test.host }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.scheme -%}Some(r#"{{ test.scheme }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.method -%}Some(r#"{{ test.method }}"#.to_string()){% else %}None{%- endif -%}
     );
     {%- if test.headers -%}
     {% for header in test.headers %}
-    request.add_header(r#"{{ header.name }}"#.to_string(), r#"{{ header.value }}"#.to_string());
+    request.add_header(r#"{{ header.name }}"#.to_string(), r#"{{ header.value }}"#.to_string(), false);
     {%- endfor -%}
     {%- endif %}
-    let http_request = request.to_http_request().expect("");
-    let matched = router.match_request(&http_request);
-    let traces = router.trace_request(&http_request);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
     let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
 
     assert_eq!(!matched.is_empty(), {{ test.match }});
     assert_eq!(!routes_traces.is_empty(), {{ test.match }});
 {% if test.match %}
-    let mut action = Action::from_routes_rule(matched, &request);
+    let mut action = Action::from_routes_rule(matched, &request_configured);
     let mut response_status_code = {% if test.response_status_code %}{{ test.response_status_code }}{% else %}0{% endif %};
 {% if test.status >= 0 %}
     response_status_code = action.get_status_code(response_status_code);

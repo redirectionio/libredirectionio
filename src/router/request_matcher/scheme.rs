@@ -1,7 +1,7 @@
+use crate::http::Request;
 use crate::router::request_matcher::{HostMatcher, RequestMatcher};
 use crate::router::trace::TraceInfo;
 use crate::router::{Route, RouteData, Trace};
-use http::Request;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -53,13 +53,13 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
         removed
     }
 
-    fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
+    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
         let mut routes = self.any_scheme.match_request(request);
 
-        match request.uri().scheme() {
+        match request.scheme() {
             None => (),
             Some(scheme) => {
-                if let Some(matcher) = self.schemes.get(scheme.as_str()) {
+                if let Some(matcher) = self.schemes.get(scheme) {
                     routes.extend(matcher.match_request(request));
                 }
             }
@@ -68,11 +68,11 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
         routes
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
+    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_scheme.trace(request);
-        let request_scheme = match request.uri().scheme() {
+        let request_scheme = match request.scheme() {
             None => "",
-            Some(scheme) => scheme.as_str(),
+            Some(scheme) => scheme,
         };
 
         for (scheme, matcher) in &self.schemes {

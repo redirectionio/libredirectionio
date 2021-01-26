@@ -1,7 +1,7 @@
+use crate::http::Request;
 use crate::router::request_matcher::{PathAndQueryMatcher, RequestMatcher};
 use crate::router::trace::{TraceInfo, TraceInfoHeaderCondition};
 use crate::router::{Route, RouteData, RouteHeaderKind, Trace};
-use http::Request;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -95,7 +95,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         removed
     }
 
-    fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
+    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
         let mut rules = self.any_header.match_request(request);
         let mut execute_conditions = BTreeMap::new();
 
@@ -127,7 +127,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         rules
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
+    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_header.trace(request);
         let mut execute_conditions = BTreeMap::new();
 
@@ -227,12 +227,12 @@ impl<T: RouteData> HeaderMatcher<T> {
 }
 
 impl ValueCondition {
-    pub fn match_value(&self, request: &Request<()>, name: &str) -> bool {
+    pub fn match_value(&self, request: &Request, name: &str) -> bool {
         match self {
-            ValueCondition::IsNotDefined => !request.headers().contains_key(name),
-            ValueCondition::IsDefined => request.headers().contains_key(name),
+            ValueCondition::IsNotDefined => !request.header_exists(name),
+            ValueCondition::IsDefined => request.header_exists(name),
             ValueCondition::IsEquals(str) => {
-                let values = request.headers().get_all(name);
+                let values = request.header_values(name);
                 let mut result = false;
 
                 for value in values {
@@ -242,7 +242,7 @@ impl ValueCondition {
                 result
             }
             ValueCondition::IsNotEqualTo(str) => {
-                let values = request.headers().get_all(name);
+                let values = request.header_values(name);
                 let mut result = true;
 
                 for value in values {
@@ -252,57 +252,41 @@ impl ValueCondition {
                 result
             }
             ValueCondition::Contains(str) => {
-                let values = request.headers().get_all(name);
+                let values = request.header_values(name);
                 let mut result = false;
 
                 for value in values {
-                    result = result
-                        || match value.to_str() {
-                            Ok(value_str) => value_str.contains(str.as_str()),
-                            _ => false,
-                        };
+                    result = result || value.contains(str.as_str());
                 }
 
                 result
             }
             ValueCondition::DoesNotContain(str) => {
-                let values = request.headers().get_all(name);
+                let values = request.header_values(name);
                 let mut result = true;
 
                 for value in values {
-                    result = result
-                        && match value.to_str() {
-                            Ok(value_str) => !value_str.contains(str.as_str()),
-                            _ => true,
-                        };
+                    result = result && !value.contains(str.as_str());
                 }
 
                 result
             }
             ValueCondition::EndsWith(str) => {
-                let values = request.headers().get_all(name);
+                let values = request.header_values(name);
                 let mut result = false;
 
                 for value in values {
-                    result = result
-                        || match value.to_str() {
-                            Ok(value_str) => value_str.ends_with(str.as_str()),
-                            _ => false,
-                        };
+                    result = result || value.ends_with(str.as_str());
                 }
 
                 result
             }
             ValueCondition::StartsWith(str) => {
-                let values = request.headers().get_all(name);
+                let values = request.header_values(name);
                 let mut result = false;
 
                 for value in values {
-                    result = result
-                        || match value.to_str() {
-                            Ok(value_str) => value_str.starts_with(str.as_str()),
-                            _ => false,
-                        };
+                    result = result || value.starts_with(str.as_str());
                 }
 
                 result
@@ -310,14 +294,11 @@ impl ValueCondition {
             ValueCondition::MatchRegex(regex_string) => match Regex::new(regex_string.as_str()) {
                 Err(_) => false,
                 Ok(regex) => {
-                    let values = request.headers().get_all(name);
+                    let values = request.header_values(name);
                     let mut result = false;
 
                     for header_value in values {
-                        match header_value.to_str() {
-                            Err(_) => continue,
-                            Ok(header_value_str) => result = result || regex.is_match(header_value_str),
-                        }
+                        result = result || regex.is_match(header_value);
                     }
 
                     result

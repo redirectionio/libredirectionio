@@ -1,12 +1,13 @@
 use crate::regex_radix_tree::leaf::Leaf;
 use crate::regex_radix_tree::prefix::{common_prefix_char_size, get_prefix_with_char_size};
 use crate::regex_radix_tree::{Node, NodeItem, Storage, Trace};
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 
 #[derive(Debug, Clone)]
 pub struct RegexNode<T: NodeItem, S: Storage<T>> {
     prefix: Option<String>,
     prefix_compiled: Option<Regex>,
+    ignore_case: bool,
     level: u64,
     children: Vec<Box<dyn Node<T, S>>>,
     count: usize,
@@ -16,6 +17,7 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
     fn insert(&mut self, item: T, parent_prefix_size: u32) {
         self.count += 1;
 
+        let ignore_case = item.case_insensitive();
         let item_regex = item.regex();
 
         // for each children node
@@ -39,16 +41,17 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
             current_item.incr_level();
 
             self.children.push(Box::new(RegexNode::new(
-                Box::new(Leaf::new(item, self.level + 2)),
+                Box::new(Leaf::new(item, self.level + 2, ignore_case)),
                 current_item,
                 prefix,
                 self.level + 1,
+                ignore_case,
             )));
 
             return;
         }
 
-        self.children.push(Box::new(Leaf::new(item, self.level + 1)));
+        self.children.push(Box::new(Leaf::new(item, self.level + 1, ignore_case)));
     }
 
     fn find(&self, value: &str) -> Vec<&S> {
@@ -170,18 +173,20 @@ impl<T: NodeItem, S: Storage<T>> Default for RegexNode<T, S> {
             prefix_compiled: None,
             children: Vec::new(),
             count: 0,
+            ignore_case: false,
         }
     }
 }
 
 impl<T: NodeItem, S: Storage<T>> RegexNode<T, S> {
-    pub fn new(first: Box<dyn Node<T, S>>, second: Box<dyn Node<T, S>>, prefix: String, level: u64) -> RegexNode<T, S> {
+    pub fn new(first: Box<dyn Node<T, S>>, second: Box<dyn Node<T, S>>, prefix: String, level: u64, ignore_case: bool) -> RegexNode<T, S> {
         RegexNode {
             level,
             prefix: Some(prefix),
             prefix_compiled: None,
             count: first.len() + second.len(),
             children: vec![first, second],
+            ignore_case,
         }
     }
 
@@ -203,7 +208,7 @@ impl<T: NodeItem, S: Storage<T>> RegexNode<T, S> {
         let prefix = self.prefix.as_ref()?;
         let regex = ["^", prefix.as_str()].join("");
 
-        match Regex::new(regex.as_str()) {
+        match RegexBuilder::new(regex.as_str()).case_insensitive(self.ignore_case).build() {
             Err(e) => {
                 error!("Cannot create regex: {:?}", e);
 

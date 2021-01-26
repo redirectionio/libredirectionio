@@ -1,3 +1,4 @@
+mod config;
 mod marker_string;
 pub mod request_matcher;
 mod route;
@@ -5,6 +6,8 @@ mod route_header;
 mod trace;
 mod transformer;
 
+use crate::http::Request;
+pub use config::RouterConfig;
 pub use marker_string::{Marker, MarkerString, StaticOrDynamic};
 pub use request_matcher::{HostMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
 pub use route::{Route, RouteData};
@@ -13,22 +16,30 @@ pub use trace::{RouteTrace, Trace};
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Transformer, Underscorize, Uppercase};
 
 use core::cmp::Reverse;
-use http::Request;
 
 #[derive(Debug, Clone)]
 pub struct Router<T: RouteData> {
     matcher: SchemeMatcher<T>,
+    pub config: RouterConfig,
 }
 
 impl<T: RouteData> Default for Router<T> {
     fn default() -> Self {
         Router {
             matcher: SchemeMatcher::default(),
+            config: RouterConfig::default(),
         }
     }
 }
 
 impl<T: RouteData> Router<T> {
+    pub fn from_config(config: RouterConfig) -> Self {
+        Self {
+            matcher: SchemeMatcher::default(),
+            config,
+        }
+    }
+
     pub fn insert(&mut self, route: Route<T>) {
         self.matcher.insert(route);
     }
@@ -37,7 +48,7 @@ impl<T: RouteData> Router<T> {
         self.matcher.remove(id)
     }
 
-    pub fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
         self.matcher.match_request(request)
     }
 
@@ -49,11 +60,11 @@ impl<T: RouteData> Router<T> {
         self.matcher.is_empty()
     }
 
-    pub fn trace_request(&self, request: &Request<()>) -> Vec<Trace<T>> {
+    pub fn trace_request(&self, request: &Request) -> Vec<Trace<T>> {
         self.matcher.trace(request)
     }
 
-    pub fn get_route(&self, request: &Request<()>) -> Option<&Route<T>> {
+    pub fn get_route(&self, request: &Request) -> Option<&Route<T>> {
         let mut routes = self.match_request(request);
 
         if routes.is_empty() {
@@ -68,7 +79,7 @@ impl<T: RouteData> Router<T> {
         }
     }
 
-    pub fn get_trace(&self, request: &Request<()>) -> RouteTrace<T> {
+    pub fn get_trace(&self, request: &Request) -> RouteTrace<T> {
         let traces = self.trace_request(request);
         let mut routes_traces = Trace::get_routes_from_traces(&traces);
         let mut routes = Vec::new();

@@ -77,7 +77,7 @@ impl TraceAction {
 
 impl Action {
     fn get_parameters(route: &Route<Rule>, request: &Request) -> HashMap<String, String> {
-        let path = request.path_and_query.path_and_query.clone();
+        let path = request.path_and_query_skipped.path_and_query.clone();
         let mut parameters = route.path_and_query().capture(path.as_str());
 
         if let Some(host) = route.host() {
@@ -124,7 +124,7 @@ impl Action {
             if !target.is_empty() {
                 let mut value = StaticOrDynamic::replace(target.clone(), &parameters, &transformers);
 
-                if let Some(skipped_query_params) = request.path_and_query.skipped_query_params.as_ref() {
+                if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
                     if value.contains('?') {
                         value.push_str("&");
                         value.push_str(skipped_query_params.as_str());
@@ -211,7 +211,7 @@ impl Action {
                             status_code: new_status_code_update.status_code,
                             on_response_status_codes: new_status_code_update.on_response_status_codes,
                             fallback_status_code: old_status_code_update.status_code,
-                            rule_id: new_status_code_update.rule_id.clone(),
+                            rule_id: new_status_code_update.rule_id,
                             fallback_rule_id: old_status_code_update.rule_id.clone(),
                         })
                     }

@@ -1,38 +1,41 @@
+use crate::router::RouterConfig;
 use http::uri::PathAndQuery;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 use url::form_urlencoded::parse as parse_query;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct QueryParamSkipBuilder {
-    parameters: HashSet<String>,
+pub struct PathAndQueryWithSkipped {
+    pub path_and_query: String,
+    pub skipped_query_params: Option<String>,
+    pub original: String,
 }
 
-impl Default for QueryParamSkipBuilder {
-    fn default() -> QueryParamSkipBuilder {
-        let mut parameters = HashSet::new();
+impl PathAndQueryWithSkipped {
+    pub fn from_config(config: &RouterConfig, path_and_query_str: &str) -> Self {
+        let url = utf8_percent_encode(
+            match config.ignore_path_and_query_case {
+                true => path_and_query_str.to_lowercase(),
+                false => path_and_query_str.to_string(),
+            }
+            .replace(" ", "%20")
+            .as_str(),
+            SIMPLE_ENCODE_SET,
+        )
+        .to_string();
 
-        parameters.insert("utm_source".to_string());
-        parameters.insert("utm_medium".to_string());
-        parameters.insert("utm_campaign".to_string());
-        parameters.insert("utm_term".to_string());
-        parameters.insert("utm_content".to_string());
+        if !config.ignore_marketing_query_params {
+            return Self {
+                path_and_query: url,
+                original: path_and_query_str.to_string(),
+                skipped_query_params: None,
+            };
+        }
 
-        QueryParamSkipBuilder { parameters }
-    }
-}
-
-impl QueryParamSkipBuilder {
-    pub fn add_query_param(&mut self, key: &str) {
-        self.parameters.insert(key.to_string());
-    }
-
-    pub fn build_query_param_skipped(&self, path_and_query_str: &str) -> PathAndQueryWithSkipped {
-        let url = utf8_percent_encode(path_and_query_str.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
         let path_and_query: PathAndQuery = url.parse().unwrap();
 
         let mut new_path_and_query = path_and_query.path().to_string();
@@ -52,7 +55,7 @@ impl QueryParamSkipBuilder {
                     query_param.push_str(&utf8_percent_encode(value, QUERY_ENCODE_SET).to_string());
                 }
 
-                if self.parameters.contains(key) {
+                if config.marketing_query_params.contains(key) {
                     if !skipped_query_params.is_empty() {
                         skipped_query_params.push_str("&")
                     }
@@ -73,21 +76,14 @@ impl QueryParamSkipBuilder {
             }
         }
 
-        PathAndQueryWithSkipped {
-            original: path_and_query_str.to_string(),
+        Self {
             path_and_query: new_path_and_query,
-            skipped_query_params: if skipped_query_params.is_empty() {
-                None
-            } else {
+            original: path_and_query_str.to_string(),
+            skipped_query_params: if config.pass_marketing_query_params_to_target && !skipped_query_params.is_empty() {
                 Some(skipped_query_params)
+            } else {
+                None
             },
         }
     }
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PathAndQueryWithSkipped {
-    pub original: String,
-    pub path_and_query: String,
-    pub skipped_query_params: Option<String>,
 }

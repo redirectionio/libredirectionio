@@ -62,7 +62,7 @@ impl Log {
                     Some(ids) => Some(Vec::from_iter(ids.clone())),
                 },
             },
-            url: request.path_and_query.original.clone(),
+            url: request.path_and_query_skipped.original.clone(),
             method: request.method.clone(),
             scheme: request.scheme.clone(),
             host: request.host.clone(),

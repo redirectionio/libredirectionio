@@ -6,8 +6,8 @@ mod path_and_query;
 mod route_matcher;
 mod scheme;
 
+use crate::http::Request;
 use crate::router::{Route, RouteData, Trace};
-use http::Request;
 use std::fmt::Debug;
 
 pub use header::{HeaderMatcher, ValueCondition as HeaderValueCondition};
@@ -22,9 +22,9 @@ pub trait RequestMatcher<T: RouteData>: Debug + Send + Sync {
 
     fn remove(&mut self, id: &str) -> bool;
 
-    fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>>;
+    fn match_request(&self, request: &Request) -> Vec<&Route<T>>;
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>>;
+    fn trace(&self, request: &Request) -> Vec<Trace<T>>;
 
     fn cache(&mut self, limit: u64, level: u64) -> u64;
 

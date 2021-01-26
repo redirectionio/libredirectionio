@@ -1,6 +1,7 @@
 use crate::api::{BodyFilter, HeaderFilter, Marker, Source};
+use crate::http::Request;
 use crate::router::{
-    Marker as RouteMarker, MarkerString, PathAndQueryMatcher, Route, RouteData, RouteHeader, RouteHeaderKind, StaticOrDynamic, Transformer,
+    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouterConfig, StaticOrDynamic, Transformer,
 };
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
@@ -52,12 +53,12 @@ impl Rule {
         }
     }
 
-    fn path_and_query(&self) -> StaticOrDynamic {
+    fn path_and_query(&self, ignore_case: bool) -> StaticOrDynamic {
         let markers = self.markers();
 
         let query = match self.source.query.clone() {
             None => None,
-            Some(source_query) => PathAndQueryMatcher::<Rule>::build_sorted_query(source_query.as_str()),
+            Some(source_query) => Request::build_sorted_query(source_query.as_str()),
         };
 
         let mut path = utf8_percent_encode(self.source.path.as_str(), SIMPLE_ENCODE_SET).to_string();
@@ -66,17 +67,18 @@ impl Rule {
             path.push_str(format!("?{}", query_string).as_str());
         }
 
-        StaticOrDynamic::new_with_markers(path.as_str(), markers)
+        StaticOrDynamic::new_with_markers(path.as_str(), markers, ignore_case)
     }
 
-    fn host(&self) -> Option<StaticOrDynamic> {
+    fn host(&self, ignore_case: bool) -> Option<StaticOrDynamic> {
         Some(StaticOrDynamic::new_with_markers(
             self.source.host.as_ref()?.as_str(),
             self.markers(),
+            ignore_case,
         ))
     }
 
-    fn headers(&self) -> Vec<RouteHeader> {
+    fn headers(&self, ignore_case: bool) -> Vec<RouteHeader> {
         let mut headers = Vec::new();
 
         if let Some(source_headers) = self.source.headers.as_ref() {
@@ -88,31 +90,31 @@ impl Rule {
                         "is_not_defined" => RouteHeaderKind::IsNotDefined,
                         "is_equals" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::IsEquals(str.clone()),
+                            Some(str) => RouteHeaderKind::IsEquals(if ignore_case { str.to_lowercase() } else { str.clone() }),
                         },
                         "is_not_equal_to" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::IsNotEqualTo(str.clone()),
+                            Some(str) => RouteHeaderKind::IsNotEqualTo(if ignore_case { str.to_lowercase() } else { str.clone() }),
                         },
                         "contains" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::Contains(str.clone()),
+                            Some(str) => RouteHeaderKind::Contains(if ignore_case { str.to_lowercase() } else { str.clone() }),
                         },
                         "does_not_contain" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::DoesNotContain(str.clone()),
+                            Some(str) => RouteHeaderKind::DoesNotContain(if ignore_case { str.to_lowercase() } else { str.clone() }),
                         },
                         "ends_with" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::EndsWith(str.clone()),
+                            Some(str) => RouteHeaderKind::EndsWith(if ignore_case { str.to_lowercase() } else { str.clone() }),
                         },
                         "starts_with" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::StartsWith(str.clone()),
+                            Some(str) => RouteHeaderKind::StartsWith(if ignore_case { str.to_lowercase() } else { str.clone() }),
                         },
                         "match_regex" => match &header.value {
                             None => continue,
-                            Some(str) => match MarkerString::new(str, self.markers()) {
+                            Some(str) => match MarkerString::new(str, self.markers(), ignore_case) {
                                 None => continue,
                                 Some(marker) => RouteHeaderKind::MatchRegex(marker),
                             },
@@ -157,13 +159,13 @@ impl Rule {
         }
     }
 
-    pub fn into_route(self) -> Route<Rule> {
+    pub fn into_route(self, config: &RouterConfig) -> Route<Rule> {
         Route::new(
             self.source.methods.clone(),
             self.source.scheme.clone(),
-            self.host(),
-            self.path_and_query(),
-            self.headers(),
+            self.host(config.ignore_host_case),
+            self.path_and_query(config.ignore_path_and_query_case),
+            self.headers(config.ignore_header_case),
             self.id.clone(),
             0 - self.rank as i64,
             self,

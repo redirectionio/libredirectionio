@@ -1,5 +1,6 @@
-use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 use super::{Header, Request as RedirectionioRequest};
+use crate::http::PathAndQueryWithSkipped;
+use crate::router::RouterConfig;
 use serde_json::to_string as json_encode;
 use wasm_bindgen::prelude::*;
 
@@ -19,19 +20,22 @@ pub struct HeaderMap {
 impl Request {
     #[wasm_bindgen(constructor)]
     pub fn new(uri: String, host: String, scheme: String, method: String) -> Request {
+        let config = RouterConfig::default();
+
         Request {
             request: RedirectionioRequest {
                 headers: Vec::new(),
                 host: Some(host),
                 method: Some(method),
                 scheme: Some(scheme),
-                path_and_query: STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(uri.as_str()),
+                path_and_query_skipped: PathAndQueryWithSkipped::from_config(&config, uri.as_str()),
+                path_and_query: Some(uri),
             },
         }
     }
 
     pub fn add_header(&mut self, name: String, value: String) {
-        self.request.add_header(name, value)
+        self.request.add_header(name, value, false)
     }
 
     pub fn serialize(&self) -> String {

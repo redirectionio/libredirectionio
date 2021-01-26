@@ -5,7 +5,7 @@ extern crate serde_yaml;
 
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs::{read_dir, read_to_string, DirEntry, File};
 use std::io::prelude::*;
@@ -14,8 +14,41 @@ use tera::{Context, Tera};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleSet {
+    #[serde(default)]
+    config: RouterConfig,
     rules: HashMap<String, RuleInput>,
     tests: Vec<RuleTest>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct RouterConfig {
+    ignore_host_case: bool,
+    ignore_header_case: bool,
+    ignore_path_and_query_case: bool,
+    ignore_marketing_query_params: bool,
+    marketing_query_params: HashSet<String>,
+    pass_marketing_query_params_to_target: bool,
+}
+
+impl Default for RouterConfig {
+    fn default() -> Self {
+        let mut parameters = HashSet::new();
+
+        parameters.insert("utm_source".to_string());
+        parameters.insert("utm_medium".to_string());
+        parameters.insert("utm_campaign".to_string());
+        parameters.insert("utm_term".to_string());
+        parameters.insert("utm_content".to_string());
+
+        Self {
+            ignore_host_case: false,
+            ignore_header_case: false,
+            ignore_path_and_query_case: false,
+            ignore_marketing_query_params: true,
+            marketing_query_params: parameters,
+            pass_marketing_query_params_to_target: true,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
