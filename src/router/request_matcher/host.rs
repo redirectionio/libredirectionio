@@ -9,11 +9,16 @@ use std::collections::HashMap;
 struct HostRegexNodeItem<T: RouteData> {
     route: Route<T>,
     host_regex: String,
+    ignore_case: bool,
 }
 
 impl<T: RouteData> NodeItem for HostRegexNodeItem<T> {
     fn regex(&self) -> &str {
         self.host_regex.as_str()
+    }
+
+    fn case_insensitive(&self) -> bool {
+        self.ignore_case
     }
 }
 
@@ -56,6 +61,7 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
                 StaticOrDynamic::Dynamic(dynamic_host) => {
                     self.regex_tree_rule.insert(HostRegexNodeItem {
                         host_regex: dynamic_host.regex.clone(),
+                        ignore_case: dynamic_host.ignore_case,
                         route,
                     });
                 }

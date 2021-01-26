@@ -60,6 +60,10 @@ mod tests {
         fn regex(&self) -> &str {
             self.regex.as_str()
         }
+
+        fn case_insensitive(&self) -> bool {
+            false
+        }
     }
 
     impl VecStorageItem for TestItem {

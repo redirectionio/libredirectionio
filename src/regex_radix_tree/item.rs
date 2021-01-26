@@ -7,4 +7,7 @@ pub trait NodeItem: Debug + Clone + Send + Sync + 'static {
     /// Regex should not contains `^` at the start and `$` at the end, those are inserted for you
     /// automatically
     fn regex(&self) -> &str;
+
+    /// Should the regex be case insensitive
+    fn case_insensitive(&self) -> bool;
 }

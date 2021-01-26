@@ -1,5 +1,5 @@
 use crate::regex_radix_tree::{Node, NodeItem, Storage, Trace};
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 use std::marker::PhantomData;
 
 #[derive(Debug, Clone)]
@@ -8,11 +8,13 @@ pub struct Leaf<T: NodeItem, S: Storage<T>> {
     level: u64,
     prefix: String,
     prefix_compiled: Option<Regex>,
+    ignore_case: bool,
     phantom: PhantomData<T>,
 }
 
 impl<T: NodeItem, S: Storage<T>> Node<T, S> for Leaf<T, S> {
     fn insert(&mut self, item: T, _parent_prefix_size: u32) {
+        self.ignore_case = self.ignore_case || item.case_insensitive();
         self.storage.push(item)
     }
 
@@ -79,7 +81,7 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for Leaf<T, S> {
 }
 
 impl<T: NodeItem, S: Storage<T>> Leaf<T, S> {
-    pub fn new(item: T, level: u64) -> Leaf<T, S> {
+    pub fn new(item: T, level: u64, ignore_case: bool) -> Leaf<T, S> {
         let mut storage = S::new(item.regex());
         let prefix = item.regex().to_string();
 
@@ -90,6 +92,7 @@ impl<T: NodeItem, S: Storage<T>> Leaf<T, S> {
             storage,
             level,
             prefix_compiled: None,
+            ignore_case,
             phantom: PhantomData,
         }
     }
@@ -107,7 +110,7 @@ impl<T: NodeItem, S: Storage<T>> Leaf<T, S> {
     fn create_regex(&self) -> Option<Regex> {
         let regex = ["^", self.prefix.as_str(), "$"].join("");
 
-        match Regex::new(regex.as_str()) {
+        match RegexBuilder::new(regex.as_str()).case_insensitive(self.ignore_case).build() {
             Err(e) => {
                 error!("Cannot create regex: {:?}", e);
 

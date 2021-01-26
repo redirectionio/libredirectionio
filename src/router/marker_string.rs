@@ -19,7 +19,7 @@ pub enum StaticOrDynamic {
 pub struct MarkerString {
     pub regex: String,
     pub capture: String,
-    ignore_case: bool,
+    pub ignore_case: bool,
     markers: HashMap<String, String>,
 }
 

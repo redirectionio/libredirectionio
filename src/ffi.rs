@@ -7,7 +7,11 @@ use std::os::raw::{c_char, c_ulong};
 use std::ptr::null;
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_router_create(config_serialized: *mut c_char, _message: *mut RulesMessage, cache: u64) -> *mut Router<Rule> {
+pub unsafe extern "C" fn redirectionio_router_create(
+    config_serialized: *mut c_char,
+    _message: *mut RulesMessage,
+    cache: u64,
+) -> *mut Router<Rule> {
     let config = match c_char_to_str(config_serialized) {
         None => RouterConfig::default(),
         Some(str) => {
@@ -17,16 +21,13 @@ pub unsafe extern "C" fn redirectionio_router_create(config_serialized: *mut c_c
                 match serde_json::from_str(str) {
                     Ok(value) => value,
                     Err(error) => {
-                        error!(
-                            "Unable to deserialize router config: {}",
-                            error,
-                        );
+                        error!("Unable to deserialize router config: {}", error,);
 
                         RouterConfig::default()
                     }
                 }
             }
-        },
+        }
     };
 
     let mut router = Router::<Rule>::from_config(config);

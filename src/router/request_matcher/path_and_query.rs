@@ -11,11 +11,16 @@ use std::collections::HashMap;
 struct PathAndQueryRegexNodeItem<T: RouteData> {
     route: Route<T>,
     path_regex: String,
+    ignore_case: bool,
 }
 
 impl<T: RouteData> NodeItem for PathAndQueryRegexNodeItem<T> {
     fn regex(&self) -> &str {
         self.path_regex.as_str()
+    }
+
+    fn case_insensitive(&self) -> bool {
+        self.ignore_case
     }
 }
 impl<T: RouteData> ItemRoute<T> for PathAndQueryRegexNodeItem<T> {
@@ -48,6 +53,7 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
             StaticOrDynamic::Dynamic(path) => {
                 self.regex_tree_rule.insert(PathAndQueryRegexNodeItem {
                     path_regex: path.regex.clone(),
+                    ignore_case: path.ignore_case,
                     route,
                 });
             }
