@@ -2,13 +2,34 @@ use crate::action::Action;
 use crate::api::{Impact, ImpactResultItem, RouterTrace, Rule, RulesMessage};
 use crate::ffi_helpers::c_char_to_str;
 use crate::http::Request;
-use crate::router::{Route, Router};
+use crate::router::{Route, Router, RouterConfig};
 use std::os::raw::{c_char, c_ulong};
 use std::ptr::null;
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_router_create(_message: *mut RulesMessage, cache: u64) -> *mut Router<Rule> {
-    let mut router = Router::<Rule>::default();
+pub unsafe extern "C" fn redirectionio_router_create(config_serialized: *mut c_char, _message: *mut RulesMessage, cache: u64) -> *mut Router<Rule> {
+    let config = match c_char_to_str(config_serialized) {
+        None => RouterConfig::default(),
+        Some(str) => {
+            if str.is_empty() {
+                RouterConfig::default()
+            } else {
+                match serde_json::from_str(str) {
+                    Ok(value) => value,
+                    Err(error) => {
+                        error!(
+                            "Unable to deserialize router config: {}",
+                            error,
+                        );
+
+                        RouterConfig::default()
+                    }
+                }
+            }
+        },
+    };
+
+    let mut router = Router::<Rule>::from_config(config);
 
     if !_message.is_null() {
         let message = Box::from_raw(_message);
