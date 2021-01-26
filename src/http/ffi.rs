@@ -1,6 +1,6 @@
-use super::STATIC_QUERY_PARAM_SKIP_BUILDER;
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
-use crate::http::{Header, Request};
+use crate::http::{Header, PathAndQueryWithSkipped, Request};
+use crate::router::RouterConfig;
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::os::raw::c_char;
 use std::ptr::null;
@@ -114,11 +114,18 @@ pub unsafe extern "C" fn redirectionio_request_create(
         Some(str) => Some(str.to_string()),
     };
 
-    let mut request = Request::new(STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(uri), host, scheme, method);
+    let config = RouterConfig::default();
+    let mut request = Request::new(
+        PathAndQueryWithSkipped::from_config(&config, uri),
+        uri.to_string(),
+        host,
+        scheme,
+        method,
+    );
     let headers = header_map_to_http_headers(header_map);
 
     for header in headers {
-        request.add_header(header.name, header.value);
+        request.add_header(header.name, header.value, config.ignore_header_case);
     }
 
     Box::into_raw(Box::new(request))

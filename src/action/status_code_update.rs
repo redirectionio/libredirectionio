@@ -23,6 +23,6 @@ impl StatusCodeUpdate {
             return (self.fallback_status_code, self.fallback_rule_id.clone());
         }
 
-        return (0, None);
+        (0, None)
     }
 }

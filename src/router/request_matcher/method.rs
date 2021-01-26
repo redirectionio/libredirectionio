@@ -1,7 +1,7 @@
+use crate::http::Request;
 use crate::router::request_matcher::{HeaderMatcher, RequestMatcher};
 use crate::router::trace::TraceInfo;
 use crate::router::{Route, RouteData, Trace};
-use http::Request;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -55,19 +55,19 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         removed
     }
 
-    fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
+    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
         let mut routes = self.any_method.match_request(request);
 
-        if let Some(matcher) = self.methods.get(request.method().as_str()) {
+        if let Some(matcher) = self.methods.get(request.method()) {
             routes.extend(matcher.match_request(request));
         }
 
         routes
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
+    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_method.trace(request);
-        let request_method = request.method().as_str();
+        let request_method = request.method();
 
         for (method, matcher) in &self.methods {
             if method == request_method {

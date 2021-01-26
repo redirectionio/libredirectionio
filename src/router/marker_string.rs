@@ -1,5 +1,5 @@
 use crate::router::Transformer;
-use regex::Regex;
+use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -19,6 +19,7 @@ pub enum StaticOrDynamic {
 pub struct MarkerString {
     pub regex: String,
     pub capture: String,
+    ignore_case: bool,
     markers: HashMap<String, String>,
 }
 
@@ -33,7 +34,7 @@ impl Marker {
 }
 
 impl MarkerString {
-    pub fn new(str: &str, mut markers: Vec<Marker>) -> Option<MarkerString> {
+    pub fn new(str: &str, mut markers: Vec<Marker>, ignore_case: bool) -> Option<MarkerString> {
         // Create regex string
         let mut regex = regex::escape(str);
         let mut capture = regex.clone();
@@ -62,13 +63,15 @@ impl MarkerString {
             regex,
             capture,
             markers: marker_map,
+            ignore_case,
         })
     }
 
     pub fn capture(&self, str: &str) -> HashMap<String, String> {
         let mut parameters = HashMap::new();
         let regex = ["^", self.capture.as_str(), "$"].join("");
-        let regex_captures = match Regex::new(regex.as_str()) {
+
+        let regex_captures = match RegexBuilder::new(regex.as_str()).case_insensitive(self.ignore_case).build() {
             Err(_) => return parameters,
             Ok(regex) => regex,
         };
@@ -97,13 +100,17 @@ impl MarkerString {
 }
 
 impl StaticOrDynamic {
-    pub fn new_with_markers(str: &str, markers: Vec<Marker>) -> StaticOrDynamic {
+    pub fn new_with_markers(str: &str, markers: Vec<Marker>, ignore_case: bool) -> StaticOrDynamic {
         if markers.is_empty() {
+            if ignore_case {
+                return StaticOrDynamic::Static(str.to_lowercase());
+            }
+
             return StaticOrDynamic::Static(str.to_string());
         }
 
-        match MarkerString::new(str, markers) {
-            None => StaticOrDynamic::Static(str.to_string()),
+        match MarkerString::new(str, markers, ignore_case) {
+            None => StaticOrDynamic::Static(if ignore_case { str.to_lowercase() } else { str.to_string() }),
             Some(marker) => StaticOrDynamic::Dynamic(marker),
         }
     }

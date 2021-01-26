@@ -1,5 +1,5 @@
 use crate::api::{RouterTrace, Rule};
-use crate::http::{Request, STATIC_QUERY_PARAM_SKIP_BUILDER};
+use crate::http::Request;
 use crate::router::Router;
 use serde::{Deserialize, Serialize};
 
@@ -55,14 +55,14 @@ impl Impact {
         }
 
         for rule in &impact.change_set.update {
-            next_router.insert(rule.clone().into_route());
-            trace_router.insert(rule.clone().into_route());
+            next_router.insert(rule.clone().into_route(&next_router.config));
+            trace_router.insert(rule.clone().into_route(&trace_router.config));
         }
 
         // Add rules
         for rule in &impact.change_set.new {
-            next_router.insert(rule.clone().into_route());
-            trace_router.insert(rule.clone().into_route());
+            next_router.insert(rule.clone().into_route(&next_router.config));
+            trace_router.insert(rule.clone().into_route(&trace_router.config));
         }
 
         let mut items = Vec::new();
@@ -88,11 +88,14 @@ impl Impact {
             }
 
             let http_request = http_request_res.unwrap();
-            let mut request = Request::new(
-                STATIC_QUERY_PARAM_SKIP_BUILDER.build_query_param_skipped(match http_request.uri().path_and_query() {
-                    None => "",
-                    Some(path_and_query) => path_and_query.as_str(),
-                }),
+            let path_and_query = match http_request.uri().path_and_query() {
+                None => "",
+                Some(path_and_query) => path_and_query.as_str(),
+            };
+
+            let mut request = Request::from_config(
+                &router.config,
+                path_and_query.to_string(),
                 match http_request.uri().host() {
                     None => None,
                     Some(host) => Some(host.to_string()),
@@ -106,13 +109,13 @@ impl Impact {
 
             if example.headers.is_some() {
                 for header in example.headers.as_ref().unwrap() {
-                    request.add_header(header.name.clone(), header.value.clone());
+                    request.add_header(header.name.clone(), header.value.clone(), router.config.ignore_header_case);
                 }
             }
 
-            let trace_before_update = RouterTrace::create_from_router(router, &request, &http_request);
-            let trace_after_update = RouterTrace::create_from_router(&next_router, &request, &http_request);
-            let trace_unique = RouterTrace::create_from_router(&trace_router, &request, &http_request);
+            let trace_before_update = RouterTrace::create_from_router(router, &request);
+            let trace_after_update = RouterTrace::create_from_router(&next_router, &request);
+            let trace_unique = RouterTrace::create_from_router(&trace_router, &request);
 
             items.push(ImpactResultItem {
                 example: example.clone(),

@@ -20,7 +20,7 @@ impl Clone for Buffer {
 
 impl Buffer {
     pub unsafe fn from_vec(mut vec: Vec<u8>) -> Self {
-        if vec.len() == 0 {
+        if vec.is_empty() {
             return Self::default();
         }
 
@@ -33,7 +33,7 @@ impl Buffer {
     }
 
     pub unsafe fn from_string(mut str: String) -> Self {
-        if str.len() == 0 {
+        if str.is_empty() {
             return Self::default();
         }
 

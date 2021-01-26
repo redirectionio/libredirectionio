@@ -1,7 +1,7 @@
+use crate::http::Request;
 use crate::regex_radix_tree::{NodeItem, Storage, Trace as NodeTrace};
 use crate::router::trace::TraceInfo;
 use crate::router::{RequestMatcher, Route, RouteData, Trace};
-use http::Request;
 use std::marker::PhantomData;
 
 #[derive(Debug, Clone)]
@@ -47,7 +47,7 @@ impl<T: RouteData, S: ItemRoute<T>, M: RequestMatcher<T> + Default + Clone + 'st
     pub fn node_trace_to_router_trace(
         value: &str,
         trace: NodeTrace<S, Self>,
-        request: &Request<()>,
+        request: &Request,
         root_trace_info: Option<TraceInfo<T>>,
     ) -> Trace<T> {
         let mut children = Vec::new();

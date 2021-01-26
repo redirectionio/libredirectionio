@@ -1,8 +1,8 @@
+use crate::http::Request;
 use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
 use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
 use crate::router::trace::TraceInfo;
 use crate::router::{MethodMatcher, RequestMatcher, Route, RouteData, StaticOrDynamic, Trace};
-use http::Request;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -91,8 +91,8 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         removed
     }
 
-    fn match_request(&self, request: &Request<()>) -> Vec<&Route<T>> {
-        if let Some(host) = request.uri().host() {
+    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+        if let Some(host) = request.host() {
             let storages = self.regex_tree_rule.find(host);
             let mut routes = Vec::new();
 
@@ -112,12 +112,12 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         self.any_host.match_request(request)
     }
 
-    fn trace(&self, request: &Request<()>) -> Vec<Trace<T>> {
+    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = Vec::new();
-        let request_host = request.uri().host().unwrap_or("");
+        let request_host = request.host().unwrap_or("");
 
         for (host, matcher) in &self.static_hosts {
-            if host == request_host && request.uri().host().is_some() {
+            if host == request_host && request.host().is_some() {
                 let host_traces = matcher.trace(request);
 
                 traces.push(Trace::new(
@@ -144,7 +144,7 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
             }
         }
 
-        if let Some(host) = request.uri().host() {
+        if let Some(host) = request.host() {
             let node_trace = self.regex_tree_rule.trace(host);
             traces.push(HostRegexTreeMatcher::<T>::node_trace_to_router_trace(
                 host,

@@ -1,7 +1,7 @@
+use crate::http::Request;
 use crate::router::request_matcher::RequestMatcher;
 use crate::router::trace::TraceInfo;
 use crate::router::{Route, RouteData, Trace};
-use http::Request;
 
 #[derive(Debug, Clone)]
 pub struct RouteMatcher<T: RouteData> {
@@ -32,11 +32,11 @@ impl<T: RouteData> RequestMatcher<T> for RouteMatcher<T> {
         removed
     }
 
-    fn match_request(&self, _request: &Request<()>) -> Vec<&Route<T>> {
+    fn match_request(&self, _request: &Request) -> Vec<&Route<T>> {
         self.routes.iter().collect::<Vec<_>>()
     }
 
-    fn trace(&self, _request: &Request<()>) -> Vec<Trace<T>> {
+    fn trace(&self, _request: &Request) -> Vec<Trace<T>> {
         let traces = vec![Trace::new(
             true,
             true,

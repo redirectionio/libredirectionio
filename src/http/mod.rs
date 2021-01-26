@@ -7,11 +7,5 @@ pub mod ffi;
 pub mod wasm;
 
 pub use header::Header;
+pub use query::PathAndQueryWithSkipped;
 pub use request::Request;
-
-use lazy_static::lazy_static;
-pub use query::QueryParamSkipBuilder;
-
-lazy_static! {
-    pub static ref STATIC_QUERY_PARAM_SKIP_BUILDER: QueryParamSkipBuilder = QueryParamSkipBuilder::default();
-}

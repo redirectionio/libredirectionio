@@ -7,19 +7,6 @@ use std::os::raw::{c_char, c_ulong};
 use std::ptr::null;
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_route_create(s: *const c_char) -> *const Route<Rule> {
-    let rule_string = c_char_to_str(s);
-
-    match rule_string {
-        None => null() as *const Route<Rule>,
-        Some(str) => match Rule::from_json(str) {
-            None => null() as *const Route<Rule>,
-            Some(rule) => Box::into_raw(Box::new(rule.into_route())),
-        },
-    }
-}
-
-#[no_mangle]
 pub unsafe extern "C" fn redirectionio_router_create(_message: *mut RulesMessage, cache: u64) -> *mut Router<Rule> {
     let mut router = Router::<Rule>::default();
 
@@ -27,7 +14,7 @@ pub unsafe extern "C" fn redirectionio_router_create(_message: *mut RulesMessage
         let message = Box::from_raw(_message);
 
         for rule in message.rules {
-            router.insert(rule.into_route());
+            router.insert(rule.into_route(&router.config));
         }
     }
 
@@ -78,17 +65,10 @@ pub unsafe extern "C" fn redirectionio_router_match_action(_router: *const Route
 
     let router = &*_router;
     let request = &*_request;
+    let request_configured = Request::rebuild_with_config(&router.config, request);
 
-    let http_request = match request.to_http_request() {
-        Err(error) => {
-            error!("{}", error);
-
-            return null() as *const Action;
-        }
-        Ok(request) => request,
-    };
-    let routes = router.match_request(&http_request);
-    let action = Action::from_routes_rule(routes, request);
+    let routes = router.match_request(&request_configured);
+    let action = Action::from_routes_rule(routes, &request_configured);
 
     Box::into_raw(Box::new(action))
 }
@@ -102,16 +82,9 @@ pub unsafe extern "C" fn redirectionio_router_trace(_router: *const Router<Rule>
     let router = &*_router;
     let request = &*_request;
 
-    let http_request = match request.to_http_request() {
-        Err(error) => {
-            error!("{}", error);
+    let request_configured = Request::rebuild_with_config(&router.config, request);
 
-            return null() as *const RouterTrace;
-        }
-        Ok(request) => request,
-    };
-
-    let trace = RouterTrace::create_from_router(router, request, &http_request);
+    let trace = RouterTrace::create_from_router(router, &request_configured);
 
     Box::into_raw(Box::new(trace))
 }
