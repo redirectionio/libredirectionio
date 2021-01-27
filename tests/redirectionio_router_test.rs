@@ -10,7 +10,7 @@ use redirectionio::action::Action;
 
 
 fn setup_00_common_rules() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_campaign","utm_source","utm_content","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_campaign","utm_medium","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"simple-foobar-rule","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":null},"target":"/bar"}"#).expect("cannot deserialize");
@@ -63,7 +63,7 @@ fn test_00_common_rules_2() {
 
 
 fn setup_01_straight_rule_match() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_medium","utm_campaign","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_medium","utm_campaign","utm_source","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"any-host-path","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":null},"target":"/any-host--path-only"}"#).expect("cannot deserialize");
@@ -375,7 +375,7 @@ fn test_01_straight_rule_match_11() {
 
 
 fn setup_03_priority_match() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_content","utm_medium","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_campaign","utm_term","utm_medium","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"complex-example","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":null},"target":"/complex-example-org"}"#).expect("cannot deserialize");
@@ -506,7 +506,7 @@ fn test_03_priority_match_4() {
 
 
 fn setup_04_rfc3986_relative_references() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_term","utm_medium","utm_source","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_medium","utm_campaign","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"doublepathSource","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":null,"methods":null,"path":"//xyz","query":null,"response_status_codes":null},"target":"/xyz"}"#).expect("cannot deserialize");
@@ -617,7 +617,7 @@ fn test_04_rfc3986_relative_references_4() {
 
 
 fn setup_05_query_parameters_order() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_medium","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_medium","utm_campaign","utm_content","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-inverted-with-query-parameters","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/foo","query":"c=c&b=b","response_status_codes":null},"target":"/bar-inverted"}"#).expect("cannot deserialize");
@@ -751,7 +751,7 @@ fn test_05_query_parameters_order_5() {
 
 
 fn setup_06_emojis() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_content","utm_source","utm_term","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_campaign","utm_source","utm_medium","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"simple-emoji-rule","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/🍕","query":null,"response_status_codes":null},"target":"/bar"}"#).expect("cannot deserialize");
@@ -789,7 +789,7 @@ fn test_06_emojis_1() {
 
 
 fn setup_action_seo_override_meta_author() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_term","utm_medium","utm_source","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_campaign","utm_medium","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[name=\"author\"]","element_tree":["html","head"],"value":"<meta name=\"author\" content=\"Author name\" />"},{"action":"replace","css_selector":"meta[name=\"author\"]","element_tree":["html","head","meta"],"value":"<meta name=\"author\" content=\"Author name\" />"}],"header_filters":null,"id":"override-meta-author-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -1017,7 +1017,7 @@ fn test_action_seo_override_meta_author_8() {
 
 
 fn setup_action_seo_override_meta_description() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_content","utm_campaign","utm_medium","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_campaign","utm_content","utm_term","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[name=\"description\"]","element_tree":["html","head"],"value":"<meta name=\"description\" content=\"New Description\" />"},{"action":"replace","css_selector":"meta[name=\"description\"]","element_tree":["html","head","meta"],"value":"<meta name=\"description\" content=\"New Description\" />"}],"header_filters":null,"id":"override-meta-description-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -1191,7 +1191,7 @@ fn test_action_seo_override_meta_description_6() {
 
 
 fn setup_action_seo_override_meta_keywords() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_term","utm_campaign","utm_source","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_source","utm_content","utm_medium","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[name=\"keywords\"]","element_tree":["html","head"],"value":"<meta name=\"keywords\" content=\"some, keywords, here\" />"},{"action":"replace","css_selector":"meta[name=\"keywords\"]","element_tree":["html","head","meta"],"value":"<meta name=\"keywords\" content=\"some, keywords, here\" />"}],"header_filters":null,"id":"override-meta-keywords-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -1365,7 +1365,7 @@ fn test_action_seo_override_meta_keywords_6() {
 
 
 fn setup_action_seo_override_og_description() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_term","utm_campaign","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_content","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:description\"]","element_tree":["html","head"],"value":"<meta property=\"og:description\" content=\"🍕🍕 Pizza rapido 🍕🍕\" />"},{"action":"replace","css_selector":"meta[property=\"og:description\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:description\" content=\"🍕🍕 Pizza rapido 🍕🍕\" />"}],"header_filters":null,"id":"override-og-description-emoji-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/pizza-rapido","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -1569,7 +1569,7 @@ fn test_action_seo_override_og_description_7() {
 
 
 fn setup_action_seo_override_og_image() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_medium","utm_source","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_content","utm_term","utm_medium","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:image\"]","element_tree":["html","head"],"value":"<meta property=\"og:image\" content=\"/some-image.png\" />"},{"action":"replace","css_selector":"meta[property=\"og:image\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:image\" content=\"/some-image.png\" />"}],"header_filters":null,"id":"override-og-image-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -1689,7 +1689,7 @@ fn test_action_seo_override_og_image_4() {
 
 
 fn setup_action_seo_override_og_locale() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_term","utm_campaign","utm_source","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_medium","utm_campaign","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:locale\"]","element_tree":["html","head"],"value":"<meta property=\"og:locale\" content=\"fr_FR\" />"},{"action":"replace","css_selector":"meta[property=\"og:locale\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:locale\" content=\"fr_FR\" />"}],"header_filters":null,"id":"override-og-locale-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -1809,7 +1809,7 @@ fn test_action_seo_override_og_locale_4() {
 
 
 fn setup_action_seo_override_og_site_name() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_campaign","utm_medium","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_source","utm_term","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:site_name\"]","element_tree":["html","head"],"value":"<meta property=\"og:site_name\" content=\"redirection.io\" />"},{"action":"replace","css_selector":"meta[property=\"og:site_name\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:site_name\" content=\"redirection.io\" />"}],"header_filters":null,"id":"override-og-site_name-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -1929,7 +1929,7 @@ fn test_action_seo_override_og_site_name_4() {
 
 
 fn setup_action_seo_override_og_title() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_source","utm_medium","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_campaign","utm_source","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:title\"]","element_tree":["html","head"],"value":"<meta property=\"og:title\" content=\"New Title\" />"},{"action":"replace","css_selector":"meta[property=\"og:title\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:title\" content=\"New Title\" />"}],"header_filters":null,"id":"override-og-title-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -2049,7 +2049,7 @@ fn test_action_seo_override_og_title_4() {
 
 
 fn setup_action_seo_override_og_type() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_medium","utm_source","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:type\"]","element_tree":["html","head"],"value":"<meta property=\"og:type\" content=\"website\" />"},{"action":"replace","css_selector":"meta[property=\"og:type\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:type\" content=\"website\" />"}],"header_filters":null,"id":"override-og-type-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -2169,7 +2169,7 @@ fn test_action_seo_override_og_type_4() {
 
 
 fn setup_action_seo_override_og_url() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_term","utm_content","utm_source","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_medium","utm_content","utm_term","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:url\"]","element_tree":["html","head"],"value":"<meta property=\"og:url\" content=\"https://redirection.io/features\" />"},{"action":"replace","css_selector":"meta[property=\"og:url\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:url\" content=\"https://redirection.io/features\" />"}],"header_filters":null,"id":"override-og-url-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -2289,7 +2289,7 @@ fn test_action_seo_override_og_url_4() {
 
 
 fn setup_action_seo_override_title() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_campaign","utm_term","utm_content","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_medium","utm_campaign","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"title","element_tree":["html","head"],"value":"<title>New Title</title>"},{"action":"replace","css_selector":"","element_tree":["html","head","title"],"value":"<title>New Title</title>"}],"header_filters":null,"id":"override-title-rule","markers":null,"rank":0,"redirect_code":null,"source":{"headers":null,"host":"","methods":null,"path":"/source","query":"","response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -2595,7 +2595,7 @@ fn test_ignore_path_case_7() {
 
 
 fn setup_marker() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_source","utm_medium","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_term","utm_content","utm_medium","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"foobar-rule","markers":[{"name":"marker","regex":"(?:.+?)","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/foo/@marker","query":null,"response_status_codes":null},"target":"/bar/@marker"}"#).expect("cannot deserialize");
@@ -2732,7 +2732,7 @@ fn test_marker_5() {
 
 
 fn setup_marker_in_body_filter() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_medium","utm_campaign","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_content","utm_campaign","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace","css_selector":"","element_tree":["html","head","title"],"value":"<title>@marker</title>"}],"header_filters":null,"id":"marker-in-header-filter","markers":[{"name":"marker","regex":"(?:.+?)","transformers":[]}],"rank":0,"redirect_code":null,"source":{"headers":null,"host":null,"methods":null,"path":"/@marker","query":null,"response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -2771,7 +2771,7 @@ fn test_marker_in_body_filter_1() {
 
 
 fn setup_marker_in_header_filter() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_content","utm_medium","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_content","utm_term","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":[{"action":"replace","header":"X-Test","value":"@marker"}],"id":"marker-in-body-filter","markers":[{"name":"marker","regex":"(?:.+?)","transformers":[]}],"rank":0,"redirect_code":null,"source":{"headers":null,"host":null,"methods":null,"path":"/@marker","query":null,"response_status_codes":null},"target":null}"#).expect("cannot deserialize");
@@ -2818,7 +2818,7 @@ fn test_marker_in_header_filter_1() {
 
 
 fn setup_marker_in_host() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_content","utm_campaign","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_source","utm_content","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"marker-in-host-rule","markers":[{"name":"marker","regex":"(?:.+?)","transformers":[]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":"@marker.test.com","methods":null,"path":"/","query":null,"response_status_codes":null},"target":"https://@marker.test.io"}"#).expect("cannot deserialize");
@@ -2886,7 +2886,7 @@ fn test_marker_in_host_3() {
 
 
 fn setup_marker_in_querystring() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_campaign","utm_term","utm_content","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_source","utm_campaign","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"matchany-rule","markers":[{"name":"marker","regex":"(?:.+?)","transformers":[]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/a@marker","query":null,"response_status_codes":null},"target":"/b@marker"}"#).expect("cannot deserialize");
@@ -2983,7 +2983,7 @@ fn test_marker_in_querystring_4() {
 
 
 fn setup_marker_transformation_camelize() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_term","utm_content","utm_campaign","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_term","utm_content","utm_source","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"camelize"}]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/camelize/from/@marker","query":null,"response_status_codes":null},"target":"/camelize/target/@marker"}"#).expect("cannot deserialize");
@@ -3099,7 +3099,7 @@ fn test_marker_transformation_camelize_4() {
 
 
 fn setup_marker_transformation_dasherize() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_term","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_campaign","utm_term","utm_medium","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"dasherize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"dasherize"}]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/dasherize/from/@marker","query":null,"response_status_codes":null},"target":"/dasherize/target/@marker"}"#).expect("cannot deserialize");
@@ -3189,7 +3189,7 @@ fn test_marker_transformation_dasherize_3() {
 
 
 fn setup_marker_transformation_lowercase() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_term","utm_source","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_campaign","utm_source","utm_medium","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"lowercase-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"lowercase"}]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/lowercase/from/@marker","query":null,"response_status_codes":null},"target":"/lowercase/target/@marker"}"#).expect("cannot deserialize");
@@ -3279,7 +3279,7 @@ fn test_marker_transformation_lowercase_3() {
 
 
 fn setup_marker_transformation_replace() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_medium","utm_source","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_medium","utm_campaign","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"replace-rule","markers":[{"name":"marker","regex":"(cat|dog|fish)","transformers":[{"options":{"something":"cat","with":"tiger"},"type":"replace"}]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/replace/from/@marker","query":null,"response_status_codes":null},"target":"/replace/target/@marker"}"#).expect("cannot deserialize");
@@ -3358,7 +3358,7 @@ fn test_marker_transformation_replace_3() {
 
 
 fn setup_marker_transformation_slice() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_term","utm_source","utm_content","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_medium","utm_term","utm_source","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"slice-middle-rule","markers":[{"name":"marker","regex":"([\\p{Lu}\\p{Lt}])+?","transformers":[{"options":{"from":"5","to":"15"},"type":"slice"}]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/slice-middle/from/@marker","query":null,"response_status_codes":null},"target":"/slice-middle/target/@marker"}"#).expect("cannot deserialize");
@@ -3503,7 +3503,7 @@ fn test_marker_transformation_slice_5() {
 
 
 fn setup_marker_transformation_underscorize() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_term","utm_campaign","utm_source","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_source","utm_campaign","utm_content","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"underscorize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-|_)+?","transformers":[{"options":null,"type":"underscorize"}]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/underscorize/from/@marker","query":null,"response_status_codes":null},"target":"/underscorize/target/@marker"}"#).expect("cannot deserialize");
@@ -3619,7 +3619,7 @@ fn test_marker_transformation_underscorize_4() {
 
 
 fn setup_marker_transformation_uppercase() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_source","utm_content","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_medium","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"uppercase-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"uppercase"}]}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/uppercase/from/@marker","query":null,"response_status_codes":null},"target":"/uppercase/target/@marker"}"#).expect("cannot deserialize");
@@ -3709,7 +3709,7 @@ fn test_marker_transformation_uppercase_3() {
 
 
 fn setup_marker_type_anything() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_source","utm_content","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_source","utm_medium","utm_term","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"anything-rule","markers":[{"name":"marker","regex":".*","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/anything/from/@marker","query":null,"response_status_codes":null},"target":"/anything/target/@marker"}"#).expect("cannot deserialize");
@@ -3799,7 +3799,7 @@ fn test_marker_type_anything_3() {
 
 
 fn setup_marker_type_date() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_term","utm_source","utm_medium","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_content","utm_medium","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"date-rule","markers":[{"name":"marker","regex":"([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/date/from/@marker","query":null,"response_status_codes":null},"target":"/date/target/@marker"}"#).expect("cannot deserialize");
@@ -3867,7 +3867,7 @@ fn test_marker_type_date_3() {
 
 
 fn setup_marker_type_datetime() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_term","utm_content","utm_campaign","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_content","utm_medium","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"datetime-rule","markers":[{"name":"marker","regex":"([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\\.[0-9]+)?(([Zz])|([\\+|\\-]([01][0-9]|2[0-3])(:?[03]0)?))","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/datetime/from/@marker","query":null,"response_status_codes":null},"target":"/datetime/target/@marker"}"#).expect("cannot deserialize");
@@ -3975,7 +3975,7 @@ fn test_marker_type_datetime_4() {
 
 
 fn setup_marker_type_enum() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_campaign","utm_source","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_medium","utm_campaign","utm_source","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"enum-rule","markers":[{"name":"marker","regex":"(cat|dog|fish)","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/enum/from/@marker","query":null,"response_status_codes":null},"target":"/enum/target/@marker"}"#).expect("cannot deserialize");
@@ -4069,7 +4069,7 @@ fn test_marker_type_enum_4() {
 
 
 fn setup_marker_type_integer() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_source","utm_medium","utm_content","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_source","utm_content","utm_medium","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"integer-max-rule","markers":[{"name":"marker","regex":"([0-9]|[1-3][0-9]|4[0-2])","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/integer-max/from/@marker","query":null,"response_status_codes":null},"target":"/integer-max/target/@marker"}"#).expect("cannot deserialize");
@@ -4284,7 +4284,7 @@ fn test_marker_type_integer_10() {
 
 
 fn setup_marker_type_string() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_medium","utm_source","utm_campaign","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_source","utm_medium","utm_campaign","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"string-allowLowercaseAlphabet-specificCharacters-starting-containing-rule","markers":[{"name":"marker","regex":"JOHN\\-SNOW(([\\p{Ll}]|\\-)*?L33T([\\p{Ll}]|\\-)*?)+?","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/@marker","query":null,"response_status_codes":null},"target":"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/target/@marker"}"#).expect("cannot deserialize");
@@ -5262,7 +5262,7 @@ fn test_marker_type_string_44() {
 
 
 fn setup_marker_type_uuid() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_content","utm_source","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_campaign","utm_source","utm_medium","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"uuid-rule","markers":[{"name":"marker","regex":"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/uuid/from/@marker","query":null,"response_status_codes":null},"target":"/uuid/target/@marker"}"#).expect("cannot deserialize");
@@ -5330,7 +5330,7 @@ fn test_marker_type_uuid_3() {
 
 
 fn setup_marketing_parameters() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["param2","param1"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["param1","param2"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":null},"target":"/bar"}"#).expect("cannot deserialize");
@@ -5622,7 +5622,7 @@ fn test_marketing_parameters_notarget_6() {
 
 
 fn setup_no_marketing_parameterst() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":false,"ignore_path_and_query_case":false,"marketing_query_params":["param1","param2"],"pass_marketing_query_params_to_target":false}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":false,"ignore_path_and_query_case":false,"marketing_query_params":["param2","param1"],"pass_marketing_query_params_to_target":false}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":null},"target":"/bar"}"#).expect("cannot deserialize");
@@ -5735,7 +5735,7 @@ fn test_no_marketing_parameterst_6() {
 
 
 fn setup_rule_header_regex() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_source","utm_medium","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_campaign","utm_source","utm_content","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-multiple-headers","markers":[{"name":"marker","regex":"^(ES|FR|IT)$","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-GeoIP","type":"match_regex","value":"@marker"}],"host":null,"methods":null,"path":"/test","query":null,"response_status_codes":null},"target":"/es"}"#).expect("cannot deserialize");
@@ -5805,7 +5805,7 @@ fn test_rule_header_regex_3() {
 
 
 fn setup_rule_multiple_headers() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_content","utm_medium","utm_source","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_medium","utm_term","utm_campaign","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-multiple-headers","markers":null,"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Foo","type":"is_defined","value":null},{"name":"X-Bar","type":"is_defined","value":null}],"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":null},"target":"/bar"}"#).expect("cannot deserialize");
@@ -5892,7 +5892,7 @@ fn test_rule_multiple_headers_4() {
 
 
 fn setup_rule_query_with_pipe() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_campaign","utm_source","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_term","utm_medium","utm_content","utm_source","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"host-path-query-pipe","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"example.org","methods":null,"path":"/query-pipe","query":"foo=bar|baz","response_status_codes":null},"target":"/target"}"#).expect("cannot deserialize");
@@ -5959,7 +5959,7 @@ fn test_rule_query_with_pipe_2() {
 
 
 fn setup_rule_query_with_pipe_2() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_medium","utm_source","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_term","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"host-path-query-pipe","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"example.org","methods":null,"path":"/query-pipe","query":"foo=bar|baz","response_status_codes":null},"target":"/target"}"#).expect("cannot deserialize");
@@ -6023,7 +6023,7 @@ fn test_rule_query_with_pipe_2_2() {
 
 
 fn setup_rule_query_with_plus() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_term","utm_source","utm_campaign","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_term","utm_source","utm_medium","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"host-path-query-double-quotes","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"example.org","methods":null,"path":"/query-plus","query":"foo=bar+baz","response_status_codes":null},"target":"/target"}"#).expect("cannot deserialize");
@@ -6113,7 +6113,7 @@ fn test_rule_query_with_plus_3() {
 
 
 fn setup_rule_querystring() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_content","utm_medium","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_content","utm_campaign","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"host-path-query-double-quotes","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"example.org","methods":null,"path":"/host-path-query","query":"foo&bar=yolo","response_status_codes":null},"target":"/target"}"#).expect("cannot deserialize");
@@ -6177,7 +6177,7 @@ fn test_rule_querystring_2() {
 
 
 fn setup_rule_skipped_query_parameters() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_content","utm_campaign","utm_term","utm_medium"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_campaign","utm_content","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-1","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":null,"methods":null,"path":"/source","query":null,"response_status_codes":null},"target":"/target"}"#).expect("cannot deserialize");
@@ -6296,7 +6296,7 @@ fn test_rule_skipped_query_parameters_4() {
 
 
 fn setup_rule_with_header() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_campaign","utm_source","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_source","utm_medium","utm_campaign","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-header-marker","markers":[{"name":"marker","regex":"(?:f.+?)","transformers":null}],"rank":0,"redirect_code":302,"source":{"headers":[{"name":"X-Test-Marker","type":"match_regex","value":"@marker"}],"host":null,"methods":null,"path":"/test","query":null,"response_status_codes":null},"target":"/baz/@marker"}"#).expect("cannot deserialize");
@@ -6438,7 +6438,7 @@ fn test_rule_with_header_5() {
 
 
 fn setup_rule_with_method() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_medium","utm_source","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_medium","utm_content","utm_campaign","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-method-post","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":["POST"],"path":"/foo","query":null,"response_status_codes":null},"target":"/baz"}"#).expect("cannot deserialize");
@@ -6561,7 +6561,7 @@ fn test_rule_with_method_5() {
 
 
 fn setup_rule_with_quotes() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_content","utm_medium","utm_term","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_content","utm_campaign","utm_term","utm_medium","utm_source"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"host-path-query-double-quotes","markers":null,"rank":0,"redirect_code":301,"source":{"headers":null,"host":"example.org","methods":null,"path":"/host-path-query-double-quotes","query":"gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens","response_status_codes":null},"target":"/target?gender=Dames&gender=Heren&gender=Kinderen"}"#).expect("cannot deserialize");
@@ -6599,7 +6599,7 @@ fn test_rule_with_quotes_1() {
 
 
 fn setup_rule_with_response_status_codes() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_medium","utm_content","utm_campaign"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaign","utm_source","utm_medium","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-method-post","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/foo","query":null,"response_status_codes":[404]},"target":"/baz"}"#).expect("cannot deserialize");
@@ -6732,7 +6732,7 @@ fn test_rule_with_response_status_codes_5() {
 
 
 fn setup_rule_with_slash() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_term","utm_medium","utm_campaign","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule-with-slash","markers":null,"rank":0,"redirect_code":302,"source":{"headers":null,"host":null,"methods":null,"path":"/foo/","query":null,"response_status_codes":null},"target":"/bar/"}"#).expect("cannot deserialize");
