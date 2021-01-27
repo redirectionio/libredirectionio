@@ -30,8 +30,9 @@ async function redirectionio_fetch(request) {
     const libredirectionio = wasm_bindgen;
     await wasm_bindgen(wasm);
     const [response, redirectionioRequest, action] = await proxy(request, libredirectionio, options);
+    const clientIP = request.headers.get("CF-Connecting-IP");
 
-    await log(response, redirectionioRequest, action, libredirectionio, options);
+    await log(response, redirectionioRequest, action, libredirectionio, options, clientIP);
 
     return response;
 }
@@ -151,7 +152,7 @@ async function filter_body(readable, writable, bodyFilter) {
     await writer.close();
 }
 
-async function log(response, redirectionioRequest, action, libredirectionio, options) {
+async function log(response, redirectionioRequest, action, libredirectionio, options, clientIP) {
     if (response === null) {
         return;
     }
@@ -171,6 +172,7 @@ async function log(response, redirectionioRequest, action, libredirectionio, opt
             action,
             'cloudflare-worker/' + options.version,
             BigInt(timestamp),
+            clientIP,
         );
 
         return await fetch(

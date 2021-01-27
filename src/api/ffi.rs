@@ -36,17 +36,19 @@ pub unsafe extern "C" fn redirectionio_api_create_log_in_json(
     _action: *mut Action,
     _proxy: *const c_char,
     time: u64,
+    _client_ip: *const c_char,
 ) -> *const c_char {
     if _request.is_null() {
         return null();
     }
 
     let proxy = c_char_to_str(_proxy).unwrap_or("");
+    let client_ip = c_char_to_str(_client_ip).unwrap_or("");
     let action = if _action.is_null() { None } else { Some(&*_action) };
     let request = &*_request;
     let response_headers = header_map_to_http_headers(_response_headers);
 
-    let log = Log::from_proxy(request, code, &response_headers, action, proxy, time);
+    let log = Log::from_proxy(request, code, &response_headers, action, proxy, time, client_ip);
 
     let log_serialized = match json_encode(&log) {
         Err(_) => return null(),
