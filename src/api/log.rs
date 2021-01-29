@@ -29,7 +29,15 @@ struct FromLog {
 }
 
 impl Log {
-    pub fn from_proxy(request: &Request, code: u16, response_headers: &[Header], action: Option<&Action>, proxy: &str, time: u64, client_ip: &str) -> Log {
+    pub fn from_proxy(
+        request: &Request,
+        code: u16,
+        response_headers: &[Header],
+        action: Option<&Action>,
+        proxy: &str,
+        time: u64,
+        client_ip: &str,
+    ) -> Log {
         let mut location = None;
         let mut user_agent = None;
         let mut referer = None;
