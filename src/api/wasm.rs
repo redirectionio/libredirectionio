@@ -12,6 +12,7 @@ pub fn create_log_in_json(
     action: &Action,
     proxy: String,
     time: u64,
+    client_ip: String,
 ) -> String {
     let log = Log::from_proxy(
         &request.request,
@@ -20,6 +21,7 @@ pub fn create_log_in_json(
         action.action.as_ref(),
         proxy.as_str(),
         time,
+        client_ip.as_str(),
     );
 
     match json_encode(&log) {

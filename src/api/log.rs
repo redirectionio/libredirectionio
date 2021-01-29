@@ -9,6 +9,7 @@ pub struct Log {
     to: String,
     time: u64,
     proxy: String,
+    ips: Option<Vec<String>>,
     from: FromLog,
 }
 
@@ -28,11 +29,22 @@ struct FromLog {
 }
 
 impl Log {
-    pub fn from_proxy(request: &Request, code: u16, response_headers: &[Header], action: Option<&Action>, proxy: &str, time: u64) -> Log {
+    pub fn from_proxy(
+        request: &Request,
+        code: u16,
+        response_headers: &[Header],
+        action: Option<&Action>,
+        proxy: &str,
+        time: u64,
+        client_ip: &str,
+    ) -> Log {
         let mut location = None;
         let mut user_agent = None;
         let mut referer = None;
         let mut content_type = None;
+        let mut ips = Vec::new();
+
+        ips.push(client_ip.to_string());
 
         for header in &request.headers {
             if header.name.to_lowercase() == "user-agent" {
@@ -41,6 +53,14 @@ impl Log {
 
             if header.name.to_lowercase() == "referer" {
                 referer = Some(header.value.clone())
+            }
+
+            if header.name.to_lowercase() == "x-forwarded-for" {
+                let forwarded_ips = header.value.split(",");
+
+                for forwarded_ip in forwarded_ips {
+                    ips.push(forwarded_ip.trim().to_string());
+                }
             }
         }
 
@@ -76,6 +96,7 @@ impl Log {
             from,
             proxy: proxy.to_string(),
             time,
+            ips: Some(ips),
             to: location.unwrap_or_else(|| "".to_string()),
         }
     }
