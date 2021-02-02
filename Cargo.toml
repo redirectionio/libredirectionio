@@ -16,7 +16,7 @@ name = "redirectionio"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-cbindgen="0.16.0"
+cbindgen="0.17.0"
 libtool = "0.1.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8.15"
