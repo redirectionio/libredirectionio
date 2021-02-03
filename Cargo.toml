@@ -19,7 +19,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 cbindgen="0.17.0"
 libtool = "0.1.1"
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.8.15"
+serde_yaml = "0.8.16"
 tera = "1.6.1"
 
 [dependencies]
