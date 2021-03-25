@@ -19,7 +19,7 @@ async function redirectionio_fetch(request) {
         token: REDIRECTIONIO_TOKEN || null,
         timeout: parseInt(REDIRECTIONIO_TIMEOUT, 10),
         add_rule_ids_header: REDIRECTIONIO_ADD_HEADER_RULE_IDS === 'true',
-        version: REDIRECTIONIO_VERSION || 'dev',
+        version: REDIRECTIONIO_VERSION || 'redirection-io-cloudflare/dev',
         instance_name: REDIRECTIONIO_INSTANCE_NAME || 'undefined',
     }
 
