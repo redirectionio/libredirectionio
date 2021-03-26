@@ -8,7 +8,7 @@ use url::form_urlencoded::parse as parse_query;
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash)]
 pub struct PathAndQueryWithSkipped {
     pub path_and_query: String,
     pub skipped_query_params: Option<String>,

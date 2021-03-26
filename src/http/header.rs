@@ -2,7 +2,7 @@ use http::header::HeaderName;
 use http::HeaderMap;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash)]
 pub struct Header {
     pub name: String,
     pub value: String,

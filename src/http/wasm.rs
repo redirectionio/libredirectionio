@@ -3,6 +3,8 @@ use crate::http::PathAndQueryWithSkipped;
 use crate::router::RouterConfig;
 use serde_json::to_string as json_encode;
 use wasm_bindgen::prelude::*;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 
 #[wasm_bindgen]
 pub struct Request {
@@ -43,6 +45,13 @@ impl Request {
             Err(_) => "".to_string(),
             Ok(request_serialized) => request_serialized,
         }
+    }
+
+    pub fn get_hash(&self) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        self.request.hash(&mut hasher);
+
+        hasher.finish()
     }
 }
 

@@ -1,20 +1,10 @@
 /* attaching the event listener */
 addEventListener('fetch', event => {
-    event.respondWith(handle(event.request));
+    event.passThroughOnException();
+    event.respondWith(redirectionio_fetch(event.request, event));
 });
 
-async function handle(request) {
-    try {
-        return await redirectionio_fetch(request)
-    } catch (err) {
-        console.error(err);
-
-        // Display the error stack.
-        return await fetch(request);
-    }
-}
-
-async function redirectionio_fetch(request) {
+async function redirectionio_fetch(request, event) {
     const options = {
         token: REDIRECTIONIO_TOKEN || null,
         timeout: parseInt(REDIRECTIONIO_TIMEOUT, 10),
@@ -29,30 +19,49 @@ async function redirectionio_fetch(request) {
 
     const libredirectionio = wasm_bindgen;
     await wasm_bindgen(wasm);
-    const [response, redirectionioRequest, action] = await proxy(request, libredirectionio, options);
+
+    const redirectionioRequest = create_redirectionio_request(request);
+    const [action, registerCachePromise] = await get_action(request, redirectionioRequest);
+    const response = await proxy(request, redirectionioRequest, action, libredirectionio, options);
     const clientIP = request.headers.get("CF-Connecting-IP");
 
-    await log(response, redirectionioRequest, action, libredirectionio, options, clientIP);
+    event.waitUntil(async function () {
+        await registerCachePromise;
+        await log(response, redirectionioRequest, action, libredirectionio, options, clientIP);
+    }());
 
     return response;
 }
 
-/* Redirection.io logic */
-async function proxy(request, libredirectionio, options) {
+function create_redirectionio_request(request) {
     const urlObject = new URL(request.url);
     const redirectionioRequest = new libredirectionio.Request(urlObject.pathname + urlObject.search, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
-    let action = libredirectionio.Action.empty();
 
     for (const pair of request.headers.entries()) {
         redirectionioRequest.add_header(pair[0], pair[1]);
     }
 
-    try {
-        const requestSerialized = redirectionioRequest.serialize();
-        const agentResponse = await Promise.race([
+    return redirectionioRequest;
+}
+
+async function get_action(request, redirectionioRequest) {
+    const cache = caches.default;
+    const cacheUrl = new URL(request.url)
+    cacheUrl.pathname = "/get-action/" + redirectionioRequest.get_hash().toString()
+
+    // Convert to a GET to be able to cache
+    const cacheKey = new Request(cacheUrl.toString(), {
+        headers: request.headers,
+        method: "GET",
+    });
+
+    let actionStr = await cache.match(cacheKey);
+
+    if (!actionStr) {
+        const response = await Promise.race([
             fetch('https://agent.redirection.io/' + options.token + '/action', {
                 method: 'POST',
-                body: requestSerialized.toString(),
+                body: redirectionioRequest.serialize().toString(),
                 headers: {
                     'User-Agent': 'cloudflare-worker/' + options.version,
                     'x-redirectionio-instance-name': options.instance_name,
@@ -63,16 +72,31 @@ async function proxy(request, libredirectionio, options) {
             ),
         ]);
 
-        const actionStr = await agentResponse.text();
+        actionStr = await response.text();
+    }
 
-        if (actionStr === "") {
-            return [await fetch(request), redirectionioRequest, action];
-        }
+    const registerCachePromise = cache.put(cacheKey, actionStr);
 
-        action = new libredirectionio.Action(actionStr);
+    if (actionStr === "") {
+        return [libredirectionio.Action.empty(), registerCachePromise]
+    }
+
+    try {
+        return [new libredirectionio.Action(actionStr), registerCachePromise];
+    } catch (e) {
+        console.error(e);
+
+        return [new libredirectionio.Action.empty(), registerCachePromise];
+    }
+}
+
+/* Redirection.io logic */
+async function proxy(request, redirectionioRequest, action, libredirectionio, options) {
+
+    try {
         const statusCodeBeforeResponse = action.get_status_code(0);
 
-        let response = null;
+        let response;
 
         if (statusCodeBeforeResponse === 0) {
             response = await fetch(request);
@@ -101,30 +125,28 @@ async function proxy(request, libredirectionio, options) {
             newHeaders.append(newHeaderMap.get_header_name(i), newHeaderMap.get_header_value(i));
         }
 
-        response = new Response(
-            response.body, {
-                status: response.status,
-                statusText: response.statusText,
-                headers: newHeaders,
-            }
-        );
+        response = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: newHeaders,
+        });
 
         const bodyFilter = action.create_body_filter(response.status);
 
         // Skip body filtering
         if (bodyFilter.is_null()) {
-            return [response, redirectionioRequest, action];
+            return response;
         }
 
         const { readable, writable } = new TransformStream();
 
         filter_body(response.body, writable, bodyFilter);
 
-        return [new Response(readable, response), redirectionioRequest, action];
+        return new Response(readable, response);
     } catch (err) {
         console.error(err);
 
-        return [await fetch(request), redirectionioRequest, action]
+        return await fetch(request);
     }
 }
 

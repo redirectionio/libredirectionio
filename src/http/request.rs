@@ -9,7 +9,7 @@ use url::form_urlencoded::parse as parse_query;
 
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Hash)]
 pub struct Request {
     #[serde(rename = "path_and_query")]
     pub path_and_query_skipped: PathAndQueryWithSkipped,
