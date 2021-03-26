@@ -5,12 +5,13 @@ extern crate serde_yaml;
 
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::env;
 use std::fs::{read_dir, read_to_string, DirEntry, File};
 use std::io::prelude::*;
 use std::path::PathBuf;
 use tera::{Context, Tera};
+use linked_hash_set::LinkedHashSet;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleSet {
@@ -26,13 +27,13 @@ struct RouterConfig {
     ignore_header_case: bool,
     ignore_path_and_query_case: bool,
     ignore_marketing_query_params: bool,
-    marketing_query_params: HashSet<String>,
+    marketing_query_params: LinkedHashSet<String>,
     pass_marketing_query_params_to_target: bool,
 }
 
 impl Default for RouterConfig {
     fn default() -> Self {
-        let mut parameters = HashSet::new();
+        let mut parameters = LinkedHashSet::new();
 
         parameters.insert("utm_source".to_string());
         parameters.insert("utm_medium".to_string());
