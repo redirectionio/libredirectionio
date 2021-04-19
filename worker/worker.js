@@ -11,6 +11,7 @@ async function redirectionio_fetch(request, event) {
         add_rule_ids_header: REDIRECTIONIO_ADD_HEADER_RULE_IDS === 'true',
         version: REDIRECTIONIO_VERSION || 'redirection-io-cloudflare/dev',
         instance_name: REDIRECTIONIO_INSTANCE_NAME || 'undefined',
+        cache_time: REDIRECTIONIO_CACHE_TIME || 0,
     }
 
     if (options.token === null) {
@@ -20,20 +21,23 @@ async function redirectionio_fetch(request, event) {
     const libredirectionio = wasm_bindgen;
     await wasm_bindgen(wasm);
 
-    const redirectionioRequest = create_redirectionio_request(request);
-    const [action, registerCachePromise] = await get_action(request, redirectionioRequest);
-    const response = await proxy(request, redirectionioRequest, action, libredirectionio, options);
+    const redirectionioRequest = create_redirectionio_request(request, libredirectionio);
+    const [action, registerCachePromise] = await get_action(request, redirectionioRequest, options, libredirectionio);
+    const response = await proxy(request, redirectionioRequest, action, options, libredirectionio);
     const clientIP = request.headers.get("CF-Connecting-IP");
 
     event.waitUntil(async function () {
-        await registerCachePromise;
-        await log(response, redirectionioRequest, action, libredirectionio, options, clientIP);
+        if (registerCachePromise !== null) {
+            await registerCachePromise;
+        }
+
+        await log(response, redirectionioRequest, action, libredirectionio, options, clientIP || "");
     }());
 
     return response;
 }
 
-function create_redirectionio_request(request) {
+function create_redirectionio_request(request, libredirectionio) {
     const urlObject = new URL(request.url);
     const redirectionioRequest = new libredirectionio.Request(urlObject.pathname + urlObject.search, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
 
@@ -44,7 +48,7 @@ function create_redirectionio_request(request) {
     return redirectionioRequest;
 }
 
-async function get_action(request, redirectionioRequest) {
+async function get_action(request, redirectionioRequest, options, libredirectionio) {
     const cache = caches.default;
     const cacheUrl = new URL(request.url)
     cacheUrl.pathname = "/get-action/" + redirectionioRequest.get_hash().toString()
@@ -55,10 +59,12 @@ async function get_action(request, redirectionioRequest) {
         method: "GET",
     });
 
-    let actionStr = await cache.match(cacheKey);
+    let response = await cache.match(cacheKey);
+    let registerCachePromise = null;
+    let actionStr = '';
 
-    if (!actionStr) {
-        const response = await Promise.race([
+    if (!response) {
+        response = await Promise.race([
             fetch('https://agent.redirection.io/' + options.token + '/action', {
                 method: 'POST',
                 body: redirectionioRequest.serialize().toString(),
@@ -73,9 +79,16 @@ async function get_action(request, redirectionioRequest) {
         ]);
 
         actionStr = await response.text();
-    }
 
-    const registerCachePromise = cache.put(cacheKey, actionStr);
+        if (options.cache_time > 0) {
+            const cacheResponse = new Response(new Blob([actionStr], { type: "application/json" }), response);
+            cacheResponse.headers.append("Cache-Control", `public, max-age=${options.cache_time}`);
+
+            registerCachePromise = cache.put(cacheKey, cacheResponse);
+        }
+    } else {
+        actionStr = await response.text();
+    }
 
     if (actionStr === "") {
         return [libredirectionio.Action.empty(), registerCachePromise]
@@ -86,13 +99,12 @@ async function get_action(request, redirectionioRequest) {
     } catch (e) {
         console.error(e);
 
-        return [new libredirectionio.Action.empty(), registerCachePromise];
+        return [libredirectionio.Action.empty(), registerCachePromise];
     }
 }
 
 /* Redirection.io logic */
-async function proxy(request, redirectionioRequest, action, libredirectionio, options) {
-
+async function proxy(request, redirectionioRequest, action, options, libredirectionio) {
     try {
         const statusCodeBeforeResponse = action.get_status_code(0);
 
