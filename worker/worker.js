@@ -11,7 +11,7 @@ async function redirectionio_fetch(request, event) {
         add_rule_ids_header: REDIRECTIONIO_ADD_HEADER_RULE_IDS === 'true',
         version: REDIRECTIONIO_VERSION || 'redirection-io-cloudflare/dev',
         instance_name: REDIRECTIONIO_INSTANCE_NAME || 'undefined',
-        cache_time: REDIRECTIONIO_CACHE_TIME || 0,
+        cache_time: REDIRECTIONIO_CACHE_TIME ? parseInt(REDIRECTIONIO_CACHE_TIME, 10) : 0,
     }
 
     if (options.token === null) {
