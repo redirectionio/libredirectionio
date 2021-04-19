@@ -2,9 +2,9 @@ use super::{Header, Request as RedirectionioRequest};
 use crate::http::PathAndQueryWithSkipped;
 use crate::router::RouterConfig;
 use serde_json::to_string as json_encode;
-use wasm_bindgen::prelude::*;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct Request {

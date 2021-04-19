@@ -3,6 +3,7 @@ extern crate libtool;
 extern crate serde;
 extern crate serde_yaml;
 
+use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
 use std::collections::HashMap;
@@ -11,7 +12,6 @@ use std::fs::{read_dir, read_to_string, DirEntry, File};
 use std::io::prelude::*;
 use std::path::PathBuf;
 use tera::{Context, Tera};
-use linked_hash_set::LinkedHashSet;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleSet {
