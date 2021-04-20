@@ -42,6 +42,19 @@ function create_redirectionio_request(request, libredirectionio) {
     const redirectionioRequest = new libredirectionio.Request(urlObject.pathname + urlObject.search, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
 
     for (const pair of request.headers.entries()) {
+        // remove cloudflare specific headers
+        if (pair[0] === "cf-request-id") {
+            continue;
+        }
+
+        if (pair[0] === "cf-ray") {
+            continue;
+        }
+
+        if (pair[0] === "cf-visitor") {
+            continue;
+        }
+
         redirectionioRequest.add_header(pair[0], pair[1]);
     }
 
@@ -55,7 +68,7 @@ async function get_action(request, redirectionioRequest, options, libredirection
 
     // Convert to a GET to be able to cache
     const cacheKey = new Request(cacheUrl.toString(), {
-        headers: request.headers,
+        headers: [],
         method: "GET",
     });
 
