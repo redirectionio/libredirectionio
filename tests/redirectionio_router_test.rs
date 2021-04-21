@@ -5625,7 +5625,7 @@ fn setup_marketing_parameters_with_catch_all() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaing","utm_content","utm_medium","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule","markers":[{"name":"params","regex":"(\\?.*)?","transformers":null}],"rank":0,"redirect_code":301,"source":{"headers":null,"host":null,"methods":null,"path":"/us/en/story/276298-christmas-2020/@params","query":null,"response_status_codes":null},"target":"/us/en/story/275996-women-gifts/@params"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule","markers":[{"name":"params","regex":"(\\?.*)?$","transformers":null}],"rank":0,"redirect_code":301,"source":{"headers":null,"host":null,"methods":null,"path":"/us/en/story/276298-christmas-2020/@params","query":null,"response_status_codes":null},"target":"/us/en/story/275996-women-gifts/@params"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
     router
