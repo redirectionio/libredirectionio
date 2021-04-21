@@ -5621,6 +5621,122 @@ fn test_marketing_parameters_notarget_6() {
 }
 
 
+fn setup_marketing_parameters_with_catch_all() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_campaing","utm_content","utm_medium","utm_source","utm_term"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":null,"header_filters":null,"id":"rule","markers":[{"name":"params","regex":"(\\?.*)?","transformers":null}],"rank":0,"redirect_code":301,"source":{"headers":null,"host":null,"methods":null,"path":"/us/en/story/276298-christmas-2020/@params","query":null,"response_status_codes":null},"target":"/us/en/story/275996-women-gifts/@params"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_marketing_parameters_with_catch_all_1() {
+    let router = setup_marketing_parameters_with_catch_all();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/"#), r#"/us/en/story/276298-christmas-2020/"#.to_string(),None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 301);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/"#);
+}
+
+#[test]
+fn test_marketing_parameters_with_catch_all_2() {
+    let router = setup_marketing_parameters_with_catch_all();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_test=123"#), r#"/us/en/story/276298-christmas-2020/?utm_test=123"#.to_string(),None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 301);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/?utm_test=123"#);
+}
+
+#[test]
+fn test_marketing_parameters_with_catch_all_3() {
+    let router = setup_marketing_parameters_with_catch_all();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_randomstring=123"#), r#"/us/en/story/276298-christmas-2020/?utm_randomstring=123"#.to_string(),None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 301);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/?utm_randomstring=123"#);
+}
+
+#[test]
+fn test_marketing_parameters_with_catch_all_4() {
+    let router = setup_marketing_parameters_with_catch_all();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_source=123"#), r#"/us/en/story/276298-christmas-2020/?utm_source=123"#.to_string(),None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 301);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/?utm_source=123"#);
+}
+
+
 fn setup_no_marketing_parameterst() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":false,"ignore_path_and_query_case":false,"marketing_query_params":["param1","param2"],"pass_marketing_query_params_to_target":false}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
