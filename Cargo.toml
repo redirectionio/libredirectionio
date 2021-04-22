@@ -20,7 +20,7 @@ cbindgen="0.19.0"
 libtool = "0.1.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8.17"
-tera = "1.7.1"
+tera = "1.8.0"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 
 [dependencies]
