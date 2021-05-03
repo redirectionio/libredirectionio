@@ -2,7 +2,7 @@
 extern crate criterion;
 use criterion::{BatchSize, BenchmarkId, Criterion};
 use redirectionio::api::{Rule, RulesMessage};
-use redirectionio::router::Router;
+use redirectionio::router::{Router, RouterConfig};
 use std::fs::read_to_string;
 
 fn create_rules(filename: String) -> RulesMessage {
@@ -29,10 +29,11 @@ fn build_router_bench(c: &mut Criterion) {
             b.iter_batched(
                 || create_rules(f.to_string()),
                 |rules| {
-                    let mut router = Router::<Rule>::default();
+                    let config = RouterConfig::default();
+                    let mut router = Router::<Rule>::from_config(config.clone());
 
                     for rule in rules.rules {
-                        router.insert(rule.into_route());
+                        router.insert(rule.into_route(&config));
                     }
                 },
                 BatchSize::NumIterations(1),

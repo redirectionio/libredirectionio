@@ -2,17 +2,17 @@
 extern crate criterion;
 use criterion::{BenchmarkId, Criterion};
 use redirectionio::api::{Rule, RulesMessage};
-use redirectionio::http::{QueryParamSkipBuilder, Request};
-use redirectionio::router::Router;
+use redirectionio::http::Request;
+use redirectionio::router::{Router, RouterConfig};
 use std::fs::read_to_string;
 
-fn create_router(filename: String) -> Router<Rule> {
+fn create_router(filename: String, config: &RouterConfig) -> Router<Rule> {
     let content = read_to_string(filename).expect("Cannot open file");
     let rules: RulesMessage = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
     let mut router = Router::<Rule>::default();
 
     for rule in rules.rules {
-        router.insert(rule.into_route())
+        router.insert(rule.into_route(config))
     }
 
     router
@@ -31,10 +31,9 @@ fn no_match_bench(c: &mut Criterion) {
     group.sample_size(10);
 
     for filename in files {
-        let router = create_router(filename.clone());
-        let path_builder = QueryParamSkipBuilder::default();
-        let path = path_builder.build_query_param_skipped("/no-match");
-        let request = Request::new(path, None, None, None).to_http_request().expect("");
+        let config = RouterConfig::default();
+        let router = create_router(filename.clone(), &config);
+        let request = Request::from_config(&config, "/no-match".to_string(), None, None, None);
 
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
@@ -59,10 +58,9 @@ fn no_match_cache_bench(c: &mut Criterion) {
     group.sample_size(10);
 
     for filename in files {
-        let mut router = create_router(filename.clone());
-        let path_builder = QueryParamSkipBuilder::default();
-        let path = path_builder.build_query_param_skipped("/no-match");
-        let request = Request::new(path, None, None, None).to_http_request().expect("");
+        let config = RouterConfig::default();
+        let mut router = create_router(filename.clone(), &config);
+        let request = Request::from_config(&config, "/no-match".to_string(), None, None, None);
 
         router.cache(1000);
 
