@@ -18,13 +18,7 @@ pub struct PathAndQueryWithSkipped {
 
 impl PathAndQueryWithSkipped {
     pub fn from_config(config: &RouterConfig, path_and_query_str: &str) -> Self {
-        let url = utf8_percent_encode(
-            path_and_query_str
-            .replace(" ", "%20")
-            .as_str(),
-            SIMPLE_ENCODE_SET,
-        )
-        .to_string();
+        let url = utf8_percent_encode(path_and_query_str.replace(" ", "%20").as_str(), SIMPLE_ENCODE_SET).to_string();
 
         if !config.ignore_marketing_query_params {
             return Self {
