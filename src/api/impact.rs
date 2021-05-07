@@ -1,6 +1,6 @@
 use crate::api::{RouterTrace, Rule};
 use crate::http::Request;
-use crate::router::{Router, RouterConfig};
+use crate::router::Router;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
