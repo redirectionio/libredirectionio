@@ -1,6 +1,6 @@
 use crate::api::{RouterTrace, Rule};
 use crate::http::Request;
-use crate::router::Router;
+use crate::router::{Router, RouterConfig};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -41,7 +41,7 @@ pub struct ChangeSet {
 
 impl Impact {
     pub fn create_result(router: &Router<Rule>, impact: &Impact) -> Vec<ImpactResultItem> {
-        let mut trace_router: Router<Rule> = Router::default();
+        let mut trace_router: Router<Rule> = Router::from_config(router.config.clone());
         let mut next_router = router.clone();
 
         // Remove rules
