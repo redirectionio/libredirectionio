@@ -77,8 +77,8 @@ impl TraceAction {
 
 impl Action {
     fn get_parameters(route: &Route<Rule>, request: &Request) -> HashMap<String, String> {
-        let path = request.path_and_query_skipped.path_and_query.clone();
-        let mut parameters = route.path_and_query().capture(path.as_str());
+        let path = request.path_and_query_skipped.path_and_query.as_str();
+        let mut parameters = route.path_and_query().capture(path);
 
         if let Some(host) = route.host() {
             if let Some(request_host) = request.host.as_ref() {

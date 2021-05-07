@@ -11,6 +11,7 @@ const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(
 #[derive(Serialize, Deserialize, Debug, Clone, Hash)]
 pub struct PathAndQueryWithSkipped {
     pub path_and_query: String,
+    pub path_and_query_matching: String,
     pub skipped_query_params: Option<String>,
     pub original: String,
 }
@@ -18,10 +19,7 @@ pub struct PathAndQueryWithSkipped {
 impl PathAndQueryWithSkipped {
     pub fn from_config(config: &RouterConfig, path_and_query_str: &str) -> Self {
         let url = utf8_percent_encode(
-            match config.ignore_path_and_query_case {
-                true => path_and_query_str.to_lowercase(),
-                false => path_and_query_str.to_string(),
-            }
+            path_and_query_str
             .replace(" ", "%20")
             .as_str(),
             SIMPLE_ENCODE_SET,
@@ -30,6 +28,11 @@ impl PathAndQueryWithSkipped {
 
         if !config.ignore_marketing_query_params {
             return Self {
+                path_and_query_matching: if config.ignore_path_and_query_case {
+                    url.to_lowercase()
+                } else {
+                    url.clone()
+                },
                 path_and_query: url,
                 original: path_and_query_str.to_string(),
                 skipped_query_params: None,
@@ -77,6 +80,11 @@ impl PathAndQueryWithSkipped {
         }
 
         Self {
+            path_and_query_matching: if config.ignore_path_and_query_case {
+                new_path_and_query.to_lowercase()
+            } else {
+                new_path_and_query.clone()
+            },
             path_and_query: new_path_and_query,
             original: path_and_query_str.to_string(),
             skipped_query_params: if config.pass_marketing_query_params_to_target && !skipped_query_params.is_empty() {
