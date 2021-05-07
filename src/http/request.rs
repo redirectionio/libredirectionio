@@ -186,7 +186,10 @@ impl Request {
     }
 
     pub fn path_and_query(&self) -> String {
-        self.path_and_query_skipped.path_and_query_matching.clone()
+        match &self.path_and_query_skipped.path_and_query_matching {
+            None => self.path_and_query_skipped.path_and_query.clone(),
+            Some(path) => path.clone(),
+        }
     }
 
     pub fn build_sorted_query(query: &str) -> Option<String> {
