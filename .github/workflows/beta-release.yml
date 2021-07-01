@@ -1,0 +1,43 @@
+name: Release beta release
+
+on:
+    release:
+        types: [prereleased]
+
+jobs:
+    trigger-circleci:
+        runs-on: ubuntu-latest
+        steps:
+            -
+                name: Set version
+                env:
+                    REF: ${{ github.ref }}
+                run: VERSION=`sed -E 's/[^0-9]+?([0-9]+\.[0-9]+\.[0-9]+.+?)/\1/' <<< $REF` && echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+            -
+                name: Set major version
+                run: MAJOR_VERSION=`sed -E 's/[^0-9]+?([0-9]+)\.([0-9]+)\.([0-9]+).+?/\1/' <<< $VERSION` && echo "MAJOR_VERSION=$MAJOR_VERSION" >> $GITHUB_ENV
+
+            -
+                name: Trigger Circle CI API
+                env:
+                    CIRCLE_API_TOKEN: ${{ secrets.CIRCLE_API_TOKEN }}
+                run: >
+                  curl --request POST
+                  --url https://circleci.com/api/v2/project/github/jolicode/redirection.io/pipeline
+                  --header "Circle-Token: $CIRCLE_API_TOKEN"
+                  --header "Content-Type: application/json"
+                  --data "
+                    {
+                      \"branch\":\"master\",
+                      \"parameters\": {
+                        \"run_main\":false,
+                        \"run_php_sdk\": false,
+                        \"run_lint\": false,
+                        \"release_env\": \"production\",
+                        \"release_channel\": \"beta\",
+                        \"release_main_version_dir\": \"$MAJOR_VERSION\",
+                        \"release_webassembly_version\": \"$VERSION\"
+                      }
+                    }
+                  "

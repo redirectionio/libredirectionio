@@ -1,0 +1,13 @@
+autom4te.cache
+target/
+target-musl/
+rules.json
+config.log
+config.status
+configure
+libredirectionio.pc
+Makefile
+wrangler.toml
+worker/generated
+Cargo.lock
+redirectionio.h

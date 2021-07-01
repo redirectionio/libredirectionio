@@ -1,0 +1,50 @@
+RUST_SOURCES = $(shell find src/ -type f -name '*.rs')
+
+RUST_EXTRA =                        \
+        @RUST_ROOT_DIR@/Cargo.toml  \
+        @RUST_ROOT_DIR@/Cargo.lock
+
+EXTRA_DIST += $(RUST_SOURCES) $(RUST_EXTRA)
+
+DESTDIR ?=
+
+MAKE_PID    := $(shell echo $$PPID)
+JOB_FLAG    := $(filter -j%, $(subst -j ,-j,$(shell ps T | grep "^\s*$(MAKE_PID).*$(MAKE)")))
+JOBS        := $(subst -j,,$(JOB_FLAG))
+
+ifdef JOBS
+CARGO_FLAGS=-j $(JOBS)
+else
+CARGO_FLAGS=
+endif
+
+prefix := @prefix@
+exec_prefix := @exec_prefix@
+
+.PHONY: all
+all: @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a @RUST_ROOT_DIR@/redirectionio.h
+
+@RUST_ROOT_DIR@/redirectionio.h: $(EXTRA_DIST)
+	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_ROOT_DIR@/@RUST_TARGET_DIR@
+
+@RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a: $(EXTRA_DIST)
+	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_ROOT_DIR@/@RUST_TARGET_DIR@
+
+.PHONY: install
+install: @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a @RUST_ROOT_DIR@/redirectionio.h
+	mkdir -p $(DESTDIR)@prefix@/include/
+	install -c -m 644 @RUST_ROOT_DIR@/redirectionio.h $(DESTDIR)@prefix@/include/
+	mkdir -p $(DESTDIR)@libdir@/
+	install -c -m 644 @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
+	mkdir -p $(DESTDIR)@libdir@/pkgconfig/
+	install -c -m 644 libredirectionio.pc $(DESTDIR)@libdir@/pkgconfig/
+
+.PHONY:	clean
+clean:
+	rm @RUST_ROOT_DIR@/redirectionio.h
+	rm @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a
+	@CARGO_BIN@ clean --package redirectionio @RUST_RELEASE@
+
+.PHONY:	fullclean
+fullclean:
+	rm -rf target

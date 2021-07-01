@@ -1,0 +1,12 @@
+account_id = "account_id"
+name = "worker_name_on_cloudflare"
+type = "rust"
+route = "route_name"
+workers_dev = false
+zone_id = "zone_id"
+
+vars.REDIRECTIONIO_ADD_HEADER_RULE_IDS = false
+vars.REDIRECTIONIO_INSTANCE_NAME = "instance_name_on_redirectionio"
+vars.REDIRECTIONIO_TIMEOUT = 5000
+vars.REDIRECTIONIO_VERSION = "redirection-io-cloudflare/dev"
+vars.REDIRECTIONIO_CACHE_TIME = 0
