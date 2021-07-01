@@ -1,8 +1,7 @@
 RUST_SOURCES = $(shell find src/ -type f -name '*.rs')
 
 RUST_EXTRA =                        \
-        @RUST_ROOT_DIR@/Cargo.toml  \
-        @RUST_ROOT_DIR@/Cargo.lock
+        @RUST_ROOT_DIR@/Cargo.toml
 
 EXTRA_DIST += $(RUST_SOURCES) $(RUST_EXTRA)
 
