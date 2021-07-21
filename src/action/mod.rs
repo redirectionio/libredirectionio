@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::iter::FromIterator;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
@@ -48,7 +49,7 @@ impl Default for Action {
             header_filters: Vec::new(),
             body_filters: Vec::new(),
             rule_ids: Vec::new(),
-            rules_applied: None,
+            rules_applied: Some(HashSet::new()),
         }
     }
 }
@@ -97,6 +98,13 @@ impl Action {
         }
 
         parameters
+    }
+
+    pub fn get_applied_rule_ids(&self) -> Vec<String> {
+        match &self.rules_applied {
+            None => self.rule_ids.clone(),
+            Some(rules) => Vec::from_iter(rules.clone()),
+        }
     }
 
     pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> Action {
@@ -192,7 +200,7 @@ impl Action {
             header_filters,
             body_filters,
             rule_ids: vec![rule.id.clone()],
-            rules_applied: None,
+            rules_applied: Some(HashSet::new()),
         }
     }
 
@@ -278,7 +286,7 @@ impl Action {
         if add_rule_ids_header {
             new_headers.push(Header {
                 name: "X-RedirectionIo-RuleIds".to_string(),
-                value: self.rule_ids.join(";"),
+                value: self.get_applied_rule_ids().join(";"),
             });
         }
 

@@ -40,8 +40,8 @@ install: @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio
 
 .PHONY:	clean
 clean:
-	rm @RUST_ROOT_DIR@/redirectionio.h
-	rm @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a
+	rm -f @RUST_ROOT_DIR@/redirectionio.h
+	rm -f @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a
 	@CARGO_BIN@ clean --package redirectionio @RUST_RELEASE@
 
 .PHONY:	fullclean
