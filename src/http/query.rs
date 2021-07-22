@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use url::form_urlencoded::parse as parse_query;
 
-const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash)]
@@ -14,6 +13,10 @@ pub struct PathAndQueryWithSkipped {
     pub path_and_query_matching: Option<String>,
     pub skipped_query_params: Option<String>,
     pub original: String,
+}
+
+fn sanitize_url(path_and_query_str: &str) -> String {
+    utf8_percent_encode(path_and_query_str, QUERY_ENCODE_SET).to_string()
 }
 
 impl PathAndQueryWithSkipped {
@@ -27,11 +30,7 @@ impl PathAndQueryWithSkipped {
     }
 
     pub fn from_config(config: &RouterConfig, path_and_query_str: &str) -> Self {
-        let url = utf8_percent_encode(
-            path_and_query_str.replace(" ", "%20").replace("`", "%60").as_str(),
-            SIMPLE_ENCODE_SET,
-        )
-        .to_string();
+        let url = sanitize_url(path_and_query_str);
 
         if !config.ignore_marketing_query_params {
             return Self {
@@ -116,5 +115,30 @@ impl PathAndQueryWithSkipped {
                 None
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::http::query::sanitize_url;
+    use http::uri::PathAndQuery;
+
+    fn test_url(path: &str) {
+        let sanitized = sanitize_url(path);
+        let url = sanitized.parse::<PathAndQuery>();
+
+        println!("{:#?}", url);
+
+        assert!(url.is_ok());
+    }
+
+    #[test]
+    fn test_url_1() {
+        test_url("/npoplayer.html?tx_eonpo_npoplayer%5Bmid%5D=WO_EO_16582885&tx_eonpo_npoplayer%5Bhash%5D=45a69ca57ac8eee5025d45f06f9910f85fd9a0db814c590fg560293d<549880f&tx_eonpo_npoplayer%5Boverlay%5D=https%3A%2F%2Fblauwbloed.eo.nl%2Ffileadmin%2Fbestanden-2016%2Fuser_upload%2F2021-07%2FKoninklijk_gezin_fotosessie_zomer_2021.jpg&tx_eonpo_npoplayer%5Bhasadconsent%5D=0&tx_eonpo_npoplayer%5Breferralurl%5D=https%3A%2F%2Fblauwbloed.eo.nl%2Fartikel%2F2021%2F07%2Fkijk-de-eerste-foto-van-de-fotosessie-van-de-oranjes&tx_eonpo_npoplayer%5BsterSiteId%5D=blauwbloed&tx_eonpo_npoplayer%5BsterIdentifier%5D=blauwbloed-ios-smartphone&tx_eonpo_npoplayer%5BatinternetSiteId%5D=25&tx_eonpo_npoplayer%5BatinternetUserId%5D=287dbe14-d677-4b9b-8eeb-ecb389349db1&tx_eonpo_npoplayer%5BatinternetUserIdCookieDuration%5D=394");
+    }
+
+    #[test]
+    fn test_url_2() {
+        test_url("/fileadmin/bestanden-2016/_processed_/5/5/csm_Echte_vriendschap_Vanaf_de_eerste_dag_van_hun_studie_zijn_Inge_en_Julia_vrjendinnep_2_8260<c0281.jtg");
     }
 }
