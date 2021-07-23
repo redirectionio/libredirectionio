@@ -1,3 +1,8 @@
+## 2.2.1 - Unreleased
+
+ * Fix cases when an url could not be parsed
+ * Fix wrong rule ids reported in log or header
+
 ## 2.2.0 - 21-04-2021
 
  * Add cache support for cloudflare worker
