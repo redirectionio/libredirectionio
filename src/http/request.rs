@@ -179,6 +179,16 @@ impl Request {
         values
     }
 
+    pub fn header_value(&self, name: &str) -> Option<String> {
+        let values = self.header_values(name);
+
+        if values.is_empty() {
+            None
+        } else {
+            Some(values.join(","))
+        }
+    }
+
     pub fn path_and_query(&self) -> String {
         match &self.path_and_query_skipped.path_and_query_matching {
             None => self.path_and_query_skipped.path_and_query.clone(),

@@ -62,21 +62,33 @@ struct RuleInput {
 struct Rule {
     id: Option<String>,
     source: Source,
+    #[serde(skip_serializing_if = "Option::is_none")]
     target: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     redirect_code: Option<u16>,
-    header_filters: Option<Vec<HeaderFilter>>,
-    body_filters: Option<Vec<BodyFilter>>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    header_filters: Vec<HeaderFilter>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    body_filters: Vec<BodyFilter>,
     rank: Option<u16>,
-    markers: Option<Vec<Marker>>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    markers: Vec<Marker>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    variables: Vec<Variable>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct Source {
+    #[serde(skip_serializing_if = "Option::is_none")]
     host: Option<String>,
     path: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     query: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     headers: Option<Vec<SourceHeader>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     methods: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
 }
 
@@ -107,7 +119,8 @@ struct BodyFilter {
 struct Marker {
     name: String,
     regex: String,
-    transformers: Option<Vec<Transformer>>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    transformers: Vec<Transformer>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -115,6 +128,28 @@ struct Transformer {
     #[serde(rename = "type")]
     transformer_type: String,
     options: Option<HashMap<String, String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum VariableKind {
+    Marker(String),
+    RequestHeader(String),
+    RequestHost,
+    RequestMethod,
+    RequestPath,
+    RequestRemoteAddress,
+    RequestScheme,
+    RequestTime,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Variable {
+    pub name: String,
+    #[serde(rename = "type")]
+    kind: VariableKind,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    transformers: Vec<Transformer>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

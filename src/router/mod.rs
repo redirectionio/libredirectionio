@@ -13,7 +13,7 @@ pub use request_matcher::{HostMatcher, MethodMatcher, PathAndQueryMatcher, Reque
 pub use route::{Route, RouteData};
 pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use trace::{RouteTrace, Trace};
-pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Transformer, Underscorize, Uppercase};
+pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 
 use core::cmp::Reverse;
 

@@ -1,11 +1,12 @@
-use crate::api::{BodyFilter, HeaderFilter, Marker, Source};
+use crate::api::{BodyFilter, HeaderFilter, Marker, Source, Variable};
 use crate::http::Request;
 use crate::router::{
-    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouterConfig, StaticOrDynamic, Transformer,
+    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouterConfig, StaticOrDynamic, Transform,
 };
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
+use std::collections::HashMap;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
 
@@ -15,8 +16,11 @@ pub struct Rule {
     pub source: Source,
     pub target: Option<String>,
     pub redirect_code: Option<u16>,
-    rank: u16,
-    markers: Option<Vec<Marker>>,
+    pub rank: u16,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub markers: Vec<Marker>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub variables: Vec<Variable>,
     pub body_filters: Option<Vec<BodyFilter>>,
     pub header_filters: Option<Vec<HeaderFilter>>,
 }
@@ -36,21 +40,55 @@ impl Rule {
         Some(rule_result.unwrap())
     }
 
-    fn markers(&self) -> Vec<RouteMarker> {
-        match &self.markers {
-            None => Vec::new(),
-            Some(rule_markers) => {
-                let mut markers = Vec::new();
+    pub fn variables(&self, markers_captured: &HashMap<String, String>, request: &Request) -> HashMap<String, String> {
+        let mut variables = HashMap::new();
 
-                for marker in rule_markers {
-                    let regex = utf8_percent_encode(marker.regex.as_str(), SIMPLE_ENCODE_SET).to_string();
-
-                    markers.push(RouteMarker::new(marker.name.clone(), regex));
+        // Clone markers capture for bc break
+        if self.variables.is_empty() {
+            for (name, value) in markers_captured {
+                match self.get_marker(name.as_str()) {
+                    None => (),
+                    Some(m) => {
+                        variables.insert(name.clone(), m.transform(value.clone()));
+                    }
                 }
-
-                markers
+            }
+        } else {
+            for variable in &self.variables {
+                match variable.get_value(markers_captured, request) {
+                    None => {
+                        log::warn!("cannot get value from variable {}", variable.name);
+                    }
+                    Some(value) => {
+                        variables.insert(variable.name.clone(), value);
+                    }
+                }
             }
         }
+
+        variables
+    }
+
+    fn get_marker(&self, name: &str) -> Option<&Marker> {
+        for marker in &self.markers {
+            if marker.name.as_str() == name {
+                return Some(marker);
+            }
+        }
+
+        None
+    }
+
+    fn markers(&self) -> Vec<RouteMarker> {
+        let mut markers = Vec::new();
+
+        for marker in &self.markers {
+            let regex = utf8_percent_encode(marker.regex.as_str(), SIMPLE_ENCODE_SET).to_string();
+
+            markers.push(RouteMarker::new(marker.name.clone(), regex));
+        }
+
+        markers
     }
 
     fn path_and_query(&self, ignore_case: bool) -> StaticOrDynamic {
@@ -126,37 +164,6 @@ impl Rule {
         }
 
         headers
-    }
-
-    pub fn transformers(&self) -> Vec<Transformer> {
-        match self.markers.as_ref() {
-            None => Vec::new(),
-            Some(markers) => {
-                let mut transformers = Vec::new();
-
-                for marker in markers {
-                    let mut transforms = Vec::new();
-
-                    match marker.transformers.as_ref() {
-                        None => (),
-                        Some(marker_transformers) => {
-                            for marker_transformer in marker_transformers {
-                                match marker_transformer.to_transform() {
-                                    None => (),
-                                    Some(transform) => {
-                                        transforms.push(transform);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    transformers.push(Transformer::new(marker.name.clone(), marker.name.clone(), transforms))
-                }
-
-                transformers
-            }
-        }
     }
 
     pub fn into_route(self, config: &RouterConfig) -> Route<Rule> {

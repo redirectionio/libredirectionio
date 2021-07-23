@@ -9,7 +9,6 @@ use crate::http::{Header, Request};
 use crate::router::{Route, StaticOrDynamic, Trace};
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
-use std::collections::HashMap;
 use std::collections::HashSet;
 use std::iter::FromIterator;
 
@@ -77,29 +76,6 @@ impl TraceAction {
 }
 
 impl Action {
-    fn get_parameters(route: &Route<Rule>, request: &Request) -> HashMap<String, String> {
-        let path = request.path_and_query_skipped.path_and_query.as_str();
-        let mut parameters = route.path_and_query().capture(path);
-
-        if let Some(host) = route.host() {
-            if let Some(request_host) = request.host.as_ref() {
-                parameters.extend(host.capture(request_host));
-            }
-        }
-
-        for header in route.headers() {
-            for request_header in &request.headers {
-                if request_header.name != header.name {
-                    continue;
-                }
-
-                parameters.extend(header.capture(request_header.value.as_str()));
-            }
-        }
-
-        parameters
-    }
-
     pub fn get_applied_rule_ids(&self) -> Vec<String> {
         match &self.rules_applied {
             None => self.rule_ids.clone(),
@@ -108,9 +84,9 @@ impl Action {
     }
 
     pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> Action {
-        let parameters = Self::get_parameters(route, request);
+        let markers_captured = route.capture(request);
+        let variables = route.handler().variables(&markers_captured, request);
         let rule = route.handler();
-        let transformers = rule.transformers();
         let status_code_update = match rule.redirect_code.unwrap_or(0) {
             0 => None,
             redirect_code => Some(StatusCodeUpdate {
@@ -130,7 +106,7 @@ impl Action {
 
         if let Some(target) = &rule.target {
             if !target.is_empty() {
-                let mut value = StaticOrDynamic::replace(target.clone(), &parameters, &transformers);
+                let mut value = StaticOrDynamic::replace(target.clone(), &variables);
 
                 if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
                     if value.contains('?') {
@@ -166,7 +142,7 @@ impl Action {
                     filter: HeaderFilter {
                         action: filter.action.clone(),
                         header: filter.header.clone(),
-                        value: StaticOrDynamic::replace(filter.value.clone(), &parameters, &transformers),
+                        value: StaticOrDynamic::replace(filter.value.clone(), &variables),
                     },
                     on_response_status_codes: match rule.source.response_status_codes.as_ref() {
                         None => Vec::new(),
@@ -184,7 +160,7 @@ impl Action {
                         action: filter.action.clone(),
                         css_selector: filter.css_selector.clone(),
                         element_tree: filter.element_tree.clone(),
-                        value: StaticOrDynamic::replace(filter.value.clone(), &parameters, &transformers),
+                        value: StaticOrDynamic::replace(filter.value.clone(), &variables),
                     },
                     on_response_status_codes: match rule.source.response_status_codes.as_ref() {
                         None => Vec::new(),

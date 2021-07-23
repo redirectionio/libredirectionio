@@ -1,6 +1,8 @@
 use super::RouteHeader;
+use crate::http::Request;
 use crate::router::StaticOrDynamic;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fmt::Debug;
 
 pub trait RouteData: Debug + Clone + Send + Sync + 'static {}
@@ -71,5 +73,28 @@ impl<T: RouteData> Route<T> {
 
     pub fn id(&self) -> &str {
         self.id.as_str()
+    }
+
+    pub fn capture(&self, request: &Request) -> HashMap<String, String> {
+        let path = request.path_and_query_skipped.path_and_query.as_str();
+        let mut parameters = self.path_and_query().capture(path);
+
+        if let Some(host) = self.host() {
+            if let Some(request_host) = request.host.as_ref() {
+                parameters.extend(host.capture(request_host));
+            }
+        }
+
+        for header in self.headers() {
+            for request_header in &request.headers {
+                if request_header.name != header.name {
+                    continue;
+                }
+
+                parameters.extend(header.capture(request_header.value.as_str()));
+            }
+        }
+
+        parameters
     }
 }

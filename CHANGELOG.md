@@ -1,5 +1,6 @@
-## 2.2.1 - Unreleased
+## 2.3.0 - Unreleased
 
+ * Add variable feature which allow to use request properties in action values
  * Fix cases when an url could not be parsed
  * Fix wrong rule ids reported in log or header
 

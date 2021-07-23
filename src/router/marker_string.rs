@@ -1,4 +1,3 @@
-use crate::router::Transformer;
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -122,16 +121,9 @@ impl StaticOrDynamic {
         }
     }
 
-    pub fn replace(mut str: String, parameters: &HashMap<String, String>, transformers: &[Transformer]) -> String {
-        for transformer in transformers {
-            let has_value = parameters.get(transformer.marker.as_str());
-
-            match has_value {
-                None => (),
-                Some(value) => {
-                    str = transformer.transform(str, value.as_str());
-                }
-            }
+    pub fn replace(mut str: String, variables: &HashMap<String, String>) -> String {
+        for (name, value) in variables {
+            str = str.replace(format!("@{}", name).as_str(), value.as_str())
         }
 
         str

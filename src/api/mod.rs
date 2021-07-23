@@ -11,6 +11,7 @@ mod rules_message;
 mod source;
 mod trace;
 mod transformer;
+mod variable;
 pub mod wasm;
 
 pub use self::log::Log;
@@ -24,3 +25,4 @@ pub use rules_message::RulesMessage;
 pub use source::Source;
 pub use trace::RouterTrace;
 pub use transformer::Transformer;
+pub use variable::{Variable, VariableKind};
