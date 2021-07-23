@@ -72,10 +72,7 @@ impl Log {
         }
 
         let from = FromLog {
-            rule_ids: match action {
-                None => None,
-                Some(action) => Some(action.get_applied_rule_ids()),
-            },
+            rule_ids: action.map(|a| a.get_applied_rule_ids()),
             url: request.path_and_query_skipped.original.clone(),
             method: request.method.clone(),
             scheme: request.scheme.clone(),
