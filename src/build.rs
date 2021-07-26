@@ -89,6 +89,8 @@ struct Source {
     #[serde(skip_serializing_if = "Option::is_none")]
     methods: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    ip: Option<IpConstraint>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
 }
 
@@ -153,10 +155,18 @@ pub struct Variable {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum IpConstraint {
+    InRange(String),
+    NotInRange(String),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleTest {
     uri: String,
     host: Option<String>,
     scheme: Option<String>,
+    remote_ip: Option<String>,
     method: Option<String>,
     headers: Option<Vec<RuleTestHeader>>,
     response_status_code: Option<u16>,

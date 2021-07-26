@@ -1,8 +1,9 @@
-use crate::api::{BodyFilter, HeaderFilter, Marker, Source, Variable};
+use crate::api::{BodyFilter, HeaderFilter, IpConstraint, Marker, Source, Variable};
 use crate::http::Request;
 use crate::router::{
-    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouterConfig, StaticOrDynamic, Transform,
+    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouteIp, RouterConfig, StaticOrDynamic, Transform,
 };
+use cidr::AnyIpCidr;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
@@ -91,6 +92,30 @@ impl Rule {
         markers
     }
 
+    fn route_ip(&self) -> Option<RouteIp> {
+        match &self.source.ip {
+            None => None,
+            Some(ip) => match ip {
+                IpConstraint::InRange(range) => match range.parse::<AnyIpCidr>() {
+                    Ok(cidr) => Some(RouteIp::InRange(cidr)),
+                    Err(err) => {
+                        log::error!("cannot parse cidr {}: {}", range, err);
+
+                        None
+                    }
+                },
+                IpConstraint::NotInRange(range) => match range.parse::<AnyIpCidr>() {
+                    Ok(cidr) => Some(RouteIp::NotInRange(cidr)),
+                    Err(err) => {
+                        log::error!("cannot parse cidr {}: {}", range, err);
+
+                        None
+                    }
+                },
+            },
+        }
+    }
+
     fn path_and_query(&self, ignore_case: bool) -> StaticOrDynamic {
         let markers = self.markers();
 
@@ -157,7 +182,11 @@ impl Rule {
                                 Some(marker) => RouteHeaderKind::MatchRegex(marker),
                             },
                         },
-                        _ => continue,
+                        unknown => {
+                            log::error!("unsupported header constraint type {}", unknown);
+
+                            continue;
+                        }
                     },
                 })
             }
@@ -173,6 +202,7 @@ impl Rule {
             self.host(config.ignore_host_case),
             self.path_and_query(config.ignore_path_and_query_case),
             self.headers(config.ignore_header_case),
+            self.route_ip(),
             self.id.clone(),
             0 - self.rank as i64,
             self,

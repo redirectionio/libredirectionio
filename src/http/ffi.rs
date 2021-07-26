@@ -1,5 +1,5 @@
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
-use crate::http::{Header, PathAndQueryWithSkipped, Request};
+use crate::http::{Header, PathAndQueryWithSkipped, Request, TrustedProxies};
 use crate::router::RouterConfig;
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::os::raw::c_char;
@@ -112,6 +112,7 @@ pub unsafe extern "C" fn redirectionio_request_create(
         host,
         scheme,
         method,
+        None,
     );
     let headers = header_map_to_http_headers(header_map);
 
@@ -120,6 +121,74 @@ pub unsafe extern "C" fn redirectionio_request_create(
     }
 
     Box::into_raw(Box::new(request))
+}
+
+#[no_mangle]
+/// # Safety
+pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_char) -> *const TrustedProxies {
+    let mut trusted_proxies = TrustedProxies::default();
+
+    if let Some(proxies_str) = c_char_to_str(_proxies_str) {
+        for proxy in proxies_str.split(',') {
+            let proxy_norm = proxy.trim().to_string();
+
+            if !proxy_norm.is_empty() {
+                if let Err(e) = trusted_proxies.add_trusted_proxy(proxy_norm.as_str()) {
+                    log::warn!("cannot parse trusted proxy {}: {}", proxy_norm, e);
+                }
+            }
+        }
+    }
+
+    Box::into_raw(Box::new(trusted_proxies))
+}
+
+#[no_mangle]
+/// # Safety
+pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut TrustedProxies, _proxy_str: *const c_char) {
+    if _trusted_proxies.is_null() {
+        return;
+    }
+
+    let proxy_str = match c_char_to_str(_proxy_str).map(|str| str.to_string()) {
+        None => return,
+        Some(s) => s,
+    };
+
+    let trusted_proxies = &mut *_trusted_proxies;
+
+    if let Err(e) = trusted_proxies.add_trusted_proxy(proxy_str.as_str()) {
+        log::warn!("cannot parse trusted proxy {}: {}", proxy_str, e);
+    }
+}
+
+#[no_mangle]
+/// # Safety
+pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
+    _request: *mut Request,
+    _remote_addr_str: *const c_char,
+    _trusted_proxies: *const TrustedProxies,
+) {
+    if _request.is_null() {
+        return;
+    }
+
+    let request = &mut *_request;
+
+    let remote_addr_str = match c_char_to_str(_remote_addr_str).map(|str| str.to_string()) {
+        None => return,
+        Some(s) => s,
+    };
+
+    if _trusted_proxies.is_null() {
+        let empty_proxy = TrustedProxies::default();
+
+        request.set_remote_ip(remote_addr_str, &empty_proxy);
+    } else {
+        let trusted_proxies = &*_trusted_proxies;
+
+        request.set_remote_ip(remote_addr_str, trusted_proxies);
+    }
 }
 
 #[no_mangle]

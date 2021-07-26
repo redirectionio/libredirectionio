@@ -1,9 +1,12 @@
 use super::header::Header;
 use super::query::PathAndQueryWithSkipped;
+use crate::http::TrustedProxies;
 use crate::router::RouterConfig;
+use chrono::{DateTime, Utc};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use std::net::IpAddr;
 use std::str::FromStr;
 use url::form_urlencoded::parse as parse_query;
 
@@ -19,6 +22,8 @@ pub struct Request {
     pub scheme: Option<String>,
     pub method: Option<String>,
     pub headers: Vec<Header>,
+    pub remote_addr: Option<IpAddr>,
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 impl FromStr for Request {
@@ -39,6 +44,7 @@ impl FromStr for Request {
             http_request.uri().host().map(|s| s.to_string()),
             http_request.uri().scheme_str().map(|s| s.to_string()),
             None,
+            None,
         ))
     }
 }
@@ -50,6 +56,7 @@ impl Request {
         host: Option<String>,
         scheme: Option<String>,
         method: Option<String>,
+        remote_addr: Option<IpAddr>,
     ) -> Request {
         Request {
             path_and_query_skipped,
@@ -58,6 +65,8 @@ impl Request {
             scheme,
             method,
             headers: Vec::new(),
+            remote_addr,
+            created_at: Some(Utc::now()),
         }
     }
 
@@ -83,7 +92,9 @@ impl Request {
             },
             scheme,
             method,
+            remote_addr: None,
             headers: Vec::new(),
+            created_at: Some(Utc::now()),
         }
     }
 
@@ -123,6 +134,8 @@ impl Request {
             scheme: request.scheme.clone(),
             method: request.method.clone(),
             headers,
+            remote_addr: request.remote_addr.clone(),
+            created_at: request.created_at,
         }
     }
 
@@ -164,6 +177,62 @@ impl Request {
         }
 
         false
+    }
+
+    pub fn set_remote_ip(&mut self, remote_addr_str: String, trusted_proxies: &TrustedProxies) {
+        let remote_ip = match remote_addr_str.parse::<IpAddr>() {
+            Ok(ip) => ip,
+            Err(e) => {
+                log::error!("cannot parse ip address, skipping: {}", e);
+
+                return;
+            }
+        };
+
+        if trusted_proxies.is_empty() {
+            self.remote_addr = Some(remote_ip);
+
+            return;
+        }
+
+        let mut ips = vec![remote_ip.clone()];
+
+        for (name, val) in self
+            .header_values("forwarded")
+            .iter()
+            .flat_map(|val| val.split(';'))
+            .flat_map(|val| val.split(','))
+            .flat_map(|pair| {
+                let mut items = pair.trim().splitn(2, '=');
+                Some((items.next()?, items.next()?))
+            })
+        {
+            if name.trim().to_lowercase().as_str() == "for" {
+                let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
+
+                match ip.parse::<IpAddr>() {
+                    Ok(ip) => ips.push(ip),
+                    Err(e) => {
+                        log::error!("cannot parse ip address {}, skipping: {}", ip, e);
+                    }
+                }
+            }
+        }
+
+        for val in self.header_values("x-forwarded-for").iter().flat_map(|val| val.split(',')) {
+            let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
+
+            match ip.parse::<IpAddr>() {
+                Ok(ip) => ips.push(ip),
+                Err(e) => {
+                    log::error!("cannot parse ip address {}, skipping: {}", ip, e);
+                }
+            }
+        }
+
+        let untrusted_ips = trusted_proxies.remove_trusted_ips(ips);
+
+        self.remote_addr = untrusted_ips.first().cloned().or(Some(remote_ip));
     }
 
     pub fn header_values(&self, name: &str) -> Vec<&str> {

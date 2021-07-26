@@ -1,6 +1,7 @@
 use super::{Header, Request as RedirectionioRequest};
-use crate::http::PathAndQueryWithSkipped;
+use crate::http::{PathAndQueryWithSkipped, TrustedProxies};
 use crate::router::RouterConfig;
+use chrono::Utc;
 use serde_json::to_string as json_encode;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
@@ -32,8 +33,14 @@ impl Request {
                 scheme: Some(scheme),
                 path_and_query_skipped: PathAndQueryWithSkipped::from_config(&config, uri.as_str()),
                 path_and_query: Some(uri),
+                remote_addr: None,
+                created_at: Some(Utc::now()),
             },
         }
+    }
+
+    pub fn set_remote_ip(&mut self, remote_addr_str: String) {
+        self.request.set_remote_ip(remote_addr_str, &TrustedProxies::default());
     }
 
     pub fn add_header(&mut self, name: String, value: String) {

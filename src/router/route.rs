@@ -1,5 +1,6 @@
 use super::RouteHeader;
 use crate::http::Request;
+use crate::router::route_ip::RouteIp;
 use crate::router::StaticOrDynamic;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -15,6 +16,7 @@ pub struct Route<T: RouteData> {
     methods: Option<Vec<String>>,
     path_and_query: StaticOrDynamic,
     headers: Vec<RouteHeader>,
+    ip: Option<RouteIp>,
     id: String,
     priority: i64,
 }
@@ -27,6 +29,7 @@ impl<T: RouteData> Route<T> {
         host: Option<StaticOrDynamic>,
         path_and_query: StaticOrDynamic,
         headers: Vec<RouteHeader>,
+        ip: Option<RouteIp>,
         id: String,
         priority: i64,
         handler: T,
@@ -38,6 +41,7 @@ impl<T: RouteData> Route<T> {
             methods,
             path_and_query,
             headers,
+            ip,
             id,
             priority,
         }
@@ -69,6 +73,10 @@ impl<T: RouteData> Route<T> {
 
     pub fn path_and_query(&self) -> &StaticOrDynamic {
         &self.path_and_query
+    }
+
+    pub fn ip(&self) -> Option<&RouteIp> {
+        self.ip.as_ref()
     }
 
     pub fn id(&self) -> &str {

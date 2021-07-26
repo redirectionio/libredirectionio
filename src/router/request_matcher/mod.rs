@@ -1,5 +1,6 @@
 mod header;
 mod host;
+mod ip;
 mod matcher_tree_storage;
 mod method;
 mod path_and_query;
@@ -12,6 +13,7 @@ use std::fmt::Debug;
 
 pub use header::{HeaderMatcher, ValueCondition as HeaderValueCondition};
 pub use host::HostMatcher;
+pub use ip::IpMatcher;
 pub use method::MethodMatcher;
 pub use path_and_query::PathAndQueryMatcher;
 pub use route_matcher::RouteMatcher;

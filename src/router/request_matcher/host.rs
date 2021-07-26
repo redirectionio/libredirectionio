@@ -2,7 +2,7 @@ use crate::http::Request;
 use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
 use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
 use crate::router::trace::TraceInfo;
-use crate::router::{MethodMatcher, RequestMatcher, Route, RouteData, StaticOrDynamic, Trace};
+use crate::router::{IpMatcher, RequestMatcher, Route, RouteData, StaticOrDynamic, Trace};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -28,7 +28,7 @@ impl<T: RouteData> ItemRoute<T> for HostRegexNodeItem<T> {
     }
 }
 
-type HostRegexTreeMatcher<T> = MatcherTreeStorage<T, HostRegexNodeItem<T>, MethodMatcher<T>>;
+type HostRegexTreeMatcher<T> = MatcherTreeStorage<T, HostRegexNodeItem<T>, IpMatcher<T>>;
 
 #[derive(Debug, Clone)]
 pub struct HostMatcher<T: RouteData> {
@@ -218,6 +218,6 @@ impl<T: RouteData> Default for HostMatcher<T> {
 
 impl<T: RouteData> HostMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(MethodMatcher::default())
+        Box::new(IpMatcher::default())
     }
 }

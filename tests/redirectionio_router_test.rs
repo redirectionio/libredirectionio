@@ -24,7 +24,7 @@ fn setup_00_common_rules() -> Router<Rule> {
 fn test_00_common_rules_1() {
     let router = setup_00_common_rules();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -50,7 +50,7 @@ fn test_00_common_rules_1() {
 fn test_00_common_rules_2() {
     let router = setup_00_common_rules();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -113,7 +113,7 @@ fn setup_01_straight_rule_match() -> Router<Rule> {
 fn test_01_straight_rule_match_1() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -139,7 +139,7 @@ fn test_01_straight_rule_match_1() {
 fn test_01_straight_rule_match_2() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?bar=baz"#), r#"/foo?bar=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?bar=baz"#), r#"/foo?bar=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -165,7 +165,7 @@ fn test_01_straight_rule_match_2() {
 fn test_01_straight_rule_match_3() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/?q"#), r#"/?q"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/?q"#), r#"/?q"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -180,7 +180,7 @@ fn test_01_straight_rule_match_3() {
 fn test_01_straight_rule_match_4() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/?"#), r#"/?"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/?"#), r#"/?"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -206,7 +206,7 @@ fn test_01_straight_rule_match_4() {
 fn test_01_straight_rule_match_5() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"?bar2=baz"#), r#"?bar2=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"?bar2=baz"#), r#"?bar2=baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -221,7 +221,7 @@ fn test_01_straight_rule_match_5() {
 fn test_01_straight_rule_match_6() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?bar=baz"#), r#"/foo?bar=baz"#.to_string(),Some(r#"foobar.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?bar=baz"#), r#"/foo?bar=baz"#.to_string(),Some(r#"foobar.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -247,7 +247,7 @@ fn test_01_straight_rule_match_6() {
 fn test_01_straight_rule_match_7() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -273,7 +273,7 @@ fn test_01_straight_rule_match_7() {
 fn test_01_straight_rule_match_8() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?bar=baz"#), r#"/foo?bar=baz"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?bar=baz"#), r#"/foo?bar=baz"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -299,7 +299,7 @@ fn test_01_straight_rule_match_8() {
 fn test_01_straight_rule_match_9() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/i%20have%20space"#), r#"/i%20have%20space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/i%20have%20space"#), r#"/i%20have%20space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -325,7 +325,7 @@ fn test_01_straight_rule_match_9() {
 fn test_01_straight_rule_match_10() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/i have space"#), r#"/i have space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/i have space"#), r#"/i have space"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -351,7 +351,7 @@ fn test_01_straight_rule_match_10() {
 fn test_01_straight_rule_match_11() {
     let router = setup_01_straight_rule_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/zwart+janstraat"#), r#"/zwart+janstraat"#.to_string(),Some(r#"www.domain.nl"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/zwart+janstraat"#), r#"/zwart+janstraat"#.to_string(),Some(r#"www.domain.nl"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -404,7 +404,7 @@ fn setup_03_priority_match() -> Router<Rule> {
 fn test_03_priority_match_1() {
     let router = setup_03_priority_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -430,7 +430,7 @@ fn test_03_priority_match_1() {
 fn test_03_priority_match_2() {
     let router = setup_03_priority_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.com"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.com"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -456,7 +456,7 @@ fn test_03_priority_match_2() {
 fn test_03_priority_match_3() {
     let router = setup_03_priority_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.net"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -482,7 +482,7 @@ fn test_03_priority_match_3() {
 fn test_03_priority_match_4() {
     let router = setup_03_priority_match();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.fr"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.fr"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -526,7 +526,7 @@ fn setup_04_rfc3986_relative_references() -> Router<Rule> {
 fn test_04_rfc3986_relative_references_1() {
     let router = setup_04_rfc3986_relative_references();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"//xyz"#), r#"//xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"//xyz"#), r#"//xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -552,7 +552,7 @@ fn test_04_rfc3986_relative_references_1() {
 fn test_04_rfc3986_relative_references_2() {
     let router = setup_04_rfc3986_relative_references();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/xyz"#), r#"/xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/xyz"#), r#"/xyz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -567,7 +567,7 @@ fn test_04_rfc3986_relative_references_2() {
 fn test_04_rfc3986_relative_references_3() {
     let router = setup_04_rfc3986_relative_references();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -593,7 +593,7 @@ fn test_04_rfc3986_relative_references_3() {
 fn test_04_rfc3986_relative_references_4() {
     let router = setup_04_rfc3986_relative_references();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"//doubledragon"#), r#"//doubledragon"#.to_string(),Some(r#"yolo.com"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"//doubledragon"#), r#"//doubledragon"#.to_string(),Some(r#"yolo.com"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -634,7 +634,7 @@ fn setup_05_query_parameters_order() -> Router<Rule> {
 fn test_05_query_parameters_order_1() {
     let router = setup_05_query_parameters_order();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?a=a&b=b"#), r#"/foo?a=a&b=b"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?a=a&b=b"#), r#"/foo?a=a&b=b"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -660,7 +660,7 @@ fn test_05_query_parameters_order_1() {
 fn test_05_query_parameters_order_2() {
     let router = setup_05_query_parameters_order();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?b=b&a=a"#), r#"/foo?b=b&a=a"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?b=b&a=a"#), r#"/foo?b=b&a=a"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -686,7 +686,7 @@ fn test_05_query_parameters_order_2() {
 fn test_05_query_parameters_order_3() {
     let router = setup_05_query_parameters_order();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?a=a&b=b&c=c"#), r#"/foo?a=a&b=b&c=c"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?a=a&b=b&c=c"#), r#"/foo?a=a&b=b&c=c"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -701,7 +701,7 @@ fn test_05_query_parameters_order_3() {
 fn test_05_query_parameters_order_4() {
     let router = setup_05_query_parameters_order();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?b=b&c=c"#), r#"/foo?b=b&c=c"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?b=b&c=c"#), r#"/foo?b=b&c=c"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -727,7 +727,7 @@ fn test_05_query_parameters_order_4() {
 fn test_05_query_parameters_order_5() {
     let router = setup_05_query_parameters_order();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?c=c&b=b"#), r#"/foo?c=c&b=b"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?c=c&b=b"#), r#"/foo?c=c&b=b"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -765,7 +765,7 @@ fn setup_06_emojis() -> Router<Rule> {
 fn test_06_emojis_1() {
     let router = setup_06_emojis();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/🍕"#), r#"/🍕"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/🍕"#), r#"/🍕"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -803,7 +803,7 @@ fn setup_action_seo_override_meta_author() -> Router<Rule> {
 fn test_action_seo_override_meta_author_1() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -830,7 +830,7 @@ fn test_action_seo_override_meta_author_1() {
 fn test_action_seo_override_meta_author_2() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -857,7 +857,7 @@ fn test_action_seo_override_meta_author_2() {
 fn test_action_seo_override_meta_author_3() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -884,7 +884,7 @@ fn test_action_seo_override_meta_author_3() {
 fn test_action_seo_override_meta_author_4() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -911,7 +911,7 @@ fn test_action_seo_override_meta_author_4() {
 fn test_action_seo_override_meta_author_5() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -938,7 +938,7 @@ fn test_action_seo_override_meta_author_5() {
 fn test_action_seo_override_meta_author_6() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -965,7 +965,7 @@ fn test_action_seo_override_meta_author_6() {
 fn test_action_seo_override_meta_author_7() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -992,7 +992,7 @@ fn test_action_seo_override_meta_author_7() {
 fn test_action_seo_override_meta_author_8() {
     let router = setup_action_seo_override_meta_author();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1031,7 +1031,7 @@ fn setup_action_seo_override_meta_description() -> Router<Rule> {
 fn test_action_seo_override_meta_description_1() {
     let router = setup_action_seo_override_meta_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1058,7 +1058,7 @@ fn test_action_seo_override_meta_description_1() {
 fn test_action_seo_override_meta_description_2() {
     let router = setup_action_seo_override_meta_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1085,7 +1085,7 @@ fn test_action_seo_override_meta_description_2() {
 fn test_action_seo_override_meta_description_3() {
     let router = setup_action_seo_override_meta_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1112,7 +1112,7 @@ fn test_action_seo_override_meta_description_3() {
 fn test_action_seo_override_meta_description_4() {
     let router = setup_action_seo_override_meta_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1139,7 +1139,7 @@ fn test_action_seo_override_meta_description_4() {
 fn test_action_seo_override_meta_description_5() {
     let router = setup_action_seo_override_meta_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1166,7 +1166,7 @@ fn test_action_seo_override_meta_description_5() {
 fn test_action_seo_override_meta_description_6() {
     let router = setup_action_seo_override_meta_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1205,7 +1205,7 @@ fn setup_action_seo_override_meta_keywords() -> Router<Rule> {
 fn test_action_seo_override_meta_keywords_1() {
     let router = setup_action_seo_override_meta_keywords();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1232,7 +1232,7 @@ fn test_action_seo_override_meta_keywords_1() {
 fn test_action_seo_override_meta_keywords_2() {
     let router = setup_action_seo_override_meta_keywords();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1259,7 +1259,7 @@ fn test_action_seo_override_meta_keywords_2() {
 fn test_action_seo_override_meta_keywords_3() {
     let router = setup_action_seo_override_meta_keywords();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1286,7 +1286,7 @@ fn test_action_seo_override_meta_keywords_3() {
 fn test_action_seo_override_meta_keywords_4() {
     let router = setup_action_seo_override_meta_keywords();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1313,7 +1313,7 @@ fn test_action_seo_override_meta_keywords_4() {
 fn test_action_seo_override_meta_keywords_5() {
     let router = setup_action_seo_override_meta_keywords();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1340,7 +1340,7 @@ fn test_action_seo_override_meta_keywords_5() {
 fn test_action_seo_override_meta_keywords_6() {
     let router = setup_action_seo_override_meta_keywords();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1382,7 +1382,7 @@ fn setup_action_seo_override_og_description() -> Router<Rule> {
 fn test_action_seo_override_og_description_1() {
     let router = setup_action_seo_override_og_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1409,7 +1409,7 @@ fn test_action_seo_override_og_description_1() {
 fn test_action_seo_override_og_description_2() {
     let router = setup_action_seo_override_og_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1436,7 +1436,7 @@ fn test_action_seo_override_og_description_2() {
 fn test_action_seo_override_og_description_3() {
     let router = setup_action_seo_override_og_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1463,7 +1463,7 @@ fn test_action_seo_override_og_description_3() {
 fn test_action_seo_override_og_description_4() {
     let router = setup_action_seo_override_og_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1490,7 +1490,7 @@ fn test_action_seo_override_og_description_4() {
 fn test_action_seo_override_og_description_5() {
     let router = setup_action_seo_override_og_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1517,7 +1517,7 @@ fn test_action_seo_override_og_description_5() {
 fn test_action_seo_override_og_description_6() {
     let router = setup_action_seo_override_og_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1544,7 +1544,7 @@ fn test_action_seo_override_og_description_6() {
 fn test_action_seo_override_og_description_7() {
     let router = setup_action_seo_override_og_description();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/pizza-rapido"#), r#"/pizza-rapido"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/pizza-rapido"#), r#"/pizza-rapido"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1583,7 +1583,7 @@ fn setup_action_seo_override_og_image() -> Router<Rule> {
 fn test_action_seo_override_og_image_1() {
     let router = setup_action_seo_override_og_image();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1610,7 +1610,7 @@ fn test_action_seo_override_og_image_1() {
 fn test_action_seo_override_og_image_2() {
     let router = setup_action_seo_override_og_image();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1637,7 +1637,7 @@ fn test_action_seo_override_og_image_2() {
 fn test_action_seo_override_og_image_3() {
     let router = setup_action_seo_override_og_image();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1664,7 +1664,7 @@ fn test_action_seo_override_og_image_3() {
 fn test_action_seo_override_og_image_4() {
     let router = setup_action_seo_override_og_image();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1703,7 +1703,7 @@ fn setup_action_seo_override_og_locale() -> Router<Rule> {
 fn test_action_seo_override_og_locale_1() {
     let router = setup_action_seo_override_og_locale();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1730,7 +1730,7 @@ fn test_action_seo_override_og_locale_1() {
 fn test_action_seo_override_og_locale_2() {
     let router = setup_action_seo_override_og_locale();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1757,7 +1757,7 @@ fn test_action_seo_override_og_locale_2() {
 fn test_action_seo_override_og_locale_3() {
     let router = setup_action_seo_override_og_locale();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1784,7 +1784,7 @@ fn test_action_seo_override_og_locale_3() {
 fn test_action_seo_override_og_locale_4() {
     let router = setup_action_seo_override_og_locale();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1823,7 +1823,7 @@ fn setup_action_seo_override_og_site_name() -> Router<Rule> {
 fn test_action_seo_override_og_site_name_1() {
     let router = setup_action_seo_override_og_site_name();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1850,7 +1850,7 @@ fn test_action_seo_override_og_site_name_1() {
 fn test_action_seo_override_og_site_name_2() {
     let router = setup_action_seo_override_og_site_name();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1877,7 +1877,7 @@ fn test_action_seo_override_og_site_name_2() {
 fn test_action_seo_override_og_site_name_3() {
     let router = setup_action_seo_override_og_site_name();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1904,7 +1904,7 @@ fn test_action_seo_override_og_site_name_3() {
 fn test_action_seo_override_og_site_name_4() {
     let router = setup_action_seo_override_og_site_name();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1943,7 +1943,7 @@ fn setup_action_seo_override_og_title() -> Router<Rule> {
 fn test_action_seo_override_og_title_1() {
     let router = setup_action_seo_override_og_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1970,7 +1970,7 @@ fn test_action_seo_override_og_title_1() {
 fn test_action_seo_override_og_title_2() {
     let router = setup_action_seo_override_og_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -1997,7 +1997,7 @@ fn test_action_seo_override_og_title_2() {
 fn test_action_seo_override_og_title_3() {
     let router = setup_action_seo_override_og_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2024,7 +2024,7 @@ fn test_action_seo_override_og_title_3() {
 fn test_action_seo_override_og_title_4() {
     let router = setup_action_seo_override_og_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2063,7 +2063,7 @@ fn setup_action_seo_override_og_type() -> Router<Rule> {
 fn test_action_seo_override_og_type_1() {
     let router = setup_action_seo_override_og_type();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2090,7 +2090,7 @@ fn test_action_seo_override_og_type_1() {
 fn test_action_seo_override_og_type_2() {
     let router = setup_action_seo_override_og_type();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2117,7 +2117,7 @@ fn test_action_seo_override_og_type_2() {
 fn test_action_seo_override_og_type_3() {
     let router = setup_action_seo_override_og_type();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2144,7 +2144,7 @@ fn test_action_seo_override_og_type_3() {
 fn test_action_seo_override_og_type_4() {
     let router = setup_action_seo_override_og_type();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2183,7 +2183,7 @@ fn setup_action_seo_override_og_url() -> Router<Rule> {
 fn test_action_seo_override_og_url_1() {
     let router = setup_action_seo_override_og_url();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2210,7 +2210,7 @@ fn test_action_seo_override_og_url_1() {
 fn test_action_seo_override_og_url_2() {
     let router = setup_action_seo_override_og_url();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2237,7 +2237,7 @@ fn test_action_seo_override_og_url_2() {
 fn test_action_seo_override_og_url_3() {
     let router = setup_action_seo_override_og_url();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2264,7 +2264,7 @@ fn test_action_seo_override_og_url_3() {
 fn test_action_seo_override_og_url_4() {
     let router = setup_action_seo_override_og_url();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2303,7 +2303,7 @@ fn setup_action_seo_override_title() -> Router<Rule> {
 fn test_action_seo_override_title_1() {
     let router = setup_action_seo_override_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2330,7 +2330,7 @@ fn test_action_seo_override_title_1() {
 fn test_action_seo_override_title_2() {
     let router = setup_action_seo_override_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2357,7 +2357,7 @@ fn test_action_seo_override_title_2() {
 fn test_action_seo_override_title_3() {
     let router = setup_action_seo_override_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2384,7 +2384,7 @@ fn test_action_seo_override_title_3() {
 fn test_action_seo_override_title_4() {
     let router = setup_action_seo_override_title();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2426,7 +2426,7 @@ fn setup_ignore_path_case() -> Router<Rule> {
 fn test_ignore_path_case_1() {
     let router = setup_ignore_path_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2452,7 +2452,7 @@ fn test_ignore_path_case_1() {
 fn test_ignore_path_case_2() {
     let router = setup_ignore_path_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/Foo"#), r#"/Foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/Foo"#), r#"/Foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2478,7 +2478,7 @@ fn test_ignore_path_case_2() {
 fn test_ignore_path_case_3() {
     let router = setup_ignore_path_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/FOO"#), r#"/FOO"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/FOO"#), r#"/FOO"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2504,7 +2504,7 @@ fn test_ignore_path_case_3() {
 fn test_ignore_path_case_4() {
     let router = setup_ignore_path_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/FOo"#), r#"/FOo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/FOo"#), r#"/FOo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2530,7 +2530,7 @@ fn test_ignore_path_case_4() {
 fn test_ignore_path_case_5() {
     let router = setup_ignore_path_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/marker/test"#), r#"/marker/test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/marker/test"#), r#"/marker/test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2556,7 +2556,7 @@ fn test_ignore_path_case_5() {
 fn test_ignore_path_case_6() {
     let router = setup_ignore_path_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/marker/TEST"#), r#"/marker/TEST"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/marker/TEST"#), r#"/marker/TEST"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2582,7 +2582,7 @@ fn test_ignore_path_case_6() {
 fn test_ignore_path_case_7() {
     let router = setup_ignore_path_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2615,7 +2615,7 @@ fn setup_marker() -> Router<Rule> {
 fn test_marker_1() {
     let router = setup_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo/test"#), r#"/foo/test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo/test"#), r#"/foo/test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2641,7 +2641,7 @@ fn test_marker_1() {
 fn test_marker_2() {
     let router = setup_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2656,7 +2656,7 @@ fn test_marker_2() {
 fn test_marker_3() {
     let router = setup_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/a/test"#), r#"/a/test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/a/test"#), r#"/a/test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2682,7 +2682,7 @@ fn test_marker_3() {
 fn test_marker_4() {
     let router = setup_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/a/test_test"#), r#"/a/test_test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/a/test_test"#), r#"/a/test_test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2708,7 +2708,7 @@ fn test_marker_4() {
 fn test_marker_5() {
     let router = setup_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/monthly-tides/North%20Carolina-North%20Shore/test"#), r#"/monthly-tides/North%20Carolina-North%20Shore/test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/monthly-tides/North%20Carolina-North%20Shore/test"#), r#"/monthly-tides/North%20Carolina-North%20Shore/test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2746,7 +2746,7 @@ fn setup_marker_case() -> Router<Rule> {
 fn test_marker_case_1() {
     let router = setup_marker_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/ExampleTest/UPPERCASE"#), r#"/ExampleTest/UPPERCASE"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/ExampleTest/UPPERCASE"#), r#"/ExampleTest/UPPERCASE"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2772,7 +2772,7 @@ fn test_marker_case_1() {
 fn test_marker_case_2() {
     let router = setup_marker_case();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/ExampleTest/UpErCase"#), r#"/ExampleTest/UpErCase"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/ExampleTest/UpErCase"#), r#"/ExampleTest/UpErCase"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2810,7 +2810,7 @@ fn setup_marker_in_body_filter() -> Router<Rule> {
 fn test_marker_in_body_filter_1() {
     let router = setup_marker_in_body_filter();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2849,7 +2849,7 @@ fn setup_marker_in_header_filter() -> Router<Rule> {
 fn test_marker_in_header_filter_1() {
     let router = setup_marker_in_header_filter();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2896,7 +2896,7 @@ fn setup_marker_in_host() -> Router<Rule> {
 fn test_marker_in_host_1() {
     let router = setup_marker_in_host();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/"#), r#"/"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/"#), r#"/"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2911,7 +2911,7 @@ fn test_marker_in_host_1() {
 fn test_marker_in_host_2() {
     let router = setup_marker_in_host();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/"#), r#"/"#.to_string(),Some(r#"test.com"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/"#), r#"/"#.to_string(),Some(r#"test.com"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2926,7 +2926,7 @@ fn test_marker_in_host_2() {
 fn test_marker_in_host_3() {
     let router = setup_marker_in_host();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/"#), r#"/"#.to_string(),Some(r#"www.test.com"#.to_string()),Some(r#"https"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/"#), r#"/"#.to_string(),Some(r#"www.test.com"#.to_string()),Some(r#"https"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2967,7 +2967,7 @@ fn setup_marker_in_querystring() -> Router<Rule> {
 fn test_marker_in_querystring_1() {
     let router = setup_marker_in_querystring();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/querystring/from?slug=coucou"#), r#"/querystring/from?slug=coucou"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/querystring/from?slug=coucou"#), r#"/querystring/from?slug=coucou"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -2993,7 +2993,7 @@ fn test_marker_in_querystring_1() {
 fn test_marker_in_querystring_2() {
     let router = setup_marker_in_querystring();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/querystring/from?slug=2048"#), r#"/querystring/from?slug=2048"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/querystring/from?slug=2048"#), r#"/querystring/from?slug=2048"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3008,7 +3008,7 @@ fn test_marker_in_querystring_2() {
 fn test_marker_in_querystring_3() {
     let router = setup_marker_in_querystring();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/querystring/from"#), r#"/querystring/from"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/querystring/from"#), r#"/querystring/from"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3023,7 +3023,7 @@ fn test_marker_in_querystring_3() {
 fn test_marker_in_querystring_4() {
     let router = setup_marker_in_querystring();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/a?yolo=yala"#), r#"/a?yolo=yala"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/a?yolo=yala"#), r#"/a?yolo=yala"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3061,7 +3061,7 @@ fn setup_marker_transformation_camelize() -> Router<Rule> {
 fn test_marker_transformation_camelize_1() {
     let router = setup_marker_transformation_camelize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/helloPoney"#), r#"/camelize/from/helloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/helloPoney"#), r#"/camelize/from/helloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3087,7 +3087,7 @@ fn test_marker_transformation_camelize_1() {
 fn test_marker_transformation_camelize_2() {
     let router = setup_marker_transformation_camelize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/Hello-poney"#), r#"/camelize/from/Hello-poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/Hello-poney"#), r#"/camelize/from/Hello-poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3113,7 +3113,7 @@ fn test_marker_transformation_camelize_2() {
 fn test_marker_transformation_camelize_3() {
     let router = setup_marker_transformation_camelize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/HelloPoney"#), r#"/camelize/from/HelloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/HelloPoney"#), r#"/camelize/from/HelloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3139,7 +3139,7 @@ fn test_marker_transformation_camelize_3() {
 fn test_marker_transformation_camelize_4() {
     let router = setup_marker_transformation_camelize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/hello-pOney"#), r#"/camelize/from/hello-pOney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/hello-pOney"#), r#"/camelize/from/hello-pOney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3177,7 +3177,7 @@ fn setup_marker_transformation_dasherize() -> Router<Rule> {
 fn test_marker_transformation_dasherize_1() {
     let router = setup_marker_transformation_dasherize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/dasherize/from/HelloPoney"#), r#"/dasherize/from/HelloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/dasherize/from/HelloPoney"#), r#"/dasherize/from/HelloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3203,7 +3203,7 @@ fn test_marker_transformation_dasherize_1() {
 fn test_marker_transformation_dasherize_2() {
     let router = setup_marker_transformation_dasherize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/dasherize/from/helloPoney"#), r#"/dasherize/from/helloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/dasherize/from/helloPoney"#), r#"/dasherize/from/helloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3229,7 +3229,7 @@ fn test_marker_transformation_dasherize_2() {
 fn test_marker_transformation_dasherize_3() {
     let router = setup_marker_transformation_dasherize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/dasherize/from/Hello-Poney"#), r#"/dasherize/from/Hello-Poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/dasherize/from/Hello-Poney"#), r#"/dasherize/from/Hello-Poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3267,7 +3267,7 @@ fn setup_marker_transformation_lowercase() -> Router<Rule> {
 fn test_marker_transformation_lowercase_1() {
     let router = setup_marker_transformation_lowercase();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/lowercase/from/HELLO-PONEY"#), r#"/lowercase/from/HELLO-PONEY"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/lowercase/from/HELLO-PONEY"#), r#"/lowercase/from/HELLO-PONEY"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3293,7 +3293,7 @@ fn test_marker_transformation_lowercase_1() {
 fn test_marker_transformation_lowercase_2() {
     let router = setup_marker_transformation_lowercase();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/lowercase/from/HeLlO-PoNeY"#), r#"/lowercase/from/HeLlO-PoNeY"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/lowercase/from/HeLlO-PoNeY"#), r#"/lowercase/from/HeLlO-PoNeY"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3319,7 +3319,7 @@ fn test_marker_transformation_lowercase_2() {
 fn test_marker_transformation_lowercase_3() {
     let router = setup_marker_transformation_lowercase();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/lowercase/from/hello-poney"#), r#"/lowercase/from/hello-poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/lowercase/from/hello-poney"#), r#"/lowercase/from/hello-poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3357,7 +3357,7 @@ fn setup_marker_transformation_replace() -> Router<Rule> {
 fn test_marker_transformation_replace_1() {
     let router = setup_marker_transformation_replace();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace/from/poney"#), r#"/replace/from/poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace/from/poney"#), r#"/replace/from/poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3372,7 +3372,7 @@ fn test_marker_transformation_replace_1() {
 fn test_marker_transformation_replace_2() {
     let router = setup_marker_transformation_replace();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace/from/cat"#), r#"/replace/from/cat"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace/from/cat"#), r#"/replace/from/cat"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3398,7 +3398,7 @@ fn test_marker_transformation_replace_2() {
 fn test_marker_transformation_replace_3() {
     let router = setup_marker_transformation_replace();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace/from/dog"#), r#"/replace/from/dog"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace/from/dog"#), r#"/replace/from/dog"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3439,7 +3439,7 @@ fn setup_marker_transformation_slice() -> Router<Rule> {
 fn test_marker_transformation_slice_1() {
     let router = setup_marker_transformation_slice();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#), r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#), r#"/slice/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3465,7 +3465,7 @@ fn test_marker_transformation_slice_1() {
 fn test_marker_transformation_slice_2() {
     let router = setup_marker_transformation_slice();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice/from/ABCD"#), r#"/slice/from/ABCD"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice/from/ABCD"#), r#"/slice/from/ABCD"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3491,7 +3491,7 @@ fn test_marker_transformation_slice_2() {
 fn test_marker_transformation_slice_3() {
     let router = setup_marker_transformation_slice();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#), r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#), r#"/slice-middle/from/ABCDEFGHIJKLMNOPQRSTUVWXYZ"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3517,7 +3517,7 @@ fn test_marker_transformation_slice_3() {
 fn test_marker_transformation_slice_4() {
     let router = setup_marker_transformation_slice();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice-middle/from/ABCDEFGHIJ"#), r#"/slice-middle/from/ABCDEFGHIJ"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice-middle/from/ABCDEFGHIJ"#), r#"/slice-middle/from/ABCDEFGHIJ"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3543,7 +3543,7 @@ fn test_marker_transformation_slice_4() {
 fn test_marker_transformation_slice_5() {
     let router = setup_marker_transformation_slice();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice-middle/from/ABCD"#), r#"/slice-middle/from/ABCD"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/slice-middle/from/ABCD"#), r#"/slice-middle/from/ABCD"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3581,7 +3581,7 @@ fn setup_marker_transformation_underscorize() -> Router<Rule> {
 fn test_marker_transformation_underscorize_1() {
     let router = setup_marker_transformation_underscorize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/hello_poney"#), r#"/underscorize/from/hello_poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/hello_poney"#), r#"/underscorize/from/hello_poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3607,7 +3607,7 @@ fn test_marker_transformation_underscorize_1() {
 fn test_marker_transformation_underscorize_2() {
     let router = setup_marker_transformation_underscorize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/hello-poney"#), r#"/underscorize/from/hello-poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/hello-poney"#), r#"/underscorize/from/hello-poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3633,7 +3633,7 @@ fn test_marker_transformation_underscorize_2() {
 fn test_marker_transformation_underscorize_3() {
     let router = setup_marker_transformation_underscorize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/HelloPoney"#), r#"/underscorize/from/HelloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/HelloPoney"#), r#"/underscorize/from/HelloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3659,7 +3659,7 @@ fn test_marker_transformation_underscorize_3() {
 fn test_marker_transformation_underscorize_4() {
     let router = setup_marker_transformation_underscorize();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/helloPoney"#), r#"/underscorize/from/helloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/underscorize/from/helloPoney"#), r#"/underscorize/from/helloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3697,7 +3697,7 @@ fn setup_marker_transformation_uppercase() -> Router<Rule> {
 fn test_marker_transformation_uppercase_1() {
     let router = setup_marker_transformation_uppercase();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uppercase/from/HELLO-PONEY"#), r#"/uppercase/from/HELLO-PONEY"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uppercase/from/HELLO-PONEY"#), r#"/uppercase/from/HELLO-PONEY"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3723,7 +3723,7 @@ fn test_marker_transformation_uppercase_1() {
 fn test_marker_transformation_uppercase_2() {
     let router = setup_marker_transformation_uppercase();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uppercase/from/HeLlO-PoNeY"#), r#"/uppercase/from/HeLlO-PoNeY"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uppercase/from/HeLlO-PoNeY"#), r#"/uppercase/from/HeLlO-PoNeY"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3749,7 +3749,7 @@ fn test_marker_transformation_uppercase_2() {
 fn test_marker_transformation_uppercase_3() {
     let router = setup_marker_transformation_uppercase();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uppercase/from/hello-poney"#), r#"/uppercase/from/hello-poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uppercase/from/hello-poney"#), r#"/uppercase/from/hello-poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3787,7 +3787,7 @@ fn setup_marker_type_anything() -> Router<Rule> {
 fn test_marker_type_anything_1() {
     let router = setup_marker_type_anything();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#), r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#), r#"/anything/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3813,7 +3813,7 @@ fn test_marker_type_anything_1() {
 fn test_marker_type_anything_2() {
     let router = setup_marker_type_anything();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/anything/from/HELLO"#), r#"/anything/from/HELLO"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/anything/from/HELLO"#), r#"/anything/from/HELLO"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3839,7 +3839,7 @@ fn test_marker_type_anything_2() {
 fn test_marker_type_anything_3() {
     let router = setup_marker_type_anything();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/anything/from/🤘"#), r#"/anything/from/🤘"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/anything/from/🤘"#), r#"/anything/from/🤘"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3877,7 +3877,7 @@ fn setup_marker_type_date() -> Router<Rule> {
 fn test_marker_type_date_1() {
     let router = setup_marker_type_date();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/date/from/2018-11-23"#), r#"/date/from/2018-11-23"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/date/from/2018-11-23"#), r#"/date/from/2018-11-23"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3903,7 +3903,7 @@ fn test_marker_type_date_1() {
 fn test_marker_type_date_2() {
     let router = setup_marker_type_date();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/date/from/2018-23-11"#), r#"/date/from/2018-23-11"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/date/from/2018-23-11"#), r#"/date/from/2018-23-11"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3918,7 +3918,7 @@ fn test_marker_type_date_2() {
 fn test_marker_type_date_3() {
     let router = setup_marker_type_date();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/date/from/some-13-01"#), r#"/date/from/some-13-01"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/date/from/some-13-01"#), r#"/date/from/some-13-01"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3948,7 +3948,7 @@ fn setup_marker_type_datetime() -> Router<Rule> {
 fn test_marker_type_datetime_1() {
     let router = setup_marker_type_datetime();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime/from/2018-07-15T14:59:12Z"#), r#"/datetime/from/2018-07-15T14:59:12Z"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime/from/2018-07-15T14:59:12Z"#), r#"/datetime/from/2018-07-15T14:59:12Z"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -3974,7 +3974,7 @@ fn test_marker_type_datetime_1() {
 fn test_marker_type_datetime_2() {
     let router = setup_marker_type_datetime();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime/from/2018-07-15T14:59:12+02:00"#), r#"/datetime/from/2018-07-15T14:59:12+02:00"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime/from/2018-07-15T14:59:12+02:00"#), r#"/datetime/from/2018-07-15T14:59:12+02:00"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4000,7 +4000,7 @@ fn test_marker_type_datetime_2() {
 fn test_marker_type_datetime_3() {
     let router = setup_marker_type_datetime();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime/from/2018-07-15 14:59:12Z"#), r#"/datetime/from/2018-07-15 14:59:12Z"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime/from/2018-07-15 14:59:12Z"#), r#"/datetime/from/2018-07-15 14:59:12Z"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4015,7 +4015,7 @@ fn test_marker_type_datetime_3() {
 fn test_marker_type_datetime_4() {
     let router = setup_marker_type_datetime();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime-transform/from/2018-07-15T14:59:12Z"#), r#"/datetime-transform/from/2018-07-15T14:59:12Z"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/datetime-transform/from/2018-07-15T14:59:12Z"#), r#"/datetime-transform/from/2018-07-15T14:59:12Z"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4053,7 +4053,7 @@ fn setup_marker_type_enum() -> Router<Rule> {
 fn test_marker_type_enum_1() {
     let router = setup_marker_type_enum();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/cat"#), r#"/enum/from/cat"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/cat"#), r#"/enum/from/cat"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4079,7 +4079,7 @@ fn test_marker_type_enum_1() {
 fn test_marker_type_enum_2() {
     let router = setup_marker_type_enum();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/cats-eyes"#), r#"/enum/from/cats-eyes"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/cats-eyes"#), r#"/enum/from/cats-eyes"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4094,7 +4094,7 @@ fn test_marker_type_enum_2() {
 fn test_marker_type_enum_3() {
     let router = setup_marker_type_enum();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/dog"#), r#"/enum/from/dog"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/dog"#), r#"/enum/from/dog"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4120,7 +4120,7 @@ fn test_marker_type_enum_3() {
 fn test_marker_type_enum_4() {
     let router = setup_marker_type_enum();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/dogville"#), r#"/enum/from/dogville"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/enum/from/dogville"#), r#"/enum/from/dogville"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4156,7 +4156,7 @@ fn setup_marker_type_integer() -> Router<Rule> {
 fn test_marker_type_integer_1() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer/from/2778"#), r#"/integer/from/2778"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer/from/2778"#), r#"/integer/from/2778"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4182,7 +4182,7 @@ fn test_marker_type_integer_1() {
 fn test_marker_type_integer_2() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer/from/42l33t"#), r#"/integer/from/42l33t"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer/from/42l33t"#), r#"/integer/from/42l33t"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4197,7 +4197,7 @@ fn test_marker_type_integer_2() {
 fn test_marker_type_integer_3() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer/from/42-l33t"#), r#"/integer/from/42-l33t"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer/from/42-l33t"#), r#"/integer/from/42-l33t"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4212,7 +4212,7 @@ fn test_marker_type_integer_3() {
 fn test_marker_type_integer_4() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min/from/112"#), r#"/integer-min/from/112"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min/from/112"#), r#"/integer-min/from/112"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4238,7 +4238,7 @@ fn test_marker_type_integer_4() {
 fn test_marker_type_integer_5() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min/from/11"#), r#"/integer-min/from/11"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min/from/11"#), r#"/integer-min/from/11"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4253,7 +4253,7 @@ fn test_marker_type_integer_5() {
 fn test_marker_type_integer_6() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-max/from/11"#), r#"/integer-max/from/11"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-max/from/11"#), r#"/integer-max/from/11"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4279,7 +4279,7 @@ fn test_marker_type_integer_6() {
 fn test_marker_type_integer_7() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-max/from/112"#), r#"/integer-max/from/112"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-max/from/112"#), r#"/integer-max/from/112"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4294,7 +4294,7 @@ fn test_marker_type_integer_7() {
 fn test_marker_type_integer_8() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min-max/from/806"#), r#"/integer-min-max/from/806"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min-max/from/806"#), r#"/integer-min-max/from/806"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4320,7 +4320,7 @@ fn test_marker_type_integer_8() {
 fn test_marker_type_integer_9() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min-max/from/33"#), r#"/integer-min-max/from/33"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min-max/from/33"#), r#"/integer-min-max/from/33"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4335,7 +4335,7 @@ fn test_marker_type_integer_9() {
 fn test_marker_type_integer_10() {
     let router = setup_marker_type_integer();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min-max/from/2048"#), r#"/integer-min-max/from/2048"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/integer-min-max/from/2048"#), r#"/integer-min-max/from/2048"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4404,7 +4404,7 @@ fn setup_marker_type_string() -> Router<Rule> {
 fn test_marker_type_string_1() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string/from/coucou"#), r#"/string/from/coucou"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string/from/coucou"#), r#"/string/from/coucou"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4419,7 +4419,7 @@ fn test_marker_type_string_1() {
 fn test_marker_type_string_2() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/coucou"#), r#"/string-lowercase/from/coucou"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/coucou"#), r#"/string-lowercase/from/coucou"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4445,7 +4445,7 @@ fn test_marker_type_string_2() {
 fn test_marker_type_string_3() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/COUCOU"#), r#"/string-lowercase/from/COUCOU"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/COUCOU"#), r#"/string-lowercase/from/COUCOU"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4460,7 +4460,7 @@ fn test_marker_type_string_3() {
 fn test_marker_type_string_4() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/some-string"#), r#"/string-lowercase/from/some-string"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/some-string"#), r#"/string-lowercase/from/some-string"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4475,7 +4475,7 @@ fn test_marker_type_string_4() {
 fn test_marker_type_string_5() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/l33t"#), r#"/string-lowercase/from/l33t"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase/from/l33t"#), r#"/string-lowercase/from/l33t"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4490,7 +4490,7 @@ fn test_marker_type_string_5() {
 fn test_marker_type_string_6() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/COUCOU"#), r#"/string-uppercase/from/COUCOU"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/COUCOU"#), r#"/string-uppercase/from/COUCOU"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4516,7 +4516,7 @@ fn test_marker_type_string_6() {
 fn test_marker_type_string_7() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/coucou"#), r#"/string-uppercase/from/coucou"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/coucou"#), r#"/string-uppercase/from/coucou"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4531,7 +4531,7 @@ fn test_marker_type_string_7() {
 fn test_marker_type_string_8() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/SOME-STRING"#), r#"/string-uppercase/from/SOME-STRING"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/SOME-STRING"#), r#"/string-uppercase/from/SOME-STRING"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4546,7 +4546,7 @@ fn test_marker_type_string_8() {
 fn test_marker_type_string_9() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/L33T"#), r#"/string-uppercase/from/L33T"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-uppercase/from/L33T"#), r#"/string-uppercase/from/L33T"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4561,7 +4561,7 @@ fn test_marker_type_string_9() {
 fn test_marker_type_string_10() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/coucou"#), r#"/string-lowercase-uppercase-digits/from/coucou"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/coucou"#), r#"/string-lowercase-uppercase-digits/from/coucou"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4587,7 +4587,7 @@ fn test_marker_type_string_10() {
 fn test_marker_type_string_11() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/COUCOU"#), r#"/string-lowercase-uppercase-digits/from/COUCOU"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/COUCOU"#), r#"/string-lowercase-uppercase-digits/from/COUCOU"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4613,7 +4613,7 @@ fn test_marker_type_string_11() {
 fn test_marker_type_string_12() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#), r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#), r#"/string-lowercase-uppercase-digits/from/SOME-STRING"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4628,7 +4628,7 @@ fn test_marker_type_string_12() {
 fn test_marker_type_string_13() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/l33t"#), r#"/string-lowercase-uppercase-digits/from/l33t"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/l33t"#), r#"/string-lowercase-uppercase-digits/from/l33t"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4654,7 +4654,7 @@ fn test_marker_type_string_13() {
 fn test_marker_type_string_14() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/L33T"#), r#"/string-lowercase-uppercase-digits/from/L33T"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits/from/L33T"#), r#"/string-lowercase-uppercase-digits/from/L33T"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4680,7 +4680,7 @@ fn test_marker_type_string_14() {
 fn test_marker_type_string_15() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters/from/-"#), r#"/string-specificCharacters/from/-"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters/from/-"#), r#"/string-specificCharacters/from/-"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4706,7 +4706,7 @@ fn test_marker_type_string_15() {
 fn test_marker_type_string_16() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters/from/-_.+_-/._-_."#), r#"/string-specificCharacters/from/-_.+_-/._-_."#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters/from/-_.+_-/._-_."#), r#"/string-specificCharacters/from/-_.+_-/._-_."#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4732,7 +4732,7 @@ fn test_marker_type_string_16() {
 fn test_marker_type_string_17() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters-other/from/z-a-z-a-zz"#), r#"/string-specificCharacters-other/from/z-a-z-a-zz"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters-other/from/z-a-z-a-zz"#), r#"/string-specificCharacters-other/from/z-a-z-a-zz"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4758,7 +4758,7 @@ fn test_marker_type_string_17() {
 fn test_marker_type_string_18() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters-other/from/azerty"#), r#"/string-specificCharacters-other/from/azerty"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-specificCharacters-other/from/azerty"#), r#"/string-specificCharacters-other/from/azerty"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4773,7 +4773,7 @@ fn test_marker_type_string_18() {
 fn test_marker_type_string_19() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#), r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#), r#"/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4799,7 +4799,7 @@ fn test_marker_type_string_19() {
 fn test_marker_type_string_20() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting/from/JOHN-SNOW-knows-nothing"#), r#"/string-starting/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting/from/JOHN-SNOW-knows-nothing"#), r#"/string-starting/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4825,7 +4825,7 @@ fn test_marker_type_string_20() {
 fn test_marker_type_string_21() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#), r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#), r#"/string-starting/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4840,7 +4840,7 @@ fn test_marker_type_string_21() {
 fn test_marker_type_string_22() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting-shit/from/COUCOU-you-know-nothing"#), r#"/string-starting-shit/from/COUCOU-you-know-nothing"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting-shit/from/COUCOU-you-know-nothing"#), r#"/string-starting-shit/from/COUCOU-you-know-nothing"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4855,7 +4855,7 @@ fn test_marker_type_string_22() {
 fn test_marker_type_string_23() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#), r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#), r#"/string-starting-shit/from/([A-Z])+-knows-nothing"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4881,7 +4881,7 @@ fn test_marker_type_string_23() {
 fn test_marker_type_string_24() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-ending/from/JOHN-SNOW-knows-nothing"#), r#"/string-ending/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-ending/from/JOHN-SNOW-knows-nothing"#), r#"/string-ending/from/JOHN-SNOW-knows-nothing"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4896,7 +4896,7 @@ fn test_marker_type_string_24() {
 fn test_marker_type_string_25() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#), r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#), r#"/string-ending/from/you-know-nothing-JOHN-SNOW"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4922,7 +4922,7 @@ fn test_marker_type_string_25() {
 fn test_marker_type_string_26() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#), r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#), r#"/string-ending/from/you-know-nothing-JOHN-SNOWR"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4937,7 +4937,7 @@ fn test_marker_type_string_26() {
 fn test_marker_type_string_27() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#), r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#), r#"/string-allowPercentEncodedChars/from/%2B%3A%26"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4963,7 +4963,7 @@ fn test_marker_type_string_27() {
 fn test_marker_type_string_28() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%3A"#), r#"/string-allowPercentEncodedChars/from/%3A"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%3A"#), r#"/string-allowPercentEncodedChars/from/%3A"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -4989,7 +4989,7 @@ fn test_marker_type_string_28() {
 fn test_marker_type_string_29() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%2B"#), r#"/string-allowPercentEncodedChars/from/%2B"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%2B"#), r#"/string-allowPercentEncodedChars/from/%2B"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5015,7 +5015,7 @@ fn test_marker_type_string_29() {
 fn test_marker_type_string_30() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%26"#), r#"/string-allowPercentEncodedChars/from/%26"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/%26"#), r#"/string-allowPercentEncodedChars/from/%26"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5041,7 +5041,7 @@ fn test_marker_type_string_30() {
 fn test_marker_type_string_31() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#), r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#), r#"/string-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5056,7 +5056,7 @@ fn test_marker_type_string_31() {
 fn test_marker_type_string_32() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/+:&"#), r#"/string-allowPercentEncodedChars/from/+:&"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowPercentEncodedChars/from/+:&"#), r#"/string-allowPercentEncodedChars/from/+:&"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5071,7 +5071,7 @@ fn test_marker_type_string_32() {
 fn test_marker_type_string_33() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#), r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#), r#"/string-lowercase-digits-allowPercentEncodedChars/from/0%2B0%3Dtoto"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5097,7 +5097,7 @@ fn test_marker_type_string_33() {
 fn test_marker_type_string_34() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#), r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#), r#"/string-lowercase-digits-allowPercentEncodedChars/from/0+0=toto"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5112,7 +5112,7 @@ fn test_marker_type_string_34() {
 fn test_marker_type_string_35() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#), r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#), r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5138,7 +5138,7 @@ fn test_marker_type_string_35() {
 fn test_marker_type_string_36() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#), r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#), r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/Medios-de-Comunicación-y-Creatividad"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5164,7 +5164,7 @@ fn test_marker_type_string_36() {
 fn test_marker_type_string_37() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-containing/from/L33T"#), r#"/string-containing/from/L33T"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-containing/from/L33T"#), r#"/string-containing/from/L33T"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5190,7 +5190,7 @@ fn test_marker_type_string_37() {
 fn test_marker_type_string_38() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-containing/from/L33TL33T"#), r#"/string-containing/from/L33TL33T"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-containing/from/L33TL33T"#), r#"/string-containing/from/L33TL33T"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5216,7 +5216,7 @@ fn test_marker_type_string_38() {
 fn test_marker_type_string_39() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-containing/from/42-L33T-42"#), r#"/string-containing/from/42-L33T-42"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-containing/from/42-L33T-42"#), r#"/string-containing/from/42-L33T-42"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5231,7 +5231,7 @@ fn test_marker_type_string_39() {
 fn test_marker_type_string_40() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L33T-knows-nothing"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5257,7 +5257,7 @@ fn test_marker_type_string_40() {
 fn test_marker_type_string_41() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOWL33T"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5283,7 +5283,7 @@ fn test_marker_type_string_41() {
 fn test_marker_type_string_42() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/L33T-JOHN-SNOW-knows-nothing"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5298,7 +5298,7 @@ fn test_marker_type_string_42() {
 fn test_marker_type_string_43() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-l33t"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5313,7 +5313,7 @@ fn test_marker_type_string_43() {
 fn test_marker_type_string_44() {
     let router = setup_marker_type_string();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#), r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/JOHN-SNOW-L3a3t"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5340,7 +5340,7 @@ fn setup_marker_type_uuid() -> Router<Rule> {
 fn test_marker_type_uuid_1() {
     let router = setup_marker_type_uuid();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#), r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#), r#"/uuid/from/f6883ff9-f163-43d7-8177-bfa24277fd20"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5366,7 +5366,7 @@ fn test_marker_type_uuid_1() {
 fn test_marker_type_uuid_2() {
     let router = setup_marker_type_uuid();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uuid/from/HELLO"#), r#"/uuid/from/HELLO"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uuid/from/HELLO"#), r#"/uuid/from/HELLO"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5381,7 +5381,7 @@ fn test_marker_type_uuid_2() {
 fn test_marker_type_uuid_3() {
     let router = setup_marker_type_uuid();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#), r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#), r#"/uuid/from/f688-3ff9-f16343d78177bfa2-4277-fd20"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5408,7 +5408,7 @@ fn setup_marketing_parameters() -> Router<Rule> {
 fn test_marketing_parameters_1() {
     let router = setup_marketing_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5434,7 +5434,7 @@ fn test_marketing_parameters_1() {
 fn test_marketing_parameters_2() {
     let router = setup_marketing_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1"#), r#"/foo?param1=value1"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1"#), r#"/foo?param1=value1"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5460,7 +5460,7 @@ fn test_marketing_parameters_2() {
 fn test_marketing_parameters_3() {
     let router = setup_marketing_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param2=value2"#), r#"/foo?param1=value1&param2=value2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param2=value2"#), r#"/foo?param1=value1&param2=value2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5486,7 +5486,7 @@ fn test_marketing_parameters_3() {
 fn test_marketing_parameters_4() {
     let router = setup_marketing_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param2=value1&param1=value2"#), r#"/foo?param2=value1&param1=value2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param2=value1&param1=value2"#), r#"/foo?param2=value1&param1=value2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5512,7 +5512,7 @@ fn test_marketing_parameters_4() {
 fn test_marketing_parameters_5() {
     let router = setup_marketing_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param3=value3"#), r#"/foo?param3=value3"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param3=value3"#), r#"/foo?param3=value3"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5527,7 +5527,7 @@ fn test_marketing_parameters_5() {
 fn test_marketing_parameters_6() {
     let router = setup_marketing_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param3=value3"#), r#"/foo?param1=value1&param3=value3"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param3=value3"#), r#"/foo?param1=value1&param3=value3"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5554,7 +5554,7 @@ fn setup_marketing_parameters_notarget() -> Router<Rule> {
 fn test_marketing_parameters_notarget_1() {
     let router = setup_marketing_parameters_notarget();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5580,7 +5580,7 @@ fn test_marketing_parameters_notarget_1() {
 fn test_marketing_parameters_notarget_2() {
     let router = setup_marketing_parameters_notarget();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1"#), r#"/foo?param1=value1"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1"#), r#"/foo?param1=value1"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5606,7 +5606,7 @@ fn test_marketing_parameters_notarget_2() {
 fn test_marketing_parameters_notarget_3() {
     let router = setup_marketing_parameters_notarget();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param2=value2"#), r#"/foo?param1=value1&param2=value2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param2=value2"#), r#"/foo?param1=value1&param2=value2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5632,7 +5632,7 @@ fn test_marketing_parameters_notarget_3() {
 fn test_marketing_parameters_notarget_4() {
     let router = setup_marketing_parameters_notarget();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param2=value1&param1=value2"#), r#"/foo?param2=value1&param1=value2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param2=value1&param1=value2"#), r#"/foo?param2=value1&param1=value2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5658,7 +5658,7 @@ fn test_marketing_parameters_notarget_4() {
 fn test_marketing_parameters_notarget_5() {
     let router = setup_marketing_parameters_notarget();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param3=value3"#), r#"/foo?param3=value3"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param3=value3"#), r#"/foo?param3=value3"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5673,7 +5673,7 @@ fn test_marketing_parameters_notarget_5() {
 fn test_marketing_parameters_notarget_6() {
     let router = setup_marketing_parameters_notarget();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param3=value3"#), r#"/foo?param1=value1&param3=value3"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param3=value3"#), r#"/foo?param1=value1&param3=value3"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5700,7 +5700,7 @@ fn setup_marketing_parameters_with_catch_all() -> Router<Rule> {
 fn test_marketing_parameters_with_catch_all_1() {
     let router = setup_marketing_parameters_with_catch_all();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/"#), r#"/us/en/story/276298-christmas-2020/"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/"#), r#"/us/en/story/276298-christmas-2020/"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5726,7 +5726,7 @@ fn test_marketing_parameters_with_catch_all_1() {
 fn test_marketing_parameters_with_catch_all_2() {
     let router = setup_marketing_parameters_with_catch_all();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_test=123"#), r#"/us/en/story/276298-christmas-2020/?utm_test=123"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_test=123"#), r#"/us/en/story/276298-christmas-2020/?utm_test=123"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5752,7 +5752,7 @@ fn test_marketing_parameters_with_catch_all_2() {
 fn test_marketing_parameters_with_catch_all_3() {
     let router = setup_marketing_parameters_with_catch_all();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_randomstring=123"#), r#"/us/en/story/276298-christmas-2020/?utm_randomstring=123"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_randomstring=123"#), r#"/us/en/story/276298-christmas-2020/?utm_randomstring=123"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5778,7 +5778,7 @@ fn test_marketing_parameters_with_catch_all_3() {
 fn test_marketing_parameters_with_catch_all_4() {
     let router = setup_marketing_parameters_with_catch_all();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_source=123"#), r#"/us/en/story/276298-christmas-2020/?utm_source=123"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/us/en/story/276298-christmas-2020/?utm_source=123"#), r#"/us/en/story/276298-christmas-2020/?utm_source=123"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5816,7 +5816,7 @@ fn setup_no_marketing_parameterst() -> Router<Rule> {
 fn test_no_marketing_parameterst_1() {
     let router = setup_no_marketing_parameterst();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5842,7 +5842,7 @@ fn test_no_marketing_parameterst_1() {
 fn test_no_marketing_parameterst_2() {
     let router = setup_no_marketing_parameterst();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1"#), r#"/foo?param1=value1"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1"#), r#"/foo?param1=value1"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5857,7 +5857,7 @@ fn test_no_marketing_parameterst_2() {
 fn test_no_marketing_parameterst_3() {
     let router = setup_no_marketing_parameterst();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param2=value2"#), r#"/foo?param1=value1&param2=value2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param2=value2"#), r#"/foo?param1=value1&param2=value2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5872,7 +5872,7 @@ fn test_no_marketing_parameterst_3() {
 fn test_no_marketing_parameterst_4() {
     let router = setup_no_marketing_parameterst();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param2=value1&param1=value2"#), r#"/foo?param2=value1&param1=value2"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param2=value1&param1=value2"#), r#"/foo?param2=value1&param1=value2"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5887,7 +5887,7 @@ fn test_no_marketing_parameterst_4() {
 fn test_no_marketing_parameterst_5() {
     let router = setup_no_marketing_parameterst();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param3=value3"#), r#"/foo?param3=value3"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param3=value3"#), r#"/foo?param3=value3"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5902,7 +5902,7 @@ fn test_no_marketing_parameterst_5() {
 fn test_no_marketing_parameterst_6() {
     let router = setup_no_marketing_parameterst();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param3=value3"#), r#"/foo?param1=value1&param3=value3"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?param1=value1&param3=value3"#), r#"/foo?param1=value1&param3=value3"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5929,7 +5929,7 @@ fn setup_rule_header_regex() -> Router<Rule> {
 fn test_rule_header_regex_1() {
     let router = setup_rule_header_regex();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -5944,7 +5944,7 @@ fn test_rule_header_regex_1() {
 fn test_rule_header_regex_2() {
     let router = setup_rule_header_regex();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     request.add_header(r#"X-GeoIP"#.to_string(), r#"EN"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -5960,7 +5960,7 @@ fn test_rule_header_regex_2() {
 fn test_rule_header_regex_3() {
     let router = setup_rule_header_regex();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     request.add_header(r#"X-GeoIP"#.to_string(), r#"FR"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -5984,6 +5984,91 @@ fn test_rule_header_regex_3() {
 }
 
 
+fn setup_rule_ip_trigger() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-in-range","rank":0,"redirect_code":302,"source":{"ip":{"in_range":"192.168.0.0/24"},"path":"/foo"},"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-not-in-range","rank":0,"redirect_code":302,"source":{"ip":{"not_in_range":"10.0.0.0/24"},"path":"/foo2"},"target":"/bar2"}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_rule_ip_trigger_1() {
+    let router = setup_rule_ip_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,r#"192.168.1.12"#.to_string().parse().ok());
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_ip_trigger_2() {
+    let router = setup_rule_ip_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,r#"192.168.0.12"#.to_string().parse().ok());
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+}
+
+#[test]
+fn test_rule_ip_trigger_3() {
+    let router = setup_rule_ip_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,r#"192.168.1.12"#.to_string().parse().ok());
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+}
+
+#[test]
+fn test_rule_ip_trigger_4() {
+    let router = setup_rule_ip_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,r#"10.0.0.1"#.to_string().parse().ok());
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+
 fn setup_rule_multiple_headers() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
@@ -5999,7 +6084,7 @@ fn setup_rule_multiple_headers() -> Router<Rule> {
 fn test_rule_multiple_headers_1() {
     let router = setup_rule_multiple_headers();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6014,7 +6099,7 @@ fn test_rule_multiple_headers_1() {
 fn test_rule_multiple_headers_2() {
     let router = setup_rule_multiple_headers();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Foo"#.to_string(), r#"foo"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -6030,7 +6115,7 @@ fn test_rule_multiple_headers_2() {
 fn test_rule_multiple_headers_3() {
     let router = setup_rule_multiple_headers();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Bar"#.to_string(), r#"bar"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -6046,7 +6131,7 @@ fn test_rule_multiple_headers_3() {
 fn test_rule_multiple_headers_4() {
     let router = setup_rule_multiple_headers();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Foo"#.to_string(), r#"foo"#.to_string(), false);
     request.add_header(r#"X-Bar"#.to_string(), r#"bar"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
@@ -6089,7 +6174,7 @@ fn setup_rule_query_with_pipe() -> Router<Rule> {
 fn test_rule_query_with_pipe_1() {
     let router = setup_rule_query_with_pipe();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar|baz"#), r#"/query-pipe?foo=bar|baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar|baz"#), r#"/query-pipe?foo=bar|baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6115,7 +6200,7 @@ fn test_rule_query_with_pipe_1() {
 fn test_rule_query_with_pipe_2() {
     let router = setup_rule_query_with_pipe();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar%7Cbaz"#), r#"/query-pipe?foo=bar%7Cbaz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar%7Cbaz"#), r#"/query-pipe?foo=bar%7Cbaz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6153,7 +6238,7 @@ fn setup_rule_query_with_pipe_2() -> Router<Rule> {
 fn test_rule_query_with_pipe_2_1() {
     let router = setup_rule_query_with_pipe_2();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar|baz"#), r#"/query-pipe?foo=bar|baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar|baz"#), r#"/query-pipe?foo=bar|baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6179,7 +6264,7 @@ fn test_rule_query_with_pipe_2_1() {
 fn test_rule_query_with_pipe_2_2() {
     let router = setup_rule_query_with_pipe_2();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar%7Cbaz"#), r#"/query-pipe?foo=bar%7Cbaz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-pipe?foo=bar%7Cbaz"#), r#"/query-pipe?foo=bar%7Cbaz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6217,7 +6302,7 @@ fn setup_rule_query_with_plus() -> Router<Rule> {
 fn test_rule_query_with_plus_1() {
     let router = setup_rule_query_with_plus();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-plus?foo=bar+baz"#), r#"/query-plus?foo=bar+baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-plus?foo=bar+baz"#), r#"/query-plus?foo=bar+baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6243,7 +6328,7 @@ fn test_rule_query_with_plus_1() {
 fn test_rule_query_with_plus_2() {
     let router = setup_rule_query_with_plus();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-plus?foo=bar baz"#), r#"/query-plus?foo=bar baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-plus?foo=bar baz"#), r#"/query-plus?foo=bar baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6269,7 +6354,7 @@ fn test_rule_query_with_plus_2() {
 fn test_rule_query_with_plus_3() {
     let router = setup_rule_query_with_plus();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-plus?foo=bar%20baz"#), r#"/query-plus?foo=bar%20baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/query-plus?foo=bar%20baz"#), r#"/query-plus?foo=bar%20baz"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6307,7 +6392,7 @@ fn setup_rule_querystring() -> Router<Rule> {
 fn test_rule_querystring_1() {
     let router = setup_rule_querystring();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/host-path-query?foo&bar=yolo"#), r#"/host-path-query?foo&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/host-path-query?foo&bar=yolo"#), r#"/host-path-query?foo&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6333,7 +6418,7 @@ fn test_rule_querystring_1() {
 fn test_rule_querystring_2() {
     let router = setup_rule_querystring();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/host-path-query?foo=&bar=yolo"#), r#"/host-path-query?foo=&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/host-path-query?foo=&bar=yolo"#), r#"/host-path-query?foo=&bar=yolo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6374,7 +6459,7 @@ fn setup_rule_skipped_query_parameters() -> Router<Rule> {
 fn test_rule_skipped_query_parameters_1() {
     let router = setup_rule_skipped_query_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6400,7 +6485,7 @@ fn test_rule_skipped_query_parameters_1() {
 fn test_rule_skipped_query_parameters_2() {
     let router = setup_rule_skipped_query_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source?utm_source=test"#), r#"/source?utm_source=test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source?utm_source=test"#), r#"/source?utm_source=test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6426,7 +6511,7 @@ fn test_rule_skipped_query_parameters_2() {
 fn test_rule_skipped_query_parameters_3() {
     let router = setup_rule_skipped_query_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source?toto=tata"#), r#"/source?toto=tata"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source?toto=tata"#), r#"/source?toto=tata"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6452,7 +6537,7 @@ fn test_rule_skipped_query_parameters_3() {
 fn test_rule_skipped_query_parameters_4() {
     let router = setup_rule_skipped_query_parameters();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source?toto=tata&utm_source=test&utm_content=test"#), r#"/source?toto=tata&utm_source=test&utm_content=test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source?toto=tata&utm_source=test&utm_content=test"#), r#"/source?toto=tata&utm_source=test&utm_content=test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6496,7 +6581,7 @@ fn setup_rule_with_header() -> Router<Rule> {
 fn test_rule_with_header_1() {
     let router = setup_rule_with_header();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6522,7 +6607,7 @@ fn test_rule_with_header_1() {
 fn test_rule_with_header_2() {
     let router = setup_rule_with_header();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Test"#.to_string(), r#"foo"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -6549,7 +6634,7 @@ fn test_rule_with_header_2() {
 fn test_rule_with_header_3() {
     let router = setup_rule_with_header();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"foo"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -6576,7 +6661,7 @@ fn test_rule_with_header_3() {
 fn test_rule_with_header_4() {
     let router = setup_rule_with_header();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"unknown"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -6592,7 +6677,7 @@ fn test_rule_with_header_4() {
 fn test_rule_with_header_5() {
     let router = setup_rule_with_header();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test"#), r#"/test"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"unknown"#.to_string(), false);
     request.add_header(r#"X-Test-Marker"#.to_string(), r#"foofoo"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
@@ -6635,7 +6720,7 @@ fn setup_rule_with_method() -> Router<Rule> {
 fn test_rule_with_method_1() {
     let router = setup_rule_with_method();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,Some(r#"GET"#.to_string()));
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,Some(r#"GET"#.to_string()),None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6650,7 +6735,7 @@ fn test_rule_with_method_1() {
 fn test_rule_with_method_2() {
     let router = setup_rule_with_method();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,Some(r#"GET"#.to_string()));
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,Some(r#"GET"#.to_string()),None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6665,7 +6750,7 @@ fn test_rule_with_method_2() {
 fn test_rule_with_method_3() {
     let router = setup_rule_with_method();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,Some(r#"POST"#.to_string()));
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,Some(r#"POST"#.to_string()),None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6691,7 +6776,7 @@ fn test_rule_with_method_3() {
 fn test_rule_with_method_4() {
     let router = setup_rule_with_method();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,Some(r#"PUT"#.to_string()));
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,Some(r#"PUT"#.to_string()),None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6717,7 +6802,7 @@ fn test_rule_with_method_4() {
 fn test_rule_with_method_5() {
     let router = setup_rule_with_method();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,Some(r#"POST"#.to_string()));
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,Some(r#"POST"#.to_string()),None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6755,7 +6840,7 @@ fn setup_rule_with_quotes() -> Router<Rule> {
 fn test_rule_with_quotes_1() {
     let router = setup_rule_with_quotes();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#), r#"/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#), r#"/host-path-query-double-quotes?gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6796,7 +6881,7 @@ fn setup_rule_with_response_status_codes() -> Router<Rule> {
 fn test_rule_with_response_status_codes_1() {
     let router = setup_rule_with_response_status_codes();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6816,7 +6901,7 @@ fn test_rule_with_response_status_codes_1() {
 fn test_rule_with_response_status_codes_2() {
     let router = setup_rule_with_response_status_codes();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6836,7 +6921,7 @@ fn test_rule_with_response_status_codes_2() {
 fn test_rule_with_response_status_codes_3() {
     let router = setup_rule_with_response_status_codes();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6862,7 +6947,7 @@ fn test_rule_with_response_status_codes_3() {
 fn test_rule_with_response_status_codes_4() {
     let router = setup_rule_with_response_status_codes();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6888,7 +6973,7 @@ fn test_rule_with_response_status_codes_4() {
 fn test_rule_with_response_status_codes_5() {
     let router = setup_rule_with_response_status_codes();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6929,7 +7014,7 @@ fn setup_rule_with_slash() -> Router<Rule> {
 fn test_rule_with_slash_1() {
     let router = setup_rule_with_slash();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6955,7 +7040,7 @@ fn test_rule_with_slash_1() {
 fn test_rule_with_slash_2() {
     let router = setup_rule_with_slash();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo/"#), r#"/foo/"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo/"#), r#"/foo/"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6993,7 +7078,7 @@ fn setup_variable_marker() -> Router<Rule> {
 fn test_variable_marker_1() {
     let router = setup_variable_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/helloPoney"#), r#"/camelize/from/helloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/helloPoney"#), r#"/camelize/from/helloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7019,7 +7104,7 @@ fn test_variable_marker_1() {
 fn test_variable_marker_2() {
     let router = setup_variable_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/Hello-poney"#), r#"/camelize/from/Hello-poney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/Hello-poney"#), r#"/camelize/from/Hello-poney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7045,7 +7130,7 @@ fn test_variable_marker_2() {
 fn test_variable_marker_3() {
     let router = setup_variable_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/HelloPoney"#), r#"/camelize/from/HelloPoney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/HelloPoney"#), r#"/camelize/from/HelloPoney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7071,7 +7156,7 @@ fn test_variable_marker_3() {
 fn test_variable_marker_4() {
     let router = setup_variable_marker();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/hello-pOney"#), r#"/camelize/from/hello-pOney"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/camelize/from/hello-pOney"#), r#"/camelize/from/hello-pOney"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7109,7 +7194,7 @@ fn setup_variable_request_header() -> Router<Rule> {
 fn test_variable_request_header_1() {
     let router = setup_variable_request_header();
     let default_config = RouterConfig::default();
-    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,None);
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,None,None);
     request.add_header(r#"X-Request-Header"#.to_string(), r#"helloPoney"#.to_string(), false);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -7148,7 +7233,7 @@ fn setup_variable_request_host() -> Router<Rule> {
 fn test_variable_request_host_1() {
     let router = setup_variable_request_host();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),Some(r#"example.com"#.to_string()),None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),Some(r#"example.com"#.to_string()),None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7186,7 +7271,7 @@ fn setup_variable_request_method() -> Router<Rule> {
 fn test_variable_request_method_1() {
     let router = setup_variable_request_method();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,Some(r#"GET"#.to_string()));
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,Some(r#"GET"#.to_string()),None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7212,7 +7297,7 @@ fn test_variable_request_method_1() {
 fn test_variable_request_method_2() {
     let router = setup_variable_request_method();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,Some(r#"POST"#.to_string()));
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,Some(r#"POST"#.to_string()),None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7250,7 +7335,7 @@ fn setup_variable_request_path() -> Router<Rule> {
 fn test_variable_request_path_1() {
     let router = setup_variable_request_path();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,None,None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7288,7 +7373,7 @@ fn setup_variable_request_scheme() -> Router<Rule> {
 fn test_variable_request_scheme_1() {
     let router = setup_variable_request_scheme();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,Some(r#"https"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,Some(r#"https"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -7314,7 +7399,7 @@ fn test_variable_request_scheme_1() {
 fn test_variable_request_scheme_2() {
     let router = setup_variable_request_scheme();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,Some(r#"http"#.to_string()),None);
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/request-header"#), r#"/variable/request-header"#.to_string(),None,Some(r#"http"#.to_string()),None,None);
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);

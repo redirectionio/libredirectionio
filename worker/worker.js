@@ -21,10 +21,10 @@ async function redirectionio_fetch(request, event) {
     const libredirectionio = wasm_bindgen;
     await wasm_bindgen(wasm);
 
-    const redirectionioRequest = create_redirectionio_request(request, libredirectionio);
+    const clientIP = request.headers.get("CF-Connecting-IP");
+    const redirectionioRequest = create_redirectionio_request(request, libredirectionio, clientIP);
     const [action, registerCachePromise] = await get_action(request, redirectionioRequest, options, libredirectionio);
     const response = await proxy(request, redirectionioRequest, action, options, libredirectionio);
-    const clientIP = request.headers.get("CF-Connecting-IP");
 
     event.waitUntil(async function () {
         if (registerCachePromise !== null) {
@@ -37,7 +37,7 @@ async function redirectionio_fetch(request, event) {
     return response;
 }
 
-function create_redirectionio_request(request, libredirectionio) {
+function create_redirectionio_request(request, libredirectionio, clientIp) {
     const urlObject = new URL(request.url);
     const redirectionioRequest = new libredirectionio.Request(urlObject.pathname + urlObject.search, urlObject.host, urlObject.protocol.includes('https') ? 'https' : 'http', request.method);
 
@@ -57,6 +57,8 @@ function create_redirectionio_request(request, libredirectionio) {
 
         redirectionioRequest.add_header(pair[0], pair[1]);
     }
+
+    redirectionioRequest.set(clientIp);
 
     return redirectionioRequest;
 }

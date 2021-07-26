@@ -26,6 +26,7 @@ pub enum TraceInfo<T: RouteData> {
     Scheme { request: String, against: Option<String> },
     HostStatic { request: String, against: Option<String> },
     HostRegex,
+    Ip { request: String, against: String },
     Method { request: String, against: Option<String> },
     HeaderGroup { conditions: Vec<TraceInfoHeaderCondition> },
     PathAndQueryStatic { request: String },

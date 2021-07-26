@@ -27,7 +27,8 @@ fn test_{{ name }}_{{ loop.index }}() {
     let{% if test.headers %} mut{% endif %} request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"{{ test.uri }}"#), r#"{{ test.uri }}"#.to_string(),
     {%- if test.host -%}Some(r#"{{ test.host }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.scheme -%}Some(r#"{{ test.scheme }}"#.to_string()){% else %}None{%- endif -%},
-    {%- if test.method -%}Some(r#"{{ test.method }}"#.to_string()){% else %}None{%- endif -%}
+    {%- if test.method -%}Some(r#"{{ test.method }}"#.to_string()){% else %}None{%- endif -%},
+    {%- if test.remote_ip -%}r#"{{ test.remote_ip }}"#.to_string().parse().ok(){% else %}None{%- endif -%}
     );
     {%- if test.headers -%}
     {% for header in test.headers %}
