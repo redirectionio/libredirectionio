@@ -1,8 +1,10 @@
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi;
+mod log_override;
 mod status_code_update;
 pub mod wasm;
 
+use crate::action::log_override::LogOverride;
 use crate::api::{BodyFilter, HeaderFilter, Rule};
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
 use crate::http::{Header, Request};
@@ -14,11 +16,18 @@ use std::iter::FromIterator;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
-    pub status_code_update: Option<StatusCodeUpdate>,
+    status_code_update: Option<StatusCodeUpdate>,
     header_filters: Vec<HeaderFilterAction>,
     body_filters: Vec<BodyFilterAction>,
-    pub rule_ids: Vec<String>,
-    pub rules_applied: Option<HashSet<String>>,
+    rule_ids: Vec<String>,
+    rule_traces: Option<Vec<RuleTrace>>,
+    rules_applied: Option<HashSet<String>>,
+    log_override: Option<LogOverride>,
+}
+
+pub struct RuleTrace {
+    id: String,
+    on_response_status_codes: Vec<u16>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -48,7 +57,9 @@ impl Default for Action {
             header_filters: Vec::new(),
             body_filters: Vec::new(),
             rule_ids: Vec::new(),
+            rule_traces: Some(Vec::new()),
             rules_applied: Some(HashSet::new()),
+            log_override: None,
         }
     }
 }
@@ -87,14 +98,16 @@ impl Action {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
         let rule = route.handler();
+        let on_response_status_codes = match rule.source.response_status_codes.as_ref() {
+            None => Vec::new(),
+            Some(codes) => codes.clone(),
+        };
+
         let status_code_update = match rule.redirect_code.unwrap_or(0) {
             0 => None,
             redirect_code => Some(StatusCodeUpdate {
                 status_code: redirect_code,
-                on_response_status_codes: match rule.source.response_status_codes.as_ref() {
-                    None => Vec::new(),
-                    Some(codes) => codes.clone(),
-                },
+                on_response_status_codes: on_response_status_codes.clone(),
                 fallback_status_code: 0,
                 rule_id: Some(rule.id.clone()),
                 fallback_rule_id: None,
@@ -144,10 +157,7 @@ impl Action {
                         header: filter.header.clone(),
                         value: StaticOrDynamic::replace(filter.value.clone(), &variables),
                     },
-                    on_response_status_codes: match rule.source.response_status_codes.as_ref() {
-                        None => Vec::new(),
-                        Some(codes) => codes.clone(),
-                    },
+                    on_response_status_codes: on_response_status_codes.clone(),
                     rule_id: Some(rule.id.clone()),
                 });
             }
@@ -162,10 +172,7 @@ impl Action {
                         element_tree: filter.element_tree.clone(),
                         value: StaticOrDynamic::replace(filter.value.clone(), &variables),
                     },
-                    on_response_status_codes: match rule.source.response_status_codes.as_ref() {
-                        None => Vec::new(),
-                        Some(codes) => codes.clone(),
-                    },
+                    on_response_status_codes: on_response_status_codes.clone(),
                     rule_id: Some(rule.id.clone()),
                 });
             }
@@ -176,7 +183,18 @@ impl Action {
             header_filters,
             body_filters,
             rule_ids: vec![rule.id.clone()],
+            rule_traces: Some(vec![RuleTrace {
+                on_response_status_codes: on_response_status_codes.clone(),
+                id: rule.id.clone(),
+            }]),
             rules_applied: Some(HashSet::new()),
+            log_override: rule.log_override.map(|log_override| LogOverride {
+                log_override,
+                rule_id: Some(rule.id.clone()),
+                on_response_status_codes: on_response_status_codes.clone(),
+                fallback_log_override: None,
+                fallback_rule_id: None,
+            }),
         }
     }
 
@@ -213,6 +231,31 @@ impl Action {
 
         for rule_id in other.rule_ids {
             self.rule_ids.push(rule_id)
+        }
+
+        if let Some(other_rule_traces) = other.rule_traces {
+            for rule_trace in other.rule_traces {
+                self.rule_traces.and_then(|mut r| r.push(rule_trace))
+            }
+        }
+
+        if let Some(other_log_override) = other.log_override {
+            self.log_override = match &self.log_override {
+                None => Some(other_log_override),
+                Some(self_log_override) => {
+                    if !self_log_override.on_response_status_codes.is_empty() || other_log_override.on_response_status_codes.is_empty() {
+                        Some(other_log_override)
+                    } else {
+                        Some(LogOverride {
+                            log_override: other_log_override.log_override,
+                            rule_id: other_log_override.rule_id,
+                            on_response_status_codes: other_log_override.on_response_status_codes,
+                            fallback_log_override: Some(self_log_override.log_override),
+                            fallback_rule_id: self_log_override.rule_id.clone(),
+                        })
+                    }
+                }
+            }
         }
     }
 
@@ -282,6 +325,19 @@ impl Action {
         }
 
         FilterBodyAction::new(filters)
+    }
+
+    pub fn should_log_request(&mut self, allow_log_config: bool, response_status_code: u16) -> bool {
+        match self.log_override.as_ref() {
+            None => allow_log_config,
+            Some(log_override) => {
+                let (allow_log, rule_applied) = log_override.get_log_override(response_status_code);
+
+                self.apply_rule_id(rule_applied);
+
+                allow_log.unwrap_or(allow_log_config)
+            }
+        }
     }
 
     fn apply_rule_id(&mut self, rule_id: Option<String>) {

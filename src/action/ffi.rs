@@ -146,3 +146,18 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_drop(_filter: *mut Fil
 
     Box::from_raw(_filter);
 }
+
+#[no_mangle]
+pub unsafe extern "C" fn redirectionio_action_should_log_request(
+    _action: *mut Action,
+    allow_log_config: bool,
+    response_status_code: u16,
+) -> bool {
+    if _action.is_null() {
+        return allow_log_config;
+    }
+
+    let action = &mut *_action;
+
+    action.should_log_request(allow_log_config, response_status_code)
+}
