@@ -219,18 +219,18 @@ fn main() {
         return;
     }
 
-    let templating = match Tera::new("tests/templates/**/*") {
-        Ok(t) => t,
-        Err(e) => panic!("{}", e),
-    };
+    // let templating = match Tera::new("tests/templates/**/*") {
+    //     Ok(t) => t,
+    //     Err(e) => panic!("{}", e),
+    // };
+    //
+    // let rule_sets_list = RuleSetList { rule_sets };
 
-    let rule_sets_list = RuleSetList { rule_sets };
-
-    let context = Context::from_serialize(&rule_sets_list).expect("cannot serialize");
-    let test_content = templating.render("main.rs.j2", &context).expect("cannot generate");
-    let mut file = File::create("tests/redirectionio_router_test.rs").expect("cannot create file");
-
-    file.write_all(test_content.as_bytes()).expect("cannot write");
+    // let context = Context::from_serialize(&rule_sets_list).expect("cannot serialize");
+    // let test_content = templating.render("main.rs.j2", &context).expect("cannot generate");
+    // let mut file = File::create("tests/redirectionio_router_test.rs").expect("cannot create file");
+    //
+    // file.write_all(test_content.as_bytes()).expect("cannot write");
 }
 
 fn read_tests(path: &str) -> HashMap<String, RuleSet> {

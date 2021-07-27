@@ -1,7 +1,7 @@
 use crate::api::BodyFilter;
 use crate::filter::body_action;
 use crate::html;
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 struct BufferLink {
@@ -25,23 +25,24 @@ pub struct FilterBodyAction {
 }
 
 lazy_static! {
-    pub static ref VOID_ELEMENTS: HashMap<&'static str, bool> = {
-        let mut map = HashMap::new();
-        map.insert("area", true);
-        map.insert("base", true);
-        map.insert("br", true);
-        map.insert("col", true);
-        map.insert("embed", true);
-        map.insert("hr", true);
-        map.insert("img", true);
-        map.insert("input", true);
-        map.insert("meta", true);
-        map.insert("param", true);
-        map.insert("source", true);
-        map.insert("track", true);
-        map.insert("wbr", true);
+    pub static ref VOID_ELEMENTS: HashSet<&'static str> = {
+        let mut set = HashSet::new();
 
-        map
+        set.insert("area");
+        set.insert("base");
+        set.insert("br");
+        set.insert("col");
+        set.insert("embed");
+        set.insert("hr");
+        set.insert("img");
+        set.insert("input");
+        set.insert("meta");
+        set.insert("param");
+        set.insert("source");
+        set.insert("track");
+        set.insert("wbr");
+
+        set
     };
 }
 
@@ -120,7 +121,7 @@ impl FilterBodyAction {
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
 
-                    if VOID_ELEMENTS.get(tag_name_str.as_str()).is_some() {
+                    if VOID_ELEMENTS.contains(tag_name_str.as_str()) {
                         let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name_str.clone(), token_data);
 
                         self.current_buffer = new_buffer_link;

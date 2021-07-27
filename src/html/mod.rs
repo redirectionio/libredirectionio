@@ -294,7 +294,7 @@ impl<'t> Tokenizer<'t> {
     }
 
     pub fn raw(&self) -> String {
-        String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec()).expect("Canno create utf8 string")
+        String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec()).expect("Cannot create utf8 string")
     }
 
     pub fn text(&mut self) -> Option<String> {

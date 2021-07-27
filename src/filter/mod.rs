@@ -1,9 +1,9 @@
 mod body_action;
-mod filter_body;
 mod filter_header;
 mod header_action;
+mod html_filter_body;
 
 pub mod buffer;
 
-pub use filter_body::FilterBodyAction;
 pub use filter_header::FilterHeaderAction;
+pub use html_filter_body::FilterBodyAction;

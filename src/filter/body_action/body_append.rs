@@ -1,5 +1,5 @@
 use crate::filter::body_action;
-use crate::filter::filter_body;
+use crate::filter::html_filter_body;
 use crate::html;
 
 #[derive(Debug)]
@@ -92,7 +92,7 @@ fn append_child(content: String, child: String) -> String {
             level += 1;
             let (tag_name, _) = tokenizer.tag_name();
 
-            if filter_body::VOID_ELEMENTS.get(tag_name.unwrap().as_str()).is_some() {
+            if html_filter_body::VOID_ELEMENTS.contains(tag_name.unwrap().as_str()) {
                 level -= 1;
             }
         }
