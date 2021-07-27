@@ -19,3 +19,7 @@ mod callback_log;
 mod ffi;
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi_helpers;
+
+#[cfg(target_arch = "wasm32")]
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;

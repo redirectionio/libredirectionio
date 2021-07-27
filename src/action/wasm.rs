@@ -64,6 +64,16 @@ impl Action {
 
         BodyFilter { filter }
     }
+
+    pub fn should_log_request(&mut self, response_status_code: u16) -> bool {
+        if self.action.is_none() {
+            return true;
+        }
+
+        let action = self.action.as_mut().unwrap();
+
+        action.should_log_request(true, response_status_code)
+    }
 }
 
 #[wasm_bindgen]

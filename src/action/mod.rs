@@ -19,12 +19,17 @@ pub struct Action {
     status_code_update: Option<StatusCodeUpdate>,
     header_filters: Vec<HeaderFilterAction>,
     body_filters: Vec<BodyFilterAction>,
+    // In 3.0 remove this
     rule_ids: Vec<String>,
+    // In 3.0 make this mandatory
     rule_traces: Option<Vec<RuleTrace>>,
+    // In 3.0 make this mandatory
     rules_applied: Option<HashSet<String>>,
+    // In 3.0 make this mandatory
     log_override: Option<LogOverride>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RuleTrace {
     id: String,
     on_response_status_codes: Vec<u16>,
@@ -234,8 +239,9 @@ impl Action {
         }
 
         if let Some(other_rule_traces) = other.rule_traces {
-            for rule_trace in other.rule_traces {
-                self.rule_traces.and_then(|mut r| r.push(rule_trace))
+            for rule_trace in other_rule_traces {
+                let self_rule_traces = self.rule_traces.get_or_insert(Vec::new());
+                self_rule_traces.push(rule_trace);
             }
         }
 
@@ -287,14 +293,28 @@ impl Action {
 
     pub fn filter_headers(&mut self, headers: Vec<Header>, response_status_code: u16, add_rule_ids_header: bool) -> Vec<Header> {
         let mut filters = Vec::new();
+        let mut rule_applied = false;
+
+        if let Some(self_rule_traces) = self.rule_traces.clone() {
+            rule_applied = true;
+
+            for trace in self_rule_traces {
+                if trace.on_response_status_codes.iter().all(|v| *v == response_status_code) {
+                    self.apply_rule_id(Some(trace.id));
+                }
+            }
+        }
 
         for filter in self.header_filters.clone() {
             if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
                 continue;
             }
 
-            self.apply_rule_id(filter.rule_id);
             filters.push(filter.filter);
+
+            if !rule_applied {
+                self.apply_rule_id(filter.rule_id);
+            }
         }
 
         let mut new_headers = match FilterHeaderAction::new(filters) {
@@ -314,13 +334,17 @@ impl Action {
 
     pub fn create_filter_body(&mut self, response_status_code: u16) -> Option<FilterBodyAction> {
         let mut filters = Vec::new();
+        let rule_applied = self.rule_traces.is_some();
 
         for filter in self.body_filters.clone() {
             if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
                 continue;
             }
 
-            self.apply_rule_id(filter.rule_id);
+            if !rule_applied {
+                self.apply_rule_id(filter.rule_id);
+            }
+
             filters.push(filter.filter);
         }
 
@@ -328,12 +352,16 @@ impl Action {
     }
 
     pub fn should_log_request(&mut self, allow_log_config: bool, response_status_code: u16) -> bool {
+        let rule_applied = self.rule_traces.is_some();
+
         match self.log_override.as_ref() {
             None => allow_log_config,
             Some(log_override) => {
-                let (allow_log, rule_applied) = log_override.get_log_override(response_status_code);
+                let (allow_log, rule_applied_id) = log_override.get_log_override(response_status_code);
 
-                self.apply_rule_id(rule_applied);
+                if !rule_applied {
+                    self.apply_rule_id(rule_applied_id);
+                }
 
                 allow_log.unwrap_or(allow_log_config)
             }
@@ -345,10 +373,6 @@ impl Action {
             return;
         }
 
-        if self.rules_applied.is_none() {
-            self.rules_applied = Some(HashSet::new());
-        }
-
-        self.rules_applied.as_mut().unwrap().insert(rule_id.unwrap());
+        self.rules_applied.get_or_insert(HashSet::new()).insert(rule_id.unwrap());
     }
 }

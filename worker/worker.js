@@ -213,6 +213,10 @@ async function log(response, redirectionioRequest, action, libredirectionio, opt
         responseHeaderMap.add_header(pair[0], pair[1]);
     }
 
+    if (action && !action.should_log_request(response.status)) {
+        return;
+    }
+
     try {
         const logAsJson = libredirectionio.create_log_in_json(
             redirectionioRequest,

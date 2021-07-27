@@ -8,9 +8,6 @@ authors = ["Joel Wurtz <jwurtz@jolicode.com>"]
 edition = "2018"
 build = "src/build.rs"
 
-[features]
-default = ["console_error_panic_hook"]
-
 [lib]
 name = "redirectionio"
 crate-type = ["staticlib", "cdylib", "rlib"]
@@ -28,7 +25,6 @@ cfg-if = "1.0.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 cidr = "0.1.1"
 console_log = "0.2.0"
-console_error_panic_hook = { version = "0.1.6", optional = true }
 heck = "0.3.3"
 http = "0.2.4"
 lazy_static = "1.4.0"
@@ -44,10 +40,13 @@ string_cache = "0.8.1"
 url = "2.2.2"
 uuid = { version = "0.8", features = ["serde", "v4", "wasm-bindgen"] }
 wasm-bindgen = "0.2.74"
-wee_alloc = { version = "0.4.5", optional = true }
 
 [dev-dependencies]
 criterion = "0.3.5"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wee_alloc = { version = "0.4.5" }
+console_error_panic_hook = { version = "0.1.6" }
 
 [[bench]]
 name = "match_rule_benchmark"
