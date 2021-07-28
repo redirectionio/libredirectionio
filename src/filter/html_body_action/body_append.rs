@@ -1,5 +1,5 @@
-use crate::filter::body_action;
-use crate::filter::html_filter_body;
+use super::super::html_filter_body::VOID_ELEMENTS;
+use super::{evaluate, BodyAction};
 use crate::html;
 
 #[derive(Debug)]
@@ -23,7 +23,7 @@ impl BodyAppend {
     }
 }
 
-impl body_action::BodyAction for BodyAppend {
+impl BodyAction for BodyAppend {
     fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
         let next_leave = Some(self.element_tree[self.position].clone());
         let mut next_enter = None;
@@ -54,7 +54,7 @@ impl body_action::BodyAction for BodyAppend {
 
         if is_processing {
             if self.css_selector.is_some() && !self.css_selector.as_ref().unwrap().is_empty() {
-                if !body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
+                if !evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
                     return (next_enter, next_leave, append_child(data, self.content.clone()));
                 }
 
@@ -92,7 +92,7 @@ fn append_child(content: String, child: String) -> String {
             level += 1;
             let (tag_name, _) = tokenizer.tag_name();
 
-            if html_filter_body::VOID_ELEMENTS.contains(tag_name.unwrap().as_str()) {
+            if VOID_ELEMENTS.contains(tag_name.unwrap().as_str()) {
                 level -= 1;
             }
         }

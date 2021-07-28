@@ -1,4 +1,4 @@
-use crate::filter::body_action;
+use super::{evaluate, BodyAction};
 use crate::html;
 
 #[derive(Debug)]
@@ -22,7 +22,7 @@ impl BodyPrepend {
     }
 }
 
-impl body_action::BodyAction for BodyPrepend {
+impl BodyAction for BodyPrepend {
     fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
         let next_leave = Some(self.element_tree[self.position].clone());
         let mut next_enter = None;
@@ -59,7 +59,7 @@ impl body_action::BodyAction for BodyPrepend {
         if self.is_buffering && self.css_selector.is_some() && !self.css_selector.as_ref().unwrap().is_empty() {
             self.is_buffering = false;
 
-            if !body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
+            if !evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
                 return (next_enter, next_leave, prepend_child(data, self.content.clone()));
             }
         }

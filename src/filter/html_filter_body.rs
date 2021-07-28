@@ -1,5 +1,5 @@
 use crate::api::BodyFilter;
-use crate::filter::body_action;
+use crate::filter::html_body_action;
 use crate::html;
 use std::collections::HashSet;
 
@@ -11,15 +11,15 @@ struct BufferLink {
 }
 
 #[derive(Debug)]
-struct FilterBodyVisitor {
+struct HtmlFilterBodyVisitor {
     enter: Option<String>,
     leave: Option<String>,
-    action: Box<dyn body_action::BodyAction>,
+    action: Box<dyn html_body_action::BodyAction>,
 }
 
 #[derive(Debug)]
-pub struct FilterBodyAction {
-    visitors: Vec<FilterBodyVisitor>,
+pub struct HtmlFilterBodyAction {
+    visitors: Vec<HtmlFilterBodyVisitor>,
     current_buffer: Option<Box<BufferLink>>,
     last_buffer: String,
 }
@@ -46,13 +46,13 @@ lazy_static! {
     };
 }
 
-impl FilterBodyAction {
-    pub fn new(filters: Vec<BodyFilter>) -> Option<FilterBodyAction> {
+impl HtmlFilterBodyAction {
+    pub fn new(filters: Vec<BodyFilter>) -> Option<HtmlFilterBodyAction> {
         let mut visitors = Vec::new();
 
         for filter in &filters {
-            if let Some(action) = body_action::create_body_action(filter) {
-                let visitor = FilterBodyVisitor {
+            if let Some(action) = html_body_action::create_body_action(filter) {
+                let visitor = HtmlFilterBodyVisitor {
                     enter: Some(action.first()),
                     leave: None,
                     action,
@@ -63,7 +63,7 @@ impl FilterBodyAction {
         }
 
         if !visitors.is_empty() {
-            return Some(FilterBodyAction {
+            return Some(HtmlFilterBodyAction {
                 visitors,
                 last_buffer: "".to_string(),
                 current_buffer: None,
@@ -241,7 +241,7 @@ mod tests {
 
     #[test]
     pub fn test_filter() {
-        let mut filter = FilterBodyAction {
+        let mut filter = HtmlFilterBodyAction {
             last_buffer: "".to_string(),
             current_buffer: None,
             visitors: Vec::new(),
@@ -257,7 +257,7 @@ mod tests {
 
     #[test]
     pub fn test_buffer_on_error() {
-        let mut filter = FilterBodyAction {
+        let mut filter = HtmlFilterBodyAction {
             last_buffer: "".to_string(),
             current_buffer: None,
             visitors: Vec::new(),
@@ -284,19 +284,19 @@ mod tests {
             "<meta name=\"description\" content=\"New Description\" />".to_string(),
         ));
 
-        visitors.push(FilterBodyVisitor {
+        visitors.push(HtmlFilterBodyVisitor {
             enter: Some("html".to_string()),
             leave: None,
             action: append,
         });
 
-        visitors.push(FilterBodyVisitor {
+        visitors.push(HtmlFilterBodyVisitor {
             enter: Some("html".to_string()),
             leave: None,
             action: replace,
         });
 
-        let mut filter = FilterBodyAction {
+        let mut filter = HtmlFilterBodyAction {
             last_buffer: "".to_string(),
             current_buffer: None,
             visitors,
@@ -327,19 +327,19 @@ mod tests {
             "<meta name=\"description\" content=\"New Description\" />".to_string(),
         ));
 
-        visitors.push(FilterBodyVisitor {
+        visitors.push(HtmlFilterBodyVisitor {
             enter: Some("html".to_string()),
             leave: None,
             action: append,
         });
 
-        visitors.push(FilterBodyVisitor {
+        visitors.push(HtmlFilterBodyVisitor {
             enter: Some("html".to_string()),
             leave: None,
             action: replace,
         });
 
-        let mut filter = FilterBodyAction {
+        let mut filter = HtmlFilterBodyAction {
             last_buffer: "".to_string(),
             current_buffer: None,
             visitors,
@@ -365,13 +365,13 @@ mod tests {
             "<p>This is as test</p>".to_string(),
         ));
 
-        visitors.push(FilterBodyVisitor {
+        visitors.push(HtmlFilterBodyVisitor {
             enter: Some("html".to_string()),
             leave: None,
             action: prepend,
         });
 
-        let mut filter = FilterBodyAction {
+        let mut filter = HtmlFilterBodyAction {
             last_buffer: "".to_string(),
             current_buffer: None,
             visitors,
@@ -402,19 +402,19 @@ mod tests {
             r#"<meta property="og:description" content="New Description" />"#.to_string(),
         ));
 
-        visitors.push(FilterBodyVisitor {
+        visitors.push(HtmlFilterBodyVisitor {
             enter: Some("html".to_string()),
             leave: None,
             action: append,
         });
 
-        visitors.push(FilterBodyVisitor {
+        visitors.push(HtmlFilterBodyVisitor {
             enter: Some("html".to_string()),
             leave: None,
             action: replace,
         });
 
-        let mut filter = FilterBodyAction {
+        let mut filter = HtmlFilterBodyAction {
             last_buffer: "".to_string(),
             current_buffer: None,
             visitors,

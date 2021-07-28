@@ -1,4 +1,4 @@
-use crate::filter::body_action;
+use super::{evaluate, BodyAction};
 
 #[derive(Debug)]
 pub struct BodyReplace {
@@ -21,7 +21,7 @@ impl BodyReplace {
     }
 }
 
-impl body_action::BodyAction for BodyReplace {
+impl BodyAction for BodyReplace {
     fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
         let next_leave = Some(self.element_tree[self.position].clone());
         let mut next_enter = None;
@@ -59,7 +59,7 @@ impl body_action::BodyAction for BodyReplace {
                 return (next_enter, next_leave, self.content.clone());
             }
 
-            if body_action::evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
+            if evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
                 return (next_enter, next_leave, self.content.clone());
             }
         }

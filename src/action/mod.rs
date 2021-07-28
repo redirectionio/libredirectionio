@@ -6,7 +6,7 @@ pub mod wasm;
 
 use crate::action::log_override::LogOverride;
 use crate::api::{BodyFilter, HeaderFilter, Rule};
-use crate::filter::{FilterBodyAction, FilterHeaderAction};
+use crate::filter::{FilterHeaderAction, HtmlFilterBodyAction as FilterBodyAction};
 use crate::http::{Header, Request};
 use crate::router::{Route, StaticOrDynamic, Trace};
 use serde::{Deserialize, Serialize};
