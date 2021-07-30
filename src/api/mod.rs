@@ -16,7 +16,7 @@ mod variable;
 pub mod wasm;
 
 pub use self::log::Log;
-pub use body_filter::BodyFilter;
+pub use body_filter::{BodyFilter, HTMLBodyFilter};
 pub use header::Header;
 pub use header_filter::HeaderFilter;
 pub use impact::{Impact, ImpactResultItem};

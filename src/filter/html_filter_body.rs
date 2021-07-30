@@ -1,5 +1,4 @@
-use crate::api::BodyFilter;
-use crate::filter::html_body_action;
+use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::html;
 use std::collections::HashSet;
 
@@ -11,15 +10,10 @@ struct BufferLink {
 }
 
 #[derive(Debug)]
-struct HtmlFilterBodyVisitor {
+pub struct HtmlFilterBodyAction {
     enter: Option<String>,
     leave: Option<String>,
-    action: Box<dyn html_body_action::BodyAction>,
-}
-
-#[derive(Debug)]
-pub struct HtmlFilterBodyAction {
-    visitors: Vec<HtmlFilterBodyVisitor>,
+    visitor: HtmlBodyVisitor,
     current_buffer: Option<Box<BufferLink>>,
     last_buffer: String,
 }
@@ -47,30 +41,14 @@ lazy_static! {
 }
 
 impl HtmlFilterBodyAction {
-    pub fn new(filters: Vec<BodyFilter>) -> Option<HtmlFilterBodyAction> {
-        let mut visitors = Vec::new();
-
-        for filter in &filters {
-            if let Some(action) = html_body_action::create_body_action(filter) {
-                let visitor = HtmlFilterBodyVisitor {
-                    enter: Some(action.first()),
-                    leave: None,
-                    action,
-                };
-
-                visitors.push(visitor);
-            }
+    pub fn new(visitor: HtmlBodyVisitor) -> Self {
+        Self {
+            enter: Some(visitor.first()),
+            leave: None,
+            last_buffer: "".to_string(),
+            current_buffer: None,
+            visitor,
         }
-
-        if !visitors.is_empty() {
-            return Some(HtmlFilterBodyAction {
-                visitors,
-                last_buffer: "".to_string(),
-                current_buffer: None,
-            });
-        }
-
-        None
     }
 
     pub fn filter(&mut self, input: String) -> String {
@@ -176,18 +154,16 @@ impl HtmlFilterBodyAction {
         let mut buffer = data;
         let mut buffer_link_actions = 0;
 
-        for visitor in &mut self.visitors {
-            if visitor.enter.is_some() && visitor.enter.as_ref().unwrap() == tag_name.as_str() {
-                let (next_enter, next_leave, start_buffer, new_buffer) = visitor.action.enter(buffer);
+        if self.enter.is_some() && self.enter.as_ref().unwrap() == tag_name.as_str() {
+            let (next_enter, next_leave, start_buffer, new_buffer) = self.visitor.enter(buffer);
 
-                buffer = new_buffer;
+            buffer = new_buffer;
 
-                visitor.enter = next_enter;
-                visitor.leave = next_leave;
+            self.enter = next_enter;
+            self.leave = next_leave;
 
-                if start_buffer {
-                    buffer_link_actions += 1;
-                }
+            if start_buffer {
+                buffer_link_actions += 1;
             }
         }
 
@@ -214,14 +190,12 @@ impl HtmlFilterBodyAction {
             buffer = data;
         }
 
-        for visitor in &mut self.visitors {
-            if visitor.leave.is_some() && visitor.leave.as_ref().unwrap() == tag_name.as_str() {
-                let (next_enter, next_leave, new_buffer) = visitor.action.leave(buffer);
-                buffer = new_buffer;
+        if self.leave.is_some() && self.leave.as_ref().unwrap() == tag_name.as_str() {
+            let (next_enter, next_leave, new_buffer) = self.visitor.leave(buffer);
+            buffer = new_buffer;
 
-                visitor.enter = next_enter;
-                visitor.leave = next_leave;
-            }
+            self.enter = next_enter;
+            self.leave = next_leave;
         }
 
         if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {

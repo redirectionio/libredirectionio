@@ -5,8 +5,8 @@ mod status_code_update;
 pub mod wasm;
 
 use crate::action::log_override::LogOverride;
-use crate::api::{BodyFilter, HeaderFilter, Rule};
-use crate::filter::{FilterHeaderAction, HtmlFilterBodyAction as FilterBodyAction};
+use crate::api::{BodyFilter, HTMLBodyFilter, HeaderFilter, Rule};
+use crate::filter::{FilterBodyAction, FilterHeaderAction};
 use crate::http::{Header, Request};
 use crate::router::{Route, StaticOrDynamic, Trace};
 use serde::{Deserialize, Serialize};
@@ -171,11 +171,13 @@ impl Action {
         if let Some(rule_body_filters) = rule.body_filters.as_ref() {
             for filter in rule_body_filters {
                 body_filters.push(BodyFilterAction {
-                    filter: BodyFilter {
-                        action: filter.action.clone(),
-                        css_selector: filter.css_selector.clone(),
-                        element_tree: filter.element_tree.clone(),
-                        value: StaticOrDynamic::replace(filter.value.clone(), &variables),
+                    filter: match filter {
+                        BodyFilter::HTML(html_body_filter) => BodyFilter::HTML(HTMLBodyFilter {
+                            action: html_body_filter.action.clone(),
+                            css_selector: html_body_filter.css_selector.clone(),
+                            element_tree: html_body_filter.element_tree.clone(),
+                            value: StaticOrDynamic::replace(html_body_filter.value.clone(), &variables),
+                        }),
                     },
                     on_response_status_codes: on_response_status_codes.clone(),
                     rule_id: Some(rule.id.clone()),

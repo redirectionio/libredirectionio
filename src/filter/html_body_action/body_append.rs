@@ -1,5 +1,5 @@
 use super::super::html_filter_body::VOID_ELEMENTS;
-use super::{evaluate, BodyAction};
+use super::evaluate;
 use crate::html;
 
 #[derive(Debug)]
@@ -23,8 +23,8 @@ impl BodyAppend {
     }
 }
 
-impl BodyAction for BodyAppend {
-    fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
+impl BodyAppend {
+    pub fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
         let next_leave = Some(self.element_tree[self.position].clone());
         let mut next_enter = None;
 
@@ -41,7 +41,7 @@ impl BodyAction for BodyAppend {
         (next_enter, next_leave, should_buffer, data)
     }
 
-    fn leave(&mut self, data: String) -> (Option<String>, Option<String>, String) {
+    pub fn leave(&mut self, data: String) -> (Option<String>, Option<String>, String) {
         let next_enter = Some(self.element_tree[self.position].clone());
         let is_processing = self.position + 1 >= self.element_tree.len();
         let next_leave = if self.position as i32 > 0 {
@@ -53,12 +53,14 @@ impl BodyAction for BodyAppend {
         };
 
         if is_processing {
-            if self.css_selector.is_some() && !self.css_selector.as_ref().unwrap().is_empty() {
-                if !evaluate(data.clone(), self.css_selector.as_ref().unwrap().clone()) {
-                    return (next_enter, next_leave, append_child(data, self.content.clone()));
-                }
+            if let Some(css_selector) = self.css_selector.as_ref() {
+                if !css_selector.is_empty() {
+                    if !evaluate(data.as_str(), css_selector.as_str()) {
+                        return (next_enter, next_leave, append_child(data, self.content.clone()));
+                    }
 
-                return (next_enter, next_leave, data);
+                    return (next_enter, next_leave, data);
+                }
             }
 
             let mut new_data = self.content.clone();
@@ -70,7 +72,7 @@ impl BodyAction for BodyAppend {
         (next_enter, next_leave, data)
     }
 
-    fn first(&self) -> String {
+    pub fn first(&self) -> String {
         self.element_tree[0].clone()
     }
 }

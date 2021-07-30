@@ -1,7 +1,6 @@
 use crate::action::Action;
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
-use crate::filter::buffer::Buffer;
-use crate::filter::HtmlFilterBodyAction as FilterBodyAction;
+use crate::filter::{Buffer, FilterBodyAction};
 use crate::http::ffi::{header_map_to_http_headers, http_headers_to_header_map, HeaderMap};
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::os::raw::c_char;
