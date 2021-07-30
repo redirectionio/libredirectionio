@@ -15,6 +15,6 @@ impl LogOverride {
             return (Some(self.log_override), self.rule_id.clone());
         }
 
-        return (self.fallback_log_override, self.fallback_rule_id.clone());
+        (self.fallback_log_override, self.fallback_rule_id.clone())
     }
 }

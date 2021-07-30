@@ -134,7 +134,7 @@ impl Request {
             scheme: request.scheme.clone(),
             method: request.method.clone(),
             headers,
-            remote_addr: request.remote_addr.clone(),
+            remote_addr: request.remote_addr,
             created_at: request.created_at,
         }
     }
@@ -195,7 +195,7 @@ impl Request {
             return;
         }
 
-        let mut ips = vec![remote_ip.clone()];
+        let mut ips = vec![remote_ip];
 
         for (name, val) in self
             .header_values("forwarded")

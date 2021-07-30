@@ -9,6 +9,7 @@ pub struct HTMLBodyFilter {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
 pub enum BodyFilter {
     HTML(HTMLBodyFilter),
 }

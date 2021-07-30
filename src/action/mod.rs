@@ -350,7 +350,13 @@ impl Action {
             filters.push(filter.filter);
         }
 
-        FilterBodyAction::new(filters)
+        let body_filter = FilterBodyAction::new(filters);
+
+        if body_filter.is_empty() {
+            None
+        } else {
+            Some(body_filter)
+        }
     }
 
     pub fn should_log_request(&mut self, allow_log_config: bool, response_status_code: u16) -> bool {
