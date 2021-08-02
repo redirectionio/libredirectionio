@@ -16,7 +16,7 @@ name = "redirectionio"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-cbindgen="0.19.0"
+cbindgen="0.20.0"
 libtool = "0.1.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8.17"
@@ -25,7 +25,7 @@ linked_hash_set = { version = "0.1.4", features = ["serde"] }
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.64"
+serde_json = "1.0.66"
 regex = "1.5.4"
 url = "2.2.2"
 percent-encoding = "2.1.0"
@@ -45,7 +45,7 @@ http = "0.2.4"
 string_cache = "0.8.1"
 
 [dev-dependencies]
-criterion = "0.3.4"
+criterion = "0.3.5"
 
 [[bench]]
 name = "match_rule_benchmark"
