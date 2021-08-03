@@ -2408,6 +2408,150 @@ fn test_action_seo_override_title_4() {
 }
 
 
+fn setup_action_text_append() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_text","content":"new content"}],"id":"override-title-rule","rank":0,"source":{"host":"","path":"/source","query":""}}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_text_append_1() {
+    let router = setup_action_text_append();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    let body_filter_opt = action.create_filter_body(response_status_code);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+    let mut new_body = body_filter.filter(r#"Old content"#.to_string());
+    new_body.push_str(body_filter.end().as_str());
+    assert_eq!(new_body, r#"Old contentnew content"#)
+}
+
+
+fn setup_action_text_prepend() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"prepend_text","content":"new content"}],"id":"override-title-rule","rank":0,"source":{"host":"","path":"/source","query":""}}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_text_prepend_1() {
+    let router = setup_action_text_prepend();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    let body_filter_opt = action.create_filter_body(response_status_code);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+    let mut new_body = body_filter.filter(r#"Old content"#.to_string());
+    new_body.push_str(body_filter.end().as_str());
+    assert_eq!(new_body, r#"new contentOld content"#)
+}
+
+
+fn setup_action_text_replace() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace_text","content":"new content"}],"id":"override-title-rule","rank":0,"source":{"host":"","path":"/source","query":""}}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_text_replace_1() {
+    let router = setup_action_text_replace();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    let body_filter_opt = action.create_filter_body(response_status_code);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+    let mut new_body = body_filter.filter(r#"Old content"#.to_string());
+    new_body.push_str(body_filter.end().as_str());
+    assert_eq!(new_body, r#"new content"#)
+}
+
+#[test]
+fn test_action_text_replace_2() {
+    let router = setup_action_text_replace();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    let body_filter_opt = action.create_filter_body(response_status_code);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+    let mut new_body = body_filter.filter(r#""#.to_string());
+    new_body.push_str(body_filter.end().as_str());
+    assert_eq!(new_body, r#"new content"#)
+}
+
+
 fn setup_ignore_path_case() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":true,"marketing_query_params":["test"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);

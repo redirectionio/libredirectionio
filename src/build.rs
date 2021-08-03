@@ -112,9 +112,14 @@ struct HeaderFilter {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct BodyFilter {
     action: String,
-    value: String,
-    element_tree: Vec<String>,
-    css_selector: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    content: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    value: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    element_tree: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    css_selector: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
