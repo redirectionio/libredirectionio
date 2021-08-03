@@ -28,7 +28,7 @@ pub struct Router<T: RouteData> {
 impl<T: RouteData> Default for Router<T> {
     fn default() -> Self {
         Router {
-            matcher: SchemeMatcher::default(),
+            matcher: SchemeMatcher::new(RouterConfig::default()),
             config: RouterConfig::default(),
         }
     }
@@ -37,7 +37,7 @@ impl<T: RouteData> Default for Router<T> {
 impl<T: RouteData> Router<T> {
     pub fn from_config(config: RouterConfig) -> Self {
         Self {
-            matcher: SchemeMatcher::default(),
+            matcher: SchemeMatcher::new(config.clone()),
             config,
         }
     }

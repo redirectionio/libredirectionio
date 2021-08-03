@@ -1,7 +1,7 @@
 use crate::http::Request;
 use crate::router::request_matcher::{HostMatcher, RequestMatcher};
 use crate::router::trace::TraceInfo;
-use crate::router::{Route, RouteData, Trace};
+use crate::router::{Route, RouteData, RouterConfig, Trace};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -9,6 +9,7 @@ pub struct SchemeMatcher<T: RouteData> {
     schemes: HashMap<String, Box<dyn RequestMatcher<T>>>,
     any_scheme: Box<dyn RequestMatcher<T>>,
     count: usize,
+    config: RouterConfig,
 }
 
 impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
@@ -22,7 +23,8 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
                     self.any_scheme.insert(route)
                 } else {
                     if !self.schemes.contains_key(scheme) {
-                        self.schemes.insert(scheme.to_string(), SchemeMatcher::create_sub_matcher());
+                        self.schemes
+                            .insert(scheme.to_string(), SchemeMatcher::create_sub_matcher(self.config.clone()));
                     }
 
                     self.schemes.get_mut(scheme).unwrap().insert(route);
@@ -139,18 +141,17 @@ impl<T: RouteData> RequestMatcher<T> for SchemeMatcher<T> {
     }
 }
 
-impl<T: RouteData> Default for SchemeMatcher<T> {
-    fn default() -> Self {
+impl<T: RouteData> SchemeMatcher<T> {
+    pub fn create_sub_matcher(config: RouterConfig) -> Box<dyn RequestMatcher<T>> {
+        Box::new(HostMatcher::new(config))
+    }
+
+    pub fn new(config: RouterConfig) -> Self {
         SchemeMatcher {
             schemes: HashMap::new(),
-            any_scheme: SchemeMatcher::create_sub_matcher(),
+            any_scheme: SchemeMatcher::create_sub_matcher(config.clone()),
+            config,
             count: 0,
         }
-    }
-}
-
-impl<T: RouteData> SchemeMatcher<T> {
-    pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(HostMatcher::default())
     }
 }

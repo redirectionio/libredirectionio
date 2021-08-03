@@ -2,7 +2,7 @@ use crate::http::Request;
 use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
 use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
 use crate::router::trace::TraceInfo;
-use crate::router::{IpMatcher, RequestMatcher, Route, RouteData, StaticOrDynamic, Trace};
+use crate::router::{IpMatcher, RequestMatcher, Route, RouteData, RouterConfig, StaticOrDynamic, Trace};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -35,6 +35,7 @@ pub struct HostMatcher<T: RouteData> {
     static_hosts: HashMap<String, Box<dyn RequestMatcher<T>>>,
     regex_tree_rule: RegexRadixTree<HostRegexNodeItem<T>, HostRegexTreeMatcher<T>>,
     any_host: Box<dyn RequestMatcher<T>>,
+    always_match_any_host: bool,
     count: usize,
 }
 
@@ -98,9 +99,10 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
     }
 
     fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+        let mut routes = Vec::new();
+
         if let Some(host) = request.host() {
             let storages = self.regex_tree_rule.find(host);
-            let mut routes = Vec::new();
 
             for storage in storages {
                 routes.extend(storage.matcher.match_request(request));
@@ -109,13 +111,13 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
             if let Some(matcher) = self.static_hosts.get(host) {
                 routes.extend(matcher.match_request(request));
             }
-
-            if !routes.is_empty() {
-                return routes;
-            }
         }
 
-        self.any_host.match_request(request)
+        if self.always_match_any_host || routes.is_empty() {
+            routes.extend(self.any_host.match_request(request));
+        }
+
+        routes
     }
 
     fn trace(&self, request: &Request) -> Vec<Trace<T>> {
@@ -173,11 +175,9 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
             }
         }
 
-        if !Trace::<T>::get_routes_from_traces(&traces).is_empty() {
-            return traces;
+        if self.always_match_any_host || Trace::<T>::get_routes_from_traces(&traces).is_empty() {
+            traces.extend(self.any_host.trace(request));
         }
-
-        traces.extend(self.any_host.trace(request));
 
         traces
     }
@@ -212,6 +212,7 @@ impl<T: RouteData> Default for HostMatcher<T> {
             any_host: HostMatcher::create_sub_matcher(),
             count: 0,
             regex_tree_rule: RegexRadixTree::default(),
+            always_match_any_host: false,
         }
     }
 }
@@ -219,5 +220,15 @@ impl<T: RouteData> Default for HostMatcher<T> {
 impl<T: RouteData> HostMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
         Box::new(IpMatcher::default())
+    }
+
+    pub fn new(config: RouterConfig) -> Self {
+        HostMatcher {
+            static_hosts: HashMap::new(),
+            any_host: HostMatcher::create_sub_matcher(),
+            count: 0,
+            regex_tree_rule: RegexRadixTree::default(),
+            always_match_any_host: config.always_match_router_host,
+        }
     }
 }
