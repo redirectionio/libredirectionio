@@ -5,7 +5,7 @@ mod status_code_update;
 pub mod wasm;
 
 use crate::action::log_override::LogOverride;
-use crate::api::{BodyFilter, HTMLBodyFilter, HeaderFilter, Rule};
+use crate::api::{BodyFilter, HTMLBodyFilter, HeaderFilter, Rule, TextBodyFilter};
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
 use crate::http::{Header, Request};
 use crate::router::{Route, StaticOrDynamic, Trace};
@@ -177,6 +177,10 @@ impl Action {
                             css_selector: html_body_filter.css_selector.clone(),
                             element_tree: html_body_filter.element_tree.clone(),
                             value: StaticOrDynamic::replace(html_body_filter.value.clone(), &variables),
+                        }),
+                        BodyFilter::Text(text_body_filter) => BodyFilter::Text(TextBodyFilter {
+                            action: text_body_filter.action.clone(),
+                            content: StaticOrDynamic::replace(text_body_filter.content.clone(), &variables),
                         }),
                     },
                     on_response_status_codes: on_response_status_codes.clone(),

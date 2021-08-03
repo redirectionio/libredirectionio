@@ -1,5 +1,6 @@
-use crate::api::BodyFilter;
+use crate::api::{BodyFilter, TextAction};
 use crate::filter::html_body_action::HtmlBodyVisitor;
+use crate::filter::text_filter_body::{TextFilterAction, TextFilterBodyAction};
 use crate::filter::HtmlFilterBodyAction;
 
 pub struct FilterBodyAction {
@@ -8,6 +9,7 @@ pub struct FilterBodyAction {
 
 pub enum FilterBodyActionItem {
     HTML(HtmlFilterBodyAction),
+    Text(TextFilterBodyAction),
 }
 
 impl FilterBodyAction {
@@ -66,18 +68,28 @@ impl FilterBodyActionItem {
             BodyFilter::HTML(html_body_filter) => {
                 HtmlBodyVisitor::new(html_body_filter).map(|visitor| Self::HTML(HtmlFilterBodyAction::new(visitor)))
             }
+            BodyFilter::Text(text_body_filter) => Some(Self::Text(TextFilterBodyAction::new(
+                match text_body_filter.action {
+                    TextAction::Append => TextFilterAction::Append,
+                    TextAction::Prepend => TextFilterAction::Prepend,
+                    TextAction::Replace => TextFilterAction::Replace,
+                },
+                text_body_filter.content,
+            ))),
         }
     }
 
     pub fn filter(&mut self, data: String) -> String {
         match self {
             FilterBodyActionItem::HTML(html_body_filter) => html_body_filter.filter(data),
+            FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data),
         }
     }
 
     pub fn end(&mut self) -> String {
         match self {
             FilterBodyActionItem::HTML(html_body_filter) => html_body_filter.end(),
+            FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
         }
     }
 }

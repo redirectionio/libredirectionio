@@ -4,6 +4,7 @@ mod filter_header;
 mod header_action;
 mod html_body_action;
 mod html_filter_body;
+mod text_filter_body;
 
 pub use buffer::Buffer;
 pub use filter_body::FilterBodyAction;
