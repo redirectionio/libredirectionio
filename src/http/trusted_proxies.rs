@@ -1,4 +1,4 @@
-use cidr::{AnyIpCidr, NetworkParseError};
+use cidr::{errors::NetworkParseError, AnyIpCidr};
 use std::net::IpAddr;
 
 #[derive(Debug, Clone)]
