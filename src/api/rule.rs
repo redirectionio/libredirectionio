@@ -93,27 +93,35 @@ impl Rule {
         markers
     }
 
-    fn route_ip(&self) -> Option<RouteIp> {
-        match &self.source.ip {
+    fn route_ips(&self) -> Option<Vec<RouteIp>> {
+        match &self.source.ips {
             None => None,
-            Some(ip) => match ip {
-                IpConstraint::InRange(range) => match range.parse::<AnyIpCidr>() {
-                    Ok(cidr) => Some(RouteIp::InRange(cidr)),
-                    Err(err) => {
-                        log::error!("cannot parse cidr {}: {}", range, err);
+            Some(ips) => {
+                let mut route_ips = Vec::new();
 
-                        None
+                for ip in ips {
+                    match ip {
+                        IpConstraint::InRange(range) => match range.parse::<AnyIpCidr>() {
+                            Ok(cidr) => route_ips.push(RouteIp::InRange(cidr)),
+                            Err(err) => {
+                                log::error!("cannot parse cidr {}: {}", range, err);
+                            }
+                        },
+                        IpConstraint::NotInRange(range) => match range.parse::<AnyIpCidr>() {
+                            Ok(cidr) => route_ips.push(RouteIp::NotInRange(cidr)),
+                            Err(err) => {
+                                log::error!("cannot parse cidr {}: {}", range, err);
+                            }
+                        },
                     }
-                },
-                IpConstraint::NotInRange(range) => match range.parse::<AnyIpCidr>() {
-                    Ok(cidr) => Some(RouteIp::NotInRange(cidr)),
-                    Err(err) => {
-                        log::error!("cannot parse cidr {}: {}", range, err);
+                }
 
-                        None
-                    }
-                },
-            },
+                if route_ips.is_empty() {
+                    None
+                } else {
+                    Some(route_ips)
+                }
+            }
         }
     }
 
@@ -203,7 +211,7 @@ impl Rule {
             self.host(config.ignore_host_case),
             self.path_and_query(config.ignore_path_and_query_case),
             self.headers(config.ignore_header_case),
-            self.route_ip(),
+            self.route_ips(),
             self.id.clone(),
             0 - self.rank as i64,
             self,

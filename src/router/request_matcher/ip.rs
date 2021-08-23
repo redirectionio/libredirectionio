@@ -15,12 +15,14 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
-        match route.ip() {
-            Some(ip) => {
-                self.matchers
-                    .entry(ip.clone())
-                    .or_insert_with(|| Self::create_sub_matcher())
-                    .insert(route);
+        match route.ips() {
+            Some(ips) => {
+                for ip in ips {
+                    self.matchers
+                        .entry(ip.clone())
+                        .or_insert_with(|| Self::create_sub_matcher())
+                        .insert(route.clone());
+                }
             }
             None => {
                 self.no_matcher.insert(route);
