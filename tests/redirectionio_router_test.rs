@@ -6132,10 +6132,10 @@ fn setup_rule_ip_trigger() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-in-range","rank":0,"redirect_code":302,"source":{"ip":{"in_range":"192.168.0.0/24"},"path":"/foo"},"target":"/bar"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-in-range","rank":0,"redirect_code":302,"source":{"ips":[{"in_range":"192.168.0.0/24"},{"in_range":"172.12.0.0/24"}],"path":"/foo"},"target":"/bar"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
-    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-not-in-range","rank":0,"redirect_code":302,"source":{"ip":{"not_in_range":"10.0.0.0/24"},"path":"/foo2"},"target":"/bar2"}"#).expect("cannot deserialize");
+    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-not-in-range","rank":0,"redirect_code":302,"source":{"ips":[{"not_in_range":"10.0.0.0/24"}],"path":"/foo2"},"target":"/bar2"}"#).expect("cannot deserialize");
     router.insert(route_2.into_route(&router.config));
 
     router
@@ -6181,7 +6181,7 @@ fn test_rule_ip_trigger_2() {
 fn test_rule_ip_trigger_3() {
     let router = setup_rule_ip_trigger();
     let default_config = RouterConfig::default();
-    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,r#"192.168.1.12"#.to_string().parse().ok());
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,r#"172.12.0.1"#.to_string().parse().ok());
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -6199,6 +6199,26 @@ fn test_rule_ip_trigger_3() {
 
 #[test]
 fn test_rule_ip_trigger_4() {
+    let router = setup_rule_ip_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,r#"192.168.1.12"#.to_string().parse().ok());
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+}
+
+#[test]
+fn test_rule_ip_trigger_5() {
     let router = setup_rule_ip_trigger();
     let default_config = RouterConfig::default();
     let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),None,None,None,r#"10.0.0.1"#.to_string().parse().ok());

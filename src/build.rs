@@ -114,7 +114,7 @@ struct Source {
     #[serde(skip_serializing_if = "Option::is_none")]
     methods: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    ip: Option<IpConstraint>,
+    ips: Option<Vec<IpConstraint>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
 }
