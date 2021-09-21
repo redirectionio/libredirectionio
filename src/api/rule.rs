@@ -16,7 +16,8 @@ pub struct Rule {
     pub id: String,
     pub source: Source,
     pub target: Option<String>,
-    pub redirect_code: Option<u16>,
+    #[serde(alias = "redirect_code")]
+    pub status_code: Option<u16>,
     pub rank: u16,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub markers: Vec<Marker>,
