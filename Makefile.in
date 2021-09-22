@@ -1,7 +1,7 @@
 RUST_SOURCES = $(shell find src/ -type f -name '*.rs')
 
 RUST_EXTRA =                        \
-        @RUST_ROOT_DIR@/Cargo.toml
+        Cargo.toml
 
 EXTRA_DIST += $(RUST_SOURCES) $(RUST_EXTRA)
 
@@ -20,28 +20,26 @@ endif
 prefix := @prefix@
 exec_prefix := @exec_prefix@
 
-.PHONY: all
-all: @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a @RUST_ROOT_DIR@/redirectionio.h
+all: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a redirectionio.h
 
-@RUST_ROOT_DIR@/redirectionio.h: $(EXTRA_DIST)
-	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_ROOT_DIR@/@RUST_TARGET_DIR@
+redirectionio.h: $(EXTRA_DIST)
+	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_TARGET_DIR@
 
-@RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a: $(EXTRA_DIST)
-	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_ROOT_DIR@/@RUST_TARGET_DIR@
+@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a: $(EXTRA_DIST)
+	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_TARGET_DIR@
 
-.PHONY: install
-install: @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a @RUST_ROOT_DIR@/redirectionio.h
+install: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a redirectionio.h
 	mkdir -p $(DESTDIR)@prefix@/include/
-	install -c -m 644 @RUST_ROOT_DIR@/redirectionio.h $(DESTDIR)@prefix@/include/
+	install -c -m 644 redirectionio.h $(DESTDIR)@prefix@/include/
 	mkdir -p $(DESTDIR)@libdir@/
-	install -c -m 644 @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
+	install -c -m 644 @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
 	mkdir -p $(DESTDIR)@libdir@/pkgconfig/
 	install -c -m 644 libredirectionio.pc $(DESTDIR)@libdir@/pkgconfig/
 
 .PHONY:	clean
 clean:
-	rm -f @RUST_ROOT_DIR@/redirectionio.h
-	rm -f @RUST_ROOT_DIR@/@RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a
+	rm -f redirectionio.h
+	rm -f @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a
 	@CARGO_BIN@ clean --package redirectionio @RUST_RELEASE@
 
 .PHONY:	fullclean
