@@ -64,8 +64,13 @@ fn test_{{ name }}_{{ loop.index }}() {
     let mut body_filter = body_filter_opt.unwrap();
     let mut new_body = body_filter.filter(r#"{{ test.should_filter_body.original_body }}"#.to_string());
     new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"{{ test.should_filter_body.expected_body }}"#)
+    assert_eq!(new_body, r#"{{ test.should_filter_body.expected_body }}"#);
     {%- endif -%}
+    {%- endif -%}
+{% if test.should_not_log %}
+    assert_eq!(action.should_log_request(true, response_status_code), false);
+    {%- else %}
+    assert_eq!(action.should_log_request(true, response_status_code), true);
     {%- endif -%}
 {% endif %}
 {%- if test.should_filter_header and test.should_filter_header.enable %}

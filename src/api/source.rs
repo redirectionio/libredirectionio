@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub struct Source {
     pub scheme: Option<String>,
     pub host: Option<String>,
-    pub ip: Option<IpConstraint>,
+    pub ips: Option<Vec<IpConstraint>>,
     pub path: String,
     pub query: Option<String>,
     pub headers: Option<Vec<Header>>,

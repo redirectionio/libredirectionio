@@ -90,7 +90,8 @@ struct Rule {
     #[serde(skip_serializing_if = "Option::is_none")]
     target: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    redirect_code: Option<u16>,
+    #[serde(alias = "redirect_code")]
+    status_code: Option<u16>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     header_filters: Vec<HeaderFilter>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
@@ -100,6 +101,8 @@ struct Rule {
     markers: Vec<Marker>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     variables: Vec<Variable>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    log_override: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -114,7 +117,7 @@ struct Source {
     #[serde(skip_serializing_if = "Option::is_none")]
     methods: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    ip: Option<IpConstraint>,
+    ips: Option<Vec<IpConstraint>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
 }
@@ -206,6 +209,7 @@ struct RuleTest {
     status: Option<u16>,
     should_filter_body: Option<ShouldFilterBody>,
     should_filter_header: Option<ShouldFilterHeader>,
+    should_not_log: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
