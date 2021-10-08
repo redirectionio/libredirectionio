@@ -2,6 +2,8 @@ use crate::api::{RouterTrace, Rule};
 use crate::http::Request;
 use crate::router::Router;
 use serde::{Deserialize, Serialize};
+use std::net::IpAddr;
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Impact {
@@ -14,6 +16,7 @@ pub struct ImpactExample {
     url: String,
     method: Option<String>,
     headers: Option<Vec<ImpactExampleHeader>>,
+    ip_address: Option<String>,
     response_status_code: Option<u16>,
     must_match: bool,
 }
@@ -92,6 +95,10 @@ impl Impact {
                 None => "",
                 Some(path_and_query) => path_and_query.as_str(),
             };
+            let ip_address = match &example.ip_address {
+                Some(ip) => IpAddr::from_str(ip.as_str()).ok(),
+                None => None,
+            };
 
             let mut request = Request::from_config(
                 &router.config,
@@ -99,6 +106,7 @@ impl Impact {
                 http_request.uri().host().map(|s| s.to_string()),
                 http_request.uri().scheme_str().map(|s| s.to_string()),
                 example.method.clone(),
+                ip_address,
             );
 
             if example.headers.is_some() {

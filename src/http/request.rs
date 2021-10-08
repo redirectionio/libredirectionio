@@ -76,6 +76,7 @@ impl Request {
         host: Option<String>,
         scheme: Option<String>,
         method: Option<String>,
+        remote_addr: Option<IpAddr>,
     ) -> Request {
         Request {
             path_and_query_skipped: PathAndQueryWithSkipped::from_config(config, path_and_query.as_str()),
@@ -92,7 +93,7 @@ impl Request {
             },
             scheme,
             method,
-            remote_addr: None,
+            remote_addr,
             headers: Vec::new(),
             created_at: Some(Utc::now()),
         }
