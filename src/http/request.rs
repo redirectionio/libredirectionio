@@ -6,7 +6,7 @@ use chrono::{DateTime, Utc};
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::net::IpAddr;
+use std::net::{IpAddr, ToSocketAddrs};
 use std::str::FromStr;
 use url::form_urlencoded::parse as parse_query;
 
@@ -182,11 +182,21 @@ impl Request {
     pub fn set_remote_ip(&mut self, remote_addr_str: String, trusted_proxies: &TrustedProxies) {
         let remote_ip = match remote_addr_str.parse::<IpAddr>() {
             Ok(ip) => ip,
-            Err(e) => {
-                log::error!("cannot parse ip address, skipping: {}", e);
+            Err(e) => match remote_addr_str.to_socket_addrs() {
+                Err(err) => {
+                    log::error!("cannot parse ip address {}, skipping: {} / {}", remote_addr_str, e, err);
 
-                return;
-            }
+                    return;
+                }
+                Ok(mut addrs) => match addrs.next() {
+                    Some(addr) => addr.ip(),
+                    None => {
+                        log::error!("no ip address for {}, skipping: {}", remote_addr_str, e);
+
+                        return;
+                    }
+                },
+            },
         };
 
         if trusted_proxies.is_empty() {
