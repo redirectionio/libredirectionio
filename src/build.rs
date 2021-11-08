@@ -8,8 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
 use std::collections::HashMap;
 use std::env;
-use std::fs::{read_dir, read_to_string, DirEntry, File};
-use std::io::prelude::*;
+use std::fs::{read_dir, read_to_string, DirEntry};
 use std::path::Path;
 use tera::{Context, Tera};
 
@@ -259,12 +258,20 @@ fn main() {
     };
 
     let rule_sets_list = RuleSetList { rule_sets };
+    let test_path = Path::new("tests/redirectionio_router_test.rs");
 
     let context = Context::from_serialize(&rule_sets_list).expect("cannot serialize");
     let test_content = templating.render("main.rs.j2", &context).expect("cannot generate");
-    let mut file = File::create("tests/redirectionio_router_test.rs").expect("cannot create file");
 
-    file.write_all(test_content.as_bytes()).expect("cannot write");
+    if test_path.exists() {
+        let existing_content = std::fs::read_to_string(test_path).expect("cannot read");
+
+        if existing_content != test_content {
+            std::fs::write(test_path, test_content).expect("cannot write");
+        }
+    } else {
+        std::fs::write(test_path, test_content).expect("cannot write");
+    }
 }
 
 fn read_tests(path: &str) -> HashMap<String, RuleSet> {
