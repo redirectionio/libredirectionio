@@ -14,7 +14,7 @@ impl Transform for Slice {
             return "".to_string();
         }
 
-        if from + to > str.len() {
+        if to > str.len() {
             to = str.len();
         }
 
