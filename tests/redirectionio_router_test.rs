@@ -3689,6 +3689,9 @@ fn setup_marker_transformation_replace() -> Router<Rule> {
     let route_1: Rule = serde_json::from_str(r#"{"id":"replace-rule","markers":[{"name":"marker","regex":"(cat|dog|fish)","transformers":[{"options":{"something":"cat","with":"tiger"},"type":"replace"}]}],"rank":0,"source":{"path":"/replace/from/@marker"},"status_code":302,"target":"/replace/target/@marker"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
+    let route_2: Rule = serde_json::from_str(r#"{"id":"replace-rule-2","markers":[{"name":"marker","regex":".*","transformers":[{"options":{"something":"disappear","with":""},"type":"replace"}]}],"rank":0,"source":{"path":"/replace-2/from/@marker"},"status_code":302,"target":"/@marker"}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
     router
 }
 
@@ -3759,6 +3762,60 @@ fn test_marker_transformation_replace_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/replace/target/dog"#);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+}
+
+#[test]
+fn test_marker_transformation_replace_4() {
+    let router = setup_marker_transformation_replace();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace-2/from/disappear"#), r#"/replace-2/from/disappear"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/"#);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+}
+
+#[test]
+fn test_marker_transformation_replace_5() {
+    let router = setup_marker_transformation_replace();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/replace-2/from/something"#), r#"/replace-2/from/something"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/something"#);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
