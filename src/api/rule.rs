@@ -45,20 +45,27 @@ impl Rule {
 
     pub fn variables(&self, markers_captured: &HashMap<String, String>, request: &Request) -> Vec<(String, String)> {
         let mut variables = Vec::new();
+        let mut input = HashMap::new();
+
+        for (name, value) in markers_captured {
+            match self.get_marker(name.as_str()) {
+                None => {
+                    input.insert(name.clone(), value.clone());
+                }
+                Some(m) => {
+                    input.insert(name.clone(), m.transform(value.clone()));
+                }
+            }
+        }
 
         // Clone markers capture for bc break
         if self.variables.is_empty() {
-            for (name, value) in markers_captured {
-                match self.get_marker(name.as_str()) {
-                    None => (),
-                    Some(m) => {
-                        variables.push((name.clone(), m.transform(value.clone())));
-                    }
-                }
+            for (name, value) in &input {
+                variables.push((name.clone(), value.clone()));
             }
         } else {
             for variable in &self.variables {
-                match variable.get_value(markers_captured, request) {
+                match variable.get_value(&input, request) {
                     None => {
                         log::warn!("cannot get value from variable {}", variable.name);
                     }
