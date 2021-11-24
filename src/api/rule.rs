@@ -43,8 +43,8 @@ impl Rule {
         Some(rule_result.unwrap())
     }
 
-    pub fn variables(&self, markers_captured: &HashMap<String, String>, request: &Request) -> HashMap<String, String> {
-        let mut variables = HashMap::new();
+    pub fn variables(&self, markers_captured: &HashMap<String, String>, request: &Request) -> Vec<(String, String)> {
+        let mut variables = Vec::new();
 
         // Clone markers capture for bc break
         if self.variables.is_empty() {
@@ -52,7 +52,7 @@ impl Rule {
                 match self.get_marker(name.as_str()) {
                     None => (),
                     Some(m) => {
-                        variables.insert(name.clone(), m.transform(value.clone()));
+                        variables.push((name.clone(), m.transform(value.clone())));
                     }
                 }
             }
@@ -63,11 +63,13 @@ impl Rule {
                         log::warn!("cannot get value from variable {}", variable.name);
                     }
                     Some(value) => {
-                        variables.insert(variable.name.clone(), value);
+                        variables.push((variable.name.clone(), value));
                     }
                 }
             }
         }
+
+        variables.sort_by(|(key_a, _), (key_b, _)| key_b.len().cmp(&key_a.len()));
 
         variables
     }
