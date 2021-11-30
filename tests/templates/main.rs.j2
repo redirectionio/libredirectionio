@@ -74,7 +74,7 @@ fn test_{{ name }}_{{ loop.index }}() {
     {%- endif -%}
 {% endif %}
 {%- if test.should_filter_header and test.should_filter_header.enable %}
-    let mut response_headers = Vec::new();
+    let {% if test.should_filter_header.original_headers | length > 0 %}mut {% endif %}response_headers = Vec::new();
 {% for header in test.should_filter_header.original_headers %}
     response_headers.push(Header {
         name: r#"{{ header.name }}"#.to_string(),
@@ -88,6 +88,11 @@ fn test_{{ name }}_{{ loop.index }}() {
 
     assert!(value.is_some());
     assert_eq!(value.unwrap(), r#"{{ header.value }}"#);
+{% endfor -%}
+{% for header_name in test.should_filter_header.not_expected_headers %}
+    let value = header_map.get(r#"{{ header_name }}"#);
+
+    assert!(value.is_none());
 {% endfor -%}
 {%- endif %}
 }

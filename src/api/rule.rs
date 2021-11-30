@@ -26,6 +26,8 @@ pub struct Rule {
     pub body_filters: Option<Vec<BodyFilter>>,
     pub header_filters: Option<Vec<HeaderFilter>>,
     pub log_override: Option<bool>,
+    pub reset: Option<bool>,
+    pub stop: Option<bool>,
 }
 
 impl RouteData for Rule {}

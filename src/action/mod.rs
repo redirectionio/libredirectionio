@@ -79,12 +79,22 @@ impl TraceAction {
         routes.sort_by_key(|&a| a.priority());
 
         for route in routes {
-            current_action.merge(Action::from_route_rule(route, request));
+            let (action_rule, reset, stop) = Action::from_route_rule(route, request);
+
+            if reset {
+                current_action = action_rule;
+            } else {
+                current_action.merge(action_rule);
+            }
 
             traces_action.push(TraceAction {
                 action: current_action.clone(),
                 rule: route.handler().clone(),
-            })
+            });
+
+            if stop {
+                return traces_action;
+            }
         }
 
         traces_action
@@ -99,7 +109,7 @@ impl Action {
         }
     }
 
-    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> Action {
+    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Action, bool, bool) {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
         let rule = route.handler();
@@ -189,7 +199,7 @@ impl Action {
             }
         }
 
-        Action {
+        let action = Action {
             status_code_update,
             header_filters,
             body_filters,
@@ -206,7 +216,9 @@ impl Action {
                 fallback_log_override: None,
                 fallback_rule_id: None,
             }),
-        }
+        };
+
+        (action, rule.reset.unwrap_or(false), rule.stop.unwrap_or(false))
     }
 
     pub fn merge(&mut self, other: Self) {
@@ -278,7 +290,17 @@ impl Action {
         routes.sort_by_key(|&a| a.priority());
 
         for route in routes {
-            action.merge(Action::from_route_rule(route, request));
+            let (action_rule, reset, stop) = Action::from_route_rule(route, request);
+
+            if reset {
+                action = action_rule;
+            } else {
+                action.merge(action_rule);
+            }
+
+            if stop {
+                return action;
+            }
         }
 
         action

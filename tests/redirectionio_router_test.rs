@@ -388,22 +388,22 @@ fn setup_03_priority_match() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"complex-example","rank":0,"source":{"path":"/foo"},"status_code":301,"target":"/complex-example-org"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"complex-example","rank":10,"source":{"path":"/foo"},"status_code":301,"target":"/complex-example-org"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
-    let route_2: Rule = serde_json::from_str(r#"{"id":"complex-example-net","rank":0,"source":{"path":"/foo"},"status_code":301,"target":"/complex-example-net"}"#).expect("cannot deserialize");
+    let route_2: Rule = serde_json::from_str(r#"{"id":"complex-example-net","rank":10,"source":{"path":"/foo"},"status_code":301,"target":"/complex-example-net"}"#).expect("cannot deserialize");
     router.insert(route_2.into_route(&router.config));
 
-    let route_3: Rule = serde_json::from_str(r#"{"id":"straight-any-host","rank":0,"source":{"path":"/foo"},"status_code":301,"target":"/straight-any-host"}"#).expect("cannot deserialize");
+    let route_3: Rule = serde_json::from_str(r#"{"id":"straight-any-host","rank":1,"source":{"path":"/foo"},"status_code":301,"target":"/straight-any-host"}"#).expect("cannot deserialize");
     router.insert(route_3.into_route(&router.config));
 
-    let route_4: Rule = serde_json::from_str(r#"{"id":"straight-example-net","rank":0,"source":{"host":"example.net","path":"/foo"},"status_code":301,"target":"/straight-example-net"}"#).expect("cannot deserialize");
+    let route_4: Rule = serde_json::from_str(r#"{"id":"straight-example-net","rank":20,"source":{"host":"example.net","path":"/foo"},"status_code":301,"target":"/straight-example-net"}"#).expect("cannot deserialize");
     router.insert(route_4.into_route(&router.config));
 
-    let route_5: Rule = serde_json::from_str(r#"{"id":"straigth-example","rank":0,"source":{"host":"example.org","path":"/foo"},"status_code":301,"target":"/straight-example-org"}"#).expect("cannot deserialize");
+    let route_5: Rule = serde_json::from_str(r#"{"id":"straigth-example","rank":1,"source":{"host":"example.org","path":"/foo"},"status_code":301,"target":"/straight-example-org"}"#).expect("cannot deserialize");
     router.insert(route_5.into_route(&router.config));
 
-    let route_6: Rule = serde_json::from_str(r#"{"id":"straigth-example-same-rank-but-after","rank":0,"source":{"host":"example.fr","path":"/foo"},"status_code":301,"target":"/straight-example-fr"}"#).expect("cannot deserialize");
+    let route_6: Rule = serde_json::from_str(r#"{"id":"straigth-example-same-rank-but-after","rank":1,"source":{"host":"example.fr","path":"/foo"},"status_code":301,"target":"/straight-example-fr"}"#).expect("cannot deserialize");
     router.insert(route_6.into_route(&router.config));
 
     router
@@ -854,6 +854,59 @@ fn test_action_disable_log_2() {
 
     assert_eq!(!matched.is_empty(), false);
     assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+
+fn setup_action_reset() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Bar","value":"bar"}],"id":"action-after","rank":0,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo"}],"id":"action-before","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
+    let route_3: Rule = serde_json::from_str(r#"{"id":"action-stop","rank":1,"reset":true,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_3.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_reset_1() {
+    let router = setup_action_reset();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+    let response_headers = Vec::new();
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get(r#"X-Bar"#);
+
+    assert!(value.is_some());
+    assert_eq!(value.unwrap(), r#"bar"#);
+
+    let value = header_map.get(r#"X-Foo"#);
+
+    assert!(value.is_none());
 
 }
 
@@ -2570,6 +2623,59 @@ fn test_action_seo_override_title_4() {
     new_body.push_str(body_filter.end().as_str());
     assert_eq!(new_body, r#"<html><head><meta><title>New Title</title></head></html>"#);
     assert_eq!(action.should_log_request(true, response_status_code), true);
+}
+
+
+fn setup_action_stop() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Bar","value":"bar"}],"id":"action-after","rank":0,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo"}],"id":"action-before","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
+    let route_3: Rule = serde_json::from_str(r#"{"id":"action-stop","rank":1,"source":{"path":"/foo"},"stop":true}"#).expect("cannot deserialize");
+    router.insert(route_3.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_stop_1() {
+    let router = setup_action_stop();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+    let response_headers = Vec::new();
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get(r#"X-Foo"#);
+
+    assert!(value.is_some());
+    assert_eq!(value.unwrap(), r#"foo"#);
+
+    let value = header_map.get(r#"X-Bar"#);
+
+    assert!(value.is_none());
+
 }
 
 

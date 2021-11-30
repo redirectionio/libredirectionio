@@ -102,6 +102,10 @@ struct Rule {
     variables: Vec<Variable>,
     #[serde(skip_serializing_if = "Option::is_none")]
     log_override: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reset: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stop: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -227,8 +231,12 @@ struct ShouldFilterBody {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct ShouldFilterHeader {
     enable: bool,
+    #[serde(default)]
     original_headers: Vec<RuleTestHeader>,
+    #[serde(default)]
     expected_headers: Vec<RuleTestHeader>,
+    #[serde(default)]
+    not_expected_headers: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -310,7 +318,7 @@ fn build_test_file(file: DirEntry) -> std::io::Result<(String, RuleSet)> {
 
     for (id, rule) in &mut rule_set.rules {
         rule.agent_input.id = Some(id.clone());
-        rule.agent_input.rank = Some(0);
+        rule.agent_input.rank = Some(rule.agent_input.rank.unwrap_or(0));
     }
 
     let name = file
