@@ -67,14 +67,7 @@ impl Rule {
             }
         } else {
             for variable in &self.variables {
-                match variable.get_value(&input, request) {
-                    None => {
-                        log::warn!("cannot get value from variable {}", variable.name);
-                    }
-                    Some(value) => {
-                        variables.push((variable.name.clone(), value));
-                    }
-                }
+                variables.push((variable.name.clone(), variable.get_value(&input, request)));
             }
         }
 

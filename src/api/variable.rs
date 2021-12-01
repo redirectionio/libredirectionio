@@ -26,17 +26,18 @@ pub struct Variable {
 }
 
 impl Variable {
-    pub fn get_value(&self, markers_captured: &HashMap<String, String>, request: &Request) -> Option<String> {
+    pub fn get_value(&self, markers_captured: &HashMap<String, String>, request: &Request) -> String {
         let mut value = match &self.kind {
             VariableKind::RequestHeader(header_name) => request.header_value(header_name.as_str()),
             VariableKind::RequestHost => request.host.clone(),
             VariableKind::RequestMethod => request.method.clone(),
             VariableKind::RequestPath => Some(request.path_and_query_skipped.original.clone()),
-            VariableKind::RequestRemoteAddress => None, // @TODO
+            VariableKind::RequestRemoteAddress => request.remote_addr.map(|addr| addr.to_string()),
             VariableKind::RequestScheme => request.scheme.clone(),
-            VariableKind::RequestTime => None, // @TODO
+            VariableKind::RequestTime => request.created_at.map(|d| d.to_rfc2822()),
             VariableKind::Marker(marker_name) => markers_captured.get(marker_name.as_str()).cloned(),
-        }?;
+        }
+        .unwrap_or_else(|| "".to_string());
 
         for transformer in &self.transformers {
             match transformer.to_transform() {
@@ -47,6 +48,6 @@ impl Variable {
             }
         }
 
-        Some(value)
+        value
     }
 }
