@@ -172,7 +172,7 @@ struct Transformer {
 #[serde(rename_all = "snake_case")]
 pub enum VariableKind {
     Marker(String),
-    RequestHeader(String),
+    RequestHeader { name: String, default: Option<String> },
     RequestHost,
     RequestMethod,
     RequestPath,
