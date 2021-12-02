@@ -11,4 +11,5 @@ pub struct Source {
     pub headers: Option<Vec<Header>>,
     pub methods: Option<Vec<String>>,
     pub response_status_codes: Option<Vec<u16>>,
+    pub sampling: Option<u32>,
 }

@@ -79,12 +79,14 @@ impl TraceAction {
         routes.sort_by_key(|&a| a.priority());
 
         for route in routes {
-            let (action_rule, reset, stop) = Action::from_route_rule(route, request);
+            let (action_rule_opt, reset, stop) = Action::from_route_rule(route, request);
 
-            if reset {
-                current_action = action_rule;
-            } else {
-                current_action.merge(action_rule);
+            if let Some(action_rule) = action_rule_opt {
+                if reset {
+                    current_action = action_rule;
+                } else {
+                    current_action.merge(action_rule);
+                }
             }
 
             traces_action.push(TraceAction {
@@ -109,10 +111,20 @@ impl Action {
         }
     }
 
-    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Action, bool, bool) {
+    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Option<Action>, bool, bool) {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
         let rule = route.handler();
+
+        if let Some(sampling) = rule.source.sampling {
+            let percent_rand = std::cmp::min(100, std::cmp::max(0, sampling));
+            let randomed = (rand::random::<u32>() % 100) + 1;
+
+            if randomed > percent_rand {
+                return (None, false, false);
+            }
+        }
+
         let on_response_status_codes = match rule.source.response_status_codes.as_ref() {
             None => Vec::new(),
             Some(codes) => codes.clone(),
@@ -218,7 +230,7 @@ impl Action {
             }),
         };
 
-        (action, rule.reset.unwrap_or(false), rule.stop.unwrap_or(false))
+        (Some(action), rule.reset.unwrap_or(false), rule.stop.unwrap_or(false))
     }
 
     pub fn merge(&mut self, other: Self) {
@@ -290,16 +302,18 @@ impl Action {
         routes.sort_by_key(|&a| a.priority());
 
         for route in routes {
-            let (action_rule, reset, stop) = Action::from_route_rule(route, request);
+            let (action_rule_opt, reset, stop) = Action::from_route_rule(route, request);
 
-            if reset {
-                action = action_rule;
-            } else {
-                action.merge(action_rule);
-            }
+            if let Some(action_rule) = action_rule_opt {
+                if reset {
+                    action = action_rule;
+                } else {
+                    action.merge(action_rule);
+                }
 
-            if stop {
-                return action;
+                if stop {
+                    return action;
+                }
             }
         }
 

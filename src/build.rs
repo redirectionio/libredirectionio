@@ -123,6 +123,8 @@ struct Source {
     ips: Option<Vec<IpConstraint>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sampling: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

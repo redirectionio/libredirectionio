@@ -7649,6 +7649,63 @@ fn test_rule_querystring_2() {
 }
 
 
+fn setup_rule_sampling() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-sampled-0","rank":0,"source":{"path":"/foo","sampling":0},"status_code":302,"target":"/foo2"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-sampled-100","rank":0,"source":{"path":"/bar","sampling":100},"status_code":302,"target":"/bar2"}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_rule_sampling_1() {
+    let router = setup_rule_sampling();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+}
+
+#[test]
+fn test_rule_sampling_2() {
+    let router = setup_rule_sampling();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/bar"#), r#"/bar"#.to_string(),None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 302);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+}
+
+
 fn setup_rule_skipped_query_parameters() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
