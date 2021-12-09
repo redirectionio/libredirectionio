@@ -35,6 +35,7 @@ impl Request {
                 path_and_query: Some(uri),
                 remote_addr: None,
                 created_at: Some(Utc::now()),
+                sampling_override: None,
             },
         }
     }

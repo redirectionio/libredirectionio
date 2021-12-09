@@ -107,6 +107,7 @@ impl Impact {
                 http_request.uri().scheme_str().map(|s| s.to_string()),
                 example.method.clone(),
                 ip_address,
+                Some(true),
             );
 
             if example.headers.is_some() {

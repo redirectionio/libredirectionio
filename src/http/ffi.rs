@@ -113,6 +113,7 @@ pub unsafe extern "C" fn redirectionio_request_create(
         scheme,
         method,
         None,
+        None,
     );
     let headers = header_map_to_http_headers(header_map);
 

@@ -24,6 +24,7 @@ pub struct Request {
     pub headers: Vec<Header>,
     pub remote_addr: Option<IpAddr>,
     pub created_at: Option<DateTime<Utc>>,
+    pub sampling_override: Option<bool>,
 }
 
 impl FromStr for Request {
@@ -45,6 +46,7 @@ impl FromStr for Request {
             http_request.uri().scheme_str().map(|s| s.to_string()),
             None,
             None,
+            None,
         ))
     }
 }
@@ -57,6 +59,7 @@ impl Request {
         scheme: Option<String>,
         method: Option<String>,
         remote_addr: Option<IpAddr>,
+        sampling_override: Option<bool>,
     ) -> Request {
         Request {
             path_and_query_skipped,
@@ -67,6 +70,7 @@ impl Request {
             headers: Vec::new(),
             remote_addr,
             created_at: Some(Utc::now()),
+            sampling_override,
         }
     }
 
@@ -77,6 +81,7 @@ impl Request {
         scheme: Option<String>,
         method: Option<String>,
         remote_addr: Option<IpAddr>,
+        sampling_override: Option<bool>,
     ) -> Request {
         Request {
             path_and_query_skipped: PathAndQueryWithSkipped::from_config(config, path_and_query.as_str()),
@@ -96,6 +101,7 @@ impl Request {
             remote_addr,
             headers: Vec::new(),
             created_at: Some(Utc::now()),
+            sampling_override,
         }
     }
 
@@ -137,6 +143,7 @@ impl Request {
             headers,
             remote_addr: request.remote_addr,
             created_at: request.created_at,
+            sampling_override: request.sampling_override,
         }
     }
 

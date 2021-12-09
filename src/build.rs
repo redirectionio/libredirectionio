@@ -215,6 +215,7 @@ struct RuleTest {
     should_filter_body: Option<ShouldFilterBody>,
     should_filter_header: Option<ShouldFilterHeader>,
     should_not_log: Option<bool>,
+    sampling_override: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

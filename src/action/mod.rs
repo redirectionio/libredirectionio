@@ -120,8 +120,10 @@ impl Action {
             let percent_rand = std::cmp::min(100, std::cmp::max(0, sampling));
             let randomed = (rand::random::<u32>() % 100) + 1;
 
-            if randomed > percent_rand {
-                return (None, false, false);
+            match (request.sampling_override, randomed > percent_rand) {
+                (Some(false), _) => return (None, false, false),
+                (None, true) => return (None, false, false),
+                _ => (),
             }
         }
 
