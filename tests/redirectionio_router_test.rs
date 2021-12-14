@@ -814,7 +814,7 @@ fn setup_action_disable_log() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"action-serve-robotxt","log_override":false,"rank":0,"source":{"path":"/no-log"}}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"action-serve-robotxt","log_override":false,"rank":0,"reset":true,"source":{"path":"/no-log"}}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
     router
