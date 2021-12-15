@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use url::form_urlencoded::parse as parse_query;
 
-const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
+const URL_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
+const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>').add(b'+');
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash)]
 pub struct PathAndQueryWithSkipped {
@@ -16,7 +17,7 @@ pub struct PathAndQueryWithSkipped {
 }
 
 fn sanitize_url(path_and_query_str: &str) -> String {
-    utf8_percent_encode(path_and_query_str, QUERY_ENCODE_SET).to_string()
+    utf8_percent_encode(path_and_query_str, URL_ENCODE_SET).to_string()
 }
 
 impl PathAndQueryWithSkipped {
