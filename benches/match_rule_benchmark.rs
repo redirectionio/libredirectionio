@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate criterion;
 use criterion::{BenchmarkId, Criterion};
-use redirectionio::action::Action;
+use redirectionio::action::{Action, UnitTrace};
 use redirectionio::api::{Rule, RulesMessage};
 use redirectionio::http::Request;
 use redirectionio::router::{Router, RouterConfig};
@@ -125,16 +125,16 @@ fn build_action_rule_in_200k(c: &mut Criterion) {
             let rules = router.match_request(&request);
             let mut action = Action::from_routes_rule(rules.clone(), &request);
 
-            let action_status_code = action.get_status_code(0);
+            let action_status_code = action.get_status_code(0, None);
             let (_, backend_status_code) = if action_status_code != 0 {
                 (action_status_code, action_status_code)
             } else {
                 // We call the backend and get a response code
-                let final_status_code = action.get_status_code(200);
+                let final_status_code = action.get_status_code(200, None);
                 (final_status_code, 200)
             };
 
-            action.filter_headers(Vec::new(), backend_status_code, false);
+            action.filter_headers(Vec::new(), backend_status_code, false, None);
 
             let body = "<!DOCTYPE html>
 <html>
@@ -142,13 +142,68 @@ fn build_action_rule_in_200k(c: &mut Criterion) {
     </head>
     <body>
     </body>
-</html>"
-                .to_string();
+</html>";
 
-            if let Some(mut body_filter) = action.create_filter_body(backend_status_code) {
-                body_filter.filter(body);
-                body_filter.end();
+            if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[]) {
+                body_filter.filter(body.into(), None);
+                body_filter.end(None);
             }
+        });
+    });
+
+    group.finish();
+}
+
+fn impact(c: &mut Criterion) {
+    let config = RouterConfig::default();
+    let mut router = create_router("../bench-files/large-rules-200k.json".to_string(), &config);
+    let request = Request::from_config(
+        &config,
+        "/sites/default/files/image-gallery/lowtideonuseppaimage000000edited_0.jpg".to_string(),
+        Some("usharbors.com".to_string()),
+        None,
+        None,
+        None,
+        None,
+    );
+
+    router.cache(1000);
+
+    let mut unit_trace = UnitTrace::default();
+
+    let mut group = c.benchmark_group("impact");
+    group.sample_size(10);
+
+    group.bench_function("impact", |b| {
+        b.iter(|| {
+            let rules = router.match_request(&request);
+            let mut action = Action::from_routes_rule(rules.clone(), &request);
+
+            let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
+            let (_, backend_status_code) = if action_status_code != 0 {
+                (action_status_code, action_status_code)
+            } else {
+                // We call the backend and get a response code
+                let final_status_code = action.get_status_code(200, Some(&mut unit_trace));
+                (final_status_code, 200)
+            };
+
+            action.filter_headers(Vec::new(), backend_status_code, false, Some(&mut unit_trace));
+
+            let body = "<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+    </body>
+</html>";
+
+            if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[]) {
+                body_filter.filter(body.into(), Some(&mut unit_trace));
+                body_filter.end(Some(&mut unit_trace));
+            }
+
+            unit_trace.squash_with_target_unit_traces();
         });
     });
 
@@ -160,6 +215,7 @@ criterion_group!(
     no_match_bench,
     no_match_cache_bench,
     match_rule_in_200k,
-    build_action_rule_in_200k
+    build_action_rule_in_200k,
+    impact,
 );
 criterion_main!(benches);

@@ -67,7 +67,7 @@ pub unsafe extern "C" fn redirectionio_action_get_status_code(_action: *mut Acti
 
     let action = &mut *_action;
 
-    action.get_status_code(response_status_code)
+    action.get_status_code(response_status_code, None)
 }
 
 #[no_mangle]
@@ -84,7 +84,7 @@ pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
     let action = &mut *_action;
     let mut headers = header_map_to_http_headers(header_map);
 
-    headers = action.filter_headers(headers, response_status_code, add_rule_ids_header);
+    headers = action.filter_headers(headers, response_status_code, add_rule_ids_header, None);
 
     http_headers_to_header_map(headers)
 }
@@ -117,7 +117,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut F
     let filter = &mut *_filter;
     let bytes = buffer.into_vec();
 
-    let new_body = filter.filter(bytes);
+    let new_body = filter.filter(bytes, None);
 
     Buffer::from_vec(new_body)
 }
@@ -129,7 +129,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut Fi
     }
 
     let mut filter = Box::from_raw(_filter);
-    let end_body = filter.end();
+    let end_body = filter.end(None);
 
     Buffer::from_vec(end_body)
 }

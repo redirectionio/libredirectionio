@@ -20,3 +20,8 @@ make
 
 You can run `make install` (with root permissions) to install this library into your system, this is required if you need to
 compile some of our modules against this library.
+
+## Tests
+
+Some tests are generated. Templates are located in `tests/templates` folder. If
+you update them, you need to run `cargo build` to (re)generate the tests.

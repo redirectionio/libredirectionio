@@ -36,9 +36,9 @@ fn test_00_common_rules_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -126,9 +126,9 @@ fn test_01_straight_rule_match_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -153,9 +153,9 @@ fn test_01_straight_rule_match_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -195,9 +195,9 @@ fn test_01_straight_rule_match_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -237,9 +237,9 @@ fn test_01_straight_rule_match_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -264,9 +264,9 @@ fn test_01_straight_rule_match_7() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -291,9 +291,9 @@ fn test_01_straight_rule_match_8() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -318,9 +318,9 @@ fn test_01_straight_rule_match_9() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -345,9 +345,9 @@ fn test_01_straight_rule_match_10() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -372,9 +372,9 @@ fn test_01_straight_rule_match_11() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -426,9 +426,9 @@ fn test_03_priority_match_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -453,9 +453,9 @@ fn test_03_priority_match_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -480,9 +480,9 @@ fn test_03_priority_match_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -507,9 +507,9 @@ fn test_03_priority_match_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -552,9 +552,9 @@ fn test_04_rfc3986_relative_references_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -594,9 +594,9 @@ fn test_04_rfc3986_relative_references_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -621,9 +621,9 @@ fn test_04_rfc3986_relative_references_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -663,9 +663,9 @@ fn test_05_query_parameters_order_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -690,9 +690,9 @@ fn test_05_query_parameters_order_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -732,9 +732,9 @@ fn test_05_query_parameters_order_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -759,9 +759,9 @@ fn test_05_query_parameters_order_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -798,9 +798,9 @@ fn test_06_emojis_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -837,7 +837,7 @@ fn test_action_disable_log_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), false);
 }
@@ -862,7 +862,7 @@ fn setup_action_filter_header_add() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo2"}],"id":"action-header-replace","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo2"}],"id":"action-header-add","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
     router
@@ -885,7 +885,7 @@ fn test_action_filter_header_add_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
     let mut response_headers = Vec::new();
@@ -895,7 +895,7 @@ fn test_action_filter_header_add_1() {
         value: r#"foo1"#.to_string(),
     });
 
-    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-Foo"#);
@@ -921,12 +921,12 @@ fn test_action_filter_header_add_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
     let response_headers = Vec::new();
 
-    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-Foo"#);
@@ -941,7 +941,7 @@ fn setup_action_filter_header_override() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"override","header":"X-Foo","value":"foo2"}],"id":"action-header-replace","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"override","header":"X-Foo","value":"foo2"}],"id":"action-header-override","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
     router
@@ -964,7 +964,7 @@ fn test_action_filter_header_override_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
     let mut response_headers = Vec::new();
@@ -974,7 +974,7 @@ fn test_action_filter_header_override_1() {
         value: r#"foo1"#.to_string(),
     });
 
-    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-Foo"#);
@@ -1004,7 +1004,7 @@ fn test_action_filter_header_override_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
     let mut response_headers = Vec::new();
@@ -1014,7 +1014,7 @@ fn test_action_filter_header_override_2() {
         value: r#"foo1"#.to_string(),
     });
 
-    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-foo"#);
@@ -1027,6 +1027,33 @@ fn test_action_filter_header_override_2() {
     assert!(value.is_none());
 
 }
+
+
+fn setup_action_redirection() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"action-gone-404","rank":0,"source":{"path":"/foo"},"status_code":404}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"action-gone-410","rank":0,"source":{"path":"/foo"},"status_code":410}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
+    let route_3: Rule = serde_json::from_str(r#"{"id":"action-redirection-301","rank":0,"source":{"path":"/foo"},"status_code":301,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_3.into_route(&router.config));
+
+    let route_4: Rule = serde_json::from_str(r#"{"id":"action-redirection-302","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_4.into_route(&router.config));
+
+    let route_5: Rule = serde_json::from_str(r#"{"id":"action-redirection-307","rank":0,"source":{"path":"/foo"},"status_code":307,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_5.into_route(&router.config));
+
+    let route_6: Rule = serde_json::from_str(r#"{"id":"action-redirection-308","rank":0,"source":{"path":"/foo"},"status_code":308,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_6.into_route(&router.config));
+
+    router
+}
+
 
 
 fn setup_action_reset() -> Router<Rule> {
@@ -1062,12 +1089,12 @@ fn test_action_reset_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
     let response_headers = Vec::new();
 
-    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-Bar"#);
@@ -1109,14 +1136,14 @@ fn test_action_robots_txt_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 200);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"User-Agent: *"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1149,14 +1176,14 @@ fn test_action_seo_override_meta_author_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1177,14 +1204,14 @@ fn test_action_seo_override_meta_author_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1205,14 +1232,14 @@ fn test_action_seo_override_meta_author_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1233,14 +1260,14 @@ fn test_action_seo_override_meta_author_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1261,14 +1288,14 @@ fn test_action_seo_override_meta_author_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old first Author name" /><meta name="author" content="Old second Author name" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old first Author name" /><meta name="author" content="Old second Author name" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1289,14 +1316,14 @@ fn test_action_seo_override_meta_author_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1317,14 +1344,14 @@ fn test_action_seo_override_meta_author_7() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author"></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author"></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1345,14 +1372,14 @@ fn test_action_seo_override_meta_author_8() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name"></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name"></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1385,14 +1412,14 @@ fn test_action_seo_override_meta_description_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1413,14 +1440,14 @@ fn test_action_seo_override_meta_description_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1441,14 +1468,14 @@ fn test_action_seo_override_meta_description_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1469,14 +1496,14 @@ fn test_action_seo_override_meta_description_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1497,14 +1524,14 @@ fn test_action_seo_override_meta_description_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description"></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description"></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1525,14 +1552,14 @@ fn test_action_seo_override_meta_description_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description"></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description"></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1565,14 +1592,14 @@ fn test_action_seo_override_meta_keywords_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1593,14 +1620,14 @@ fn test_action_seo_override_meta_keywords_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1621,14 +1648,14 @@ fn test_action_seo_override_meta_keywords_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1649,14 +1676,14 @@ fn test_action_seo_override_meta_keywords_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1677,14 +1704,14 @@ fn test_action_seo_override_meta_keywords_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords"></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords"></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1705,14 +1732,14 @@ fn test_action_seo_override_meta_keywords_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords"></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords"></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1733,14 +1760,14 @@ fn test_action_seo_override_meta_keywords_7() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><link rel="shortcut icon" href="/favicon.ico"></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><link rel="shortcut icon" href="/favicon.ico"></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><link rel="shortcut icon" href="/favicon.ico"><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1776,14 +1803,14 @@ fn test_action_seo_override_og_description_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1804,14 +1831,14 @@ fn test_action_seo_override_og_description_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1832,14 +1859,14 @@ fn test_action_seo_override_og_description_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1860,14 +1887,14 @@ fn test_action_seo_override_og_description_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1888,14 +1915,14 @@ fn test_action_seo_override_og_description_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1916,14 +1943,14 @@ fn test_action_seo_override_og_description_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1944,14 +1971,14 @@ fn test_action_seo_override_og_description_7() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="og:description" content="Pizza rapido" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="og:description" content="Pizza rapido" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="og:description" content="🍕🍕 Pizza rapido 🍕🍕" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -1984,14 +2011,14 @@ fn test_action_seo_override_og_image_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2012,14 +2039,14 @@ fn test_action_seo_override_og_image_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2040,14 +2067,14 @@ fn test_action_seo_override_og_image_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2068,14 +2095,14 @@ fn test_action_seo_override_og_image_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2108,14 +2135,14 @@ fn test_action_seo_override_og_locale_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2136,14 +2163,14 @@ fn test_action_seo_override_og_locale_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2164,14 +2191,14 @@ fn test_action_seo_override_og_locale_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2192,14 +2219,14 @@ fn test_action_seo_override_og_locale_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2232,14 +2259,14 @@ fn test_action_seo_override_og_site_name_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2260,14 +2287,14 @@ fn test_action_seo_override_og_site_name_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2288,14 +2315,14 @@ fn test_action_seo_override_og_site_name_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2316,14 +2343,14 @@ fn test_action_seo_override_og_site_name_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2356,14 +2383,14 @@ fn test_action_seo_override_og_title_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2384,14 +2411,14 @@ fn test_action_seo_override_og_title_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2412,14 +2439,14 @@ fn test_action_seo_override_og_title_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2440,14 +2467,14 @@ fn test_action_seo_override_og_title_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2480,14 +2507,14 @@ fn test_action_seo_override_og_type_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2508,14 +2535,14 @@ fn test_action_seo_override_og_type_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2536,14 +2563,14 @@ fn test_action_seo_override_og_type_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2564,14 +2591,14 @@ fn test_action_seo_override_og_type_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2604,14 +2631,14 @@ fn test_action_seo_override_og_url_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2632,14 +2659,14 @@ fn test_action_seo_override_og_url_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2660,14 +2687,14 @@ fn test_action_seo_override_og_url_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2688,14 +2715,14 @@ fn test_action_seo_override_og_url_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2728,14 +2755,14 @@ fn test_action_seo_override_title_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>New Title</title><meta /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2756,14 +2783,14 @@ fn test_action_seo_override_title_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><title>New Title</title></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2784,14 +2811,14 @@ fn test_action_seo_override_title_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>New Title</title><meta></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2812,14 +2839,14 @@ fn test_action_seo_override_title_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><title>New Title</title></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2858,12 +2885,12 @@ fn test_action_stop_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
     let response_headers = Vec::new();
 
-    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-Foo"#);
@@ -2905,14 +2932,14 @@ fn test_action_text_append_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"Old contentnew content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2945,14 +2972,14 @@ fn test_action_text_prepend_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"new contentOld content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -2985,14 +3012,14 @@ fn test_action_text_replace_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"new content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -3013,14 +3040,14 @@ fn test_action_text_replace_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"new content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -3056,9 +3083,9 @@ fn test_ignore_path_case_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3083,9 +3110,9 @@ fn test_ignore_path_case_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3110,9 +3137,9 @@ fn test_ignore_path_case_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3137,9 +3164,9 @@ fn test_ignore_path_case_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3164,9 +3191,9 @@ fn test_ignore_path_case_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3191,9 +3218,9 @@ fn test_ignore_path_case_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3251,9 +3278,9 @@ fn test_marker_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3293,9 +3320,9 @@ fn test_marker_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3320,9 +3347,9 @@ fn test_marker_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3347,9 +3374,9 @@ fn test_marker_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3386,9 +3413,9 @@ fn test_marker_case_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3413,9 +3440,9 @@ fn test_marker_case_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3452,14 +3479,14 @@ fn test_marker_in_body_filter_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>source</title><meta /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -3492,7 +3519,7 @@ fn test_marker_in_header_filter_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
     let mut response_headers = Vec::new();
@@ -3502,7 +3529,7 @@ fn test_marker_in_header_filter_1() {
         value: r#"foo"#.to_string(),
     });
 
-    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
     let value = header_map.get(r#"X-Test"#);
@@ -3570,9 +3597,9 @@ fn test_marker_in_host_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3612,9 +3639,9 @@ fn test_marker_in_querystring_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3669,9 +3696,9 @@ fn test_marker_in_querystring_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3708,9 +3735,9 @@ fn test_marker_transformation_camelize_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3735,9 +3762,9 @@ fn test_marker_transformation_camelize_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3762,9 +3789,9 @@ fn test_marker_transformation_camelize_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3789,9 +3816,9 @@ fn test_marker_transformation_camelize_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3828,9 +3855,9 @@ fn test_marker_transformation_dasherize_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3855,9 +3882,9 @@ fn test_marker_transformation_dasherize_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3882,9 +3909,9 @@ fn test_marker_transformation_dasherize_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3921,9 +3948,9 @@ fn test_marker_transformation_lowercase_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3948,9 +3975,9 @@ fn test_marker_transformation_lowercase_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -3975,9 +4002,9 @@ fn test_marker_transformation_lowercase_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4032,9 +4059,9 @@ fn test_marker_transformation_replace_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4059,9 +4086,9 @@ fn test_marker_transformation_replace_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4086,9 +4113,9 @@ fn test_marker_transformation_replace_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4113,9 +4140,9 @@ fn test_marker_transformation_replace_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4158,9 +4185,9 @@ fn test_marker_transformation_slice_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4185,9 +4212,9 @@ fn test_marker_transformation_slice_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4212,9 +4239,9 @@ fn test_marker_transformation_slice_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4239,9 +4266,9 @@ fn test_marker_transformation_slice_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4266,9 +4293,9 @@ fn test_marker_transformation_slice_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4293,9 +4320,9 @@ fn test_marker_transformation_slice_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4320,9 +4347,9 @@ fn test_marker_transformation_slice_7() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4347,9 +4374,9 @@ fn test_marker_transformation_slice_8() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4386,9 +4413,9 @@ fn test_marker_transformation_underscorize_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4413,9 +4440,9 @@ fn test_marker_transformation_underscorize_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4440,9 +4467,9 @@ fn test_marker_transformation_underscorize_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4467,9 +4494,9 @@ fn test_marker_transformation_underscorize_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4506,9 +4533,9 @@ fn test_marker_transformation_uppercase_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4533,9 +4560,9 @@ fn test_marker_transformation_uppercase_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4560,9 +4587,9 @@ fn test_marker_transformation_uppercase_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4599,9 +4626,9 @@ fn test_marker_type_anything_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4626,9 +4653,9 @@ fn test_marker_type_anything_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4653,9 +4680,9 @@ fn test_marker_type_anything_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4692,9 +4719,9 @@ fn test_marker_type_date_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4764,9 +4791,9 @@ fn test_marker_type_datetime_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4791,9 +4818,9 @@ fn test_marker_type_datetime_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4833,9 +4860,9 @@ fn test_marker_type_datetime_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4872,9 +4899,9 @@ fn test_marker_type_enum_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4914,9 +4941,9 @@ fn test_marker_type_enum_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -4977,9 +5004,9 @@ fn test_marker_type_integer_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5034,9 +5061,9 @@ fn test_marker_type_integer_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5076,9 +5103,9 @@ fn test_marker_type_integer_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5118,9 +5145,9 @@ fn test_marker_type_integer_8() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5244,9 +5271,9 @@ fn test_marker_type_string_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5316,9 +5343,9 @@ fn test_marker_type_string_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5388,9 +5415,9 @@ fn test_marker_type_string_10() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5415,9 +5442,9 @@ fn test_marker_type_string_11() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5457,9 +5484,9 @@ fn test_marker_type_string_13() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5484,9 +5511,9 @@ fn test_marker_type_string_14() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5511,9 +5538,9 @@ fn test_marker_type_string_15() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5538,9 +5565,9 @@ fn test_marker_type_string_16() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5565,9 +5592,9 @@ fn test_marker_type_string_17() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5607,9 +5634,9 @@ fn test_marker_type_string_19() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5634,9 +5661,9 @@ fn test_marker_type_string_20() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5691,9 +5718,9 @@ fn test_marker_type_string_23() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5733,9 +5760,9 @@ fn test_marker_type_string_25() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5775,9 +5802,9 @@ fn test_marker_type_string_27() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5802,9 +5829,9 @@ fn test_marker_type_string_28() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5829,9 +5856,9 @@ fn test_marker_type_string_29() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5856,9 +5883,9 @@ fn test_marker_type_string_30() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5913,9 +5940,9 @@ fn test_marker_type_string_33() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5955,9 +5982,9 @@ fn test_marker_type_string_35() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -5982,9 +6009,9 @@ fn test_marker_type_string_36() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6009,9 +6036,9 @@ fn test_marker_type_string_37() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6036,9 +6063,9 @@ fn test_marker_type_string_38() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6078,9 +6105,9 @@ fn test_marker_type_string_40() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6105,9 +6132,9 @@ fn test_marker_type_string_41() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6189,9 +6216,9 @@ fn test_marker_type_uuid_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6258,9 +6285,9 @@ fn test_marketing_parameters_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6285,9 +6312,9 @@ fn test_marketing_parameters_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6312,9 +6339,9 @@ fn test_marketing_parameters_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6339,9 +6366,9 @@ fn test_marketing_parameters_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6408,9 +6435,9 @@ fn test_marketing_parameters_notarget_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6435,9 +6462,9 @@ fn test_marketing_parameters_notarget_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6462,9 +6489,9 @@ fn test_marketing_parameters_notarget_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6489,9 +6516,9 @@ fn test_marketing_parameters_notarget_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6558,9 +6585,9 @@ fn test_marketing_parameters_with_catch_all_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6585,9 +6612,9 @@ fn test_marketing_parameters_with_catch_all_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6612,9 +6639,9 @@ fn test_marketing_parameters_with_catch_all_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6639,9 +6666,9 @@ fn test_marketing_parameters_with_catch_all_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6678,9 +6705,9 @@ fn test_no_marketing_parameterst_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6795,9 +6822,9 @@ fn test_rule_any_host_match_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6822,9 +6849,9 @@ fn test_rule_any_host_match_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6864,9 +6891,9 @@ fn test_rule_any_host_no_match_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6891,9 +6918,9 @@ fn test_rule_any_host_no_match_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -6962,9 +6989,9 @@ fn test_rule_header_regex_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7019,7 +7046,7 @@ fn test_rule_ip_trigger_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7040,7 +7067,7 @@ fn test_rule_ip_trigger_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7061,7 +7088,7 @@ fn test_rule_ip_trigger_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7124,7 +7151,7 @@ fn test_rule_ip_trigger_equals_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7172,7 +7199,7 @@ fn test_rule_ip_trigger_greater_than_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7193,7 +7220,7 @@ fn test_rule_ip_trigger_greater_than_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7241,7 +7268,7 @@ fn test_rule_ip_trigger_greater_than_or_equals_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7262,7 +7289,7 @@ fn test_rule_ip_trigger_greater_than_or_equals_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7310,7 +7337,7 @@ fn test_rule_ip_trigger_in_range_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7358,7 +7385,7 @@ fn test_rule_ip_trigger_less_than_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7379,7 +7406,7 @@ fn test_rule_ip_trigger_less_than_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7427,7 +7454,7 @@ fn test_rule_ip_trigger_less_than_or_equals_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7448,7 +7475,7 @@ fn test_rule_ip_trigger_less_than_or_equals_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7496,7 +7523,7 @@ fn test_rule_ip_trigger_not_equals_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7544,7 +7571,7 @@ fn test_rule_ip_trigger_not_in_range_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -7626,9 +7653,9 @@ fn test_rule_multiple_headers_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7642,10 +7669,10 @@ fn setup_rule_query_with_pipe() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"host-path-query-pipe","rank":0,"source":{"host":"example.org","path":"/query-pipe","query":"foo=bar|baz"},"status_code":301,"target":"/target"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"0_host-path-query-pipe-urlencoded","rank":0,"source":{"host":"example.org","path":"/query-pipe","query":"foo=bar%7Cbaz"},"status_code":301,"target":"/target-urlencoded"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
-    let route_2: Rule = serde_json::from_str(r#"{"id":"host-path-query-pipe-urlencoded","rank":0,"source":{"host":"example.org","path":"/query-pipe","query":"foo=bar%7Cbaz"},"status_code":301,"target":"/target-urlencoded"}"#).expect("cannot deserialize");
+    let route_2: Rule = serde_json::from_str(r#"{"id":"1_host-path-query-pipe","rank":0,"source":{"host":"example.org","path":"/query-pipe","query":"foo=bar|baz"},"status_code":301,"target":"/target"}"#).expect("cannot deserialize");
     router.insert(route_2.into_route(&router.config));
 
     router
@@ -7668,9 +7695,9 @@ fn test_rule_query_with_pipe_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7695,9 +7722,9 @@ fn test_rule_query_with_pipe_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7734,9 +7761,9 @@ fn test_rule_query_with_pipe_2_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7761,9 +7788,9 @@ fn test_rule_query_with_pipe_2_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7815,9 +7842,9 @@ fn test_rule_query_with_plus_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7842,9 +7869,9 @@ fn test_rule_query_with_plus_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7869,9 +7896,9 @@ fn test_rule_query_with_plus_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7908,9 +7935,9 @@ fn test_rule_query_with_plus_2_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7947,9 +7974,9 @@ fn test_rule_querystring_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -7974,9 +8001,9 @@ fn test_rule_querystring_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8016,7 +8043,7 @@ fn test_rule_sampling_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -8037,7 +8064,7 @@ fn test_rule_sampling_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -8073,9 +8100,9 @@ fn test_rule_skipped_query_parameters_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8100,9 +8127,9 @@ fn test_rule_skipped_query_parameters_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8127,9 +8154,9 @@ fn test_rule_skipped_query_parameters_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8154,9 +8181,9 @@ fn test_rule_skipped_query_parameters_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8199,9 +8226,9 @@ fn test_rule_with_header_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8227,9 +8254,9 @@ fn test_rule_with_header_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8255,9 +8282,9 @@ fn test_rule_with_header_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8300,9 +8327,9 @@ fn test_rule_with_header_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8372,9 +8399,9 @@ fn test_rule_with_method_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8399,9 +8426,9 @@ fn test_rule_with_method_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8426,9 +8453,9 @@ fn test_rule_with_method_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8465,9 +8492,9 @@ fn test_rule_with_quotes_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 301);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8513,7 +8540,7 @@ fn test_rule_with_response_status_codes_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 200;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -8534,7 +8561,7 @@ fn test_rule_with_response_status_codes_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 200;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -8555,9 +8582,9 @@ fn test_rule_with_response_status_codes_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 404;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8582,9 +8609,9 @@ fn test_rule_with_response_status_codes_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 400;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8609,9 +8636,9 @@ fn test_rule_with_response_status_codes_5() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 402;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8636,9 +8663,9 @@ fn test_rule_with_response_status_codes_6() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 404;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8663,9 +8690,9 @@ fn test_rule_with_response_status_codes_7() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 200;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8690,7 +8717,7 @@ fn test_rule_with_response_status_codes_8() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
@@ -8726,9 +8753,9 @@ fn test_rule_with_slash_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8753,9 +8780,9 @@ fn test_rule_with_slash_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8792,9 +8819,9 @@ fn test_variable_marker_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8819,9 +8846,9 @@ fn test_variable_marker_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8846,9 +8873,9 @@ fn test_variable_marker_3() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8873,9 +8900,9 @@ fn test_variable_marker_4() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8912,9 +8939,9 @@ fn test_variable_marker_legacy_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8951,9 +8978,9 @@ fn test_variable_marker_legacy_1_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -8990,9 +9017,9 @@ fn test_variable_marker_order_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9029,9 +9056,9 @@ fn test_variable_marker_transformer_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9069,9 +9096,9 @@ fn test_variable_request_header_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9096,9 +9123,9 @@ fn test_variable_request_header_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9135,9 +9162,9 @@ fn test_variable_request_host_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9174,9 +9201,9 @@ fn test_variable_request_method_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9201,9 +9228,9 @@ fn test_variable_request_method_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9240,9 +9267,9 @@ fn test_variable_request_path_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9279,9 +9306,9 @@ fn test_variable_request_scheme_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();
@@ -9306,9 +9333,9 @@ fn test_variable_request_scheme_2() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    let headers = action.filter_headers(Vec::new(), response_status_code, false);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
     assert_eq!(headers.len(), 1);
 
     let target_header = headers.first().unwrap();

@@ -1,5 +1,5 @@
 use crate::action::Action;
-use crate::api::{Impact, ImpactResultItem, Log, RouterTrace, RulesMessage};
+use crate::api::{Log, RulesMessage};
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
 use crate::http::ffi::{header_map_to_http_headers, HeaderMap};
 use crate::http::Request;
@@ -56,50 +56,4 @@ pub unsafe extern "C" fn redirectionio_api_create_log_in_json(
     };
 
     string_to_c_char(log_serialized)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn redirectionio_api_trace_serialize_and_drop(_trace: *mut RouterTrace) -> *const c_char {
-    if _trace.is_null() {
-        return null();
-    }
-
-    let trace = Box::from_raw(_trace);
-    let trace_serialized = match json_encode(&trace) {
-        Err(_) => return null(),
-        Ok(s) => s,
-    };
-
-    string_to_c_char(trace_serialized)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn redirectionio_api_impact_deserialize(content: *mut c_char) -> *const Impact {
-    let impact_string = match c_char_to_str(content) {
-        None => return null() as *const Impact,
-        Some(str) => str,
-    };
-
-    match json_decode(impact_string) {
-        Err(error) => {
-            error!("{}", error);
-            null() as *const Impact
-        }
-        Ok(impact) => Box::into_raw(Box::new(impact)),
-    }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn redirectionio_api_impact_result_serialize_and_drop(_result: *mut Vec<ImpactResultItem>) -> *const c_char {
-    if _result.is_null() {
-        return null();
-    }
-
-    let result = Box::from_raw(_result);
-    let result_serialized = match json_encode(&result) {
-        Err(_) => return null(),
-        Ok(s) => s,
-    };
-
-    string_to_c_char(result_serialized)
 }

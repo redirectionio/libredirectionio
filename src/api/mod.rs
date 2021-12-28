@@ -1,5 +1,7 @@
 mod body_filter;
 #[cfg(not(target_arch = "wasm32"))]
+mod examples;
+mod explain_request;
 mod ffi;
 mod header;
 mod header_filter;
@@ -10,20 +12,24 @@ mod marker;
 mod rule;
 mod rules_message;
 mod source;
-mod trace;
+mod test_examples;
 mod transformer;
+mod unit_ids;
 mod variable;
 
 pub use self::log::{LegacyLog, Log};
 pub use body_filter::{BodyFilter, HTMLBodyFilter, TextAction, TextBodyFilter};
+pub use examples::Example;
+pub use explain_request::{ExplainRequestInput, ExplainRequestOutput, ExplainRequestOutputError};
 pub use header::Header;
 pub use header_filter::HeaderFilter;
-pub use impact::{Impact, ImpactResultItem};
+pub use impact::{ImpactInput, ImpactOutput};
 pub use ip::IpConstraint;
 pub use marker::Marker;
 pub use rule::Rule;
 pub use rules_message::RulesMessage;
 pub use source::Source;
-pub use trace::RouterTrace;
+pub use test_examples::{TestExamplesInput, TestExamplesOutput};
 pub use transformer::Transformer;
+pub use unit_ids::{UnitIdsInput, UnitIdsOutput};
 pub use variable::{Variable, VariableKind};

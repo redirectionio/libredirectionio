@@ -8,9 +8,11 @@ use crate::api::{BodyFilter, HTMLBodyFilter, HeaderFilter, Rule, TextBodyFilter}
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
 use crate::http::{Header, Request};
 use crate::router::{Route, StaticOrDynamic, Trace};
+use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
-use std::collections::HashSet;
+use std::collections::HashMap;
+use std::fmt::Debug;
 use std::iter::FromIterator;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -19,11 +21,11 @@ pub struct Action {
     header_filters: Vec<HeaderFilterAction>,
     body_filters: Vec<BodyFilterAction>,
     // In 3.0 remove this
-    rule_ids: Vec<String>,
+    pub rule_ids: Vec<String>,
     // In 3.0 make this mandatory
     rule_traces: Option<Vec<RuleTrace>>,
     // In 3.0 make this mandatory
-    rules_applied: Option<HashSet<String>>,
+    pub rules_applied: Option<LinkedHashSet<String>>,
     // In 3.0 make this mandatory
     log_override: Option<LogOverride>,
 }
@@ -38,6 +40,94 @@ pub struct RuleTrace {
 pub struct TraceAction {
     action: Action,
     rule: Rule,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct UnitTrace {
+    rule_ids_applied: LinkedHashSet<String>,
+    unit_ids_applied: LinkedHashSet<String>,
+    unit_ids_seen: LinkedHashSet<String>,
+    value_computed_by_units: HashMap<String, String>,
+    #[serde(skip_serializing)]
+    with_target_unit_trace: WithTargetUnitTrace,
+}
+
+impl UnitTrace {
+    pub fn add_unit_id(&mut self, unit_id: String) {
+        self.unit_ids_applied.insert(unit_id.clone());
+        self.unit_ids_seen.insert(unit_id);
+    }
+
+    pub fn add_unit_id_with_target(&mut self, target: &str, unit_id: &str) {
+        self.with_target_unit_trace.add_unit_id(target, unit_id);
+        // Here we don't care about squashing value, since we want all value.
+        self.unit_ids_seen.insert(unit_id.to_string());
+    }
+
+    pub fn override_unit_id_with_target(&mut self, target: &str, unit_id: &str) {
+        self.with_target_unit_trace.override_unit_id(target, unit_id);
+        // Here we don't care about squashing value, since we want all value.
+        self.unit_ids_seen.insert(unit_id.to_string());
+    }
+
+    pub fn squash_with_target_unit_traces(&mut self) {
+        let with_target_unit_trace = self.with_target_unit_trace.clone();
+        for unit_ids in with_target_unit_trace.unit_ids_applied_by_key.values() {
+            for unit_id in unit_ids {
+                self.add_unit_id(unit_id.clone());
+            }
+        }
+
+        self.with_target_unit_trace = WithTargetUnitTrace::default();
+    }
+
+    pub fn add_value_computed_by_unit(&mut self, key: &str, value: &str) {
+        self.value_computed_by_units.insert(key.to_string(), value.to_string());
+    }
+
+    pub fn diff(&self, other: Vec<String>) -> LinkedHashSet<String> {
+        let mut diff = LinkedHashSet::new();
+
+        for unit_id in other {
+            if !&self.unit_ids_applied.contains(&unit_id) {
+                diff.insert(unit_id);
+            }
+        }
+
+        diff
+    }
+
+    pub fn get_rule_ids_applied(&self) -> LinkedHashSet<String> {
+        self.rule_ids_applied.clone()
+    }
+
+    pub fn rule_ids_contains(&self, rule_id: &str) -> bool {
+        self.rule_ids_applied.contains(rule_id)
+    }
+
+    pub fn get_unit_ids_applied(&self) -> LinkedHashSet<String> {
+        self.unit_ids_applied.clone()
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct WithTargetUnitTrace {
+    unit_ids_applied_by_key: HashMap<String, LinkedHashSet<String>>,
+}
+
+impl WithTargetUnitTrace {
+    fn add_unit_id(&mut self, target: &str, unit_id: &str) {
+        let unit_ids = self
+            .unit_ids_applied_by_key
+            .entry(target.to_string())
+            .or_insert_with(LinkedHashSet::new);
+        unit_ids.insert(unit_id.to_string());
+    }
+
+    fn override_unit_id(&mut self, target: &str, unit_id: &str) {
+        self.unit_ids_applied_by_key.remove_entry(target);
+        self.add_unit_id(target, unit_id);
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -62,7 +152,7 @@ impl Default for Action {
             body_filters: Vec::new(),
             rule_ids: Vec::new(),
             rule_traces: Some(Vec::new()),
-            rules_applied: Some(HashSet::new()),
+            rules_applied: Some(LinkedHashSet::new()),
             log_override: None,
         }
     }
@@ -141,9 +231,9 @@ impl Action {
 
         if let Some(sampling) = rule.source.sampling {
             let percent_rand = std::cmp::min(100, std::cmp::max(0, sampling));
-            let randomed = (rand::random::<u32>() % 100) + 1;
+            let random_value = (rand::random::<u32>() % 100) + 1;
 
-            match (request.sampling_override, randomed > percent_rand) {
+            match (request.sampling_override, random_value > percent_rand) {
                 (Some(false), _) => return (None, false, false),
                 (None, true) => return (None, false, false),
                 _ => (),
@@ -163,6 +253,8 @@ impl Action {
                 fallback_status_code: 0,
                 rule_id: Some(rule.id.clone()),
                 fallback_rule_id: None,
+                unit_id: rule.redirect_unit_id.clone(),
+                target_hash: Some("status_code".to_string()),
             }),
         };
 
@@ -188,6 +280,8 @@ impl Action {
                         action: "override".to_string(),
                         value,
                         header: "Location".to_string(),
+                        id: rule.redirect_unit_id.clone(),
+                        target_hash: rule.target_hash.clone(),
                     },
                     on_response_status_codes: match rule.source.response_status_codes.as_ref() {
                         None => Vec::new(),
@@ -205,6 +299,8 @@ impl Action {
                         action: filter.action.clone(),
                         header: filter.header.clone(),
                         value: StaticOrDynamic::replace(filter.value.clone(), &variables),
+                        id: filter.id.clone(),
+                        target_hash: filter.target_hash.clone(),
                     },
                     on_response_status_codes: on_response_status_codes.clone(),
                     rule_id: Some(rule.id.clone()),
@@ -221,10 +317,18 @@ impl Action {
                             css_selector: html_body_filter.css_selector.clone(),
                             element_tree: html_body_filter.element_tree.clone(),
                             value: StaticOrDynamic::replace(html_body_filter.value.clone(), &variables),
+                            inner_value: Some(StaticOrDynamic::replace(
+                                html_body_filter.inner_value.clone().unwrap_or(html_body_filter.value.clone()),
+                                &variables,
+                            )),
+                            id: html_body_filter.id.clone(),
+                            target_hash: html_body_filter.target_hash.clone(),
                         }),
                         BodyFilter::Text(text_body_filter) => BodyFilter::Text(TextBodyFilter {
                             action: text_body_filter.action.clone(),
                             content: StaticOrDynamic::replace(text_body_filter.content.clone(), &variables),
+                            id: text_body_filter.id.clone(),
+                            target_hash: text_body_filter.target_hash.clone(),
                         }),
                     },
                     on_response_status_codes: on_response_status_codes.clone(),
@@ -242,7 +346,7 @@ impl Action {
                 on_response_status_codes: on_response_status_codes.clone(),
                 id: rule.id.clone(),
             }]),
-            rules_applied: Some(HashSet::new()),
+            rules_applied: Some(LinkedHashSet::new()),
             log_override: rule.log_override.map(|log_override| LogOverride {
                 log_override,
                 rule_id: Some(rule.id.clone()),
@@ -271,7 +375,9 @@ impl Action {
                             on_response_status_codes: new_status_code_update.on_response_status_codes,
                             fallback_status_code: old_status_code_update.status_code,
                             rule_id: new_status_code_update.rule_id,
+                            target_hash: new_status_code_update.target_hash,
                             fallback_rule_id: old_status_code_update.rule_id.clone(),
+                            unit_id: new_status_code_update.unit_id,
                         })
                     }
                 }
@@ -320,8 +426,7 @@ impl Action {
     pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request) -> Action {
         let mut action = Action::default();
 
-        // Sort by priority, with lower ones in first
-        routes.sort_by_key(|&a| a.priority());
+        routes.sort();
 
         for route in routes {
             let (action_rule_opt, reset, stop) = Action::from_route_rule(route, request);
@@ -342,26 +447,42 @@ impl Action {
         action
     }
 
-    pub fn get_status_code(&mut self, response_status_code: u16) -> u16 {
+    pub fn get_status_code(&mut self, response_status_code: u16, mut unit_trace: Option<&mut UnitTrace>) -> u16 {
         match self.status_code_update.as_ref() {
             None => 0,
             Some(status_code_update) => {
                 let (status, rule_applied) = status_code_update.get_status_code(response_status_code);
 
-                self.apply_rule_id(rule_applied);
+                if rule_applied.is_some() {
+                    if let Some(trace) = unit_trace.as_deref_mut() {
+                        if let Some(rule_id) = rule_applied.clone() {
+                            trace.rule_ids_applied.insert(rule_id);
+                        }
+                        if let Some(target_hash) = status_code_update.target_hash.clone() {
+                            if let Some(unit_id) = status_code_update.unit_id.clone() {
+                                trace.add_unit_id_with_target(target_hash.as_str(), unit_id.as_str());
+                            }
+                        }
+                    }
+
+                    self.apply_rule_id(rule_applied);
+                }
 
                 status
             }
         }
     }
 
-    pub fn filter_headers(&mut self, headers: Vec<Header>, response_status_code: u16, add_rule_ids_header: bool) -> Vec<Header> {
+    pub fn filter_headers(
+        &mut self,
+        headers: Vec<Header>,
+        response_status_code: u16,
+        add_rule_ids_header: bool,
+        mut unit_trace: Option<&mut UnitTrace>,
+    ) -> Vec<Header> {
         let mut filters = Vec::new();
-        let mut rule_applied = false;
 
         if let Some(self_rule_traces) = self.rule_traces.clone() {
-            rule_applied = true;
-
             for trace in self_rule_traces {
                 if trace.on_response_status_codes.iter().all(|v| *v == response_status_code) {
                     self.apply_rule_id(Some(trace.id));
@@ -376,15 +497,17 @@ impl Action {
 
             filters.push(filter.filter);
 
-            if !rule_applied {
-                self.apply_rule_id(filter.rule_id);
-            }
+            self.apply_rule_id(filter.rule_id);
         }
 
         let mut new_headers = match FilterHeaderAction::new(filters) {
             None => headers,
-            Some(filter_action) => filter_action.filter(headers),
+            Some(filter_action) => filter_action.filter(headers, unit_trace.as_deref_mut()),
         };
+
+        if let Some(trace) = unit_trace.as_deref_mut() {
+            trace.rule_ids_applied.extend(self.get_applied_rule_ids());
+        }
 
         if add_rule_ids_header {
             new_headers.push(Header {
@@ -443,6 +566,6 @@ impl Action {
             return;
         }
 
-        self.rules_applied.get_or_insert(HashSet::new()).insert(rule_id.unwrap());
+        self.rules_applied.get_or_insert(LinkedHashSet::new()).insert(rule_id.unwrap());
     }
 }

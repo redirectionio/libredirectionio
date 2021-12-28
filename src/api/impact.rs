@@ -1,135 +1,127 @@
-use crate::api::{RouterTrace, Rule};
-use crate::http::sanitize_url;
+use crate::action::{Action, UnitTrace};
+use crate::api::{Example, Rule};
+use crate::http::Header;
 use crate::http::Request;
-use crate::router::Router;
+use crate::router::{Router, RouterConfig, Trace};
 use serde::{Deserialize, Serialize};
-use std::net::IpAddr;
-use std::str::FromStr;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+// Input
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct ImpactInput {
+    pub router_config: RouterConfig,
+    pub rule: Rule,
+    pub action: String,
+    pub rules: TmpRules,
+}
+
+// FIXME: find a way to avoid creating this structure.
+// It would be more convenient to inline the structure
+#[derive(Deserialize, Debug, Clone)]
+pub struct TmpRules {
+    #[serde(rename = "hydra:member")]
+    pub rules: Vec<Rule>,
+}
+
+// Output
+
+#[derive(Serialize, Debug, Clone, Default)]
+pub struct ImpactOutput {
+    pub impacts: Vec<Impact>,
+}
+
+#[derive(Serialize, Debug, Clone)]
 pub struct Impact {
-    examples: Vec<ImpactExample>,
-    change_set: ChangeSet,
+    example: Example,
+    unit_trace: UnitTrace,
+    backend_status_code: u16,
+    response: Response,
+    match_traces: Vec<Trace<Rule>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ImpactExample {
-    url: String,
-    method: Option<String>,
-    headers: Option<Vec<ImpactExampleHeader>>,
-    ip_address: Option<String>,
-    response_status_code: Option<u16>,
-    must_match: bool,
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct Response {
+    pub status_code: u16,
+    pub headers: Vec<Header>,
+    pub body: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ImpactExampleHeader {
-    name: String,
-    value: String,
-}
+// Implementation
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ImpactResultItem {
-    example: ImpactExample,
-    trace_unique: RouterTrace,
-    trace_before_update: RouterTrace,
-    trace_after_update: RouterTrace,
-}
+impl ImpactOutput {
+    pub fn create_result(impact_input: ImpactInput) -> ImpactOutput {
+        let router_config = impact_input.router_config;
+        let mut router = Router::<Rule>::from_config(router_config.clone());
+        let mut trace_unique_router = Router::<Rule>::from_config(router_config.clone());
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ChangeSet {
-    new: Vec<Rule>,
-    update: Vec<Rule>,
-    delete: Vec<String>,
-}
-
-impl Impact {
-    pub fn create_result(router: &Router<Rule>, impact: &Impact) -> Vec<ImpactResultItem> {
-        let mut trace_router: Router<Rule> = Router::from_config(router.config.clone());
-        let mut next_router = router.clone();
-
-        // Remove rules
-        for id in &impact.change_set.delete {
-            next_router.remove(id.as_str());
-        }
-
-        // Update rules
-        for rule in &impact.change_set.update {
-            next_router.remove(rule.id.as_str());
-        }
-
-        for rule in &impact.change_set.update {
-            next_router.insert(rule.clone().into_route(&next_router.config));
-            trace_router.insert(rule.clone().into_route(&trace_router.config));
-        }
-
-        // Add rules
-        for rule in &impact.change_set.new {
-            next_router.insert(rule.clone().into_route(&next_router.config));
-            trace_router.insert(rule.clone().into_route(&trace_router.config));
-        }
-
-        let mut items = Vec::new();
-
-        for example in &impact.examples {
-            let url = sanitize_url(example.url.as_str());
-            let mut builder = http::Request::<()>::builder().uri(url.as_str()).method(match &example.method {
-                None => "GET",
-                Some(method) => method.as_str(),
-            });
-
-            if example.headers.is_some() {
-                for header in example.headers.as_ref().unwrap() {
-                    builder = builder.header(header.name.as_str(), header.value.clone());
-                }
-            }
-
-            let http_request_res = builder.body(());
-
-            if let Err(err) = http_request_res {
-                log::error!("cannot build uri: {}", err);
-
+        for rule in impact_input.rules.rules.iter() {
+            // Even for a "add" action, we remove a potential previous version
+            // of the rule. This occurs when adding a rule (still in draft) and
+            // then editing it (still in add / draft). But we want the very last
+            // version.
+            if rule.id == impact_input.rule.id {
                 continue;
             }
+            router.insert(rule.clone().into_route(&router_config));
+        }
 
-            let http_request = http_request_res.unwrap();
-            let path_and_query = match http_request.uri().path_and_query() {
-                None => "",
-                Some(path_and_query) => path_and_query.as_str(),
+        if impact_input.action == "add" || impact_input.action == "update" {
+            router.insert(impact_input.rule.clone().into_route(&router_config));
+            trace_unique_router.insert(impact_input.rule.clone().into_route(&router_config));
+        }
+
+        let mut impacts = Vec::new();
+
+        for example in impact_input.rule.examples.as_ref().unwrap().iter() {
+            let request = Request::from_example(&router_config, example).unwrap();
+            let routes = router.match_request(&request);
+            let mut action = Action::from_routes_rule(routes, &request);
+
+            let mut unit_trace = UnitTrace::default();
+
+            let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
+            let (final_status_code, backend_status_code) = if action_status_code != 0 {
+                (action_status_code, action_status_code)
+            } else {
+                // We call the backend and get a response code
+                let backend_status_code = example.response_status_code.unwrap_or(200);
+                let final_status_code = action.get_status_code(backend_status_code, Some(&mut unit_trace));
+                (final_status_code, backend_status_code)
             };
-            let ip_address = match &example.ip_address {
-                Some(ip) => IpAddr::from_str(ip.as_str()).ok(),
-                None => None,
-            };
 
-            let mut request = Request::from_config(
-                &router.config,
-                path_and_query.to_string(),
-                http_request.uri().host().map(|s| s.to_string()),
-                http_request.uri().scheme_str().map(|s| s.to_string()),
-                example.method.clone(),
-                ip_address,
-                Some(true),
-            );
+            let headers = action.filter_headers(Vec::new(), backend_status_code, false, Some(&mut unit_trace));
 
-            if example.headers.is_some() {
-                for header in example.headers.as_ref().unwrap() {
-                    request.add_header(header.name.clone(), header.value.clone(), router.config.ignore_header_case);
-                }
+            let mut body = "<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+    </body>
+</html>";
+
+            let mut b1;
+            if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[]) {
+                b1 = body_filter.filter(body.into(), Some(&mut unit_trace));
+                let b2 = body_filter.end(Some(&mut unit_trace));
+                b1.extend(b2);
+                body = std::str::from_utf8(&b1).unwrap();
             }
 
-            let trace_before_update = RouterTrace::create_from_router(router, &request);
-            let trace_after_update = RouterTrace::create_from_router(&next_router, &request);
-            let trace_unique = RouterTrace::create_from_router(&trace_router, &request);
+            unit_trace.squash_with_target_unit_traces();
 
-            items.push(ImpactResultItem {
-                example: example.clone(),
-                trace_before_update,
-                trace_after_update,
-                trace_unique,
+            impacts.push(Impact {
+                example: example.to_owned(),
+                unit_trace,
+                backend_status_code,
+                response: Response {
+                    status_code: final_status_code,
+                    headers,
+                    body: body.to_string(),
+                },
+                match_traces: trace_unique_router.trace_request(&request),
             });
         }
 
-        items
+        ImpactOutput { impacts }
     }
 }

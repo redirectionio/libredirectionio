@@ -2,10 +2,12 @@ use crate::filter::error::Result;
 use flate2::write::{GzDecoder, GzEncoder};
 use std::io::{Cursor, Read, Write};
 
+#[derive(Debug)]
 pub struct GzDecodeFilterBody {
     decoder: GzDecoder<Cursor<Vec<u8>>>,
 }
 
+#[derive(Debug)]
 pub struct GzEncodeFilterBody {
     encoder: GzEncoder<Cursor<Vec<u8>>>,
 }

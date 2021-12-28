@@ -3,6 +3,7 @@ extern crate libtool;
 extern crate serde;
 extern crate serde_yaml;
 
+use glob::glob;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
@@ -11,7 +12,6 @@ use std::env;
 use std::fs::{read_dir, read_to_string, DirEntry};
 use std::path::Path;
 use tera::{Context, Tera};
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleSet {
     #[serde(default)]
@@ -262,7 +262,43 @@ fn main() {
         .expect("Unable to generate bindings")
         .write_to_file(&output_file);
 
-    let rule_sets = read_tests("../../tests/rules");
+    make_router_tests();
+    make_test_examples_tests();
+}
+
+fn make_test_examples_tests() {
+    let mut names: Vec<String> = Vec::new();
+    for path in glob("tests/test_examples/*.in.json")
+        .expect("invalid glob pattern")
+        .filter_map(Result::ok)
+    {
+        let path = path.to_str().unwrap();
+        let name = path.replace("tests/test_examples/", "").replace(".in.json", "");
+        names.push(name);
+    }
+
+    let templating = Tera::new("tests/templates/**/*").expect("cannot load templates");
+    let test_path = Path::new("tests/redirectionio_test_examples.rs");
+    let mut context = Context::default();
+    context.insert("names", &names);
+    let test_content = templating
+        .render("redirectionio_test_examples.rs.j2", &context)
+        .expect("cannot generate");
+
+    // we avoid rewriting the file to keep rust cache as must as possible
+    if test_path.exists() {
+        let existing_content = std::fs::read_to_string(test_path).expect("cannot read");
+
+        if existing_content != test_content {
+            std::fs::write(test_path, test_content).expect("cannot write");
+        }
+    } else {
+        std::fs::write(test_path, test_content).expect("cannot write");
+    }
+}
+
+fn make_router_tests() {
+    let rule_sets = read_router_tests("../../tests/rules");
 
     if rule_sets.is_empty() {
         return;
@@ -277,8 +313,11 @@ fn main() {
     let test_path = Path::new("tests/redirectionio_router_test.rs");
 
     let context = Context::from_serialize(&rule_sets_list).expect("cannot serialize");
-    let test_content = templating.render("main.rs.j2", &context).expect("cannot generate");
+    let test_content = templating
+        .render("redirectionio_router_test.rs.j2", &context)
+        .expect("cannot generate");
 
+    // we avoid rewriting the file to keep rust cache as must as possible
     if test_path.exists() {
         let existing_content = std::fs::read_to_string(test_path).expect("cannot read");
 
@@ -290,7 +329,7 @@ fn main() {
     }
 }
 
-fn read_tests(path: &str) -> HashMap<String, RuleSet> {
+fn read_router_tests(path: &str) -> HashMap<String, RuleSet> {
     let mut rule_sets = HashMap::new();
 
     match read_dir(path) {
@@ -299,13 +338,13 @@ fn read_tests(path: &str) -> HashMap<String, RuleSet> {
             for file in directory.flatten() {
                 if let Ok(file_type) = file.file_type() {
                     if file_type.is_dir() {
-                        rule_sets.extend(read_tests(file.path().to_str().unwrap()))
+                        rule_sets.extend(read_router_tests(file.path().to_str().unwrap()))
                     } else if file_type.is_file() {
                         match file.path().extension() {
                             None => (),
                             Some(ext) => {
                                 if ext == "yml" {
-                                    let (key, rule_set) = build_test_file(file).expect("");
+                                    let (key, rule_set) = build_router_test_file(file).expect("");
 
                                     rule_sets.insert(key, rule_set);
                                 }
@@ -320,7 +359,7 @@ fn read_tests(path: &str) -> HashMap<String, RuleSet> {
     rule_sets
 }
 
-fn build_test_file(file: DirEntry) -> std::io::Result<(String, RuleSet)> {
+fn build_router_test_file(file: DirEntry) -> std::io::Result<(String, RuleSet)> {
     let content = read_to_string(file.path())?;
     let mut rule_set: RuleSet = yaml_decode(content.as_str()).expect("error");
 

@@ -1,5 +1,5 @@
 use crate::action::Action;
-use crate::api::{Impact, ImpactResultItem, RouterTrace, Rule, RulesMessage};
+use crate::api::{Rule, RulesMessage};
 use crate::ffi_helpers::c_char_to_str;
 use crate::http::Request;
 use crate::router::{Route, Router, RouterConfig};
@@ -92,34 +92,6 @@ pub unsafe extern "C" fn redirectionio_router_match_action(_router: *const Route
     let action = Action::from_routes_rule(routes, request);
 
     Box::into_raw(Box::new(action))
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn redirectionio_router_trace(_router: *const Router<Rule>, _request: *const Request) -> *const RouterTrace {
-    if _router.is_null() || _request.is_null() {
-        return null() as *const RouterTrace;
-    }
-
-    let router = &*_router;
-    let request = &*_request;
-
-    let trace = RouterTrace::create_from_router(router, request);
-
-    Box::into_raw(Box::new(trace))
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn redirectionio_router_impact(_router: *const Router<Rule>, _impact: *const Impact) -> *const Vec<ImpactResultItem> {
-    if _router.is_null() {
-        return null() as *const Vec<ImpactResultItem>;
-    }
-
-    let router = &*_router;
-    let impact = &*_impact;
-
-    let result = Impact::create_result(router, impact);
-
-    Box::into_raw(Box::new(result))
 }
 
 #[no_mangle]

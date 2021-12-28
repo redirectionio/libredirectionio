@@ -1,0 +1,80 @@
+{
+  "example_count": 1,
+  "failure_count": 1,
+  "error_count": 0,
+  "first_ten_failures": {
+    "A": {
+      "rule": {
+        "id": "A",
+        "source": {
+          "scheme": "",
+          "host": "",
+          "ips": [],
+          "path": "/",
+          "query": "",
+          "headers": [],
+          "methods": [],
+          "response_status_codes": [],
+          "sampling": null
+        },
+        "target": "",
+        "status_code": null,
+        "rank": 3,
+        "body_filters": [],
+        "header_filters": [
+          {
+            "action": "add",
+            "header": "location",
+            "value": "toto",
+            "id": "A:1",
+            "target_hash": "header::location"
+          }
+        ],
+        "log_override": null,
+        "reset": null,
+        "stop": null,
+        "examples": [
+          {
+            "url": "/",
+            "method": "GET",
+            "headers": [],
+            "ip_address": null,
+            "response_status_code": 200,
+            "must_match": true,
+            "unit_ids_applied": [
+              "A:1"
+            ]
+          }
+        ],
+        "redirect_unit_id": null,
+        "target_hash": null
+      },
+      "failed_examples": [
+        {
+          "example": {
+            "url": "/",
+            "method": "GET",
+            "headers": [],
+            "ip_address": null,
+            "response_status_code": 200,
+            "must_match": true,
+            "unit_ids_applied": [
+              "A:1"
+            ]
+          },
+          "rule_ids_applied": [
+            "A",
+            "B"
+          ],
+          "unit_ids_applied": [
+            "B:1"
+          ],
+          "unit_ids_not_applied_anymore": [
+            "A:1"
+          ]
+        }
+      ]
+    }
+  },
+  "first_ten_errors": {}
+}

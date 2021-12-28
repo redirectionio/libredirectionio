@@ -1,3 +1,4 @@
+use crate::action::UnitTrace;
 use crate::api::HeaderFilter;
 use crate::filter::header_action;
 use crate::http::Header;
@@ -27,9 +28,9 @@ impl FilterHeaderAction {
         Some(FilterHeaderAction { actions })
     }
 
-    pub fn filter(&self, mut headers: Vec<Header>) -> Vec<Header> {
+    pub fn filter(&self, mut headers: Vec<Header>, mut unit_trace: Option<&mut UnitTrace>) -> Vec<Header> {
         for filter in &self.actions {
-            headers = filter.filter(headers);
+            headers = filter.filter(headers, unit_trace.as_deref_mut());
         }
 
         headers

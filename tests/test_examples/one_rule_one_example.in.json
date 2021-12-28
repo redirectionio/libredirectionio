@@ -1,0 +1,62 @@
+{
+    "router_config": {
+        "ignore_host_case": false,
+        "ignore_header_case": false,
+        "ignore_path_and_query_case": false,
+        "ignore_marketing_query_params": true,
+        "marketing_query_params": [
+            "utm_campaign",
+            "utm_content",
+            "utm_medium",
+            "utm_source",
+            "utm_term"
+        ],
+        "pass_marketing_query_params_to_target": true,
+        "always_match_any_host": false
+    },
+    "rules": {
+        "hydra:member": [
+            {
+                "source": {
+                    "host": "",
+                    "path": "/redir/test-redir",
+                    "query": "",
+                    "scheme": "",
+                    "sampling": null,
+                    "methods": [],
+                    "headers": [],
+                    "response_status_codes": [],
+                    "ips": []
+                },
+                "id": "9d8a5ba4-1d76-41e0-820b-891d45484152",
+                "rank": 32765,
+                "markers": [],
+                "body_filters": [],
+                "header_filters": [
+                    {
+                        "action": "remove",
+                        "header": "location",
+                        "value": "",
+                        "id": null
+                    }
+                ],
+                "target": "",
+                "redirect_code": 410,
+                "redirect_unit_id": "38032bcb-2580-4243-a14f-3e26477e878e",
+                "examples": [
+                    {
+                        "id": "5ae766b4-b820-4092-8fde-8f045f4dc4a5",
+                        "url": "/redir/test-redir",
+                        "must_match": true,
+                        "headers": [],
+                        "response_status_code": 200,
+                        "method": "GET",
+                        "unit_ids_applied": [
+                            "38032bcb-2580-4243-a14f-3e26477e878e"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

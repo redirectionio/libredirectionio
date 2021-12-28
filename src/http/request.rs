@@ -1,8 +1,11 @@
 use super::header::Header;
 use super::query::PathAndQueryWithSkipped;
+use crate::api::Example;
+use crate::http::sanitize_url;
 use crate::http::TrustedProxies;
 use crate::router::RouterConfig;
 use chrono::{DateTime, Utc};
+use http::Error;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -103,6 +106,38 @@ impl Request {
             created_at: Some(Utc::now()),
             sampling_override,
         }
+    }
+
+    pub fn from_example(router_config: &RouterConfig, example: &Example) -> Result<Self, Error> {
+        let method = example.method.as_deref().unwrap_or("GET");
+        let url = sanitize_url(example.url.as_str());
+        let http_request = http::Request::<()>::builder().uri(url.as_str()).method(method).body(())?;
+        let path_and_query_str = match http_request.uri().path_and_query() {
+            None => "",
+            Some(path_and_query) => path_and_query.as_str(),
+        };
+
+        let mut request = Request::from_config(
+            router_config,
+            path_and_query_str.to_string(),
+            http_request.uri().host().map(|s| s.to_string()),
+            http_request.uri().scheme_str().map(|s| s.to_string()),
+            example.method.clone(),
+            None,
+            None,
+        );
+
+        if let Some(headers) = &example.headers {
+            for header in headers {
+                request.add_header(header.name.clone(), header.value.clone(), false);
+            }
+        }
+
+        if let Some(ip) = &example.ip_address {
+            request.remote_addr = Some(IpAddr::from_str(ip).unwrap());
+        }
+
+        Ok(request)
     }
 
     pub fn rebuild_with_config(config: &RouterConfig, request: &Request) -> Self {

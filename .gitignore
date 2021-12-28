@@ -11,3 +11,4 @@ wrangler.toml
 worker/generated
 Cargo.lock
 redirectionio.h
+/tests/test_examples/*.out.current.json

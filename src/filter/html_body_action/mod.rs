@@ -4,6 +4,7 @@ pub mod body_append;
 pub mod body_prepend;
 pub mod body_replace;
 
+use crate::action::UnitTrace;
 use crate::api::HTMLBodyFilter;
 use crate::filter::error::Result;
 use crate::filter::html_body_action::body_append::BodyAppend;
@@ -28,35 +29,44 @@ impl HtmlBodyVisitor {
             "append_child" => Some(HtmlBodyVisitor::Append(BodyAppend::new(
                 filter.element_tree,
                 filter.css_selector,
-                filter.value,
+                filter.value.clone(),
+                filter.inner_value.unwrap_or(filter.value),
+                filter.id,
+                filter.target_hash,
             ))),
             "prepend_child" => Some(HtmlBodyVisitor::Prepend(BodyPrepend::new(
                 filter.element_tree,
                 filter.css_selector,
-                filter.value,
+                filter.value.clone(),
+                filter.inner_value.unwrap_or(filter.value),
+                filter.id,
+                filter.target_hash,
             ))),
             "replace" => Some(HtmlBodyVisitor::Replace(BodyReplace::new(
                 filter.element_tree,
                 filter.css_selector,
-                filter.value,
+                filter.value.clone(),
+                filter.inner_value.unwrap_or(filter.value),
+                filter.id,
+                filter.target_hash,
             ))),
             _ => None,
         }
     }
 
-    pub fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
+    pub fn enter(&mut self, data: String, mut unit_trace: Option<&mut UnitTrace>) -> (Option<String>, Option<String>, bool, String) {
         match self {
             Self::Append(append) => append.enter(data),
-            Self::Prepend(prepend) => prepend.enter(data),
+            Self::Prepend(prepend) => prepend.enter(data, unit_trace.as_deref_mut()),
             Self::Replace(replace) => replace.enter(data),
         }
     }
 
-    pub fn leave(&mut self, data: String) -> Result<(Option<String>, Option<String>, String)> {
+    pub fn leave(&mut self, data: String, mut unit_trace: Option<&mut UnitTrace>) -> Result<(Option<String>, Option<String>, String)> {
         Ok(match self {
-            Self::Append(append) => append.leave(data)?,
-            Self::Prepend(prepend) => prepend.leave(data)?,
-            Self::Replace(replace) => replace.leave(data),
+            Self::Append(append) => append.leave(data, unit_trace.as_deref_mut())?,
+            Self::Prepend(prepend) => prepend.leave(data, unit_trace.as_deref_mut())?,
+            Self::Replace(replace) => replace.leave(data, unit_trace.as_deref_mut()),
         })
     }
 

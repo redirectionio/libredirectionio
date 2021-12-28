@@ -1,5 +1,8 @@
+use crate::action::UnitTrace;
+
 #[derive(Debug)]
 pub struct TextFilterBodyAction {
+    id: Option<String>,
     action: TextFilterAction,
     content: Vec<u8>,
     executed: bool,
@@ -13,17 +16,26 @@ pub enum TextFilterAction {
 }
 
 impl TextFilterBodyAction {
-    pub fn new(action: TextFilterAction, content: String) -> Self {
+    pub fn new(id: Option<String>, action: TextFilterAction, content: String) -> Self {
         Self {
+            id,
             action,
             content: content.into_bytes(),
             executed: false,
         }
     }
 
-    pub fn filter(&mut self, data: Vec<u8>) -> Vec<u8> {
+    pub fn filter(&mut self, data: Vec<u8>, mut unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
         match self.action {
             TextFilterAction::Replace => {
+                if let Some(trace) = unit_trace.as_deref_mut() {
+                    if let Some(id) = self.id.clone() {
+                        // We always use "body" as target since it's not
+                        // possible to change the value in the UI
+                        trace.override_unit_id_with_target("text", id.as_str());
+                    }
+                }
+
                 if self.executed {
                     Vec::new()
                 } else {
@@ -31,8 +43,26 @@ impl TextFilterBodyAction {
                     self.content.clone()
                 }
             }
-            TextFilterAction::Append => data,
+            TextFilterAction::Append => {
+                if let Some(trace) = unit_trace.as_deref_mut() {
+                    if let Some(id) = self.id.clone() {
+                        // We always use "body" as target since it's not
+                        // possible to change the value in the UI
+                        trace.add_unit_id_with_target("text", id.as_str());
+                    }
+                }
+
+                data
+            }
             TextFilterAction::Prepend => {
+                if let Some(trace) = unit_trace.as_deref_mut() {
+                    if let Some(id) = self.id.clone() {
+                        // We always use "body" as target since it's not
+                        // possible to change the value in the UI
+                        trace.add_unit_id_with_target("text", id.as_str());
+                    }
+                }
+
                 if self.executed {
                     data
                 } else {

@@ -1,3 +1,4 @@
+use crate::action::UnitTrace;
 use crate::filter::error::Result;
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::html;
@@ -54,7 +55,7 @@ impl HtmlFilterBodyAction {
         }
     }
 
-    pub fn filter(&mut self, input: Vec<u8>) -> Result<Vec<u8>> {
+    pub fn filter(&mut self, input: Vec<u8>, mut unit_trace: Option<&mut UnitTrace>) -> Result<Vec<u8>> {
         let mut data = self.last_buffer.clone();
         data.extend(input);
 
@@ -98,13 +99,15 @@ impl HtmlFilterBodyAction {
                 html::TokenType::StartTagToken => {
                     let (tag_name, _) = tokenizer.tag_name()?;
                     let tag_name_str = tag_name.unwrap_or_else(|| "".to_string());
-                    let (new_buffer_link, new_token_data) = self.on_start_tag_token(tag_name_str.clone(), token_data);
+                    let (new_buffer_link, new_token_data) =
+                        self.on_start_tag_token(tag_name_str.clone(), token_data, unit_trace.as_deref_mut());
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
 
                     if VOID_ELEMENTS.contains(tag_name_str.as_str()) {
-                        let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name_str.clone(), token_data)?;
+                        let (new_buffer_link, new_token_data) =
+                            self.on_end_tag_token(tag_name_str.clone(), token_data, unit_trace.as_deref_mut())?;
 
                         self.current_buffer = new_buffer_link;
                         token_data = new_token_data;
@@ -112,19 +115,22 @@ impl HtmlFilterBodyAction {
                 }
                 html::TokenType::EndTagToken => {
                     let (tag_name, _) = tokenizer.tag_name()?;
-                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data)?;
+                    let (new_buffer_link, new_token_data) =
+                        self.on_end_tag_token(tag_name.unwrap(), token_data, unit_trace.as_deref_mut())?;
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
                 }
                 html::TokenType::SelfClosingTagToken => {
                     let (tag_name, _) = tokenizer.tag_name()?;
-                    let (new_buffer_link, new_token_data) = self.on_start_tag_token(tag_name.as_ref().unwrap().clone(), token_data);
+                    let (new_buffer_link, new_token_data) =
+                        self.on_start_tag_token(tag_name.as_ref().unwrap().clone(), token_data, unit_trace.as_deref_mut());
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
 
-                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data)?;
+                    let (new_buffer_link, new_token_data) =
+                        self.on_end_tag_token(tag_name.unwrap(), token_data, unit_trace.as_deref_mut())?;
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
@@ -154,12 +160,17 @@ impl HtmlFilterBodyAction {
         to_return
     }
 
-    fn on_start_tag_token(&mut self, tag_name: String, data: String) -> (Option<Box<BufferLink>>, String) {
+    fn on_start_tag_token(
+        &mut self,
+        tag_name: String,
+        data: String,
+        mut unit_trace: Option<&mut UnitTrace>,
+    ) -> (Option<Box<BufferLink>>, String) {
         let mut buffer = data;
         let mut buffer_link_actions = 0;
 
         if self.enter.is_some() && self.enter.as_ref().unwrap() == tag_name.as_str() {
-            let (next_enter, next_leave, start_buffer, new_buffer) = self.visitor.enter(buffer);
+            let (next_enter, next_leave, start_buffer, new_buffer) = self.visitor.enter(buffer, unit_trace.as_deref_mut());
 
             buffer = new_buffer;
 
@@ -184,7 +195,12 @@ impl HtmlFilterBodyAction {
         (self.current_buffer.take(), buffer)
     }
 
-    fn on_end_tag_token(&mut self, tag_name: String, data: String) -> Result<(Option<Box<BufferLink>>, String)> {
+    fn on_end_tag_token(
+        &mut self,
+        tag_name: String,
+        data: String,
+        mut unit_trace: Option<&mut UnitTrace>,
+    ) -> Result<(Option<Box<BufferLink>>, String)> {
         let mut buffer: String;
 
         if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {
@@ -195,7 +211,7 @@ impl HtmlFilterBodyAction {
         }
 
         if self.leave.is_some() && self.leave.as_ref().unwrap() == tag_name.as_str() {
-            let (next_enter, next_leave, new_buffer) = self.visitor.leave(buffer)?;
+            let (next_enter, next_leave, new_buffer) = self.visitor.leave(buffer, unit_trace.as_deref_mut())?;
             buffer = new_buffer;
 
             self.enter = next_enter;

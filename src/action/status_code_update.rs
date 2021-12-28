@@ -7,6 +7,8 @@ pub struct StatusCodeUpdate {
     pub fallback_status_code: u16,
     pub rule_id: Option<String>,
     pub fallback_rule_id: Option<String>,
+    pub unit_id: Option<String>,
+    pub target_hash: Option<String>,
 }
 
 impl StatusCodeUpdate {

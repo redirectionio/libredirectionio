@@ -1,4 +1,4 @@
-use crate::api::{BodyFilter, HeaderFilter, IpConstraint, Marker, Source, Variable};
+use crate::api::{BodyFilter, Example, HeaderFilter, IpConstraint, Marker, Source, Variable};
 use crate::http::Request;
 use crate::router::{
     Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouteIp, RouterConfig, StaticOrDynamic, Transform,
@@ -7,6 +7,7 @@ use cidr::AnyIpCidr;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = CONTROLS;
@@ -28,9 +29,38 @@ pub struct Rule {
     pub log_override: Option<bool>,
     pub reset: Option<bool>,
     pub stop: Option<bool>,
+    pub examples: Option<Vec<Example>>,
+    pub redirect_unit_id: Option<String>,
+    pub target_hash: Option<String>,
 }
 
 impl RouteData for Rule {}
+
+impl Ord for Rule {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let order_on_rank = (&other.rank).cmp(&self.rank);
+
+        if order_on_rank != Ordering::Equal {
+            return order_on_rank;
+        }
+
+        (&other.id).cmp(&self.id)
+    }
+}
+
+impl PartialOrd for Rule {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Rule {
+    fn eq(&self, other: &Self) -> bool {
+        self.rank == other.rank && self.id == other.id
+    }
+}
+
+impl Eq for Rule {}
 
 impl Rule {
     pub fn from_json(rule_str: &str) -> Option<Rule> {
