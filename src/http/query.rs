@@ -16,7 +16,7 @@ pub struct PathAndQueryWithSkipped {
     pub original: String,
 }
 
-fn sanitize_url(path_and_query_str: &str) -> String {
+pub fn sanitize_url(path_and_query_str: &str) -> String {
     utf8_percent_encode(path_and_query_str, URL_ENCODE_SET).to_string()
 }
 

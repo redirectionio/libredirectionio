@@ -1,4 +1,5 @@
 use crate::api::{RouterTrace, Rule};
+use crate::http::sanitize_url;
 use crate::http::Request;
 use crate::router::Router;
 use serde::{Deserialize, Serialize};
@@ -71,12 +72,11 @@ impl Impact {
         let mut items = Vec::new();
 
         for example in &impact.examples {
-            let mut builder = http::Request::<()>::builder()
-                .uri(example.url.as_str())
-                .method(match &example.method {
-                    None => "GET",
-                    Some(method) => method.as_str(),
-                });
+            let url = sanitize_url(example.url.as_str());
+            let mut builder = http::Request::<()>::builder().uri(url.as_str()).method(match &example.method {
+                None => "GET",
+                Some(method) => method.as_str(),
+            });
 
             if example.headers.is_some() {
                 for header in example.headers.as_ref().unwrap() {
@@ -86,7 +86,9 @@ impl Impact {
 
             let http_request_res = builder.body(());
 
-            if http_request_res.is_err() {
+            if let Err(err) = http_request_res {
+                log::error!("cannot build uri: {}", err);
+
                 continue;
             }
 
