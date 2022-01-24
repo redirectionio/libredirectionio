@@ -5,23 +5,24 @@ use chrono::Utc;
 use serde_json::to_string as json_encode;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 pub struct Request {
-    #[wasm_bindgen(skip)]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(skip))]
     pub request: RedirectionioRequest,
 }
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 pub struct HeaderMap {
-    #[wasm_bindgen(skip)]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(skip))]
     pub headers: Vec<Header>,
 }
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 impl Request {
-    #[wasm_bindgen(constructor)]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new(uri: String, host: String, scheme: String, method: String) -> Request {
         let config = RouterConfig::default();
 
@@ -63,10 +64,10 @@ impl Request {
     }
 }
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 impl HeaderMap {
     #[allow(clippy::new_without_default)]
-    #[wasm_bindgen(constructor)]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new() -> HeaderMap {
         HeaderMap { headers: Vec::new() }
     }

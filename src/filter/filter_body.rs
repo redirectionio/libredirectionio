@@ -29,6 +29,7 @@ impl FilterBodyAction {
         self.chain.is_empty()
     }
 
+    // Note: no need for `mut` here ?
     pub fn filter(&mut self, mut data: String) -> String {
         for item in &mut self.chain {
             data = item.filter(data);

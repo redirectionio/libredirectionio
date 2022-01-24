@@ -1,23 +1,24 @@
 use super::{Action as RedirectionioAction, FilterBodyAction};
 use crate::http::wasm::HeaderMap;
 use serde_json::from_str as json_decode;
+#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 pub struct Action {
-    #[wasm_bindgen(skip)]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(skip))]
     pub action: Option<RedirectionioAction>,
 }
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 pub struct BodyFilter {
-    #[wasm_bindgen(skip)]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(skip))]
     pub filter: Option<FilterBodyAction>,
 }
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 impl Action {
-    #[wasm_bindgen(constructor)]
+    #[cfg_attr(feature = "wasm", wasm_bindgen(constructor))]
     pub fn new(action_serialized: String) -> Action {
         let action = match json_decode(action_serialized.as_str()) {
             Err(error) => {
@@ -76,7 +77,7 @@ impl Action {
     }
 }
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 impl BodyFilter {
     pub fn is_null(&self) -> bool {
         self.filter.is_none()

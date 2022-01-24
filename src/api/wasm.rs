@@ -2,9 +2,10 @@ use super::Log;
 use crate::action::wasm::Action;
 use crate::http::wasm::{HeaderMap, Request};
 use serde_json::to_string as json_encode;
+#[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[cfg_attr(feature = "wasm", wasm_bindgen())]
 pub fn create_log_in_json(
     request: Request,
     status_code: u16,
