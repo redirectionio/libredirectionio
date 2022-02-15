@@ -138,6 +138,10 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
     }
 
     fn cache(&mut self, limit: u64, level: u64) -> u64 {
+        if limit == 0 {
+            return 0;
+        }
+
         if self.level == level && self.prefix.is_some() {
             self.prefix_compiled = self.create_regex();
 
