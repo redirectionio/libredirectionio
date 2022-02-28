@@ -30,6 +30,7 @@ lazy_static! {
         set.insert("hr");
         set.insert("img");
         set.insert("input");
+        set.insert("link");
         set.insert("meta");
         set.insert("param");
         set.insert("source");
