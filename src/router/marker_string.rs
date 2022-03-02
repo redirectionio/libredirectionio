@@ -121,7 +121,7 @@ impl StaticOrDynamic {
         }
     }
 
-    pub fn replace(mut str: String, variables: &Vec<(String, String)>) -> String {
+    pub fn replace(mut str: String, variables: &[(String, String)]) -> String {
         for (name, value) in variables {
             str = str.replace(format!("@{}", name).as_str(), value.as_str())
         }

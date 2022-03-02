@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
 use std::collections::HashMap;
 
-const SIMPLE_ENCODE_SET: &AsciiSet = &CONTROLS;
+const SIMPLE_ENCODE_SET: &AsciiSet = CONTROLS;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Rule {
@@ -34,7 +34,7 @@ impl RouteData for Rule {}
 
 impl Rule {
     pub fn from_json(rule_str: &str) -> Option<Rule> {
-        let rule_result = json_decode(&rule_str);
+        let rule_result = json_decode(rule_str);
 
         if rule_result.is_err() {
             error!("Unable to create rule from string {}: {}", rule_str, rule_result.err().unwrap());

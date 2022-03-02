@@ -8,7 +8,7 @@ pub struct FilterBodyAction {
 }
 
 pub enum FilterBodyActionItem {
-    HTML(HtmlFilterBodyAction),
+    Html(HtmlFilterBodyAction),
     Text(TextFilterBodyAction),
 }
 
@@ -66,7 +66,7 @@ impl FilterBodyActionItem {
     pub fn new(filter: BodyFilter) -> Option<Self> {
         match filter {
             BodyFilter::HTML(html_body_filter) => {
-                HtmlBodyVisitor::new(html_body_filter).map(|visitor| Self::HTML(HtmlFilterBodyAction::new(visitor)))
+                HtmlBodyVisitor::new(html_body_filter).map(|visitor| Self::Html(HtmlFilterBodyAction::new(visitor)))
             }
             BodyFilter::Text(text_body_filter) => Some(Self::Text(TextFilterBodyAction::new(
                 match text_body_filter.action {
@@ -81,14 +81,14 @@ impl FilterBodyActionItem {
 
     pub fn filter(&mut self, data: String) -> String {
         match self {
-            FilterBodyActionItem::HTML(html_body_filter) => html_body_filter.filter(data),
+            FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data),
         }
     }
 
     pub fn end(&mut self) -> String {
         match self {
-            FilterBodyActionItem::HTML(html_body_filter) => html_body_filter.end(),
+            FilterBodyActionItem::Html(html_body_filter) => html_body_filter.end(),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
         }
     }

@@ -8,7 +8,6 @@ pub struct BodyAppend {
     position: usize,
     css_selector: Option<String>,
     content: String,
-    is_buffering: bool,
 }
 
 impl BodyAppend {
@@ -18,7 +17,6 @@ impl BodyAppend {
             css_selector,
             position: 0,
             content,
-            is_buffering: false,
         }
     }
 }

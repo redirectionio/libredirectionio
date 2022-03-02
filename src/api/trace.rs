@@ -12,8 +12,8 @@ pub struct RouterTrace {
 
 impl RouterTrace {
     pub fn create_from_router(router: &Router<Rule>, request: &Request) -> RouterTrace {
-        let match_traces = router.trace_request(&request);
-        let action_traces = TraceAction::from_trace_rules(&match_traces, &request);
+        let match_traces = router.trace_request(request);
+        let action_traces = TraceAction::from_trace_rules(&match_traces, request);
 
         RouterTrace {
             match_traces,

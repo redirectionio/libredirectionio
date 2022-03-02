@@ -31,7 +31,7 @@ impl Variable {
             VariableKind::RequestHeader { name, default } => Some(
                 request
                     .header_value(name.as_str())
-                    .unwrap_or(default.clone().unwrap_or_else(|| "".to_string())),
+                    .unwrap_or_else(|| default.clone().unwrap_or_else(|| "".to_string())),
             ),
             VariableKind::RequestHost => request.host.clone(),
             VariableKind::RequestMethod => request.method.clone(),
