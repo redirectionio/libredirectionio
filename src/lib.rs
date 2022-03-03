@@ -3,8 +3,6 @@ extern crate lazy_static;
 #[macro_use]
 extern crate log;
 extern crate libc;
-#[cfg(feature = "wasm")]
-extern crate wasm_bindgen;
 
 pub mod action;
 pub mod api;

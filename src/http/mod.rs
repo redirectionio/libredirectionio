@@ -5,7 +5,6 @@ mod trusted_proxies;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod ffi;
-pub mod wasm;
 
 pub use header::Header;
 pub use query::sanitize_url;

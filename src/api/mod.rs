@@ -13,7 +13,6 @@ mod source;
 mod trace;
 mod transformer;
 mod variable;
-pub mod wasm;
 
 pub use self::log::Log;
 pub use body_filter::{BodyFilter, HTMLBodyFilter, TextAction, TextBodyFilter};

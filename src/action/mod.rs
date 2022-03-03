@@ -2,7 +2,6 @@
 mod ffi;
 mod log_override;
 mod status_code_update;
-pub mod wasm;
 
 use crate::action::log_override::LogOverride;
 use crate::api::{BodyFilter, HTMLBodyFilter, HeaderFilter, Rule, TextBodyFilter};
