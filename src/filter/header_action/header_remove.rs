@@ -11,7 +11,7 @@ impl HeaderAction for HeaderRemoveAction {
         let mut new_headers = Vec::new();
 
         for header in headers {
-            if header.name != self.name {
+            if header.name.to_lowercase() != self.name.to_lowercase() {
                 new_headers.push(header);
             }
         }

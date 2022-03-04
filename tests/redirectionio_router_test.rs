@@ -858,6 +858,177 @@ fn test_action_disable_log_2() {
 }
 
 
+fn setup_action_filter_header_add() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo2"}],"id":"action-header-replace","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_filter_header_add_1() {
+    let router = setup_action_filter_header_add();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-Foo"#.to_string(),
+        value: r#"foo1"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get(r#"X-Foo"#);
+
+    assert!(value.is_some());
+    assert_eq!(value.unwrap(), r#"foo1"#);
+
+}
+
+#[test]
+fn test_action_filter_header_add_2() {
+    let router = setup_action_filter_header_add();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+    let response_headers = Vec::new();
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get(r#"X-Foo"#);
+
+    assert!(value.is_some());
+    assert_eq!(value.unwrap(), r#"foo2"#);
+
+}
+
+
+fn setup_action_filter_header_override() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"override","header":"X-Foo","value":"foo2"}],"id":"action-header-replace","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_filter_header_override_1() {
+    let router = setup_action_filter_header_override();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-Foo"#.to_string(),
+        value: r#"foo1"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get(r#"X-Foo"#);
+
+    assert!(value.is_some());
+    assert_eq!(value.unwrap(), r#"foo2"#);
+
+    let value = header_map.get(r#"X-Bar"#);
+
+    assert!(value.is_none());
+
+}
+
+#[test]
+fn test_action_filter_header_override_2() {
+    let router = setup_action_filter_header_override();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut response_status_code = 0;
+
+    response_status_code = action.get_status_code(response_status_code);
+    assert_eq!(response_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-foo"#.to_string(),
+        value: r#"foo1"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get(r#"X-foo"#);
+
+    assert!(value.is_some());
+    assert_eq!(value.unwrap(), r#"foo2"#);
+
+    let value = header_map.get(r#"X-Bar"#);
+
+    assert!(value.is_none());
+
+}
+
+
 fn setup_action_reset() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
