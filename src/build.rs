@@ -35,7 +35,7 @@ struct RouterConfig {
     #[serde(default)]
     pub pass_marketing_query_params_to_target: bool,
     #[serde(default = "default_as_false")]
-    pub always_match_router_host: bool,
+    pub always_match_any_host: bool,
 }
 
 fn default_as_false() -> bool {
@@ -71,7 +71,7 @@ impl Default for RouterConfig {
             ignore_marketing_query_params: true,
             marketing_query_params: parameters,
             pass_marketing_query_params_to_target: true,
-            always_match_router_host: false,
+            always_match_any_host: false,
         }
     }
 }

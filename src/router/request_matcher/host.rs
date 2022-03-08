@@ -228,7 +228,7 @@ impl<T: RouteData> HostMatcher<T> {
             any_host: HostMatcher::create_sub_matcher(),
             count: 0,
             regex_tree_rule: RegexRadixTree::default(),
-            always_match_any_host: config.always_match_router_host,
+            always_match_any_host: config.always_match_any_host,
         }
     }
 }
