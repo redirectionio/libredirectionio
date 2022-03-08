@@ -859,7 +859,7 @@ fn test_action_disable_log_2() {
 
 
 fn setup_action_filter_header_add() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo2"}],"id":"action-header-replace","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
@@ -938,7 +938,7 @@ fn test_action_filter_header_add_2() {
 
 
 fn setup_action_filter_header_override() -> Router<Rule> {
-    let config: RouterConfig = serde_json::from_str(r#"{"always_match_router_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"override","header":"X-Foo","value":"foo2"}],"id":"action-header-replace","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
