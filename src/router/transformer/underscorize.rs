@@ -1,5 +1,5 @@
 use crate::router::Transform;
-use heck::SnakeCase;
+use heck::ToSnakeCase;
 
 #[derive(Default)]
 pub struct Underscorize;

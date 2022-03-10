@@ -1,5 +1,5 @@
 use crate::router::Transform;
-use heck::KebabCase;
+use heck::ToKebabCase;
 
 #[derive(Default)]
 pub struct Dasherize;
