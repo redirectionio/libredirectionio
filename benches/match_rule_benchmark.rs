@@ -33,7 +33,7 @@ fn no_match_bench(c: &mut Criterion) {
     for filename in files {
         let config = RouterConfig::default();
         let router = create_router(filename.clone(), &config);
-        let request = Request::from_config(&config, "/no-match".to_string(), None, None, None);
+        let request = Request::from_config(&config, "/no-match".to_string(), None, None, None, None, None);
 
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
@@ -60,7 +60,7 @@ fn no_match_cache_bench(c: &mut Criterion) {
     for filename in files {
         let config = RouterConfig::default();
         let mut router = create_router(filename.clone(), &config);
-        let request = Request::from_config(&config, "/no-match".to_string(), None, None, None);
+        let request = Request::from_config(&config, "/no-match".to_string(), None, None, None, None, None);
 
         router.cache(1000);
 
