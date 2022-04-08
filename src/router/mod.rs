@@ -51,7 +51,9 @@ impl<T: RouteData> Router<T> {
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
-        self.matcher.match_request(request)
+        let request_rebuild = Request::rebuild_with_config(&self.config, request);
+
+        self.matcher.match_request(&request_rebuild)
     }
 
     pub fn len(&self) -> usize {
@@ -63,7 +65,9 @@ impl<T: RouteData> Router<T> {
     }
 
     pub fn trace_request(&self, request: &Request) -> Vec<Trace<T>> {
-        self.matcher.trace(request)
+        let request_rebuild = Request::rebuild_with_config(&self.config, request);
+
+        self.matcher.trace(&request_rebuild)
     }
 
     pub fn get_route(&self, request: &Request) -> Option<&Route<T>> {

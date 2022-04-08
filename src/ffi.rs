@@ -87,10 +87,9 @@ pub unsafe extern "C" fn redirectionio_router_match_action(_router: *const Route
 
     let router = &*_router;
     let request = &*_request;
-    let request_configured = Request::rebuild_with_config(&router.config, request);
 
-    let routes = router.match_request(&request_configured);
-    let action = Action::from_routes_rule(routes, &request_configured);
+    let routes = router.match_request(request);
+    let action = Action::from_routes_rule(routes, request);
 
     Box::into_raw(Box::new(action))
 }
@@ -104,9 +103,7 @@ pub unsafe extern "C" fn redirectionio_router_trace(_router: *const Router<Rule>
     let router = &*_router;
     let request = &*_request;
 
-    let request_configured = Request::rebuild_with_config(&router.config, request);
-
-    let trace = RouterTrace::create_from_router(router, &request_configured);
+    let trace = RouterTrace::create_from_router(router, request);
 
     Box::into_raw(Box::new(trace))
 }
