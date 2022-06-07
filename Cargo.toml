@@ -13,7 +13,7 @@ name = "redirectionio"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-cbindgen="0.23.0"
+cbindgen="0.24.2"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -26,7 +26,7 @@ chrono = { version = "0.4.19", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }
 console_log = "0.2.0"
 heck = "0.4.0"
-http = "0.2.7"
+http = "0.2.8"
 lazy_static = "1.4.0"
 libc = "0.2.126"
 log = "0.4.17"
