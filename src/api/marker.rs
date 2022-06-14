@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct Marker {
     pub name: String,
     pub regex: String,
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    #[serde(default)]
     pub transformers: Vec<Transformer>,
 }
 

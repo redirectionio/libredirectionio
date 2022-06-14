@@ -14,7 +14,7 @@ mod trace;
 mod transformer;
 mod variable;
 
-pub use self::log::Log;
+pub use self::log::{LegacyLog, Log};
 pub use body_filter::{BodyFilter, HTMLBodyFilter, TextAction, TextBodyFilter};
 pub use header::Header;
 pub use header_filter::HeaderFilter;

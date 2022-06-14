@@ -1,6 +1,7 @@
 use crate::action::Action;
 use crate::http::{Header, Request};
 use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {
@@ -27,7 +28,46 @@ struct FromLog {
     content_type: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LegacyLog {
+    status_code: u16,
+    host: Option<String>,
+    method: Option<String>,
+    request_uri: Option<String>,
+    user_agent: Option<String>,
+    referer: Option<String>,
+    scheme: Option<String>,
+    use_json: Option<bool>,
+    target: Option<String>,
+    rule_id: Option<String>,
+}
+
 impl Log {
+    pub fn from_legacy(legacy: LegacyLog, proxy: String) -> Self {
+        let now = match SystemTime::now().duration_since(UNIX_EPOCH) {
+            Err(_) => 0,
+            Ok(time) => time.as_millis() as u64,
+        };
+
+        Log {
+            code: legacy.status_code,
+            to: legacy.target.unwrap_or_default(),
+            time: now,
+            proxy,
+            ips: None,
+            from: FromLog {
+                rule_ids: legacy.rule_id.map(|id| vec![id]),
+                url: legacy.request_uri.unwrap_or_default(),
+                method: legacy.method,
+                scheme: legacy.scheme,
+                host: legacy.host,
+                referer: legacy.referer,
+                user_agent: legacy.user_agent,
+                content_type: None,
+            },
+        }
+    }
+
     pub fn from_proxy(
         request: &Request,
         code: u16,
