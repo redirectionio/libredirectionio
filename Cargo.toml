@@ -13,12 +13,12 @@ name = "redirectionio"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-cbindgen="0.24.2"
+cbindgen="0.24.3"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8.24"
-tera = "1.15.0"
+tera = "1.16.0"
 
 [dependencies]
 cfg-if = "1.0.0"
