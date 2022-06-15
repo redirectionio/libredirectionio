@@ -110,6 +110,30 @@ impl Action {
         }
     }
 
+    pub fn get_target(route: &Route<Rule>, request: &Request) -> Option<String> {
+        let markers_captured = route.capture(request);
+        let variables = route.handler().variables(&markers_captured, request);
+        let rule = route.handler();
+
+        let target = rule.target.as_ref().map(|t| {
+            let mut value = StaticOrDynamic::replace(t.clone(), &variables);
+
+            if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
+                if value.contains('?') {
+                    value.push('&');
+                } else {
+                    value.push('?');
+                }
+
+                value.push_str(skipped_query_params.as_str());
+            }
+
+            value
+        });
+
+        target
+    }
+
     pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Option<Action>, bool, bool) {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
