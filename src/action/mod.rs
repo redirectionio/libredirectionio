@@ -191,10 +191,7 @@ impl Action {
                     },
                     on_response_status_codes: match rule.source.response_status_codes.as_ref() {
                         None => Vec::new(),
-                        Some(on_response) => match rule.status_code {
-                            None => on_response.clone(),
-                            Some(redirect_code) => vec![redirect_code],
-                        },
+                        Some(on_response) => on_response.clone(),
                     },
                     rule_id: Some(rule.id.clone()),
                 })

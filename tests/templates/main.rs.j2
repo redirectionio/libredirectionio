@@ -45,10 +45,10 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(!routes_traces.is_empty(), {{ test.match }});
 {% if test.match %}
     let mut action = Action::from_routes_rule(matched, &request_configured);
-    let mut response_status_code = {% if test.response_status_code %}{{ test.response_status_code }}{% else %}0{% endif %};
+    let response_status_code = {% if test.response_status_code %}{{ test.response_status_code }}{% else %}0{% endif %};
 {% if test.status >= 0 %}
-    response_status_code = action.get_status_code(response_status_code);
-    assert_eq!(response_status_code, {{ test.status }});
+    let action_status_code = action.get_status_code(response_status_code);
+    assert_eq!(action_status_code, {{ test.status }});
     {%- endif -%}
 {% if test.location %}
     let headers = action.filter_headers(Vec::new(), response_status_code, false);
