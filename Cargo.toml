@@ -3,8 +3,8 @@ name = "redirectionio"
 description = "Redirection IO Library to handle matching rule, redirect and filtering headers and body."
 repository = "https://github.com/redirectionio/libredirectionio"
 license = "MIT"
-version = "0.1.0"
-authors = ["Joel Wurtz <jwurtz@jolicode.com>"]
+version = "2.4.0"
+authors = ["Joel Wurtz <jwurtz@redirection.io>"]
 edition = "2018"
 build = "src/build.rs"
 
@@ -61,6 +61,3 @@ version = "0.3"
 features = [
   "console",
 ]
-
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = false

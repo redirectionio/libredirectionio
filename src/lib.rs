@@ -1,3 +1,8 @@
+/*!
+This crate provides a library for matching, handling and logging http requests with reidrectionio
+rule format.
+*/
+
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
