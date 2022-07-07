@@ -1,5 +1,5 @@
 /*!
-This crate provides a library for matching, handling and logging http requests with reidrectionio
+This crate provides a library for matching, handling and logging http requests with redirectionio
 rule format.
 */
 
