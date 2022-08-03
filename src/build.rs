@@ -253,6 +253,10 @@ fn main() {
     let build_dir = Path::new(crate_dir.as_str());
     let output_file = build_dir.join(format!("{}.h", package_name));
 
+    if env::var("PUBLISH_SKIP_BUILD").is_ok() {
+        return;
+    }
+
     cbindgen::generate(crate_dir)
         .expect("Unable to generate bindings")
         .write_to_file(&output_file);
