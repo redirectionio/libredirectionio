@@ -119,8 +119,8 @@ struct Source {
     headers: Option<Vec<SourceHeader>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     methods: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    ips: Option<Vec<IpConstraint>>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default, with = "serde_yaml::with::singleton_map_recursive")]
+    ips: Vec<IpConstraint>,
     #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -187,6 +187,7 @@ pub enum VariableKind {
 pub struct Variable {
     pub name: String,
     #[serde(rename = "type")]
+    #[serde(with = "serde_yaml::with::singleton_map")]
     kind: VariableKind,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     transformers: Vec<Transformer>,
