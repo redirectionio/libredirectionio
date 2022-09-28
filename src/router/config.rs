@@ -52,7 +52,7 @@ impl Default for RouterConfig {
             ignore_marketing_query_params: true,
             marketing_query_params: parameters,
             pass_marketing_query_params_to_target: true,
-            always_match_any_host: false,
+            always_match_any_host: true,
         }
     }
 }
