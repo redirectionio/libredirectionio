@@ -18,7 +18,10 @@ pub unsafe extern "C" fn redirectionio_action_json_deserialize(str: *mut c_char)
 
     let action = match json_decode(action_str) {
         Err(error) => {
-            error!("Unable to deserialize \"{}\" to action: {}", action_str, error,);
+            error!(
+                "Unable to deserialize \"{}\" to action: {}",
+                action_str, error,
+            );
 
             return null() as *const Action;
         }
@@ -32,7 +35,9 @@ pub unsafe extern "C" fn redirectionio_action_json_deserialize(str: *mut c_char)
 /// Serialize an action to a string
 ///
 /// Returns null if an error happens
-pub unsafe extern "C" fn redirectionio_action_json_serialize(_action: *mut Action) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_action_json_serialize(
+    _action: *mut Action,
+) -> *const c_char {
     if _action.is_null() {
         return null();
     }
@@ -56,11 +61,14 @@ pub unsafe extern "C" fn redirectionio_action_drop(_action: *mut Action) {
         return;
     }
 
-    Box::from_raw(_action);
+    drop(Box::from_raw(_action));
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_action_get_status_code(_action: *mut Action, response_status_code: u16) -> u16 {
+pub unsafe extern "C" fn redirectionio_action_get_status_code(
+    _action: *mut Action,
+    response_status_code: u16,
+) -> u16 {
     if _action.is_null() {
         return 0;
     }
@@ -107,7 +115,10 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_create(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut FilterBodyAction, buffer: Buffer) -> Buffer {
+pub unsafe extern "C" fn redirectionio_action_body_filter_filter(
+    _filter: *mut FilterBodyAction,
+    buffer: Buffer,
+) -> Buffer {
     if _filter.is_null() {
         return buffer.duplicate();
     }
@@ -126,7 +137,9 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut F
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut FilterBodyAction) -> Buffer {
+pub unsafe extern "C" fn redirectionio_action_body_filter_close(
+    _filter: *mut FilterBodyAction,
+) -> Buffer {
     if _filter.is_null() {
         return Buffer::default();
     }
@@ -143,7 +156,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_drop(_filter: *mut Fil
         return;
     }
 
-    Box::from_raw(_filter);
+    drop(Box::from_raw(_filter));
 }
 
 #[no_mangle]

@@ -57,7 +57,9 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
+pub unsafe extern "C" fn redirectionio_request_json_deserialize(
+    str: *mut c_char,
+) -> *const Request {
     let request_str = match c_char_to_str(str) {
         None => return null() as *const Request,
         Some(str) => str,
@@ -65,7 +67,10 @@ pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char
 
     let request = match json_decode(request_str) {
         Err(err) => {
-            error!("cannot deserialize request {} for string {}", err, request_str);
+            error!(
+                "cannot deserialize request {} for string {}",
+                err, request_str
+            );
 
             return null() as *const Request;
         }
@@ -77,7 +82,9 @@ pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern "C" fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
+pub unsafe extern "C" fn redirectionio_request_json_serialize(
+    _request: *const Request,
+) -> *const c_char {
     if _request.is_null() {
         return null();
     }
@@ -126,7 +133,9 @@ pub unsafe extern "C" fn redirectionio_request_create(
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_char) -> *const TrustedProxies {
+pub unsafe extern "C" fn redirectionio_trusted_proxies_create(
+    _proxies_str: *const c_char,
+) -> *const TrustedProxies {
     let mut trusted_proxies = TrustedProxies::default();
 
     if let Some(proxies_str) = c_char_to_str(_proxies_str) {
@@ -146,7 +155,10 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *con
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut TrustedProxies, _proxy_str: *const c_char) {
+pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(
+    _trusted_proxies: *mut TrustedProxies,
+    _proxy_str: *const c_char,
+) {
     if _trusted_proxies.is_null() {
         return;
     }
@@ -214,5 +226,5 @@ pub unsafe extern "C" fn redirectionio_request_drop(_request: *mut Request) {
         return;
     }
 
-    Box::from_raw(_request);
+    drop(Box::from_raw(_request));
 }
