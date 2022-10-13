@@ -1,7 +1,8 @@
 use crate::api::{BodyFilter, HeaderFilter, IpConstraint, Marker, Source, Variable};
 use crate::http::Request;
 use crate::router::{
-    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouteIp, RouterConfig, StaticOrDynamic, Transform,
+    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouteIp,
+    RouterConfig, StaticOrDynamic, Transform,
 };
 use cidr::AnyIpCidr;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
@@ -37,7 +38,11 @@ impl Rule {
         let rule_result = json_decode(rule_str);
 
         if rule_result.is_err() {
-            error!("Unable to create rule from string {}: {}", rule_str, rule_result.err().unwrap());
+            error!(
+                "Unable to create rule from string {}: {}",
+                rule_str,
+                rule_result.err().unwrap()
+            );
 
             return None;
         }
@@ -45,7 +50,11 @@ impl Rule {
         Some(rule_result.unwrap())
     }
 
-    pub fn variables(&self, markers_captured: &HashMap<String, String>, request: &Request) -> Vec<(String, String)> {
+    pub fn variables(
+        &self,
+        markers_captured: &HashMap<String, String>,
+        request: &Request,
+    ) -> Vec<(String, String)> {
         let mut variables = Vec::new();
         let mut input = HashMap::new();
 
@@ -77,13 +86,9 @@ impl Rule {
     }
 
     fn get_marker(&self, name: &str) -> Option<&Marker> {
-        for marker in &self.markers {
-            if marker.name.as_str() == name {
-                return Some(marker);
-            }
-        }
-
-        None
+        self.markers
+            .iter()
+            .find(|&marker| marker.name.as_str() == name)
     }
 
     fn markers(&self) -> Vec<RouteMarker> {
@@ -138,7 +143,8 @@ impl Rule {
             Some(source_query) => Request::build_sorted_query(source_query.as_str()),
         };
 
-        let mut path = utf8_percent_encode(self.source.path.as_str(), SIMPLE_ENCODE_SET).to_string();
+        let mut path =
+            utf8_percent_encode(self.source.path.as_str(), SIMPLE_ENCODE_SET).to_string();
 
         if let Some(query_string) = query {
             path.push_str(format!("?{}", query_string).as_str());
@@ -167,34 +173,60 @@ impl Rule {
                         "is_not_defined" => RouteHeaderKind::IsNotDefined,
                         "is_equals" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::IsEquals(if ignore_case { str.to_lowercase() } else { str.clone() }),
+                            Some(str) => RouteHeaderKind::IsEquals(if ignore_case {
+                                str.to_lowercase()
+                            } else {
+                                str.clone()
+                            }),
                         },
                         "is_not_equal_to" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::IsNotEqualTo(if ignore_case { str.to_lowercase() } else { str.clone() }),
+                            Some(str) => RouteHeaderKind::IsNotEqualTo(if ignore_case {
+                                str.to_lowercase()
+                            } else {
+                                str.clone()
+                            }),
                         },
                         "contains" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::Contains(if ignore_case { str.to_lowercase() } else { str.clone() }),
+                            Some(str) => RouteHeaderKind::Contains(if ignore_case {
+                                str.to_lowercase()
+                            } else {
+                                str.clone()
+                            }),
                         },
                         "does_not_contain" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::DoesNotContain(if ignore_case { str.to_lowercase() } else { str.clone() }),
+                            Some(str) => RouteHeaderKind::DoesNotContain(if ignore_case {
+                                str.to_lowercase()
+                            } else {
+                                str.clone()
+                            }),
                         },
                         "ends_with" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::EndsWith(if ignore_case { str.to_lowercase() } else { str.clone() }),
+                            Some(str) => RouteHeaderKind::EndsWith(if ignore_case {
+                                str.to_lowercase()
+                            } else {
+                                str.clone()
+                            }),
                         },
                         "starts_with" => match &header.value {
                             None => continue,
-                            Some(str) => RouteHeaderKind::StartsWith(if ignore_case { str.to_lowercase() } else { str.clone() }),
+                            Some(str) => RouteHeaderKind::StartsWith(if ignore_case {
+                                str.to_lowercase()
+                            } else {
+                                str.clone()
+                            }),
                         },
                         "match_regex" => match &header.value {
                             None => continue,
-                            Some(str) => match MarkerString::new(str, self.markers(), ignore_case) {
-                                None => continue,
-                                Some(marker) => RouteHeaderKind::MatchRegex(marker),
-                            },
+                            Some(str) => {
+                                match MarkerString::new(str, self.markers(), ignore_case) {
+                                    None => continue,
+                                    Some(marker) => RouteHeaderKind::MatchRegex(marker),
+                                }
+                            }
                         },
                         unknown => {
                             log::error!("unsupported header constraint type {}", unknown);

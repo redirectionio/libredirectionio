@@ -119,7 +119,11 @@ struct Source {
     headers: Option<Vec<SourceHeader>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     methods: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Vec::is_empty", default, with = "serde_yaml::with::singleton_map_recursive")]
+    #[serde(
+        skip_serializing_if = "Vec::is_empty",
+        default,
+        with = "serde_yaml::with::singleton_map_recursive"
+    )]
     ips: Vec<IpConstraint>,
     #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
@@ -174,7 +178,10 @@ struct Transformer {
 #[serde(rename_all = "snake_case")]
 pub enum VariableKind {
     Marker(String),
-    RequestHeader { name: String, default: Option<String> },
+    RequestHeader {
+        name: String,
+        default: Option<String>,
+    },
     RequestHost,
     RequestMethod,
     RequestPath,
@@ -277,7 +284,9 @@ fn main() {
     let test_path = Path::new("tests/redirectionio_router_test.rs");
 
     let context = Context::from_serialize(&rule_sets_list).expect("cannot serialize");
-    let test_content = templating.render("main.rs.j2", &context).expect("cannot generate");
+    let test_content = templating
+        .render("main.rs.j2", &context)
+        .expect("cannot generate");
 
     if test_path.exists() {
         let existing_content = std::fs::read_to_string(test_path).expect("cannot read");
@@ -337,7 +346,7 @@ fn build_test_file(file: DirEntry) -> std::io::Result<(String, RuleSet)> {
         .unwrap()
         .to_string()
         .replace(".yml", "")
-        .replace("-", "_");
+        .replace('-', "_");
 
     Ok((name, rule_set))
 }

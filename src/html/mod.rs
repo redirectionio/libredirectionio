@@ -1,9 +1,12 @@
-use crate::html::TokenType::{CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken, TextToken};
+use crate::html::TokenType::{
+    CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken,
+    TextToken,
+};
 use std::io::Read;
 use std::str;
 use std::string::ToString;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TokenType {
     NoneToken,
     ErrorToken,
@@ -129,7 +132,8 @@ impl<'t> Tokenizer<'t> {
             context_tag = context_tag.to_lowercase();
 
             match context_tag.as_str() {
-                "iframe" | "noembed" | "noframes" | "noscript" | "plaintext" | "script" | "style" | "title" | "textarea" | "xmp" => {
+                "iframe" | "noembed" | "noframes" | "noscript" | "plaintext" | "script"
+                | "style" | "title" | "textarea" | "xmp" => {
                     tokenizer.raw_tag = context_tag.clone();
                 }
                 _ => {}
@@ -294,7 +298,8 @@ impl<'t> Tokenizer<'t> {
     }
 
     pub fn raw(&self) -> String {
-        String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec()).expect("Cannot create utf8 string")
+        String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec())
+            .expect("Cannot create utf8 string")
     }
 
     pub fn text(&mut self) -> Option<String> {
@@ -332,7 +337,10 @@ impl<'t> Tokenizer<'t> {
                     self.data.start = self.raw.end;
                     self.data.end = self.raw.end;
 
-                    return (Some(s.to_lowercase()), self.number_attribute_returned < self.attribute.len());
+                    return (
+                        Some(s.to_lowercase()),
+                        self.number_attribute_returned < self.attribute.len(),
+                    );
                 }
                 _ => {}
             }
@@ -537,7 +545,9 @@ impl<'t> Tokenizer<'t> {
                 return false;
             }
 
-            if byte != self.raw_tag.as_bytes()[i] && byte != self.raw_tag.as_bytes()[i] - (b'a' - b'A') {
+            if byte != self.raw_tag.as_bytes()[i]
+                && byte != self.raw_tag.as_bytes()[i] - (b'a' - b'A')
+            {
                 self.raw.end -= 1;
 
                 return false;
@@ -1120,7 +1130,11 @@ impl<'t> Tokenizer<'t> {
                 raw = self.start_tag_in(vec!["iframe".to_string()]);
             }
             'n' => {
-                raw = self.start_tag_in(vec!["noembed".to_string(), "noframes".to_string(), "noscript".to_string()]);
+                raw = self.start_tag_in(vec![
+                    "noembed".to_string(),
+                    "noframes".to_string(),
+                    "noscript".to_string(),
+                ]);
             }
             'p' => {
                 raw = self.start_tag_in(vec!["plaintext".to_string()]);
