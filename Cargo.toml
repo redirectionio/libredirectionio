@@ -17,7 +17,7 @@ cbindgen="0.24.3"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9.13"
+serde_yaml = "0.9.14"
 tera = "1.17.1"
 
 [dependencies]
@@ -28,14 +28,14 @@ console_log = "0.2.0"
 heck = "0.4.0"
 http = "0.2.8"
 lazy_static = "1.4.0"
-libc = "0.2.135"
+libc = "0.2.136"
 log = "0.4.17"
 percent-encoding = "2.2.0"
 rand = "0.8.5"
 regex = "1.6.0"
 scraper = "0.13.0"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.86"
+serde_json = "1.0.87"
 stderrlog = "0.5.3"
 string_cache = "=0.8.4"
 url = "2.3.1"
