@@ -1111,13 +1111,13 @@ fn test_action_robots_txt_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 200);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#""#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"User-Agent: *"#);
+    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"User-Agent: *"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1151,13 +1151,13 @@ fn test_action_seo_override_meta_author_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1179,13 +1179,13 @@ fn test_action_seo_override_meta_author_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1207,13 +1207,13 @@ fn test_action_seo_override_meta_author_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1235,13 +1235,13 @@ fn test_action_seo_override_meta_author_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /><meta name="author" content="Old Author name" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1263,13 +1263,13 @@ fn test_action_seo_override_meta_author_5() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old first Author name" /><meta name="author" content="Old second Author name" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old first Author name" /><meta name="author" content="Old second Author name" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1291,13 +1291,13 @@ fn test_action_seo_override_meta_author_6() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1319,13 +1319,13 @@ fn test_action_seo_override_meta_author_7() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author"></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author"></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1347,13 +1347,13 @@ fn test_action_seo_override_meta_author_8() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name"></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name"></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1387,13 +1387,13 @@ fn test_action_seo_override_meta_description_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta name="description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1415,13 +1415,13 @@ fn test_action_seo_override_meta_description_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1443,13 +1443,13 @@ fn test_action_seo_override_meta_description_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1471,13 +1471,13 @@ fn test_action_seo_override_meta_description_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta><meta name="description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1499,13 +1499,13 @@ fn test_action_seo_override_meta_description_5() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description"></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description"></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1527,13 +1527,13 @@ fn test_action_seo_override_meta_description_6() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description"></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description"></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1567,13 +1567,13 @@ fn test_action_seo_override_meta_keywords_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta name="keywords" content="some, keywords, here" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1595,13 +1595,13 @@ fn test_action_seo_override_meta_keywords_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1623,13 +1623,13 @@ fn test_action_seo_override_meta_keywords_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1651,13 +1651,13 @@ fn test_action_seo_override_meta_keywords_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta><meta name="keywords" content="some, keywords, here" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1679,13 +1679,13 @@ fn test_action_seo_override_meta_keywords_5() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords"></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords"></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1707,13 +1707,13 @@ fn test_action_seo_override_meta_keywords_6() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords"></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords"></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1735,13 +1735,13 @@ fn test_action_seo_override_meta_keywords_7() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><link rel="shortcut icon" href="/favicon.ico"></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><link rel="shortcut icon" href="/favicon.ico"><meta name="keywords" content="some, keywords, here" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><link rel="shortcut icon" href="/favicon.ico"></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><link rel="shortcut icon" href="/favicon.ico"><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1778,13 +1778,13 @@ fn test_action_seo_override_og_description_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1806,13 +1806,13 @@ fn test_action_seo_override_og_description_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1834,13 +1834,13 @@ fn test_action_seo_override_og_description_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1862,13 +1862,13 @@ fn test_action_seo_override_og_description_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta><meta property="og:description" content="Old Description" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1890,13 +1890,13 @@ fn test_action_seo_override_og_description_5() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1918,13 +1918,13 @@ fn test_action_seo_override_og_description_6() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="Old Description" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="New Description" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1946,13 +1946,13 @@ fn test_action_seo_override_og_description_7() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="og:description" content="Pizza rapido" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta property="og:description" content="🍕🍕 Pizza rapido 🍕🍕" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="og:description" content="Pizza rapido" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta property="og:description" content="🍕🍕 Pizza rapido 🍕🍕" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -1986,13 +1986,13 @@ fn test_action_seo_override_og_image_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2014,13 +2014,13 @@ fn test_action_seo_override_og_image_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta><meta property="og:image" content="/some-image.png" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2042,13 +2042,13 @@ fn test_action_seo_override_og_image_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:image" content="/old-image.png" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2070,13 +2070,13 @@ fn test_action_seo_override_og_image_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:image" content="/old-image.png" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:image" content="/some-image.png" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2110,13 +2110,13 @@ fn test_action_seo_override_og_locale_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2138,13 +2138,13 @@ fn test_action_seo_override_og_locale_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta><meta property="og:locale" content="fr_FR" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2166,13 +2166,13 @@ fn test_action_seo_override_og_locale_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:locale" content="en_GB" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2194,13 +2194,13 @@ fn test_action_seo_override_og_locale_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:locale" content="en_GB" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:locale" content="fr_FR" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2234,13 +2234,13 @@ fn test_action_seo_override_og_site_name_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2262,13 +2262,13 @@ fn test_action_seo_override_og_site_name_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta><meta property="og:site_name" content="redirection.io" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2290,13 +2290,13 @@ fn test_action_seo_override_og_site_name_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:site_name" content="JoliCode" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2318,13 +2318,13 @@ fn test_action_seo_override_og_site_name_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="JoliCode" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="redirection.io" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2358,13 +2358,13 @@ fn test_action_seo_override_og_title_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2386,13 +2386,13 @@ fn test_action_seo_override_og_title_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:title" content="New Title" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2414,13 +2414,13 @@ fn test_action_seo_override_og_title_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="Old Title" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2442,13 +2442,13 @@ fn test_action_seo_override_og_title_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="Old Title" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="New Title" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2482,13 +2482,13 @@ fn test_action_seo_override_og_type_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2510,13 +2510,13 @@ fn test_action_seo_override_og_type_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2538,13 +2538,13 @@ fn test_action_seo_override_og_type_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:type" content="article" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2566,13 +2566,13 @@ fn test_action_seo_override_og_type_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:type" content="article" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:type" content="website" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2606,13 +2606,13 @@ fn test_action_seo_override_og_url_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2634,13 +2634,13 @@ fn test_action_seo_override_og_url_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2662,13 +2662,13 @@ fn test_action_seo_override_og_url_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2690,13 +2690,13 @@ fn test_action_seo_override_og_url_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://redirection.io/features" /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2730,13 +2730,13 @@ fn test_action_seo_override_title_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><title>New Title</title><meta /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><title>New Title</title><meta /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2758,13 +2758,13 @@ fn test_action_seo_override_title_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta /><title>New Title</title></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta /><title>New Title</title></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2786,13 +2786,13 @@ fn test_action_seo_override_title_3() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><title>New Title</title><meta></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><title>New Title</title><meta></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2814,13 +2814,13 @@ fn test_action_seo_override_title_4() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><meta><title>New Title</title></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><meta><title>New Title</title></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2907,13 +2907,13 @@ fn test_action_text_append_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"Old content"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"Old contentnew content"#);
+    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"Old contentnew content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2947,13 +2947,13 @@ fn test_action_text_prepend_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"Old content"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"new contentOld content"#);
+    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"new contentOld content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -2987,13 +2987,13 @@ fn test_action_text_replace_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"Old content"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"new content"#);
+    let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"new content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -3015,13 +3015,13 @@ fn test_action_text_replace_2() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#""#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"new content"#);
+    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"new content"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 
@@ -3454,13 +3454,13 @@ fn test_marker_in_body_filter_1() {
 
     let action_status_code = action.get_status_code(response_status_code);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"<html><head><title>source</title><meta /></head></html>"#);
+    let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<html><head><title>source</title><meta /></head></html>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
 

@@ -1,6 +1,7 @@
 pub mod buffer;
 mod filter_body;
 mod filter_header;
+mod gzip_filter_body;
 mod header_action;
 mod html_body_action;
 mod html_filter_body;

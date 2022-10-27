@@ -102,13 +102,13 @@ fn append_child(content: String, child: String) -> String {
 
             if level == 0 {
                 output.push_str(child.as_str());
-                output.push_str(tokenizer.raw().as_str());
-                output.push_str(tokenizer.buffered().as_str());
+                output.push_str(tokenizer.raw_as_string().as_str());
+                output.push_str(tokenizer.buffered_as_string().as_str());
 
                 return output;
             }
         }
 
-        output.push_str(tokenizer.raw().as_str());
+        output.push_str(tokenizer.raw_as_string().as_str());
     }
 }

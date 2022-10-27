@@ -396,7 +396,7 @@ impl Action {
         new_headers
     }
 
-    pub fn create_filter_body(&mut self, response_status_code: u16) -> Option<FilterBodyAction> {
+    pub fn create_filter_body(&mut self, response_status_code: u16, headers: &[Header]) -> Option<FilterBodyAction> {
         let mut filters = Vec::new();
         let rule_applied = self.rule_traces.is_some();
 
@@ -412,7 +412,7 @@ impl Action {
             filters.push(filter.filter);
         }
 
-        let body_filter = FilterBodyAction::new(filters);
+        let body_filter = FilterBodyAction::new(filters, headers);
 
         if body_filter.is_empty() {
             None

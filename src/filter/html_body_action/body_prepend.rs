@@ -85,13 +85,13 @@ fn prepend_child(content: String, child: String) -> String {
         }
 
         if token_type == html::TokenType::StartTagToken {
-            output.push_str(tokenizer.raw().as_str());
+            output.push_str(tokenizer.raw_as_string().as_str());
             output.push_str(child.as_str());
-            output.push_str(tokenizer.buffered().as_str());
+            output.push_str(tokenizer.buffered_as_string().as_str());
 
             return output;
         }
 
-        output.push_str(tokenizer.raw().as_str());
+        output.push_str(tokenizer.raw_as_string().as_str());
     }
 }

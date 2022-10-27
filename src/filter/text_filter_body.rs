@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub struct TextFilterBodyAction {
     action: TextFilterAction,
-    content: String,
+    content: Vec<u8>,
     executed: bool,
 }
 
@@ -16,16 +16,16 @@ impl TextFilterBodyAction {
     pub fn new(action: TextFilterAction, content: String) -> Self {
         Self {
             action,
-            content,
+            content: content.into_bytes(),
             executed: false,
         }
     }
 
-    pub fn filter(&mut self, data: String) -> String {
+    pub fn filter(&mut self, data: Vec<u8>) -> Vec<u8> {
         match self.action {
             TextFilterAction::Replace => {
                 if self.executed {
-                    "".to_string()
+                    Vec::new()
                 } else {
                     self.executed = true;
                     self.content.clone()
@@ -38,7 +38,7 @@ impl TextFilterBodyAction {
                 } else {
                     self.executed = true;
                     let mut content = self.content.clone();
-                    content.push_str(data.as_str());
+                    content.extend(data);
 
                     content
                 }
@@ -46,9 +46,9 @@ impl TextFilterBodyAction {
         }
     }
 
-    pub fn end(&mut self) -> String {
+    pub fn end(&mut self) -> Vec<u8> {
         if self.executed {
-            "".to_string()
+            Vec::new()
         } else {
             self.executed = true;
             self.content.clone()

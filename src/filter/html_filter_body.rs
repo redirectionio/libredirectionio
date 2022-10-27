@@ -1,6 +1,7 @@
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::html;
 use std::collections::HashSet;
+use std::io::Cursor;
 
 #[derive(Debug)]
 struct BufferLink {
@@ -15,7 +16,7 @@ pub struct HtmlFilterBodyAction {
     leave: Option<String>,
     visitor: HtmlBodyVisitor,
     current_buffer: Option<Box<BufferLink>>,
-    last_buffer: String,
+    last_buffer: Vec<u8>,
 }
 
 lazy_static! {
@@ -46,17 +47,18 @@ impl HtmlFilterBodyAction {
         Self {
             enter: Some(visitor.first()),
             leave: None,
-            last_buffer: "".to_string(),
+            last_buffer: Vec::new(),
             current_buffer: None,
             visitor,
         }
     }
 
-    pub fn filter(&mut self, input: String) -> String {
+    pub fn filter(&mut self, input: Vec<u8>) -> Vec<u8> {
         let mut data = self.last_buffer.clone();
-        data.push_str(input.as_str());
-        let buffer = &mut data.as_bytes() as &mut dyn std::io::Read;
-        let mut tokenizer = html::Tokenizer::new(buffer);
+        data.extend(input);
+
+        let mut cursor = Cursor::new(data);
+        let mut tokenizer = html::Tokenizer::new(&mut cursor);
         let mut to_return = "".to_string();
 
         loop {
@@ -64,22 +66,22 @@ impl HtmlFilterBodyAction {
 
             if token_type == html::TokenType::ErrorToken {
                 self.last_buffer = tokenizer.raw();
-                self.last_buffer.push_str(tokenizer.buffered().as_str());
+                self.last_buffer.extend(tokenizer.buffered());
 
                 break;
             }
 
-            let mut token_data = tokenizer.raw().clone();
+            let mut token_data = tokenizer.raw_as_string().clone();
 
             while token_type == html::TokenType::TextToken && (token_data.contains('<') || token_data.contains("</")) {
                 token_type = tokenizer.next();
 
                 if token_type == html::TokenType::ErrorToken {
-                    self.last_buffer = token_data;
-                    self.last_buffer.push_str(tokenizer.raw().as_str());
-                    self.last_buffer.push_str(tokenizer.buffered().as_str());
+                    self.last_buffer = token_data.into_bytes();
+                    self.last_buffer.extend(tokenizer.raw());
+                    self.last_buffer.extend(tokenizer.buffered());
 
-                    return to_return;
+                    return to_return.into_bytes();
                 }
 
                 if self.current_buffer.is_some() {
@@ -88,7 +90,7 @@ impl HtmlFilterBodyAction {
                     to_return.push_str(token_data.as_str());
                 }
 
-                token_data = tokenizer.raw();
+                token_data = tokenizer.raw_as_string();
             }
 
             match token_type {
@@ -136,15 +138,15 @@ impl HtmlFilterBodyAction {
             }
         }
 
-        to_return
+        to_return.into_bytes()
     }
 
-    pub fn end(&mut self) -> String {
+    pub fn end(&mut self) -> Vec<u8> {
         let mut to_return = self.last_buffer.clone();
         let mut buffer = self.current_buffer.as_ref();
 
         while buffer.is_some() {
-            to_return.push_str(buffer.unwrap().buffer.as_str());
+            to_return.extend_from_slice(buffer.unwrap().buffer.as_bytes());
             buffer = buffer.unwrap().previous.as_ref();
         }
 

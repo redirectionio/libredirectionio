@@ -25,6 +25,7 @@ cfg-if = "1.0.0"
 chrono = { version = "0.4.22", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }
 console_log = "0.2.0"
+flate2 = "1.0.24"
 heck = "0.4.0"
 http = "0.2.8"
 lazy_static = "1.4.0"

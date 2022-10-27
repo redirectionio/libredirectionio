@@ -59,13 +59,13 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(target_header.value, r#"{{ test.location }}"#);
     {%- endif -%}
 {% if test.should_filter_body %}
-    let body_filter_opt = action.create_filter_body(response_status_code);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), {{ test.should_filter_body.enable }});
 {% if test.should_filter_body.enable %}
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#"{{ test.should_filter_body.original_body }}"#.to_string());
-    new_body.push_str(body_filter.end().as_str());
-    assert_eq!(new_body, r#"{{ test.should_filter_body.expected_body }}"#);
+    let mut new_body = body_filter.filter(r#"{{ test.should_filter_body.original_body }}"#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"{{ test.should_filter_body.expected_body }}"#.as_bytes().to_vec());
     {%- endif -%}
     {%- endif -%}
 {% if test.should_not_log %}

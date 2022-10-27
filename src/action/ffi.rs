@@ -93,14 +93,16 @@ pub unsafe extern "C" fn redirectionio_action_header_filter_filter(
 pub unsafe extern "C" fn redirectionio_action_body_filter_create(
     _action: *mut Action,
     response_status_code: u16,
+    response_header_map: *const HeaderMap,
 ) -> *const FilterBodyAction {
     if _action.is_null() {
         return null() as *const FilterBodyAction;
     }
 
     let action = &mut *_action;
+    let headers = header_map_to_http_headers(response_header_map);
 
-    match action.create_filter_body(response_status_code) {
+    match action.create_filter_body(response_status_code, &headers) {
         None => null(),
         Some(filter_body) => Box::into_raw(Box::new(filter_body)),
     }
@@ -115,14 +117,9 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut F
     let filter = &mut *_filter;
     let bytes = buffer.into_vec();
 
-    let body = match String::from_utf8(bytes) {
-        Err(error) => return Buffer::from_vec(error.into_bytes()),
-        Ok(body) => body,
-    };
+    let new_body = filter.filter(bytes);
 
-    let new_body = filter.filter(body);
-
-    Buffer::from_string(new_body)
+    Buffer::from_vec(new_body)
 }
 
 #[no_mangle]
@@ -134,7 +131,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut Fi
     let mut filter = Box::from_raw(_filter);
     let end_body = filter.end();
 
-    Buffer::from_string(end_body)
+    Buffer::from_vec(end_body)
 }
 
 #[no_mangle]

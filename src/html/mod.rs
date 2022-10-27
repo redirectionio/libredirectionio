@@ -147,8 +147,12 @@ impl<'t> Tokenizer<'t> {
         self.allow_cdata = allow_cdata;
     }
 
-    pub fn buffered(&self) -> String {
-        String::from_utf8(self.buffer[self.raw.end..].to_vec()).expect("Canno create utf8 string")
+    pub fn buffered(&self) -> Vec<u8> {
+        self.buffer[self.raw.end..].to_vec()
+    }
+
+    pub fn buffered_as_string(&self) -> String {
+        String::from_utf8(self.buffered()).expect("cannot create utf8 string")
     }
 
     #[allow(clippy::should_implement_trait)]
@@ -293,8 +297,12 @@ impl<'t> Tokenizer<'t> {
         self.token
     }
 
-    pub fn raw(&self) -> String {
-        String::from_utf8(self.buffer[self.raw.start..self.raw.end].to_vec()).expect("Cannot create utf8 string")
+    pub fn raw(&self) -> Vec<u8> {
+        self.buffer[self.raw.start..self.raw.end].to_vec()
+    }
+
+    pub fn raw_as_string(&self) -> String {
+        String::from_utf8(self.raw()).expect("Cannot create utf8 string")
     }
 
     pub fn text(&mut self) -> Option<String> {
