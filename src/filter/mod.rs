@@ -1,4 +1,5 @@
 pub mod buffer;
+mod error;
 mod filter_body;
 mod filter_header;
 mod gzip_filter_body;

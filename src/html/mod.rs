@@ -1,6 +1,9 @@
+mod error;
+
 use crate::html::TokenType::{CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken, TextToken};
+pub use error::HtmlParseError;
+use error::Result;
 use std::io::Read;
-use std::str;
 use std::string::ToString;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -151,12 +154,12 @@ impl<'t> Tokenizer<'t> {
         self.buffer[self.raw.end..].to_vec()
     }
 
-    pub fn buffered_as_string(&self) -> String {
-        String::from_utf8(self.buffered()).expect("cannot create utf8 string")
+    pub fn buffered_as_string(&self) -> Result<String> {
+        Ok(String::from_utf8(self.buffered())?)
     }
 
     #[allow(clippy::should_implement_trait)]
-    pub fn next(&mut self) -> TokenType {
+    pub fn next(&mut self) -> Result<TokenType> {
         self.raw.start = self.raw.end;
         self.data.start = self.raw.end;
         self.data.end = self.raw.end;
@@ -164,7 +167,7 @@ impl<'t> Tokenizer<'t> {
         if self.err.is_some() {
             self.token = ErrorToken;
 
-            return self.token;
+            return Ok(self.token);
         }
 
         if !self.raw_tag.is_empty() {
@@ -183,7 +186,7 @@ impl<'t> Tokenizer<'t> {
                 self.token = TextToken;
                 self.convert_null = true;
 
-                return self.token;
+                return Ok(self.token);
             }
         }
 
@@ -228,14 +231,14 @@ impl<'t> Tokenizer<'t> {
 
                 self.token = TextToken;
 
-                return self.token;
+                return Ok(self.token);
             }
 
             match token_type {
                 StartTagToken => {
-                    self.token = self.read_start_tag();
+                    self.token = self.read_start_tag()?;
 
-                    return self.token;
+                    return Ok(self.token);
                 }
                 EndTagToken => {
                     let end_byte = self.read_byte() as char;
@@ -247,7 +250,7 @@ impl<'t> Tokenizer<'t> {
                     if end_byte == '>' {
                         self.token = CommentToken;
 
-                        return self.token;
+                        return Ok(self.token);
                     }
 
                     if ('a'..='z').contains(&end_byte) || ('A'..='Z').contains(&end_byte) {
@@ -259,27 +262,27 @@ impl<'t> Tokenizer<'t> {
                             self.token = EndTagToken;
                         }
 
-                        return self.token;
+                        return Ok(self.token);
                     }
 
                     self.raw.end -= 1;
                     self.read_until_close_angle();
                     self.token = CommentToken;
 
-                    return self.token;
+                    return Ok(self.token);
                 }
                 CommentToken => {
                     if byte == '!' {
                         self.token = self.read_markup_declaration();
 
-                        return self.token;
+                        return Ok(self.token);
                     }
 
                     self.raw.end -= 1;
                     self.read_until_close_angle();
                     self.token = CommentToken;
 
-                    return self.token;
+                    return Ok(self.token);
                 }
                 _ => {}
             }
@@ -289,28 +292,26 @@ impl<'t> Tokenizer<'t> {
             self.data.end = self.raw.end;
             self.token = TextToken;
 
-            return self.token;
+            return Ok(self.token);
         }
 
         self.token = ErrorToken;
 
-        self.token
+        Ok(self.token)
     }
 
     pub fn raw(&self) -> Vec<u8> {
         self.buffer[self.raw.start..self.raw.end].to_vec()
     }
 
-    pub fn raw_as_string(&self) -> String {
-        String::from_utf8(self.raw()).expect("Cannot create utf8 string")
+    pub fn raw_as_string(&self) -> Result<String> {
+        Ok(String::from_utf8(self.raw())?)
     }
 
-    pub fn text(&mut self) -> Option<String> {
+    pub fn text(&mut self) -> Result<Option<String>> {
         match self.token {
             TextToken | CommentToken | DoctypeToken => {
-                let mut s = str::from_utf8(&self.buffer[self.data.start..self.data.end])
-                    .expect("Cannot create utf8 string")
-                    .to_string();
+                let mut s = String::from_utf8(self.buffer[self.data.start..self.data.end].to_vec())?;
 
                 self.data.start = self.raw.end;
                 self.data.end = self.raw.end;
@@ -319,64 +320,54 @@ impl<'t> Tokenizer<'t> {
                     s = s.replace('\x00', "\u{fffd}".to_string().as_str());
                 }
 
-                //                if !self.text_is_raw {
-                //                    s = escape(s)
-                //                }
-
-                Some(s)
+                Ok(Some(s))
             }
-            _ => None,
+            _ => Ok(None),
         }
     }
 
-    pub fn tag_name(&mut self) -> (Option<String>, bool) {
+    pub fn tag_name(&mut self) -> Result<(Option<String>, bool)> {
         if self.data.start < self.data.end {
             match self.token {
                 StartTagToken | EndTagToken | SelfClosingTagToken => {
-                    let s = str::from_utf8(&self.buffer[self.data.start..self.data.end])
-                        .expect("Cannot create utf8 string")
-                        .to_string();
+                    let s = String::from_utf8(self.buffer[self.data.start..self.data.end].to_vec())?;
 
                     self.data.start = self.raw.end;
                     self.data.end = self.raw.end;
 
-                    return (Some(s.to_lowercase()), self.number_attribute_returned < self.attribute.len());
+                    return Ok((Some(s.to_lowercase()), self.number_attribute_returned < self.attribute.len()));
                 }
                 _ => {}
             }
         }
 
-        (None, false)
+        Ok((None, false))
     }
 
-    pub fn tag_attr(&mut self) -> (Option<String>, Option<String>, bool) {
+    pub fn tag_attr(&mut self) -> Result<(Option<String>, Option<String>, bool)> {
         if self.number_attribute_returned < self.attribute.len() {
             match self.token {
                 StartTagToken | SelfClosingTagToken => {
                     let attr = &self.attribute[self.number_attribute_returned];
                     self.number_attribute_returned += 1;
 
-                    let key = str::from_utf8(&self.buffer[attr[0].start..attr[0].end])
-                        .expect("Cannot create utf8 string")
-                        .to_string();
-                    let val = str::from_utf8(&self.buffer[attr[1].start..attr[1].end])
-                        .expect("Cannot create utf8 string")
-                        .to_string();
+                    let key = String::from_utf8(self.buffer[attr[0].start..attr[0].end].to_vec())?;
+                    let val = String::from_utf8(self.buffer[attr[1].start..attr[1].end].to_vec())?;
 
-                    return (
+                    return Ok((
                         Some(key.to_lowercase()),
                         Some(val),
                         self.number_attribute_returned < self.attribute.len(),
-                    );
+                    ));
                 }
                 _ => {}
             }
         }
 
-        (None, None, false)
+        Ok((None, None, false))
     }
 
-    pub fn token(&mut self) -> Token {
+    pub fn token(&mut self) -> Result<Token> {
         let mut token = Token {
             token_type: self.token,
             attrs: Vec::new(),
@@ -385,13 +376,13 @@ impl<'t> Tokenizer<'t> {
 
         match self.token {
             TextToken | CommentToken | DoctypeToken => {
-                token.data = self.text();
+                token.data = self.text()?;
             }
             StartTagToken | SelfClosingTagToken | EndTagToken => {
-                let (name, mut has_attr) = self.tag_name();
+                let (name, mut has_attr) = self.tag_name()?;
 
                 while has_attr {
-                    let (key, val, has_attr_attr) = self.tag_attr();
+                    let (key, val, has_attr_attr) = self.tag_attr()?;
                     has_attr = has_attr_attr;
 
                     token.attrs.push(Attribute {
@@ -406,7 +397,7 @@ impl<'t> Tokenizer<'t> {
             _ => {}
         }
 
-        token
+        Ok(token)
     }
 
     pub fn set_max_buffer(&mut self, max_buffer: usize) {
@@ -1107,11 +1098,11 @@ impl<'t> Tokenizer<'t> {
         false
     }
 
-    fn read_start_tag(&mut self) -> TokenType {
+    fn read_start_tag(&mut self) -> Result<TokenType> {
         self.read_tag(true);
 
         if self.err.is_some() {
-            return ErrorToken;
+            return Ok(ErrorToken);
         }
 
         let mut raw = false;
@@ -1146,17 +1137,14 @@ impl<'t> Tokenizer<'t> {
         }
 
         if raw {
-            self.raw_tag = str::from_utf8(&self.buffer[self.data.start..self.data.end])
-                .expect("Cannot create utf8 string")
-                .to_string()
-                .to_lowercase();
+            self.raw_tag = String::from_utf8(self.buffer[self.data.start..self.data.end].to_vec())?.to_lowercase();
         }
 
         if self.err.is_none() && self.buffer[self.raw.end - 2] == b'/' {
-            return SelfClosingTagToken;
+            return Ok(SelfClosingTagToken);
         }
 
-        StartTagToken
+        Ok(StartTagToken)
     }
 
     fn read_tag(&mut self, save_attr: bool) {
@@ -1353,15 +1341,15 @@ mod tests {
                     let splits = golden.split("$");
 
                     for split in splits {
-                        let token_type = tokenizer.next();
+                        let token_type = tokenizer.next().unwrap();
 
                         assert_ne!(token_type, ErrorToken);
-                        let actual_token = tokenizer.token();
+                        let actual_token = tokenizer.token().unwrap();
                         assert_eq!(actual_token.to_string(), split);
                     }
                 }
 
-                tokenizer.next();
+                tokenizer.next().unwrap();
                 assert_eq!(true, tokenizer.err().is_some());
             }
         )*

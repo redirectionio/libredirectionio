@@ -1,3 +1,4 @@
+use crate::filter::error::Result;
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::html;
 use std::collections::HashSet;
@@ -53,7 +54,7 @@ impl HtmlFilterBodyAction {
         }
     }
 
-    pub fn filter(&mut self, input: Vec<u8>) -> Vec<u8> {
+    pub fn filter(&mut self, input: Vec<u8>) -> Result<Vec<u8>> {
         let mut data = self.last_buffer.clone();
         data.extend(input);
 
@@ -62,7 +63,7 @@ impl HtmlFilterBodyAction {
         let mut to_return = "".to_string();
 
         loop {
-            let mut token_type = tokenizer.next();
+            let mut token_type = tokenizer.next()?;
 
             if token_type == html::TokenType::ErrorToken {
                 self.last_buffer = tokenizer.raw();
@@ -71,17 +72,17 @@ impl HtmlFilterBodyAction {
                 break;
             }
 
-            let mut token_data = tokenizer.raw_as_string().clone();
+            let mut token_data = tokenizer.raw_as_string()?;
 
             while token_type == html::TokenType::TextToken && (token_data.contains('<') || token_data.contains("</")) {
-                token_type = tokenizer.next();
+                token_type = tokenizer.next()?;
 
                 if token_type == html::TokenType::ErrorToken {
                     self.last_buffer = token_data.into_bytes();
                     self.last_buffer.extend(tokenizer.raw());
                     self.last_buffer.extend(tokenizer.buffered());
 
-                    return to_return.into_bytes();
+                    return Ok(to_return.into_bytes());
                 }
 
                 if self.current_buffer.is_some() {
@@ -90,12 +91,12 @@ impl HtmlFilterBodyAction {
                     to_return.push_str(token_data.as_str());
                 }
 
-                token_data = tokenizer.raw_as_string();
+                token_data = tokenizer.raw_as_string()?;
             }
 
             match token_type {
                 html::TokenType::StartTagToken => {
-                    let (tag_name, _) = tokenizer.tag_name();
+                    let (tag_name, _) = tokenizer.tag_name()?;
                     let tag_name_str = tag_name.unwrap_or_else(|| "".to_string());
                     let (new_buffer_link, new_token_data) = self.on_start_tag_token(tag_name_str.clone(), token_data);
 
@@ -103,27 +104,27 @@ impl HtmlFilterBodyAction {
                     token_data = new_token_data;
 
                     if VOID_ELEMENTS.contains(tag_name_str.as_str()) {
-                        let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name_str.clone(), token_data);
+                        let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name_str.clone(), token_data)?;
 
                         self.current_buffer = new_buffer_link;
                         token_data = new_token_data;
                     }
                 }
                 html::TokenType::EndTagToken => {
-                    let (tag_name, _) = tokenizer.tag_name();
-                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data);
+                    let (tag_name, _) = tokenizer.tag_name()?;
+                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data)?;
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
                 }
                 html::TokenType::SelfClosingTagToken => {
-                    let (tag_name, _) = tokenizer.tag_name();
+                    let (tag_name, _) = tokenizer.tag_name()?;
                     let (new_buffer_link, new_token_data) = self.on_start_tag_token(tag_name.as_ref().unwrap().clone(), token_data);
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
 
-                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data);
+                    let (new_buffer_link, new_token_data) = self.on_end_tag_token(tag_name.unwrap(), token_data)?;
 
                     self.current_buffer = new_buffer_link;
                     token_data = new_token_data;
@@ -138,7 +139,7 @@ impl HtmlFilterBodyAction {
             }
         }
 
-        to_return.into_bytes()
+        Ok(to_return.into_bytes())
     }
 
     pub fn end(&mut self) -> Vec<u8> {
@@ -183,7 +184,7 @@ impl HtmlFilterBodyAction {
         (self.current_buffer.take(), buffer)
     }
 
-    fn on_end_tag_token(&mut self, tag_name: String, data: String) -> (Option<Box<BufferLink>>, String) {
+    fn on_end_tag_token(&mut self, tag_name: String, data: String) -> Result<(Option<Box<BufferLink>>, String)> {
         let mut buffer: String;
 
         if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {
@@ -194,7 +195,7 @@ impl HtmlFilterBodyAction {
         }
 
         if self.leave.is_some() && self.leave.as_ref().unwrap() == tag_name.as_str() {
-            let (next_enter, next_leave, new_buffer) = self.visitor.leave(buffer);
+            let (next_enter, next_leave, new_buffer) = self.visitor.leave(buffer)?;
             buffer = new_buffer;
 
             self.enter = next_enter;
@@ -202,9 +203,9 @@ impl HtmlFilterBodyAction {
         }
 
         if self.current_buffer.is_some() && self.current_buffer.as_ref().unwrap().tag_name == tag_name {
-            return (self.current_buffer.as_mut().unwrap().previous.take(), buffer);
+            return Ok((self.current_buffer.as_mut().unwrap().previous.take(), buffer));
         }
 
-        (self.current_buffer.take(), buffer)
+        Ok((self.current_buffer.take(), buffer))
     }
 }

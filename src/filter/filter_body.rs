@@ -1,4 +1,5 @@
 use crate::api::{BodyFilter, TextAction};
+use crate::filter::error::Result;
 use crate::filter::gzip_filter_body::{GzDecodeFilterBody, GzEncodeFilterBody};
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::filter::text_filter_body::{TextFilterAction, TextFilterBodyAction};
@@ -7,6 +8,7 @@ use crate::http::Header;
 
 pub struct FilterBodyAction {
     chain: Vec<FilterBodyActionItem>,
+    in_error: bool,
 }
 
 pub enum FilterBodyActionItem {
@@ -42,35 +44,64 @@ impl FilterBodyAction {
             chain.push(FilterBodyActionItem::Gzip(GzEncodeFilterBody::new()));
         }
 
-        Self { chain }
+        Self { chain, in_error: false }
     }
 
     pub fn is_empty(&self) -> bool {
         self.chain.is_empty()
     }
 
-    // Note: no need for `mut` here ?
-    pub fn filter(&mut self, mut data: Vec<u8>) -> Vec<u8> {
+    pub fn filter(&mut self, data: Vec<u8>) -> Vec<u8> {
+        if self.in_error {
+            return data;
+        }
+
+        match self.do_filter(data.clone()) {
+            Ok(filtered) => filtered,
+            Err(_) => {
+                self.in_error = true;
+
+                data
+            }
+        }
+    }
+
+    fn do_filter(&mut self, mut data: Vec<u8>) -> Result<Vec<u8>> {
         for item in &mut self.chain {
-            data = item.filter(data);
+            data = item.filter(data)?;
 
             if data.is_empty() {
                 break;
             }
         }
 
-        data
+        Ok(data)
     }
 
     pub fn end(&mut self) -> Vec<u8> {
+        if self.in_error {
+            return Vec::new();
+        }
+
+        match self.do_end() {
+            Ok(end) => end,
+            Err(_) => {
+                self.in_error = true;
+
+                Vec::new()
+            }
+        }
+    }
+
+    fn do_end(&mut self) -> Result<Vec<u8>> {
         let mut data = None;
 
         for item in &mut self.chain {
             let new_data = match data {
-                None => item.end(),
+                None => item.end()?,
                 Some(str) => {
-                    let mut end_str = item.filter(str);
-                    end_str.extend(item.end());
+                    let mut end_str = item.filter(str)?;
+                    end_str.extend(item.end()?);
 
                     end_str
                 }
@@ -79,7 +110,7 @@ impl FilterBodyAction {
             data = if new_data.is_empty() { None } else { Some(new_data) };
         }
 
-        data.unwrap_or_else(|| Vec::new())
+        Ok(data.unwrap_or_else(|| Vec::new()))
     }
 }
 
@@ -100,22 +131,22 @@ impl FilterBodyActionItem {
         }
     }
 
-    pub fn filter(&mut self, data: Vec<u8>) -> Vec<u8> {
-        match self {
-            FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data),
+    pub fn filter(&mut self, data: Vec<u8>) -> Result<Vec<u8>> {
+        Ok(match self {
+            FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data)?,
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data),
-            FilterBodyActionItem::UnGzip(gzip_body_filter) => gzip_body_filter.filter(data),
-            FilterBodyActionItem::Gzip(gzip_body_filter) => gzip_body_filter.filter(data),
-        }
+            FilterBodyActionItem::UnGzip(gzip_body_filter) => gzip_body_filter.filter(data)?,
+            FilterBodyActionItem::Gzip(gzip_body_filter) => gzip_body_filter.filter(data)?,
+        })
     }
 
-    pub fn end(&mut self) -> Vec<u8> {
-        match self {
+    pub fn end(&mut self) -> Result<Vec<u8>> {
+        Ok(match self {
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.end(),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
-            FilterBodyActionItem::UnGzip(gzip_body_filter) => gzip_body_filter.end(),
-            FilterBodyActionItem::Gzip(gzip_body_filter) => gzip_body_filter.end(),
-        }
+            FilterBodyActionItem::UnGzip(gzip_body_filter) => gzip_body_filter.end()?,
+            FilterBodyActionItem::Gzip(gzip_body_filter) => gzip_body_filter.end()?,
+        })
     }
 }
 
@@ -125,7 +156,6 @@ mod tests {
     use crate::api::HTMLBodyFilter;
     use flate2::write::{GzDecoder, GzEncoder};
     use flate2::Compression;
-    use std::io;
     use std::io::prelude::*;
 
     #[test]
@@ -144,11 +174,12 @@ mod tests {
         let mut filtered = filter.filter(bytes.clone());
         filtered.extend(filter.end());
 
-        let mut gz = flate2::read::GzDecoder::new(filtered.as_slice());
-        let mut s = String::new();
-        gz.read_to_string(&mut s).unwrap();
+        let mut gz = GzDecoder::new(Vec::new());
+        gz.write_all(&filtered).unwrap();
+        let data = gz.finish().unwrap();
+        let after_filter = String::from_utf8(data.to_vec()).unwrap();
 
-        assert_eq!(before_filter, s);
+        assert_eq!(before_filter, after_filter);
     }
 
     #[test]

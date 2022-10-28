@@ -1,4 +1,5 @@
 use super::evaluate;
+use crate::filter::error::Result;
 use crate::html;
 
 #[derive(Debug)]
@@ -46,7 +47,7 @@ impl BodyPrepend {
         (next_enter, next_leave, self.is_buffering, new_data)
     }
 
-    pub fn leave(&mut self, data: String) -> (Option<String>, Option<String>, String) {
+    pub fn leave(&mut self, data: String) -> Result<(Option<String>, Option<String>, String)> {
         let next_enter = Some(self.element_tree[self.position].clone());
         let next_leave = if self.position as i32 > 0 {
             self.position -= 1;
@@ -60,11 +61,11 @@ impl BodyPrepend {
             self.is_buffering = false;
 
             if !evaluate(data.as_str(), self.css_selector.as_ref().unwrap().as_str()) {
-                return (next_enter, next_leave, prepend_child(data, self.content.clone()));
+                return Ok((next_enter, next_leave, prepend_child(data, self.content.clone())?));
             }
         }
 
-        (next_enter, next_leave, data)
+        Ok((next_enter, next_leave, data))
     }
 
     pub fn first(&self) -> String {
@@ -72,26 +73,26 @@ impl BodyPrepend {
     }
 }
 
-fn prepend_child(content: String, child: String) -> String {
+fn prepend_child(content: String, child: String) -> Result<String> {
     let buffer = &mut content.as_bytes() as &mut dyn std::io::Read;
     let mut tokenizer = html::Tokenizer::new(buffer);
     let mut output = "".to_string();
 
     loop {
-        let token_type = tokenizer.next();
+        let token_type = tokenizer.next()?;
 
         if token_type == html::TokenType::ErrorToken {
-            return content;
+            return Ok(content);
         }
 
         if token_type == html::TokenType::StartTagToken {
-            output.push_str(tokenizer.raw_as_string().as_str());
+            output.push_str(tokenizer.raw_as_string()?.as_str());
             output.push_str(child.as_str());
-            output.push_str(tokenizer.buffered_as_string().as_str());
+            output.push_str(tokenizer.buffered_as_string()?.as_str());
 
-            return output;
+            return Ok(output);
         }
 
-        output.push_str(tokenizer.raw_as_string().as_str());
+        output.push_str(tokenizer.raw_as_string()?.as_str());
     }
 }

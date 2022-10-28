@@ -5,6 +5,7 @@ pub mod body_prepend;
 pub mod body_replace;
 
 use crate::api::HTMLBodyFilter;
+use crate::filter::error::Result;
 use crate::filter::html_body_action::body_append::BodyAppend;
 use crate::filter::html_body_action::body_prepend::BodyPrepend;
 use crate::filter::html_body_action::body_replace::BodyReplace;
@@ -51,12 +52,12 @@ impl HtmlBodyVisitor {
         }
     }
 
-    pub fn leave(&mut self, data: String) -> (Option<String>, Option<String>, String) {
-        match self {
-            Self::Append(append) => append.leave(data),
-            Self::Prepend(prepend) => prepend.leave(data),
+    pub fn leave(&mut self, data: String) -> Result<(Option<String>, Option<String>, String)> {
+        Ok(match self {
+            Self::Append(append) => append.leave(data)?,
+            Self::Prepend(prepend) => prepend.leave(data)?,
             Self::Replace(replace) => replace.leave(data),
-        }
+        })
     }
 
     pub fn first(&self) -> String {

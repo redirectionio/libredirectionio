@@ -1,5 +1,6 @@
 use super::super::html_filter_body::VOID_ELEMENTS;
 use super::evaluate;
+use crate::filter::error::Result;
 use crate::html;
 
 #[derive(Debug)]
@@ -39,7 +40,7 @@ impl BodyAppend {
         (next_enter, next_leave, should_buffer, data)
     }
 
-    pub fn leave(&mut self, data: String) -> (Option<String>, Option<String>, String) {
+    pub fn leave(&mut self, data: String) -> Result<(Option<String>, Option<String>, String)> {
         let next_enter = Some(self.element_tree[self.position].clone());
         let is_processing = self.position + 1 >= self.element_tree.len();
         let next_leave = if self.position as i32 > 0 {
@@ -54,20 +55,20 @@ impl BodyAppend {
             if let Some(css_selector) = self.css_selector.as_ref() {
                 if !css_selector.is_empty() {
                     if !evaluate(data.as_str(), css_selector.as_str()) {
-                        return (next_enter, next_leave, append_child(data, self.content.clone()));
+                        return Ok((next_enter, next_leave, append_child(data, self.content.clone())?));
                     }
 
-                    return (next_enter, next_leave, data);
+                    return Ok((next_enter, next_leave, data));
                 }
             }
 
             let mut new_data = self.content.clone();
             new_data.push_str(data.as_str());
 
-            return (next_enter, next_leave, new_data);
+            return Ok((next_enter, next_leave, new_data));
         }
 
-        (next_enter, next_leave, data)
+        Ok((next_enter, next_leave, data))
     }
 
     pub fn first(&self) -> String {
@@ -75,22 +76,22 @@ impl BodyAppend {
     }
 }
 
-fn append_child(content: String, child: String) -> String {
+fn append_child(content: String, child: String) -> Result<String> {
     let buffer = &mut content.as_bytes() as &mut dyn std::io::Read;
     let mut tokenizer = html::Tokenizer::new(buffer);
     let mut output = "".to_string();
     let mut level = 0;
 
     loop {
-        let token_type = tokenizer.next();
+        let token_type = tokenizer.next()?;
 
         if token_type == html::TokenType::ErrorToken {
-            return content;
+            return Ok(content);
         }
 
         if token_type == html::TokenType::StartTagToken {
             level += 1;
-            let (tag_name, _) = tokenizer.tag_name();
+            let (tag_name, _) = tokenizer.tag_name()?;
 
             if VOID_ELEMENTS.contains(tag_name.unwrap().as_str()) {
                 level -= 1;
@@ -102,13 +103,13 @@ fn append_child(content: String, child: String) -> String {
 
             if level == 0 {
                 output.push_str(child.as_str());
-                output.push_str(tokenizer.raw_as_string().as_str());
-                output.push_str(tokenizer.buffered_as_string().as_str());
+                output.push_str(tokenizer.raw_as_string()?.as_str());
+                output.push_str(tokenizer.buffered_as_string()?.as_str());
 
-                return output;
+                return Ok(output);
             }
         }
 
-        output.push_str(tokenizer.raw_as_string().as_str());
+        output.push_str(tokenizer.raw_as_string()?.as_str());
     }
 }
