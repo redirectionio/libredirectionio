@@ -1,4 +1,13 @@
-## 2.3.0 - Unreleased
+## 2.5.0 - 28-10-2022
+
+ * Add support for gzip compression in body filter
+ * Hardened error handling in body filter
+
+## 2.4.0 - 07-07-2022
+
+ * Update crate to publish on crates.io
+
+## 2.3.0 - 13-04-2022
 
  * Add support to trigger on specific ip address
  * Add variable feature which allow using request properties in action values
