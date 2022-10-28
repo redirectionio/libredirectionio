@@ -6,7 +6,7 @@ use error::Result;
 use std::io::Read;
 use std::string::ToString;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TokenType {
     NoneToken,
     ErrorToken,

@@ -110,7 +110,7 @@ impl FilterBodyAction {
             data = if new_data.is_empty() { None } else { Some(new_data) };
         }
 
-        Ok(data.unwrap_or_else(|| Vec::new()))
+        Ok(data.unwrap_or_default())
     }
 }
 

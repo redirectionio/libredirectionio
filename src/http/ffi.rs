@@ -214,5 +214,5 @@ pub unsafe extern "C" fn redirectionio_request_drop(_request: *mut Request) {
         return;
     }
 
-    Box::from_raw(_request);
+    drop(Box::from_raw(_request));
 }

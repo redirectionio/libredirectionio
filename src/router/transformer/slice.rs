@@ -8,7 +8,7 @@ pub struct Slice {
 impl Transform for Slice {
     fn transform(&self, str: String) -> String {
         let from = self.from;
-        let mut to = self.to.unwrap_or_else(|| str.len());
+        let mut to = self.to.unwrap_or(str.len());
 
         if from > str.len() {
             return "".to_string();

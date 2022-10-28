@@ -76,7 +76,7 @@ pub unsafe extern "C" fn redirectionio_router_drop(_router: *mut Router<Rule>) {
         return;
     }
 
-    Box::from_raw(_router);
+    drop(Box::from_raw(_router));
 }
 
 #[no_mangle]

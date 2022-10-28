@@ -56,7 +56,7 @@ pub unsafe extern "C" fn redirectionio_action_drop(_action: *mut Action) {
         return;
     }
 
-    Box::from_raw(_action);
+    drop(Box::from_raw(_action));
 }
 
 #[no_mangle]
@@ -140,7 +140,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_drop(_filter: *mut Fil
         return;
     }
 
-    Box::from_raw(_filter);
+    drop(Box::from_raw(_filter));
 }
 
 #[no_mangle]
