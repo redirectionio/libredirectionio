@@ -70,16 +70,16 @@ impl HtmlBodyVisitor {
 }
 
 pub fn evaluate(data: &str, expression: &str) -> bool {
+    let selector = match scraper::Selector::parse(expression) {
+        Ok(selector) => selector,
+        Err(err) => {
+            log::error!("cannot parse selector {}: {:?}", expression, err);
+
+            return false;
+        }
+    };
+
     let document = scraper::Html::parse_fragment(data);
-    let selector_result = scraper::Selector::parse(expression);
-
-    if selector_result.is_err() {
-        error!("Cannot parse selector {}: {:?}", expression, selector_result.err().unwrap());
-
-        return false;
-    }
-
-    let selector = selector_result.unwrap();
     let mut select = document.select(&selector);
 
     select.next().is_some()

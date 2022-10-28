@@ -58,7 +58,8 @@ impl FilterBodyAction {
 
         match self.do_filter(data.clone()) {
             Ok(filtered) => filtered,
-            Err(_) => {
+            Err(err) => {
+                log::error!("error while filtering: {}", err);
                 self.in_error = true;
 
                 data
@@ -85,7 +86,8 @@ impl FilterBodyAction {
 
         match self.do_end() {
             Ok(end) => end,
-            Err(_) => {
+            Err(err) => {
+                log::error!("error while ending filtering: {}", err);
                 self.in_error = true;
 
                 Vec::new()

@@ -32,6 +32,7 @@ impl GzDecodeFilterBody {
         let mut decoder = GzDecoder::new(Cursor::new(Vec::new()));
         std::mem::swap(&mut self.decoder, &mut decoder);
 
+        decoder.try_finish()?;
         Ok(decoder.finish()?.into_inner())
     }
 }
@@ -56,6 +57,7 @@ impl GzEncodeFilterBody {
         let mut encoder = GzEncoder::new(Cursor::new(Vec::new()), flate2::Compression::default());
         std::mem::swap(&mut self.encoder, &mut encoder);
 
+        encoder.try_finish()?;
         Ok(encoder.finish()?.into_inner())
     }
 }
