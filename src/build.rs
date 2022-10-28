@@ -337,7 +337,7 @@ fn build_test_file(file: DirEntry) -> std::io::Result<(String, RuleSet)> {
         .unwrap()
         .to_string()
         .replace(".yml", "")
-        .replace("-", "_");
+        .replace('-', "_");
 
     Ok((name, rule_set))
 }

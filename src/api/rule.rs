@@ -77,13 +77,7 @@ impl Rule {
     }
 
     fn get_marker(&self, name: &str) -> Option<&Marker> {
-        for marker in &self.markers {
-            if marker.name.as_str() == name {
-                return Some(marker);
-            }
-        }
-
-        None
+        self.markers.iter().find(|m| m.name.as_str() == name)
     }
 
     fn markers(&self) -> Vec<RouteMarker> {
