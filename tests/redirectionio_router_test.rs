@@ -2852,6 +2852,46 @@ fn test_action_seo_override_title_4() {
 }
 
 
+fn setup_action_sitemap() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace_text","content":"<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><sitemap><loc>https://redirection.io/sitemap_static.xml</loc></sitemap><sitemap><loc>https://redirection.io/features/sitemap/</loc></sitemap><sitemap><loc>https://redirection.io/news/sitemap/</loc></sitemap></sitemapindex>"}],"id":"action-sitemap","rank":0,"source":{"path":"/sitemap.xml"},"status_code":200}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_action_sitemap_1() {
+    let router = setup_action_sitemap();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/sitemap.xml"#), r#"/sitemap.xml"#.to_string(),None,None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code);
+    assert_eq!(action_status_code, 200);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[]);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec());
+    new_body.extend(body_filter.end());
+    assert_eq!(new_body, r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>https://redirection.io/sitemap_static.xml</loc></sitemap><sitemap><loc>https://redirection.io/features/sitemap/</loc></sitemap><sitemap><loc>https://redirection.io/news/sitemap/</loc></sitemap></sitemapindex>"#.as_bytes().to_vec());
+    assert_eq!(action.should_log_request(true, response_status_code), true);
+}
+
+
 fn setup_action_stop() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
