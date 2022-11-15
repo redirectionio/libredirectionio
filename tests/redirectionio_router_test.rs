@@ -2879,14 +2879,14 @@ fn test_action_sitemap_1() {
     let mut action = Action::from_routes_rule(matched, &request_configured);
     let response_status_code = 0;
 
-    let action_status_code = action.get_status_code(response_status_code);
+    let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 200);
     let body_filter_opt = action.create_filter_body(response_status_code, &[]);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
-    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec());
-    new_body.extend(body_filter.end());
+    let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>https://redirection.io/sitemap_static.xml</loc></sitemap><sitemap><loc>https://redirection.io/features/sitemap/</loc></sitemap><sitemap><loc>https://redirection.io/news/sitemap/</loc></sitemap></sitemapindex>"#.as_bytes().to_vec());
     assert_eq!(action.should_log_request(true, response_status_code), true);
 }
