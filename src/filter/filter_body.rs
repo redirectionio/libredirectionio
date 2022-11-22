@@ -25,11 +25,16 @@ impl FilterBodyAction {
     pub fn new(filters: Vec<BodyFilter>, headers: &[Header]) -> Self {
         let mut chain = Vec::new();
         let mut has_gzip = false;
+        let mut content_type = None;
 
         for header in headers {
             if header.name.to_lowercase() == "content-encoding" && header.value.to_lowercase() == "gzip" {
                 has_gzip = true;
                 break;
+            }
+
+            if header.name.to_lowercase() == "content-type" {
+                content_type = Some(header.value.to_lowercase());
             }
         }
 
@@ -38,7 +43,7 @@ impl FilterBodyAction {
         }
 
         for filter in filters {
-            if let Some(item) = FilterBodyActionItem::new(filter) {
+            if let Some(item) = FilterBodyActionItem::new(filter, content_type.clone()) {
                 chain.push(item);
             }
         }
@@ -120,11 +125,26 @@ impl FilterBodyAction {
 }
 
 impl FilterBodyActionItem {
-    pub fn new(filter: BodyFilter) -> Option<Self> {
+    pub fn new(filter: BodyFilter, content_type: Option<String>) -> Option<Self> {
         match filter {
-            BodyFilter::HTML(html_body_filter) => {
-                HtmlBodyVisitor::new(html_body_filter).map(|visitor| Self::Html(HtmlFilterBodyAction::new(visitor)))
-            }
+            BodyFilter::HTML(html_body_filter) => match content_type {
+                Some(content_type) if content_type.contains("text/html") => {
+                    // @TODO Support charset
+                    HtmlBodyVisitor::new(html_body_filter).map(|visitor| Self::Html(HtmlFilterBodyAction::new(visitor)))
+                }
+                None => {
+                    // Assume HTML if no content type
+                    HtmlBodyVisitor::new(html_body_filter).map(|visitor| Self::Html(HtmlFilterBodyAction::new(visitor)))
+                }
+                _ => {
+                    log::error!(
+                        "html filtering is only supported for text/html content type, {} received",
+                        content_type.unwrap_or_default()
+                    );
+
+                    None
+                }
+            },
             BodyFilter::Text(text_body_filter) => Some(Self::Text(TextFilterBodyAction::new(
                 text_body_filter.id,
                 match text_body_filter.action {
