@@ -1,3 +1,8 @@
+## 2.5.1 - 23-11-2022
+
+ * Ensure order for rules, no rules will always be applied in the same order even if they have the same priority, as they are sorted by their ID
+ * Body filters will now only be applied on a correct content-type header
+
 ## 2.5.0 - 28-10-2022
 
  * Add support for gzip compression in body filter
