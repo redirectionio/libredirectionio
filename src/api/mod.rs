@@ -1,7 +1,7 @@
 mod body_filter;
-#[cfg(not(target_arch = "wasm32"))]
 mod examples;
 mod explain_request;
+#[cfg(not(target_arch = "wasm32"))]
 mod ffi;
 mod header;
 mod header_filter;

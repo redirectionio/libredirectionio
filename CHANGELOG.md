@@ -1,3 +1,7 @@
+## 2.5.2 - 24-11-2022
+
+* Fix a bug in wasm target compilation that make it impossible to compile
+
 ## 2.5.1 - 23-11-2022
 
  * Ensure order for rules, no rules will always be applied in the same order even if they have the same priority, as they are sorted by their ID
