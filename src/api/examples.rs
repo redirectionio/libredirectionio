@@ -16,3 +16,11 @@ pub struct ExampleHeader {
     pub name: String,
     pub value: String,
 }
+
+impl Example {
+    pub fn with_url(&self, url: String) -> Example {
+        let mut new_exemple = self.clone();
+        new_exemple.url = url;
+        new_exemple
+    }
+}
