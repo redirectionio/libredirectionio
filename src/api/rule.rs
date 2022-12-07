@@ -11,6 +11,8 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 
 const SIMPLE_ENCODE_SET: &AsciiSet = CONTROLS;
+const URL_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
+const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>').add(b'+');
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Rule {
@@ -162,10 +164,12 @@ impl Rule {
             Some(source_query) => Request::build_sorted_query(source_query.as_str()),
         };
 
-        let mut path = utf8_percent_encode(self.source.path.as_str(), SIMPLE_ENCODE_SET).to_string();
+        let mut path = utf8_percent_encode(self.source.path.as_str(), URL_ENCODE_SET).to_string();
 
         if let Some(query_string) = query {
-            path.push_str(format!("?{}", query_string).as_str());
+            let query_string_encoded = utf8_percent_encode(query_string.as_str(), QUERY_ENCODE_SET).to_string();
+
+            path.push_str(format!("?{}", query_string_encoded).as_str());
         }
 
         StaticOrDynamic::new_with_markers(path.as_str(), markers, ignore_case)

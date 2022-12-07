@@ -9,6 +9,7 @@ use redirectionio::http::{Request, Header, PathAndQueryWithSkipped};
 use redirectionio::action::Action;
 
 {% for name, rule_set in rule_sets %}
+{%- if rule_set.tests | length > 0 -%}
 fn setup_{{ name }}() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{{ rule_set.config | json_encode() }}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
@@ -98,5 +99,6 @@ fn test_{{ name }}_{{ loop.index }}() {
 {%- endif %}
 }
 {% endfor %}
+{%- endif %}
 {% endfor %}
 }

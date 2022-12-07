@@ -2,10 +2,7 @@ extern crate redirectionio;
 
 #[rustfmt::skip]
 mod generated_tests {
-    use redirectionio::{
-        api::{Rule, TestExamplesInput, TestExamplesOutput},
-        router::Router,
-    };
+    use redirectionio::api::{TestExamplesInput, TestExamplesOutput};
     use serde_json::{from_str as json_decode, to_string_pretty as json_encode};
     use std::env;
 
