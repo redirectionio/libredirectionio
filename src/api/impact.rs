@@ -37,6 +37,7 @@ pub struct Impact {
     backend_status_code: u16,
     response: Response,
     match_traces: Vec<Trace<Rule>>,
+    error: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -47,6 +48,19 @@ pub struct Response {
 }
 
 // Implementation
+
+impl Impact {
+    fn new_with_error(example: Example, error: String) -> Self {
+        Impact {
+            example,
+            error: Some(error),
+            unit_trace: UnitTrace::default(),
+            backend_status_code: 0,
+            response: Response::default(),
+            match_traces: Vec::new(),
+        }
+    }
+}
 
 impl ImpactOutput {
     pub fn create_result(impact_input: ImpactInput) -> ImpactOutput {
@@ -73,7 +87,17 @@ impl ImpactOutput {
         let mut impacts = Vec::new();
 
         for example in impact_input.rule.examples.as_ref().unwrap().iter() {
-            let request = Request::from_example(&router_config, example).unwrap();
+            let request = match Request::from_example(&router_config, example) {
+                Ok(request) => request,
+                Err(e) => {
+                    impacts.push(Impact::new_with_error(
+                        example.to_owned(),
+                        format!("Cannot create query from example: {}", e),
+                    ));
+
+                    continue;
+                }
+            };
             let routes = router.match_request(&request);
             let mut action = Action::from_routes_rule(routes, &request);
 
@@ -119,6 +143,7 @@ impl ImpactOutput {
                     body: body.to_string(),
                 },
                 match_traces: trace_unique_router.trace_request(&request),
+                error: None,
             });
         }
 
