@@ -40,13 +40,13 @@ impl RouteData for Rule {}
 
 impl Ord for Rule {
     fn cmp(&self, other: &Self) -> Ordering {
-        let order_on_rank = (&other.rank).cmp(&self.rank);
+        let order_on_rank = other.rank.cmp(&self.rank);
 
         if order_on_rank != Ordering::Equal {
             return order_on_rank;
         }
 
-        (&other.id).cmp(&self.id)
+        other.id.cmp(&self.id)
     }
 }
 

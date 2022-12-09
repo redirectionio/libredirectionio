@@ -41,7 +41,7 @@ impl Variable {
             VariableKind::RequestTime => request.created_at.map(|d| d.to_rfc2822()),
             VariableKind::Marker(marker_name) => markers_captured.get(marker_name.as_str()).cloned(),
         }
-        .unwrap_or_else(|| "".to_string());
+        .unwrap_or_default();
 
         for transformer in &self.transformers {
             match transformer.to_transform() {

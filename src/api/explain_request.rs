@@ -59,7 +59,7 @@ impl ExplainRequestOutput {
 
         let example = &explain_request_input.example;
 
-        let request = match Request::from_example(&router_config, &example) {
+        let request = match Request::from_example(&router_config, example) {
             Ok(request) => request,
             Err(e) => {
                 return Err(ExplainRequestOutputError {

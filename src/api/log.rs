@@ -128,7 +128,7 @@ impl Log {
             proxy: proxy.to_string(),
             time,
             ips: Some(ips),
-            to: location.unwrap_or_else(|| "".to_string()),
+            to: location.unwrap_or_default(),
         }
     }
 }

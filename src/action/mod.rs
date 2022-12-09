@@ -318,7 +318,10 @@ impl Action {
                             element_tree: html_body_filter.element_tree.clone(),
                             value: StaticOrDynamic::replace(html_body_filter.value.clone(), &variables),
                             inner_value: Some(StaticOrDynamic::replace(
-                                html_body_filter.inner_value.clone().unwrap_or(html_body_filter.value.clone()),
+                                html_body_filter
+                                    .inner_value
+                                    .clone()
+                                    .unwrap_or_else(|| html_body_filter.value.clone()),
                                 &variables,
                             )),
                             id: html_body_filter.id.clone(),
@@ -447,14 +450,14 @@ impl Action {
         action
     }
 
-    pub fn get_status_code(&mut self, response_status_code: u16, mut unit_trace: Option<&mut UnitTrace>) -> u16 {
+    pub fn get_status_code(&mut self, response_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> u16 {
         match self.status_code_update.as_ref() {
             None => 0,
             Some(status_code_update) => {
                 let (status, rule_applied) = status_code_update.get_status_code(response_status_code);
 
                 if rule_applied.is_some() {
-                    if let Some(trace) = unit_trace.as_deref_mut() {
+                    if let Some(trace) = unit_trace {
                         if let Some(rule_id) = rule_applied.clone() {
                             trace.rule_ids_applied.insert(rule_id);
                         }
@@ -505,7 +508,7 @@ impl Action {
             Some(filter_action) => filter_action.filter(headers, unit_trace.as_deref_mut()),
         };
 
-        if let Some(trace) = unit_trace.as_deref_mut() {
+        if let Some(trace) = unit_trace {
             trace.rule_ids_applied.extend(self.get_applied_rule_ids());
         }
 

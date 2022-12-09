@@ -76,13 +76,7 @@ impl<T: NodeItem, S: Storage<T>> Node<T, S> for RegexNode<T, S> {
             }
         }
 
-        Trace::new(
-            self.prefix.clone().unwrap_or_else(|| "".to_string()),
-            matched,
-            self.count as u64,
-            children,
-            None,
-        )
+        Trace::new(self.prefix.clone().unwrap_or_default(), matched, self.count as u64, children, None)
     }
 
     fn remove(&mut self, id: &str) -> bool {

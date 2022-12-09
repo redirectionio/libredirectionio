@@ -25,10 +25,10 @@ impl TextFilterBodyAction {
         }
     }
 
-    pub fn filter(&mut self, data: Vec<u8>, mut unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
+    pub fn filter(&mut self, data: Vec<u8>, unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
         match self.action {
             TextFilterAction::Replace => {
-                if let Some(trace) = unit_trace.as_deref_mut() {
+                if let Some(trace) = unit_trace {
                     if let Some(id) = self.id.clone() {
                         // We always use "body" as target since it's not
                         // possible to change the value in the UI
@@ -44,7 +44,7 @@ impl TextFilterBodyAction {
                 }
             }
             TextFilterAction::Append => {
-                if let Some(trace) = unit_trace.as_deref_mut() {
+                if let Some(trace) = unit_trace {
                     if let Some(id) = self.id.clone() {
                         // We always use "body" as target since it's not
                         // possible to change the value in the UI
@@ -55,7 +55,7 @@ impl TextFilterBodyAction {
                 data
             }
             TextFilterAction::Prepend => {
-                if let Some(trace) = unit_trace.as_deref_mut() {
+                if let Some(trace) = unit_trace {
                     if let Some(id) = self.id.clone() {
                         // We always use "body" as target since it's not
                         // possible to change the value in the UI
