@@ -24,22 +24,17 @@ pub enum FilterBodyActionItem {
 impl FilterBodyAction {
     pub fn new(filters: Vec<BodyFilter>, headers: &[Header]) -> Self {
         let mut chain = Vec::new();
-        let mut has_gzip = false;
         let mut content_type = None;
+        let mut content_encoding = None;
 
         for header in headers {
-            if header.name.to_lowercase() == "content-encoding" && header.value.to_lowercase() == "gzip" {
-                has_gzip = true;
-                break;
+            if header.name.to_lowercase() == "content-encoding" {
+                content_encoding = Some(header.value.to_lowercase());
             }
 
             if header.name.to_lowercase() == "content-type" {
                 content_type = Some(header.value.to_lowercase());
             }
-        }
-
-        if has_gzip {
-            chain.push(FilterBodyActionItem::UnGzip(GzDecodeFilterBody::new()));
         }
 
         for filter in filters {
@@ -48,11 +43,42 @@ impl FilterBodyAction {
             }
         }
 
-        if has_gzip {
-            chain.push(FilterBodyActionItem::Gzip(GzEncodeFilterBody::new()));
+        if chain.is_empty() {
+            return Self { chain, in_error: false };
         }
 
-        Self { chain, in_error: false }
+        match content_encoding {
+            Some(encoding) => match encoding.as_str() {
+                "gzip" => {
+                    let mut chain_with_gzip = Vec::new();
+
+                    chain_with_gzip.push(FilterBodyActionItem::UnGzip(GzDecodeFilterBody::new()));
+
+                    for filter in chain {
+                        chain_with_gzip.push(filter);
+                    }
+
+                    chain_with_gzip.push(FilterBodyActionItem::Gzip(GzEncodeFilterBody::new()));
+
+                    Self {
+                        chain: chain_with_gzip,
+                        in_error: false,
+                    }
+                }
+                encoding => {
+                    log::error!(
+                        "redirectionio does not support content-encoding {}, filtering will be disable for this request",
+                        encoding
+                    );
+
+                    Self {
+                        chain: Vec::new(),
+                        in_error: false,
+                    }
+                }
+            },
+            None => Self { chain, in_error: false },
+        }
     }
 
     pub fn is_empty(&self) -> bool {
