@@ -130,6 +130,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_close(_filter: *mut Fi
 
     let mut filter = Box::from_raw(_filter);
     let end_body = filter.end(None);
+    drop(filter);
 
     Buffer::from_vec(end_body)
 }
