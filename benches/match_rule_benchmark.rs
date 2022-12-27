@@ -123,7 +123,7 @@ fn build_action_rule_in_200k(c: &mut Criterion) {
     group.bench_function("build_action_rule_in_200k", |b| {
         b.iter(|| {
             let rules = router.match_request(&request);
-            let mut action = Action::from_routes_rule(rules.clone(), &request);
+            let mut action = Action::from_routes_rule(rules.clone(), &request, None);
 
             let action_status_code = action.get_status_code(0, None);
             let (_, backend_status_code) = if action_status_code != 0 {
@@ -177,7 +177,7 @@ fn impact(c: &mut Criterion) {
     group.bench_function("impact", |b| {
         b.iter(|| {
             let rules = router.match_request(&request);
-            let mut action = Action::from_routes_rule(rules.clone(), &request);
+            let mut action = Action::from_routes_rule(rules.clone(), &request, None);
 
             let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
             let (_, backend_status_code) = if action_status_code != 0 {

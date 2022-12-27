@@ -32,10 +32,10 @@
                 "markers": [],
                 "body_filters": [],
                 "header_filters": [],
-                "log_override": false,
+                "log_override": true,
                 "configuration_log_unit_id": "53f9a13c-732a-4ee4-a379-3a27e95c2046",
                 "configuration_reset_unit_id": "1d5c840c-2d6c-4c96-822f-808a1dc0a794",
-                "reset": false,
+                "reset": true,
                 "examples": [
                     {
                         "url": "\/goo",
@@ -44,7 +44,7 @@
                         "response_status_code": null,
                         "method": null,
                         "ip_address": null,
-                        "unit_ids_applied": ["53f9a13c-732a-4ee4-a379-3a27e95c2046"]
+                        "unit_ids_applied": ["53f9a13c-732a-4ee4-a379-3a27e95c2046", "1d5c840c-2d6c-4c96-822f-808a1dc0a794"]
                     }
                 ]
             },
@@ -70,10 +70,10 @@
                 ],
                 "body_filters": [],
                 "header_filters": [],
-                "log_override": false,
+                "log_override": true,
                 "configuration_log_unit_id": "c73e8447-08b5-490f-bd46-0a137e16b749",
                 "configuration_reset_unit_id": "ee15e733-ad61-4640-973f-732dcc68f5d5",
-                "reset": false,
+                "reset": true,
                 "examples": [
                     {
                         "url": "\/anything",
@@ -82,7 +82,7 @@
                         "response_status_code": null,
                         "ip_address": null,
                         "must_match": true,
-                        "unit_ids_applied": ["c73e8447-08b5-490f-bd46-0a137e16b749"]
+                        "unit_ids_applied": ["c73e8447-08b5-490f-bd46-0a137e16b749", "ee15e733-ad61-4640-973f-732dcc68f5d5"]
                     }
                 ]
             }

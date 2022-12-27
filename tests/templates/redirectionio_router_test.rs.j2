@@ -45,7 +45,7 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(!matched.is_empty(), {{ test.match }});
     assert_eq!(!routes_traces.is_empty(), {{ test.match }});
 {% if test.match %}
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = {% if test.response_status_code %}{{ test.response_status_code }}{% else %}0{% endif %};
 {% if test.status >= 0 %}
     let action_status_code = action.get_status_code(response_status_code, None);

@@ -93,10 +93,10 @@ impl TestExamplesOutput {
                         continue;
                     }
                 };
-                let routes = router.match_request(&request);
-                let mut action = Action::from_routes_rule(routes, &request);
-
                 let mut unit_trace = UnitTrace::default();
+
+                let routes = router.match_request(&request);
+                let mut action = Action::from_routes_rule(routes, &request, Some(&mut unit_trace));
 
                 let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
                 let (final_status_code, backend_status_code) = if action_status_code != 0 {

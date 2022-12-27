@@ -11,15 +11,15 @@ pub struct LogOverride {
 }
 
 impl LogOverride {
-    pub fn get_log_override(&self, response_status_code: u16) -> (Option<bool>, Option<String>) {
+    pub fn get_log_override(&self, response_status_code: u16) -> (Option<bool>, Option<String>, bool) {
         if self.on_response_status_codes.is_empty() {
-            return (Some(self.log_override), self.rule_id.clone());
+            return (Some(self.log_override), self.rule_id.clone(), true);
         }
 
         if self.on_response_status_codes.iter().any(|v| *v == response_status_code) {
-            return (Some(self.log_override), self.rule_id.clone());
+            return (Some(self.log_override), self.rule_id.clone(), true);
         }
 
-        (self.fallback_log_override, self.fallback_rule_id.clone())
+        (self.fallback_log_override, self.fallback_rule_id.clone(), false)
     }
 }

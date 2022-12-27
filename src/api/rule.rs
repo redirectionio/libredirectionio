@@ -34,6 +34,7 @@ pub struct Rule {
     pub examples: Option<Vec<Example>>,
     pub redirect_unit_id: Option<String>,
     pub configuration_log_unit_id: Option<String>,
+    pub configuration_reset_unit_id: Option<String>,
     pub target_hash: Option<String>,
 }
 

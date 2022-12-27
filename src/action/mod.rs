@@ -168,7 +168,7 @@ impl TraceAction {
         routes.sort_by_key(|&a| a.priority());
 
         for route in routes {
-            let (action_rule_opt, reset, stop) = Action::from_route_rule(route, request);
+            let (action_rule_opt, reset, stop, _) = Action::from_route_rule(route, request);
 
             if let Some(action_rule) = action_rule_opt {
                 if reset {
@@ -224,7 +224,7 @@ impl Action {
         target
     }
 
-    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Option<Action>, bool, bool) {
+    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Option<Action>, bool, bool, Option<String>) {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
         let rule = route.handler();
@@ -234,8 +234,8 @@ impl Action {
             let random_value = (rand::random::<u32>() % 100) + 1;
 
             match (request.sampling_override, random_value > percent_rand) {
-                (Some(false), _) => return (None, false, false),
-                (None, true) => return (None, false, false),
+                (Some(false), _) => return (None, false, false, None),
+                (None, true) => return (None, false, false, None),
                 _ => (),
             }
         }
@@ -360,7 +360,12 @@ impl Action {
             }),
         };
 
-        (Some(action), rule.reset.unwrap_or(false), rule.stop.unwrap_or(false))
+        (
+            Some(action),
+            rule.reset.unwrap_or(false),
+            rule.stop.unwrap_or(false),
+            rule.configuration_reset_unit_id.clone(),
+        )
     }
 
     pub fn merge(&mut self, other: Self) {
@@ -428,22 +433,32 @@ impl Action {
         }
     }
 
-    pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request) -> Action {
+    pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request, mut unit_trace: Option<&mut UnitTrace>) -> Action {
         let mut action = Action::default();
 
         routes.sort();
 
         for route in routes {
-            let (action_rule_opt, reset, stop) = Action::from_route_rule(route, request);
+            let (action_rule_opt, reset, stop, configuration_unit_id) = Action::from_route_rule(route, request);
 
             if let Some(action_rule) = action_rule_opt {
                 if reset {
+                    if let Some(trace) = unit_trace.as_deref_mut() {
+                        if let Some(unit_id) = &configuration_unit_id {
+                            trace.add_unit_id_with_target("configuration::reset", unit_id.as_str());
+                        }
+                    }
                     action = action_rule;
                 } else {
                     action.merge(action_rule);
                 }
 
                 if stop {
+                    if let Some(trace) = unit_trace.as_deref_mut() {
+                        if let Some(unit_id) = &configuration_unit_id {
+                            trace.add_unit_id_with_target("configuration::stop", unit_id.as_str());
+                        }
+                    }
                     return action;
                 }
             }
@@ -555,11 +570,13 @@ impl Action {
         match self.log_override.as_ref() {
             None => allow_log_config,
             Some(log_override) => {
-                let (allow_log, rule_applied_id) = log_override.get_log_override(response_status_code);
+                let (allow_log, rule_applied_id, handled) = log_override.get_log_override(response_status_code);
 
-                if let Some(trace) = unit_trace {
-                    if let Some(unit_id) = &log_override.unit_id {
-                        trace.add_unit_id(unit_id.to_string());
+                if handled {
+                    if let Some(trace) = unit_trace {
+                        if let Some(unit_id) = &log_override.unit_id {
+                            trace.add_unit_id_with_target("configuration::log", &unit_id);
+                        }
                     }
                 }
 

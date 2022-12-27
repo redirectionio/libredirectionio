@@ -22,8 +22,8 @@
         "rank": 32766,
         "body_filters": [],
         "header_filters": [],
-        "log_override": false,
-        "reset": false,
+        "log_override": true,
+        "reset": true,
         "stop": null,
         "examples": [
           {
@@ -34,7 +34,8 @@
             "response_status_code": null,
             "must_match": true,
             "unit_ids_applied": [
-              "53f9a13c-732a-4ee4-a379-3a27e95c2046"
+              "53f9a13c-732a-4ee4-a379-3a27e95c2046",
+              "1d5c840c-2d6c-4c96-822f-808a1dc0a794"
             ]
           }
         ],
@@ -53,14 +54,16 @@
             "response_status_code": null,
             "must_match": true,
             "unit_ids_applied": [
-              "53f9a13c-732a-4ee4-a379-3a27e95c2046"
+              "53f9a13c-732a-4ee4-a379-3a27e95c2046",
+              "1d5c840c-2d6c-4c96-822f-808a1dc0a794"
             ]
           },
           "rule_ids_applied": [
-            "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
             "56c402fd-c854-46c6-b89d-a874818b717b"
           ],
           "unit_ids_applied": [
+            "1d5c840c-2d6c-4c96-822f-808a1dc0a794",
+            "ee15e733-ad61-4640-973f-732dcc68f5d5",
             "c73e8447-08b5-490f-bd46-0a137e16b749"
           ],
           "unit_ids_not_applied_anymore": [

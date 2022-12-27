@@ -46,6 +46,7 @@
         ],
         "redirect_unit_id": "38032bcb-2580-4243-a14f-3e26477e878e",
         "configuration_log_unit_id": null,
+        "configuration_reset_unit_id": null,
         "target_hash": null
       },
       "failed_examples": [

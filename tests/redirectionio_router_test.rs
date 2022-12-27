@@ -32,7 +32,7 @@ fn test_00_common_rules_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -121,7 +121,7 @@ fn test_01_straight_rule_match_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -148,7 +148,7 @@ fn test_01_straight_rule_match_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -190,7 +190,7 @@ fn test_01_straight_rule_match_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -232,7 +232,7 @@ fn test_01_straight_rule_match_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -259,7 +259,7 @@ fn test_01_straight_rule_match_7() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -286,7 +286,7 @@ fn test_01_straight_rule_match_8() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -313,7 +313,7 @@ fn test_01_straight_rule_match_9() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -340,7 +340,7 @@ fn test_01_straight_rule_match_10() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -367,7 +367,7 @@ fn test_01_straight_rule_match_11() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -420,7 +420,7 @@ fn test_03_priority_match_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -447,7 +447,7 @@ fn test_03_priority_match_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -474,7 +474,7 @@ fn test_03_priority_match_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -501,7 +501,7 @@ fn test_03_priority_match_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -545,7 +545,7 @@ fn test_04_rfc3986_relative_references_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -587,7 +587,7 @@ fn test_04_rfc3986_relative_references_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -614,7 +614,7 @@ fn test_04_rfc3986_relative_references_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -655,7 +655,7 @@ fn test_05_query_parameters_order_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -682,7 +682,7 @@ fn test_05_query_parameters_order_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -724,7 +724,7 @@ fn test_05_query_parameters_order_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -751,7 +751,7 @@ fn test_05_query_parameters_order_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -789,7 +789,7 @@ fn test_06_emojis_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -830,7 +830,7 @@ fn test_action_disable_log_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -866,7 +866,7 @@ fn test_action_disable_log_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -898,7 +898,7 @@ fn test_action_filter_header_add_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -934,7 +934,7 @@ fn test_action_filter_header_add_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -976,7 +976,7 @@ fn test_action_filter_header_override_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1016,7 +1016,7 @@ fn test_action_filter_header_override_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1074,7 +1074,7 @@ fn test_action_reset_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1120,7 +1120,7 @@ fn test_action_robots_txt_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1159,7 +1159,7 @@ fn test_action_seo_override_meta_author_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1187,7 +1187,7 @@ fn test_action_seo_override_meta_author_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1215,7 +1215,7 @@ fn test_action_seo_override_meta_author_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1243,7 +1243,7 @@ fn test_action_seo_override_meta_author_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1271,7 +1271,7 @@ fn test_action_seo_override_meta_author_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1299,7 +1299,7 @@ fn test_action_seo_override_meta_author_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1327,7 +1327,7 @@ fn test_action_seo_override_meta_author_7() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1355,7 +1355,7 @@ fn test_action_seo_override_meta_author_8() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1394,7 +1394,7 @@ fn test_action_seo_override_meta_description_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1422,7 +1422,7 @@ fn test_action_seo_override_meta_description_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1450,7 +1450,7 @@ fn test_action_seo_override_meta_description_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1478,7 +1478,7 @@ fn test_action_seo_override_meta_description_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1506,7 +1506,7 @@ fn test_action_seo_override_meta_description_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1534,7 +1534,7 @@ fn test_action_seo_override_meta_description_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1573,7 +1573,7 @@ fn test_action_seo_override_meta_keywords_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1601,7 +1601,7 @@ fn test_action_seo_override_meta_keywords_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1629,7 +1629,7 @@ fn test_action_seo_override_meta_keywords_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1657,7 +1657,7 @@ fn test_action_seo_override_meta_keywords_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1685,7 +1685,7 @@ fn test_action_seo_override_meta_keywords_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1713,7 +1713,7 @@ fn test_action_seo_override_meta_keywords_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1741,7 +1741,7 @@ fn test_action_seo_override_meta_keywords_7() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1783,7 +1783,7 @@ fn test_action_seo_override_og_description_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1811,7 +1811,7 @@ fn test_action_seo_override_og_description_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1839,7 +1839,7 @@ fn test_action_seo_override_og_description_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1867,7 +1867,7 @@ fn test_action_seo_override_og_description_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1895,7 +1895,7 @@ fn test_action_seo_override_og_description_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1923,7 +1923,7 @@ fn test_action_seo_override_og_description_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1951,7 +1951,7 @@ fn test_action_seo_override_og_description_7() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -1990,7 +1990,7 @@ fn test_action_seo_override_og_image_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2018,7 +2018,7 @@ fn test_action_seo_override_og_image_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2046,7 +2046,7 @@ fn test_action_seo_override_og_image_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2074,7 +2074,7 @@ fn test_action_seo_override_og_image_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2113,7 +2113,7 @@ fn test_action_seo_override_og_locale_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2141,7 +2141,7 @@ fn test_action_seo_override_og_locale_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2169,7 +2169,7 @@ fn test_action_seo_override_og_locale_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2197,7 +2197,7 @@ fn test_action_seo_override_og_locale_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2236,7 +2236,7 @@ fn test_action_seo_override_og_site_name_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2264,7 +2264,7 @@ fn test_action_seo_override_og_site_name_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2292,7 +2292,7 @@ fn test_action_seo_override_og_site_name_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2320,7 +2320,7 @@ fn test_action_seo_override_og_site_name_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2359,7 +2359,7 @@ fn test_action_seo_override_og_title_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2387,7 +2387,7 @@ fn test_action_seo_override_og_title_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2415,7 +2415,7 @@ fn test_action_seo_override_og_title_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2443,7 +2443,7 @@ fn test_action_seo_override_og_title_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2482,7 +2482,7 @@ fn test_action_seo_override_og_type_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2510,7 +2510,7 @@ fn test_action_seo_override_og_type_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2538,7 +2538,7 @@ fn test_action_seo_override_og_type_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2566,7 +2566,7 @@ fn test_action_seo_override_og_type_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2605,7 +2605,7 @@ fn test_action_seo_override_og_url_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2633,7 +2633,7 @@ fn test_action_seo_override_og_url_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2661,7 +2661,7 @@ fn test_action_seo_override_og_url_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2689,7 +2689,7 @@ fn test_action_seo_override_og_url_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2728,7 +2728,7 @@ fn test_action_seo_override_title_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2756,7 +2756,7 @@ fn test_action_seo_override_title_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2784,7 +2784,7 @@ fn test_action_seo_override_title_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2812,7 +2812,7 @@ fn test_action_seo_override_title_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2851,7 +2851,7 @@ fn test_action_sitemap_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2896,7 +2896,7 @@ fn test_action_stop_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2942,7 +2942,7 @@ fn test_action_text_append_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -2981,7 +2981,7 @@ fn test_action_text_prepend_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3020,7 +3020,7 @@ fn test_action_text_replace_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3048,7 +3048,7 @@ fn test_action_text_replace_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3090,7 +3090,7 @@ fn test_ignore_path_case_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3117,7 +3117,7 @@ fn test_ignore_path_case_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3144,7 +3144,7 @@ fn test_ignore_path_case_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3171,7 +3171,7 @@ fn test_ignore_path_case_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3198,7 +3198,7 @@ fn test_ignore_path_case_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3225,7 +3225,7 @@ fn test_ignore_path_case_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3284,7 +3284,7 @@ fn test_marker_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3326,7 +3326,7 @@ fn test_marker_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3353,7 +3353,7 @@ fn test_marker_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3380,7 +3380,7 @@ fn test_marker_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3418,7 +3418,7 @@ fn test_marker_case_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3445,7 +3445,7 @@ fn test_marker_case_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3483,7 +3483,7 @@ fn test_marker_in_body_filter_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3522,7 +3522,7 @@ fn test_marker_in_header_filter_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3599,7 +3599,7 @@ fn test_marker_in_host_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3640,7 +3640,7 @@ fn test_marker_in_querystring_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3697,7 +3697,7 @@ fn test_marker_in_querystring_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3735,7 +3735,7 @@ fn test_marker_transformation_camelize_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3762,7 +3762,7 @@ fn test_marker_transformation_camelize_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3789,7 +3789,7 @@ fn test_marker_transformation_camelize_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3816,7 +3816,7 @@ fn test_marker_transformation_camelize_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3854,7 +3854,7 @@ fn test_marker_transformation_dasherize_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3881,7 +3881,7 @@ fn test_marker_transformation_dasherize_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3908,7 +3908,7 @@ fn test_marker_transformation_dasherize_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3946,7 +3946,7 @@ fn test_marker_transformation_lowercase_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -3973,7 +3973,7 @@ fn test_marker_transformation_lowercase_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4000,7 +4000,7 @@ fn test_marker_transformation_lowercase_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4056,7 +4056,7 @@ fn test_marker_transformation_replace_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4083,7 +4083,7 @@ fn test_marker_transformation_replace_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4110,7 +4110,7 @@ fn test_marker_transformation_replace_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4137,7 +4137,7 @@ fn test_marker_transformation_replace_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4181,7 +4181,7 @@ fn test_marker_transformation_slice_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4208,7 +4208,7 @@ fn test_marker_transformation_slice_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4235,7 +4235,7 @@ fn test_marker_transformation_slice_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4262,7 +4262,7 @@ fn test_marker_transformation_slice_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4289,7 +4289,7 @@ fn test_marker_transformation_slice_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4316,7 +4316,7 @@ fn test_marker_transformation_slice_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4343,7 +4343,7 @@ fn test_marker_transformation_slice_7() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4370,7 +4370,7 @@ fn test_marker_transformation_slice_8() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4408,7 +4408,7 @@ fn test_marker_transformation_underscorize_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4435,7 +4435,7 @@ fn test_marker_transformation_underscorize_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4462,7 +4462,7 @@ fn test_marker_transformation_underscorize_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4489,7 +4489,7 @@ fn test_marker_transformation_underscorize_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4527,7 +4527,7 @@ fn test_marker_transformation_uppercase_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4554,7 +4554,7 @@ fn test_marker_transformation_uppercase_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4581,7 +4581,7 @@ fn test_marker_transformation_uppercase_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4619,7 +4619,7 @@ fn test_marker_type_anything_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4646,7 +4646,7 @@ fn test_marker_type_anything_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4673,7 +4673,7 @@ fn test_marker_type_anything_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4711,7 +4711,7 @@ fn test_marker_type_date_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4782,7 +4782,7 @@ fn test_marker_type_datetime_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4809,7 +4809,7 @@ fn test_marker_type_datetime_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4851,7 +4851,7 @@ fn test_marker_type_datetime_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4889,7 +4889,7 @@ fn test_marker_type_enum_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4931,7 +4931,7 @@ fn test_marker_type_enum_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -4993,7 +4993,7 @@ fn test_marker_type_integer_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5050,7 +5050,7 @@ fn test_marker_type_integer_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5092,7 +5092,7 @@ fn test_marker_type_integer_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5134,7 +5134,7 @@ fn test_marker_type_integer_8() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5259,7 +5259,7 @@ fn test_marker_type_string_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5331,7 +5331,7 @@ fn test_marker_type_string_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5403,7 +5403,7 @@ fn test_marker_type_string_10() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5430,7 +5430,7 @@ fn test_marker_type_string_11() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5472,7 +5472,7 @@ fn test_marker_type_string_13() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5499,7 +5499,7 @@ fn test_marker_type_string_14() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5526,7 +5526,7 @@ fn test_marker_type_string_15() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5553,7 +5553,7 @@ fn test_marker_type_string_16() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5580,7 +5580,7 @@ fn test_marker_type_string_17() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5622,7 +5622,7 @@ fn test_marker_type_string_19() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5649,7 +5649,7 @@ fn test_marker_type_string_20() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5706,7 +5706,7 @@ fn test_marker_type_string_23() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5748,7 +5748,7 @@ fn test_marker_type_string_25() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5790,7 +5790,7 @@ fn test_marker_type_string_27() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5817,7 +5817,7 @@ fn test_marker_type_string_28() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5844,7 +5844,7 @@ fn test_marker_type_string_29() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5871,7 +5871,7 @@ fn test_marker_type_string_30() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5928,7 +5928,7 @@ fn test_marker_type_string_33() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5970,7 +5970,7 @@ fn test_marker_type_string_35() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -5997,7 +5997,7 @@ fn test_marker_type_string_36() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6024,7 +6024,7 @@ fn test_marker_type_string_37() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6051,7 +6051,7 @@ fn test_marker_type_string_38() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6093,7 +6093,7 @@ fn test_marker_type_string_40() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6120,7 +6120,7 @@ fn test_marker_type_string_41() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6203,7 +6203,7 @@ fn test_marker_type_uuid_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6271,7 +6271,7 @@ fn test_marketing_parameters_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6298,7 +6298,7 @@ fn test_marketing_parameters_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6325,7 +6325,7 @@ fn test_marketing_parameters_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6352,7 +6352,7 @@ fn test_marketing_parameters_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6420,7 +6420,7 @@ fn test_marketing_parameters_notarget_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6447,7 +6447,7 @@ fn test_marketing_parameters_notarget_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6474,7 +6474,7 @@ fn test_marketing_parameters_notarget_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6501,7 +6501,7 @@ fn test_marketing_parameters_notarget_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6569,7 +6569,7 @@ fn test_marketing_parameters_with_catch_all_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6596,7 +6596,7 @@ fn test_marketing_parameters_with_catch_all_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6623,7 +6623,7 @@ fn test_marketing_parameters_with_catch_all_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6650,7 +6650,7 @@ fn test_marketing_parameters_with_catch_all_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6688,7 +6688,7 @@ fn test_no_marketing_parameterst_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6804,7 +6804,7 @@ fn test_rule_any_host_match_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6831,7 +6831,7 @@ fn test_rule_any_host_match_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6872,7 +6872,7 @@ fn test_rule_any_host_no_match_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6899,7 +6899,7 @@ fn test_rule_any_host_no_match_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -6969,7 +6969,7 @@ fn test_rule_header_regex_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7025,7 +7025,7 @@ fn test_rule_ip_trigger_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7046,7 +7046,7 @@ fn test_rule_ip_trigger_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7067,7 +7067,7 @@ fn test_rule_ip_trigger_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7129,7 +7129,7 @@ fn test_rule_ip_trigger_equals_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7176,7 +7176,7 @@ fn test_rule_ip_trigger_greater_than_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7197,7 +7197,7 @@ fn test_rule_ip_trigger_greater_than_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7244,7 +7244,7 @@ fn test_rule_ip_trigger_greater_than_or_equals_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7265,7 +7265,7 @@ fn test_rule_ip_trigger_greater_than_or_equals_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7312,7 +7312,7 @@ fn test_rule_ip_trigger_in_range_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7359,7 +7359,7 @@ fn test_rule_ip_trigger_less_than_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7380,7 +7380,7 @@ fn test_rule_ip_trigger_less_than_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7427,7 +7427,7 @@ fn test_rule_ip_trigger_less_than_or_equals_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7448,7 +7448,7 @@ fn test_rule_ip_trigger_less_than_or_equals_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7495,7 +7495,7 @@ fn test_rule_ip_trigger_not_equals_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7542,7 +7542,7 @@ fn test_rule_ip_trigger_not_in_range_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7623,7 +7623,7 @@ fn test_rule_multiple_headers_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7664,7 +7664,7 @@ fn test_rule_query_with_pipe_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7691,7 +7691,7 @@ fn test_rule_query_with_pipe_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7729,7 +7729,7 @@ fn test_rule_query_with_pipe_2_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7756,7 +7756,7 @@ fn test_rule_query_with_pipe_2_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7809,7 +7809,7 @@ fn test_rule_query_with_plus_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7836,7 +7836,7 @@ fn test_rule_query_with_plus_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7863,7 +7863,7 @@ fn test_rule_query_with_plus_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7901,7 +7901,7 @@ fn test_rule_query_with_plus_2_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7939,7 +7939,7 @@ fn test_rule_querystring_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -7966,7 +7966,7 @@ fn test_rule_querystring_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8007,7 +8007,7 @@ fn test_rule_sampling_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8028,7 +8028,7 @@ fn test_rule_sampling_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8063,7 +8063,7 @@ fn test_rule_skipped_query_parameters_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8090,7 +8090,7 @@ fn test_rule_skipped_query_parameters_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8117,7 +8117,7 @@ fn test_rule_skipped_query_parameters_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8144,7 +8144,7 @@ fn test_rule_skipped_query_parameters_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8188,7 +8188,7 @@ fn test_rule_with_header_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8216,7 +8216,7 @@ fn test_rule_with_header_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8244,7 +8244,7 @@ fn test_rule_with_header_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8289,7 +8289,7 @@ fn test_rule_with_header_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8360,7 +8360,7 @@ fn test_rule_with_method_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8387,7 +8387,7 @@ fn test_rule_with_method_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8414,7 +8414,7 @@ fn test_rule_with_method_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8452,7 +8452,7 @@ fn test_rule_with_quotes_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8499,7 +8499,7 @@ fn test_rule_with_response_status_codes_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 200;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8520,7 +8520,7 @@ fn test_rule_with_response_status_codes_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 200;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8541,7 +8541,7 @@ fn test_rule_with_response_status_codes_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 404;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8568,7 +8568,7 @@ fn test_rule_with_response_status_codes_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 400;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8595,7 +8595,7 @@ fn test_rule_with_response_status_codes_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 402;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8622,7 +8622,7 @@ fn test_rule_with_response_status_codes_6() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 404;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8649,7 +8649,7 @@ fn test_rule_with_response_status_codes_7() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 200;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8676,7 +8676,7 @@ fn test_rule_with_response_status_codes_8() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8711,7 +8711,7 @@ fn test_rule_with_slash_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8738,7 +8738,7 @@ fn test_rule_with_slash_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8779,7 +8779,7 @@ fn test_rule_with_space_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8806,7 +8806,7 @@ fn test_rule_with_space_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8833,7 +8833,7 @@ fn test_rule_with_space_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8860,7 +8860,7 @@ fn test_rule_with_space_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8887,7 +8887,7 @@ fn test_rule_with_space_5() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8925,7 +8925,7 @@ fn test_variable_marker_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8952,7 +8952,7 @@ fn test_variable_marker_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -8979,7 +8979,7 @@ fn test_variable_marker_3() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9006,7 +9006,7 @@ fn test_variable_marker_4() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9044,7 +9044,7 @@ fn test_variable_marker_legacy_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9082,7 +9082,7 @@ fn test_variable_marker_legacy_1_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9120,7 +9120,7 @@ fn test_variable_marker_order_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9158,7 +9158,7 @@ fn test_variable_marker_transformer_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9197,7 +9197,7 @@ fn test_variable_request_header_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9224,7 +9224,7 @@ fn test_variable_request_header_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9262,7 +9262,7 @@ fn test_variable_request_host_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9300,7 +9300,7 @@ fn test_variable_request_method_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9327,7 +9327,7 @@ fn test_variable_request_method_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9365,7 +9365,7 @@ fn test_variable_request_path_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9403,7 +9403,7 @@ fn test_variable_request_scheme_1() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
@@ -9430,7 +9430,7 @@ fn test_variable_request_scheme_2() {
     assert_eq!(!matched.is_empty(), true);
     assert_eq!(!routes_traces.is_empty(), true);
 
-    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);

@@ -12,6 +12,11 @@ mod generated_tests {
     }
 
     #[test]
+    fn test_examples_configuration_reset_on() {
+        do_test("configuration_reset_on");
+    }
+
+    #[test]
     fn test_examples_header_add() {
         do_test("header_add");
     }
