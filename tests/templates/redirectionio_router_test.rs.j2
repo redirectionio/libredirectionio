@@ -70,9 +70,9 @@ fn test_{{ name }}_{{ loop.index }}() {
     {%- endif -%}
     {%- endif -%}
 {% if test.should_not_log %}
-    assert_eq!(action.should_log_request(true, response_status_code), false);
+    assert_eq!(action.should_log_request(true, response_status_code, None), false);
     {%- else %}
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     {%- endif -%}
 {% endif %}
 {%- if test.should_filter_header and test.should_filter_header.enable %}

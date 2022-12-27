@@ -47,6 +47,7 @@
           }
         ],
         "redirect_unit_id": null,
+        "configuration_log_unit_id": null,
         "target_hash": null
       },
       "failed_examples": [

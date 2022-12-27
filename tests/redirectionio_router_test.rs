@@ -43,7 +43,7 @@ fn test_00_common_rules_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -132,7 +132,7 @@ fn test_01_straight_rule_match_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/example.org--host-path-only"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -159,7 +159,7 @@ fn test_01_straight_rule_match_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/example.org--host-path-query"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -201,7 +201,7 @@ fn test_01_straight_rule_match_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/empty"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -243,7 +243,7 @@ fn test_01_straight_rule_match_6() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/any-host--path-query"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -270,7 +270,7 @@ fn test_01_straight_rule_match_7() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/example.net--host-path-only"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -297,7 +297,7 @@ fn test_01_straight_rule_match_8() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/example.net--host-path-query"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -324,7 +324,7 @@ fn test_01_straight_rule_match_9() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/space"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -351,7 +351,7 @@ fn test_01_straight_rule_match_10() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/space"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -378,7 +378,7 @@ fn test_01_straight_rule_match_11() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/plus-sign"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_03_priority_match() -> Router<Rule> {
@@ -431,7 +431,7 @@ fn test_03_priority_match_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/straight-example-org"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -458,7 +458,7 @@ fn test_03_priority_match_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/straight-any-host"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -485,7 +485,7 @@ fn test_03_priority_match_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/straight-example-net"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -512,7 +512,7 @@ fn test_03_priority_match_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/straight-example-fr"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_04_rfc3986_relative_references() -> Router<Rule> {
@@ -556,7 +556,7 @@ fn test_04_rfc3986_relative_references_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/xyz"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -598,7 +598,7 @@ fn test_04_rfc3986_relative_references_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"//target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -625,7 +625,7 @@ fn test_04_rfc3986_relative_references_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/simpledragon"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_05_query_parameters_order() -> Router<Rule> {
@@ -666,7 +666,7 @@ fn test_05_query_parameters_order_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -693,7 +693,7 @@ fn test_05_query_parameters_order_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -735,7 +735,7 @@ fn test_05_query_parameters_order_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar-inverted"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -762,7 +762,7 @@ fn test_05_query_parameters_order_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar-inverted"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_06_emojis() -> Router<Rule> {
@@ -800,15 +800,18 @@ fn test_06_emojis_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_disable_log() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"action-serve-robotxt","log_override":false,"rank":0,"reset":true,"source":{"path":"/no-log"}}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"action-disable-log","log_override":false,"rank":0,"reset":true,"source":{"path":"/no-log"}}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"action-enabled-log","log_override":true,"rank":0,"reset":true,"source":{"path":"/with-log"}}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
 
     router
 }
@@ -832,7 +835,7 @@ fn test_action_disable_log_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), false);
+    assert_eq!(action.should_log_request(true, response_status_code, None), false);
 }
 
 #[test]
@@ -848,6 +851,27 @@ fn test_action_disable_log_2() {
     assert_eq!(!matched.is_empty(), false);
     assert_eq!(!routes_traces.is_empty(), false);
 
+}
+
+#[test]
+fn test_action_disable_log_3() {
+    let router = setup_action_disable_log();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/with-log"#), r#"/with-log"#.to_string(),None,None,None,None,None);
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_filter_header_add() -> Router<Rule> {
@@ -879,7 +903,7 @@ fn test_action_filter_header_add_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let mut response_headers = Vec::new();
 
     response_headers.push(Header {
@@ -915,7 +939,7 @@ fn test_action_filter_header_add_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let response_headers = Vec::new();
 
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
@@ -957,7 +981,7 @@ fn test_action_filter_header_override_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let mut response_headers = Vec::new();
 
     response_headers.push(Header {
@@ -997,7 +1021,7 @@ fn test_action_filter_header_override_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let mut response_headers = Vec::new();
 
     response_headers.push(Header {
@@ -1055,7 +1079,7 @@ fn test_action_reset_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let response_headers = Vec::new();
 
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
@@ -1108,7 +1132,7 @@ fn test_action_robots_txt_1() {
     let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"User-Agent: *"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_meta_author() -> Router<Rule> {
@@ -1147,7 +1171,7 @@ fn test_action_seo_override_meta_author_1() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1175,7 +1199,7 @@ fn test_action_seo_override_meta_author_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1203,7 +1227,7 @@ fn test_action_seo_override_meta_author_3() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1231,7 +1255,7 @@ fn test_action_seo_override_meta_author_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="author" /><meta name="author" content="Old Author name" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1259,7 +1283,7 @@ fn test_action_seo_override_meta_author_5() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old first Author name" /><meta name="author" content="Old second Author name" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1287,7 +1311,7 @@ fn test_action_seo_override_meta_author_6() {
     let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1315,7 +1339,7 @@ fn test_action_seo_override_meta_author_7() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="author"></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1343,7 +1367,7 @@ fn test_action_seo_override_meta_author_8() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="author" content="Old Author name"></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="author" content="Author name" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_meta_description() -> Router<Rule> {
@@ -1382,7 +1406,7 @@ fn test_action_seo_override_meta_description_1() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1410,7 +1434,7 @@ fn test_action_seo_override_meta_description_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="description" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1438,7 +1462,7 @@ fn test_action_seo_override_meta_description_3() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1466,7 +1490,7 @@ fn test_action_seo_override_meta_description_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1494,7 +1518,7 @@ fn test_action_seo_override_meta_description_5() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="description"></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1522,7 +1546,7 @@ fn test_action_seo_override_meta_description_6() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="description" content="Old Description"></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_meta_keywords() -> Router<Rule> {
@@ -1561,7 +1585,7 @@ fn test_action_seo_override_meta_keywords_1() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1589,7 +1613,7 @@ fn test_action_seo_override_meta_keywords_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1617,7 +1641,7 @@ fn test_action_seo_override_meta_keywords_3() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1645,7 +1669,7 @@ fn test_action_seo_override_meta_keywords_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1673,7 +1697,7 @@ fn test_action_seo_override_meta_keywords_5() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords"></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1701,7 +1725,7 @@ fn test_action_seo_override_meta_keywords_6() {
     let mut new_body = body_filter.filter(r#"<html><head><meta name="keywords" content="these, were, old, keywords"></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1729,7 +1753,7 @@ fn test_action_seo_override_meta_keywords_7() {
     let mut new_body = body_filter.filter(r#"<html><head><link rel="shortcut icon" href="/favicon.ico"></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><link rel="shortcut icon" href="/favicon.ico"><meta name="keywords" content="some, keywords, here" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_og_description() -> Router<Rule> {
@@ -1771,7 +1795,7 @@ fn test_action_seo_override_og_description_1() {
     let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1799,7 +1823,7 @@ fn test_action_seo_override_og_description_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1827,7 +1851,7 @@ fn test_action_seo_override_og_description_3() {
     let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1855,7 +1879,7 @@ fn test_action_seo_override_og_description_4() {
     let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1883,7 +1907,7 @@ fn test_action_seo_override_og_description_5() {
     let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1911,7 +1935,7 @@ fn test_action_seo_override_og_description_6() {
     let mut new_body = body_filter.filter(r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="Old Description" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><description>Old description</description><meta property="no-closing"><meta property="og:description" content="New Description" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -1939,7 +1963,7 @@ fn test_action_seo_override_og_description_7() {
     let mut new_body = body_filter.filter(r#"<html><head><meta property="og:description" content="Pizza rapido" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="og:description" content="🍕🍕 Pizza rapido 🍕🍕" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_og_image() -> Router<Rule> {
@@ -1978,7 +2002,7 @@ fn test_action_seo_override_og_image_1() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2006,7 +2030,7 @@ fn test_action_seo_override_og_image_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2034,7 +2058,7 @@ fn test_action_seo_override_og_image_3() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2062,7 +2086,7 @@ fn test_action_seo_override_og_image_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:image" content="/old-image.png" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:image" content="/some-image.png" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_og_locale() -> Router<Rule> {
@@ -2101,7 +2125,7 @@ fn test_action_seo_override_og_locale_1() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2129,7 +2153,7 @@ fn test_action_seo_override_og_locale_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2157,7 +2181,7 @@ fn test_action_seo_override_og_locale_3() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2185,7 +2209,7 @@ fn test_action_seo_override_og_locale_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:locale" content="en_GB" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:locale" content="fr_FR" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_og_site_name() -> Router<Rule> {
@@ -2224,7 +2248,7 @@ fn test_action_seo_override_og_site_name_1() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2252,7 +2276,7 @@ fn test_action_seo_override_og_site_name_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2280,7 +2304,7 @@ fn test_action_seo_override_og_site_name_3() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2308,7 +2332,7 @@ fn test_action_seo_override_og_site_name_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="JoliCode" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:site_name" content="redirection.io" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_og_title() -> Router<Rule> {
@@ -2347,7 +2371,7 @@ fn test_action_seo_override_og_title_1() {
     let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2375,7 +2399,7 @@ fn test_action_seo_override_og_title_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2403,7 +2427,7 @@ fn test_action_seo_override_og_title_3() {
     let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>Old title</title><meta /><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2431,7 +2455,7 @@ fn test_action_seo_override_og_title_4() {
     let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="Old Title" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>Old title</title><meta property="no-closing"><meta property="og:title" content="New Title" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_og_type() -> Router<Rule> {
@@ -2470,7 +2494,7 @@ fn test_action_seo_override_og_type_1() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2498,7 +2522,7 @@ fn test_action_seo_override_og_type_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2526,7 +2550,7 @@ fn test_action_seo_override_og_type_3() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2554,7 +2578,7 @@ fn test_action_seo_override_og_type_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta property="no-closing"><meta property="og:type" content="article" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta property="no-closing"><meta property="og:type" content="website" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_og_url() -> Router<Rule> {
@@ -2593,7 +2617,7 @@ fn test_action_seo_override_og_url_1() {
     let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2621,7 +2645,7 @@ fn test_action_seo_override_og_url_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2649,7 +2673,7 @@ fn test_action_seo_override_og_url_3() {
     let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><url>Old url</url><meta /><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2677,7 +2701,7 @@ fn test_action_seo_override_og_url_4() {
     let mut new_body = body_filter.filter(r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://jolicode.com/" /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><url>Old url</url><meta property="no-closing"><meta property="og:url" content="https://redirection.io/features" /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_seo_override_title() -> Router<Rule> {
@@ -2716,7 +2740,7 @@ fn test_action_seo_override_title_1() {
     let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>New Title</title><meta /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2744,7 +2768,7 @@ fn test_action_seo_override_title_2() {
     let mut new_body = body_filter.filter(r#"<html><head><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta /><title>New Title</title></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2772,7 +2796,7 @@ fn test_action_seo_override_title_3() {
     let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>New Title</title><meta></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -2800,7 +2824,7 @@ fn test_action_seo_override_title_4() {
     let mut new_body = body_filter.filter(r#"<html><head><meta></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><meta><title>New Title</title></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_sitemap() -> Router<Rule> {
@@ -2839,7 +2863,7 @@ fn test_action_sitemap_1() {
     let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>https://redirection.io/sitemap_static.xml</loc></sitemap><sitemap><loc>https://redirection.io/features/sitemap/</loc></sitemap><sitemap><loc>https://redirection.io/news/sitemap/</loc></sitemap></sitemapindex>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_stop() -> Router<Rule> {
@@ -2877,7 +2901,7 @@ fn test_action_stop_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let response_headers = Vec::new();
 
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
@@ -2930,7 +2954,7 @@ fn test_action_text_append_1() {
     let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"Old contentnew content"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_text_prepend() -> Router<Rule> {
@@ -2969,7 +2993,7 @@ fn test_action_text_prepend_1() {
     let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"new contentOld content"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_action_text_replace() -> Router<Rule> {
@@ -3008,7 +3032,7 @@ fn test_action_text_replace_1() {
     let mut new_body = body_filter.filter(r#"Old content"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"new content"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3036,7 +3060,7 @@ fn test_action_text_replace_2() {
     let mut new_body = body_filter.filter(r#""#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"new content"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_ignore_path_case() -> Router<Rule> {
@@ -3077,7 +3101,7 @@ fn test_ignore_path_case_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3104,7 +3128,7 @@ fn test_ignore_path_case_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3131,7 +3155,7 @@ fn test_ignore_path_case_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3158,7 +3182,7 @@ fn test_ignore_path_case_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3185,7 +3209,7 @@ fn test_ignore_path_case_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/marker-target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3212,7 +3236,7 @@ fn test_ignore_path_case_6() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/marker-target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3271,7 +3295,7 @@ fn test_marker_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar/test"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3313,7 +3337,7 @@ fn test_marker_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/a/TEST"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3340,7 +3364,7 @@ fn test_marker_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/a/TEST-TEST"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3367,7 +3391,7 @@ fn test_marker_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"https://www.usharbors.com/harbor/western-pacific-coast/test"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_case() -> Router<Rule> {
@@ -3405,7 +3429,7 @@ fn test_marker_case_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/UPPERCASE"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3432,7 +3456,7 @@ fn test_marker_case_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/UpErCase"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_in_body_filter() -> Router<Rule> {
@@ -3471,7 +3495,7 @@ fn test_marker_in_body_filter_1() {
     let mut new_body = body_filter.filter(r#"<html><head><title>Old title</title><meta /></head></html>"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(new_body, r#"<html><head><title>source</title><meta /></head></html>"#.as_bytes().to_vec());
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_in_header_filter() -> Router<Rule> {
@@ -3503,7 +3527,7 @@ fn test_marker_in_header_filter_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let mut response_headers = Vec::new();
 
     response_headers.push(Header {
@@ -3586,7 +3610,7 @@ fn test_marker_in_host_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"https://www.test.io"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_in_querystring() -> Router<Rule> {
@@ -3627,7 +3651,7 @@ fn test_marker_in_querystring_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/querystring/target/some-target/coucou.html"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3684,7 +3708,7 @@ fn test_marker_in_querystring_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/b?yolo=yala"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_transformation_camelize() -> Router<Rule> {
@@ -3722,7 +3746,7 @@ fn test_marker_transformation_camelize_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3749,7 +3773,7 @@ fn test_marker_transformation_camelize_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3776,7 +3800,7 @@ fn test_marker_transformation_camelize_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3803,7 +3827,7 @@ fn test_marker_transformation_camelize_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPOney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_transformation_dasherize() -> Router<Rule> {
@@ -3841,7 +3865,7 @@ fn test_marker_transformation_dasherize_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/dasherize/target/hello-poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3868,7 +3892,7 @@ fn test_marker_transformation_dasherize_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/dasherize/target/hello-poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3895,7 +3919,7 @@ fn test_marker_transformation_dasherize_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/dasherize/target/hello-poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_transformation_lowercase() -> Router<Rule> {
@@ -3933,7 +3957,7 @@ fn test_marker_transformation_lowercase_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/lowercase/target/hello-poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3960,7 +3984,7 @@ fn test_marker_transformation_lowercase_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/lowercase/target/hello-poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -3987,7 +4011,7 @@ fn test_marker_transformation_lowercase_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/lowercase/target/hello-poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_transformation_replace() -> Router<Rule> {
@@ -4043,7 +4067,7 @@ fn test_marker_transformation_replace_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/replace/target/tiger"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4070,7 +4094,7 @@ fn test_marker_transformation_replace_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/replace/target/dog"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4097,7 +4121,7 @@ fn test_marker_transformation_replace_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4124,7 +4148,7 @@ fn test_marker_transformation_replace_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/something"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_transformation_slice() -> Router<Rule> {
@@ -4168,7 +4192,7 @@ fn test_marker_transformation_slice_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/slice/target/ABCDEFGHIJ"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4195,7 +4219,7 @@ fn test_marker_transformation_slice_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/slice/target/ABCD"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4222,7 +4246,7 @@ fn test_marker_transformation_slice_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/slice-middle/target/FGHIJKLMNO"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4249,7 +4273,7 @@ fn test_marker_transformation_slice_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/slice-middle/target/FGHIJ"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4276,7 +4300,7 @@ fn test_marker_transformation_slice_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/slice-middle/target/"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4303,7 +4327,7 @@ fn test_marker_transformation_slice_6() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/hi"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4330,7 +4354,7 @@ fn test_marker_transformation_slice_7() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/o"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4357,7 +4381,7 @@ fn test_marker_transformation_slice_8() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_transformation_underscorize() -> Router<Rule> {
@@ -4395,7 +4419,7 @@ fn test_marker_transformation_underscorize_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/underscorize/target/hello_poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4422,7 +4446,7 @@ fn test_marker_transformation_underscorize_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/underscorize/target/hello_poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4449,7 +4473,7 @@ fn test_marker_transformation_underscorize_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/underscorize/target/hello_poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4476,7 +4500,7 @@ fn test_marker_transformation_underscorize_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/underscorize/target/hello_poney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_transformation_uppercase() -> Router<Rule> {
@@ -4514,7 +4538,7 @@ fn test_marker_transformation_uppercase_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/uppercase/target/HELLO-PONEY"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4541,7 +4565,7 @@ fn test_marker_transformation_uppercase_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/uppercase/target/HELLO-PONEY"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4568,7 +4592,7 @@ fn test_marker_transformation_uppercase_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/uppercase/target/HELLO-PONEY"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_type_anything() -> Router<Rule> {
@@ -4606,7 +4630,7 @@ fn test_marker_type_anything_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/anything/target/f6883ff9-f163-43d7-8177-bfa24277fd20"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4633,7 +4657,7 @@ fn test_marker_type_anything_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/anything/target/HELLO"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4660,7 +4684,7 @@ fn test_marker_type_anything_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/anything/target/%F0%9F%A4%98"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_type_date() -> Router<Rule> {
@@ -4698,7 +4722,7 @@ fn test_marker_type_date_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/date/target/2018-11-23"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4769,7 +4793,7 @@ fn test_marker_type_datetime_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/datetime/target/2018-07-15T14:59:12Z"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4796,7 +4820,7 @@ fn test_marker_type_datetime_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/datetime/target/2018-07-15T14:59:12+02:00"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4838,7 +4862,7 @@ fn test_marker_type_datetime_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/datetime-transform/target/2018-07-15"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_marker_type_enum() -> Router<Rule> {
@@ -4876,7 +4900,7 @@ fn test_marker_type_enum_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/enum/target/cat"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4918,7 +4942,7 @@ fn test_marker_type_enum_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/enum/target/dog"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -4980,7 +5004,7 @@ fn test_marker_type_integer_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/integer/target/2778"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5037,7 +5061,7 @@ fn test_marker_type_integer_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/integer-min/target/112"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5079,7 +5103,7 @@ fn test_marker_type_integer_6() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/integer-max/target/11"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5121,7 +5145,7 @@ fn test_marker_type_integer_8() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/integer-min-max/target/806"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5246,7 +5270,7 @@ fn test_marker_type_string_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase/target/coucou"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5318,7 +5342,7 @@ fn test_marker_type_string_6() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-uppercase/target/COUCOU"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5390,7 +5414,7 @@ fn test_marker_type_string_10() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-uppercase-digits/target/coucou"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5417,7 +5441,7 @@ fn test_marker_type_string_11() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-uppercase-digits/target/COUCOU"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5459,7 +5483,7 @@ fn test_marker_type_string_13() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-uppercase-digits/target/l33t"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5486,7 +5510,7 @@ fn test_marker_type_string_14() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-uppercase-digits/target/L33T"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5513,7 +5537,7 @@ fn test_marker_type_string_15() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-specificCharacters/target/-"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5540,7 +5564,7 @@ fn test_marker_type_string_16() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-specificCharacters/target/-_.+_-/._-_."#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5567,7 +5591,7 @@ fn test_marker_type_string_17() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-specificCharacters-other/target/z-a-z-a-zz"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5609,7 +5633,7 @@ fn test_marker_type_string_19() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-specificCharacters-emoji/target/you-rock-dude-%F0%9F%A4%98"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5636,7 +5660,7 @@ fn test_marker_type_string_20() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-starting/target/JOHN-SNOW-knows-nothing"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5693,7 +5717,7 @@ fn test_marker_type_string_23() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-starting-shit/target/([A-Z])+-knows-nothing"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5735,7 +5759,7 @@ fn test_marker_type_string_25() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-ending/target/you-know-nothing-JOHN-SNOW"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5777,7 +5801,7 @@ fn test_marker_type_string_27() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-allowPercentEncodedChars/target/%2B%3A%26"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5804,7 +5828,7 @@ fn test_marker_type_string_28() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-allowPercentEncodedChars/target/%3A"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5831,7 +5855,7 @@ fn test_marker_type_string_29() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-allowPercentEncodedChars/target/%2B"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5858,7 +5882,7 @@ fn test_marker_type_string_30() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-allowPercentEncodedChars/target/%26"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5915,7 +5939,7 @@ fn test_marker_type_string_33() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-digits-allowPercentEncodedChars/target/0%2B0%3Dtoto"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5957,7 +5981,7 @@ fn test_marker_type_string_35() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/target/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -5984,7 +6008,7 @@ fn test_marker_type_string_36() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/target/Medios-de-Comunicaci%C3%B3n-y-Creatividad"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6011,7 +6035,7 @@ fn test_marker_type_string_37() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-containing/target/L33T"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6038,7 +6062,7 @@ fn test_marker_type_string_38() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-containing/target/L33TL33T"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6080,7 +6104,7 @@ fn test_marker_type_string_40() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/target/JOHN-SNOW-L33T-knows-nothing"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6107,7 +6131,7 @@ fn test_marker_type_string_41() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/target/JOHN-SNOWL33T"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6190,7 +6214,7 @@ fn test_marker_type_uuid_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/uuid/target/f6883ff9-f163-43d7-8177-bfa24277fd20"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6258,7 +6282,7 @@ fn test_marketing_parameters_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6285,7 +6309,7 @@ fn test_marketing_parameters_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar?param1=value1"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6312,7 +6336,7 @@ fn test_marketing_parameters_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar?param1=value1&param2=value2"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6339,7 +6363,7 @@ fn test_marketing_parameters_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar?param1=value2&param2=value1"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6407,7 +6431,7 @@ fn test_marketing_parameters_notarget_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6434,7 +6458,7 @@ fn test_marketing_parameters_notarget_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6461,7 +6485,7 @@ fn test_marketing_parameters_notarget_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6488,7 +6512,7 @@ fn test_marketing_parameters_notarget_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6556,7 +6580,7 @@ fn test_marketing_parameters_with_catch_all_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6583,7 +6607,7 @@ fn test_marketing_parameters_with_catch_all_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/?utm_test=123"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6610,7 +6634,7 @@ fn test_marketing_parameters_with_catch_all_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/?utm_randomstring=123"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6637,7 +6661,7 @@ fn test_marketing_parameters_with_catch_all_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/us/en/story/275996-women-gifts/?utm_source=123"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_no_marketing_parameterst() -> Router<Rule> {
@@ -6675,7 +6699,7 @@ fn test_no_marketing_parameterst_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6791,7 +6815,7 @@ fn test_rule_any_host_match_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar-no-example"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6818,7 +6842,7 @@ fn test_rule_any_host_match_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar-no-example"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_any_host_no_match() -> Router<Rule> {
@@ -6859,7 +6883,7 @@ fn test_rule_any_host_no_match_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar-no-example"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -6886,7 +6910,7 @@ fn test_rule_any_host_no_match_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar-example"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_header_regex() -> Router<Rule> {
@@ -6956,7 +6980,7 @@ fn test_rule_header_regex_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/es"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger() -> Router<Rule> {
@@ -7006,7 +7030,7 @@ fn test_rule_ip_trigger_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7027,7 +7051,7 @@ fn test_rule_ip_trigger_3() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7048,7 +7072,7 @@ fn test_rule_ip_trigger_4() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7110,7 +7134,7 @@ fn test_rule_ip_trigger_equals_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger_greater_than() -> Router<Rule> {
@@ -7157,7 +7181,7 @@ fn test_rule_ip_trigger_greater_than_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7178,7 +7202,7 @@ fn test_rule_ip_trigger_greater_than_3() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger_greater_than_or_equals() -> Router<Rule> {
@@ -7225,7 +7249,7 @@ fn test_rule_ip_trigger_greater_than_or_equals_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7246,7 +7270,7 @@ fn test_rule_ip_trigger_greater_than_or_equals_3() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger_in_range() -> Router<Rule> {
@@ -7293,7 +7317,7 @@ fn test_rule_ip_trigger_in_range_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger_less_than() -> Router<Rule> {
@@ -7340,7 +7364,7 @@ fn test_rule_ip_trigger_less_than_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7361,7 +7385,7 @@ fn test_rule_ip_trigger_less_than_3() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger_less_than_or_equals() -> Router<Rule> {
@@ -7408,7 +7432,7 @@ fn test_rule_ip_trigger_less_than_or_equals_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7429,7 +7453,7 @@ fn test_rule_ip_trigger_less_than_or_equals_3() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger_not_equals() -> Router<Rule> {
@@ -7476,7 +7500,7 @@ fn test_rule_ip_trigger_not_equals_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_ip_trigger_not_in_range() -> Router<Rule> {
@@ -7523,7 +7547,7 @@ fn test_rule_ip_trigger_not_in_range_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_multiple_headers() -> Router<Rule> {
@@ -7610,7 +7634,7 @@ fn test_rule_multiple_headers_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_query_with_pipe() -> Router<Rule> {
@@ -7651,7 +7675,7 @@ fn test_rule_query_with_pipe_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target-urlencoded"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7678,7 +7702,7 @@ fn test_rule_query_with_pipe_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target-urlencoded"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_query_with_pipe_2() -> Router<Rule> {
@@ -7716,7 +7740,7 @@ fn test_rule_query_with_pipe_2_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7743,7 +7767,7 @@ fn test_rule_query_with_pipe_2_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_query_with_plus() -> Router<Rule> {
@@ -7796,7 +7820,7 @@ fn test_rule_query_with_plus_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7823,7 +7847,7 @@ fn test_rule_query_with_plus_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7850,7 +7874,7 @@ fn test_rule_query_with_plus_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_query_with_plus_2() -> Router<Rule> {
@@ -7888,7 +7912,7 @@ fn test_rule_query_with_plus_2_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target?foo=bar%2Bbaz"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_querystring() -> Router<Rule> {
@@ -7926,7 +7950,7 @@ fn test_rule_querystring_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -7953,7 +7977,7 @@ fn test_rule_querystring_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_sampling() -> Router<Rule> {
@@ -7988,7 +8012,7 @@ fn test_rule_sampling_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8009,7 +8033,7 @@ fn test_rule_sampling_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 302);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_skipped_query_parameters() -> Router<Rule> {
@@ -8050,7 +8074,7 @@ fn test_rule_skipped_query_parameters_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8077,7 +8101,7 @@ fn test_rule_skipped_query_parameters_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target?utm_source=test"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8104,7 +8128,7 @@ fn test_rule_skipped_query_parameters_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target?tutu=titi"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8131,7 +8155,7 @@ fn test_rule_skipped_query_parameters_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target?tutu=titi&utm_content=test&utm_source=test"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_with_header() -> Router<Rule> {
@@ -8175,7 +8199,7 @@ fn test_rule_with_header_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bor"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8203,7 +8227,7 @@ fn test_rule_with_header_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/baz"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8231,7 +8255,7 @@ fn test_rule_with_header_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/baz/foo"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8276,7 +8300,7 @@ fn test_rule_with_header_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/baz/foofoo"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_with_method() -> Router<Rule> {
@@ -8347,7 +8371,7 @@ fn test_rule_with_method_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/baz"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8374,7 +8398,7 @@ fn test_rule_with_method_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bor"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8401,7 +8425,7 @@ fn test_rule_with_method_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bor"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_with_quotes() -> Router<Rule> {
@@ -8439,7 +8463,7 @@ fn test_rule_with_quotes_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target?gender=Dames&gender=Heren&gender=Kinderen"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_with_response_status_codes() -> Router<Rule> {
@@ -8480,7 +8504,7 @@ fn test_rule_with_response_status_codes_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8501,7 +8525,7 @@ fn test_rule_with_response_status_codes_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8528,7 +8552,7 @@ fn test_rule_with_response_status_codes_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/baz"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8555,7 +8579,7 @@ fn test_rule_with_response_status_codes_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bor"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8582,7 +8606,7 @@ fn test_rule_with_response_status_codes_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bor"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8609,7 +8633,7 @@ fn test_rule_with_response_status_codes_6() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/A-target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8636,7 +8660,7 @@ fn test_rule_with_response_status_codes_7() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/B-target"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8657,7 +8681,7 @@ fn test_rule_with_response_status_codes_8() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_with_slash() -> Router<Rule> {
@@ -8698,7 +8722,7 @@ fn test_rule_with_slash_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8725,7 +8749,7 @@ fn test_rule_with_slash_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/bar/"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_rule_with_space() -> Router<Rule> {
@@ -8766,7 +8790,7 @@ fn test_rule_with_space_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/exact"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8793,7 +8817,7 @@ fn test_rule_with_space_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/exact"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8820,7 +8844,7 @@ fn test_rule_with_space_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/query-space"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8847,7 +8871,7 @@ fn test_rule_with_space_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/query-space"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8874,7 +8898,7 @@ fn test_rule_with_space_5() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/query-space"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_marker() -> Router<Rule> {
@@ -8912,7 +8936,7 @@ fn test_variable_marker_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8939,7 +8963,7 @@ fn test_variable_marker_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8966,7 +8990,7 @@ fn test_variable_marker_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -8993,7 +9017,7 @@ fn test_variable_marker_4() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/helloPOney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_marker_legacy() -> Router<Rule> {
@@ -9031,7 +9055,7 @@ fn test_variable_marker_legacy_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/helloPoney/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_marker_legacy_1() -> Router<Rule> {
@@ -9069,7 +9093,7 @@ fn test_variable_marker_legacy_1_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/helloPoney/target/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_marker_order() -> Router<Rule> {
@@ -9107,7 +9131,7 @@ fn test_variable_marker_order_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/helloPoney/https/target/test.com"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_marker_transformer() -> Router<Rule> {
@@ -9145,7 +9169,7 @@ fn test_variable_marker_transformer_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/HELLO"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_request_header() -> Router<Rule> {
@@ -9184,7 +9208,7 @@ fn test_variable_request_header_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/helloPoney"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -9211,7 +9235,7 @@ fn test_variable_request_header_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/Foo"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_request_host() -> Router<Rule> {
@@ -9249,7 +9273,7 @@ fn test_variable_request_host_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/example.com"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_request_method() -> Router<Rule> {
@@ -9287,7 +9311,7 @@ fn test_variable_request_method_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/GET"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -9314,7 +9338,7 @@ fn test_variable_request_method_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/POST"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_request_path() -> Router<Rule> {
@@ -9352,7 +9376,7 @@ fn test_variable_request_path_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/variable/request-header"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 fn setup_variable_request_scheme() -> Router<Rule> {
@@ -9390,7 +9414,7 @@ fn test_variable_request_scheme_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/https"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -9417,7 +9441,7 @@ fn test_variable_request_scheme_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/http"#);
-    assert_eq!(action.should_log_request(true, response_status_code), true);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 

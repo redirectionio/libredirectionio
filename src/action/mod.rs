@@ -356,6 +356,7 @@ impl Action {
                 on_response_status_codes: on_response_status_codes.clone(),
                 fallback_log_override: None,
                 fallback_rule_id: None,
+                unit_id: rule.configuration_log_unit_id.clone(),
             }),
         };
 
@@ -419,6 +420,7 @@ impl Action {
                             on_response_status_codes: other_log_override.on_response_status_codes,
                             fallback_log_override: Some(self_log_override.log_override),
                             fallback_rule_id: self_log_override.rule_id.clone(),
+                            unit_id: self_log_override.unit_id.clone(),
                         })
                     }
                 }
@@ -547,13 +549,19 @@ impl Action {
         }
     }
 
-    pub fn should_log_request(&mut self, allow_log_config: bool, response_status_code: u16) -> bool {
+    pub fn should_log_request(&mut self, allow_log_config: bool, response_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> bool {
         let rule_applied = self.rule_traces.is_some();
 
         match self.log_override.as_ref() {
             None => allow_log_config,
             Some(log_override) => {
                 let (allow_log, rule_applied_id) = log_override.get_log_override(response_status_code);
+
+                if let Some(trace) = unit_trace {
+                    if let Some(unit_id) = &log_override.unit_id {
+                        trace.add_unit_id(unit_id.to_string());
+                    }
+                }
 
                 if !rule_applied {
                     self.apply_rule_id(rule_applied_id);

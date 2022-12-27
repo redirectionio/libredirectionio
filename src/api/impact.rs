@@ -44,6 +44,7 @@ pub struct Impact {
     match_traces: Vec<Trace<Rule>>,
     error: Option<String>,
     redirection_loop: Option<RedirectionLoop>,
+    should_log_request: bool,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -84,6 +85,7 @@ impl Impact {
             response: Response::default(),
             redirection_loop: None,
             match_traces: Vec::new(),
+            should_log_request: false,
         }
     }
 }
@@ -162,6 +164,8 @@ impl ImpactOutput {
                 body = std::str::from_utf8(&b1).unwrap();
             }
 
+            let should_log_request = action.should_log_request(true, final_status_code, Some(&mut unit_trace));
+
             unit_trace.squash_with_target_unit_traces();
 
             let redirection_loop = if impact_input.with_redirection_loop {
@@ -182,6 +186,7 @@ impl ImpactOutput {
                 match_traces: trace_unique_router.trace_request(&request),
                 error: None,
                 redirection_loop,
+                should_log_request,
             });
         }
         impacts

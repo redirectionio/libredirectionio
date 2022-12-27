@@ -1,0 +1,92 @@
+{
+    "router_config": {
+        "ignore_host_case": false,
+        "ignore_header_case": false,
+        "ignore_path_and_query_case": false,
+        "ignore_marketing_query_params": true,
+        "marketing_query_params": [
+            "utm_campaign",
+            "utm_content",
+            "utm_medium",
+            "utm_source",
+            "utm_term"
+        ],
+        "pass_marketing_query_params_to_target": true,
+        "always_match_any_host": true
+    },
+    "rules": {
+        "hydra:member": [
+            {
+                "source": {
+                    "host": "",
+                    "path": "\/goo",
+                    "query": "",
+                    "scheme": "",
+                    "sampling": null,
+                    "methods": [],
+                    "headers": [],
+                    "response_status_codes": []
+                },
+                "id": "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
+                "rank": 32766,
+                "markers": [],
+                "body_filters": [],
+                "header_filters": [],
+                "log_override": false,
+                "configuration_log_unit_id": "53f9a13c-732a-4ee4-a379-3a27e95c2046",
+                "reset": true,
+                "examples": [
+                    {
+                        "url": "\/goo",
+                        "must_match": true,
+                        "headers": [],
+                        "response_status_code": null,
+                        "method": null,
+                        "ip_address": null,
+                        "unit_ids_applied": ["53f9a13c-732a-4ee4-a379-3a27e95c2046"]
+                    }
+                ]
+            },
+            {
+                "source": {
+                    "host": null,
+                    "path": "\/@marker",
+                    "query": null,
+                    "scheme": null,
+                    "sampling": null,
+                    "methods": [],
+                    "headers": [],
+                    "response_status_codes": []
+                },
+                "id": "56c402fd-c854-46c6-b89d-a874818b717b",
+                "rank": 32763,
+                "markers": [
+                    {
+                        "name": "marker",
+                        "regex": ".*",
+                        "transformers": []
+                    }
+                ],
+                "body_filters": [],
+                "header_filters": [],
+                "log_override": false,
+                "configuration_log_unit_id": "559b7fc2-16c7-40f2-ac86-9e4d3e9a2bc5",
+                "reset": true,
+                "examples": [
+                    {
+                        "url": "\/anything",
+                        "method": null,
+                        "headers": [],
+                        "response_status_code": null,
+                        "ip_address": null,
+                        "must_match": true,
+                        "unit_ids_applied": ["559b7fc2-16c7-40f2-ac86-9e4d3e9a2bc5"]
+                    }
+                ]
+            }
+        ],
+        "hydra:totalItems": 2,
+        "page": 1,
+        "lastPage": 1
+    }
+}

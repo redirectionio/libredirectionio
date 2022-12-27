@@ -1,77 +1,68 @@
 {
-  "example_count": 1,
+  "example_count": 2,
   "failure_count": 1,
   "error_count": 0,
   "first_ten_failures": {
-    "A": {
+    "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e": {
       "rule": {
-        "id": "A",
+        "id": "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
         "source": {
           "scheme": "",
           "host": "",
-          "ips": [],
-          "path": "/",
+          "ips": null,
+          "path": "/goo",
           "query": "",
           "headers": [],
           "methods": [],
           "response_status_codes": [],
           "sampling": null
         },
-        "target": "",
+        "target": null,
         "status_code": null,
-        "rank": 3,
+        "rank": 32766,
         "body_filters": [],
-        "header_filters": [
-          {
-            "action": "add",
-            "header": "location",
-            "value": "toto",
-            "id": "A:1",
-            "target_hash": "header::location"
-          }
-        ],
-        "log_override": null,
-        "reset": null,
+        "header_filters": [],
+        "log_override": false,
+        "reset": true,
         "stop": null,
         "examples": [
           {
-            "url": "/",
-            "method": "GET",
+            "url": "/goo",
+            "method": null,
             "headers": [],
             "ip_address": null,
-            "response_status_code": 200,
+            "response_status_code": null,
             "must_match": true,
             "unit_ids_applied": [
-              "A:1"
+              "53f9a13c-732a-4ee4-a379-3a27e95c2046"
             ]
           }
         ],
         "redirect_unit_id": null,
-        "configuration_log_unit_id": null,
+        "configuration_log_unit_id": "53f9a13c-732a-4ee4-a379-3a27e95c2046",
         "target_hash": null
       },
       "failed_examples": [
         {
           "example": {
-            "url": "/",
-            "method": "GET",
+            "url": "/goo",
+            "method": null,
             "headers": [],
             "ip_address": null,
-            "response_status_code": 200,
+            "response_status_code": null,
             "must_match": true,
             "unit_ids_applied": [
-              "A:1"
+              "53f9a13c-732a-4ee4-a379-3a27e95c2046"
             ]
           },
           "rule_ids_applied": [
-            "A",
-            "B"
+            "56c402fd-c854-46c6-b89d-a874818b717b"
           ],
           "unit_ids_applied": [
-            "B:1"
+            "559b7fc2-16c7-40f2-ac86-9e4d3e9a2bc5"
           ],
           "unit_ids_not_applied_anymore": [
-            "A:1"
+            "53f9a13c-732a-4ee4-a379-3a27e95c2046"
           ]
         }
       ]

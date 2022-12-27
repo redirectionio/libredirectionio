@@ -7,6 +7,7 @@ pub struct LogOverride {
     pub on_response_status_codes: Vec<u16>,
     pub fallback_log_override: Option<bool>,
     pub fallback_rule_id: Option<String>,
+    pub unit_id: Option<String>,
 }
 
 impl LogOverride {

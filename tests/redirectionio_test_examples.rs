@@ -7,6 +7,11 @@ mod generated_tests {
     use std::env;
 
     #[test]
+    fn test_examples_configuration_log_off() {
+        do_test("configuration_log_off");
+    }
+
+    #[test]
     fn test_examples_header_add() {
         do_test("header_add");
     }

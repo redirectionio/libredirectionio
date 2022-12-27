@@ -99,7 +99,7 @@ impl TestExamplesOutput {
                 let mut unit_trace = UnitTrace::default();
 
                 let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
-                let (_, backend_status_code) = if action_status_code != 0 {
+                let (final_status_code, backend_status_code) = if action_status_code != 0 {
                     (action_status_code, action_status_code)
                 } else {
                     // We call the backend and get a response code
@@ -122,6 +122,8 @@ impl TestExamplesOutput {
                     body_filter.filter(body.into(), Some(&mut unit_trace));
                     body_filter.end(Some(&mut unit_trace));
                 }
+
+                action.should_log_request(true, final_status_code, Some(&mut unit_trace));
 
                 unit_trace.squash_with_target_unit_traces();
 

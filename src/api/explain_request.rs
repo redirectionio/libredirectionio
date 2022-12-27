@@ -32,6 +32,7 @@ pub struct ExplainRequestOutput {
     backend_status_code: u16,
     response: Response,
     match_traces: Vec<Trace<Rule>>,
+    should_log_request: bool,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -101,6 +102,8 @@ impl ExplainRequestOutput {
             body = std::str::from_utf8(&b1).unwrap();
         }
 
+        let should_log_request = action.should_log_request(true, final_status_code, Some(&mut unit_trace));
+
         unit_trace.squash_with_target_unit_traces();
 
         Ok(ExplainRequestOutput {
@@ -113,6 +116,7 @@ impl ExplainRequestOutput {
                 body: body.to_string(),
             },
             match_traces: router.trace_request(&request),
+            should_log_request,
         })
     }
 }

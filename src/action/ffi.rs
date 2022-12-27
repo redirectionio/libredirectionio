@@ -156,5 +156,5 @@ pub unsafe extern "C" fn redirectionio_action_should_log_request(
 
     let action = &mut *_action;
 
-    action.should_log_request(allow_log_config, response_status_code)
+    action.should_log_request(allow_log_config, response_status_code, None)
 }
