@@ -78,6 +78,11 @@ impl UnitTrace {
             }
         }
 
+        // Sort, for stability in tests
+        let mut tmp = Vec::from_iter(self.unit_ids_applied.clone());
+        tmp.sort();
+        self.unit_ids_applied = LinkedHashSet::from_iter(tmp);
+
         self.with_target_unit_trace = WithTargetUnitTrace::default();
     }
 
