@@ -575,7 +575,7 @@ impl Action {
                 if handled {
                     if let Some(trace) = unit_trace {
                         if let Some(unit_id) = &log_override.unit_id {
-                            trace.add_unit_id_with_target("configuration::log", &unit_id);
+                            trace.add_unit_id_with_target("configuration::log", unit_id);
                         }
                     }
                 }

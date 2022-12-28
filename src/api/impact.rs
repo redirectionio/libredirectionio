@@ -170,7 +170,7 @@ impl ImpactOutput {
             unit_trace.squash_with_target_unit_traces();
 
             let redirection_loop = if impact_input.with_redirection_loop {
-                Some(ImpactOutput::compute_redirection_loop(&router, &impact_input, example))
+                Some(ImpactOutput::compute_redirection_loop(router, impact_input, example))
             } else {
                 None
             };
@@ -245,7 +245,7 @@ impl ImpactOutput {
             for hop in hops.iter() {
                 if hop.url == current_url {
                     hops.push(RedirectionHop {
-                        url: current_url.clone(),
+                        url: current_url,
                         status_code: final_status_code,
                     });
                     error = Some(RedirectionError::Loop);

@@ -98,7 +98,7 @@ impl HtmlFilterBodyAction {
             match token_type {
                 html::TokenType::StartTagToken => {
                     let (tag_name, _) = tokenizer.tag_name()?;
-                    let tag_name_str = tag_name.unwrap_or_else(|| "".to_string());
+                    let tag_name_str = tag_name.unwrap_or_default();
                     let (new_buffer_link, new_token_data) =
                         self.on_start_tag_token(tag_name_str.clone(), token_data, unit_trace.as_deref_mut());
 
