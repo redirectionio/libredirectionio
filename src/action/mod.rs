@@ -448,10 +448,8 @@ impl Action {
 
             if let Some(action_rule) = action_rule_opt {
                 if reset {
-                    if let Some(trace) = unit_trace.as_deref_mut() {
-                        if let Some(unit_id) = &configuration_unit_id {
-                            trace.add_unit_id_with_target("configuration::reset", unit_id.as_str());
-                        }
+                    if let (Some(trace), Some(unit_id)) = (unit_trace.as_deref_mut(), &configuration_unit_id) {
+                        trace.add_unit_id_with_target("configuration::reset", unit_id.as_str());
                     }
                     action = action_rule;
                 } else {
@@ -459,10 +457,8 @@ impl Action {
                 }
 
                 if stop {
-                    if let Some(trace) = unit_trace.as_deref_mut() {
-                        if let Some(unit_id) = &configuration_unit_id {
-                            trace.add_unit_id_with_target("configuration::stop", unit_id.as_str());
-                        }
+                    if let (Some(trace), Some(unit_id)) = (unit_trace.as_deref_mut(), &configuration_unit_id) {
+                        trace.add_unit_id_with_target("configuration::stop", unit_id.as_str());
                     }
                     return action;
                 }
@@ -578,10 +574,8 @@ impl Action {
                 let (allow_log, rule_applied_id, handled) = log_override.get_log_override(response_status_code);
 
                 if handled {
-                    if let Some(trace) = unit_trace {
-                        if let Some(unit_id) = &log_override.unit_id {
-                            trace.add_unit_id_with_target("configuration::log", unit_id);
-                        }
+                    if let (Some(trace), Some(unit_id)) = (unit_trace, &log_override.unit_id) {
+                        trace.add_unit_id_with_target("configuration::log", unit_id);
                     }
                 }
 
