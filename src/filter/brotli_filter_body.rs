@@ -80,7 +80,6 @@ impl BrotliEncodeFilterBody {
         let mut compressor = CompressorWriter::new(Vec::new(), 4096, 11, 22);
         std::mem::swap(&mut compressor, &mut self.compressor);
 
-        let buffer = compressor.into_inner();
-        Ok(buffer)
+        Ok(compressor.into_inner())
     }
 }

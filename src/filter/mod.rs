@@ -1,5 +1,6 @@
 mod brotli_filter_body;
 pub mod buffer;
+mod compress;
 mod error;
 mod filter_body;
 mod filter_header;
