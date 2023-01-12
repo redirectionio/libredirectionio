@@ -22,6 +22,7 @@ serde_yaml = "0.9.14"
 tera = "1.17.1"
 
 [dependencies]
+brotli = "3.3.4"
 cfg-if = "1.0.0"
 chrono = { version = "0.4.22", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }

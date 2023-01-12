@@ -1,65 +1,73 @@
 use crate::filter::error::Result;
 use flate2::write::{GzDecoder, GzEncoder};
-use std::io::{Cursor, Read, Write};
+use std::io::Write;
 
 #[derive(Debug)]
 pub struct GzDecodeFilterBody {
-    decoder: GzDecoder<Cursor<Vec<u8>>>,
+    decoder: GzDecoder<Vec<u8>>,
 }
 
 #[derive(Debug)]
 pub struct GzEncodeFilterBody {
-    encoder: GzEncoder<Cursor<Vec<u8>>>,
+    encoder: GzEncoder<Vec<u8>>,
 }
-
-static BUFFER_FRAME_SIZE: usize = 4096;
 
 impl GzDecodeFilterBody {
     pub fn new() -> Self {
         Self {
-            decoder: GzDecoder::new(Cursor::new(Vec::new())),
+            decoder: GzDecoder::new(Vec::new()),
         }
     }
 
     pub fn filter(&mut self, data: Vec<u8>) -> Result<Vec<u8>> {
-        let mut decoded = vec![0u8; BUFFER_FRAME_SIZE];
-
         self.decoder.write_all(data.as_slice())?;
-        let readed = self.decoder.read(&mut decoded)?;
+        self.decoder.flush()?;
 
-        Ok(decoded[..readed].to_vec())
+        if self.decoder.get_ref().is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let mut buffer = Vec::new();
+        std::mem::swap(&mut buffer, &mut self.decoder.get_mut());
+
+        Ok(buffer)
     }
 
     pub fn end(&mut self) -> Result<Vec<u8>> {
-        let mut decoder = GzDecoder::new(Cursor::new(Vec::new()));
+        let mut decoder = GzDecoder::new(Vec::new());
         std::mem::swap(&mut self.decoder, &mut decoder);
 
         decoder.try_finish()?;
-        Ok(decoder.finish()?.into_inner())
+        Ok(decoder.finish()?)
     }
 }
 
 impl GzEncodeFilterBody {
     pub fn new() -> Self {
         Self {
-            encoder: GzEncoder::new(Cursor::new(Vec::new()), flate2::Compression::default()),
+            encoder: GzEncoder::new(Vec::new(), flate2::Compression::default()),
         }
     }
 
     pub fn filter(&mut self, data: Vec<u8>) -> Result<Vec<u8>> {
-        let mut encoded = vec![0u8; BUFFER_FRAME_SIZE];
-
         self.encoder.write_all(data.as_slice())?;
-        let readed = self.encoder.read(&mut encoded)?;
+        self.encoder.flush()?;
 
-        Ok(encoded[..readed].to_vec())
+        if self.encoder.get_ref().is_empty() {
+            return Ok(Vec::new());
+        }
+
+        let mut buffer = Vec::new();
+        std::mem::swap(&mut buffer, &mut self.encoder.get_mut());
+
+        Ok(buffer)
     }
 
     pub fn end(&mut self) -> Result<Vec<u8>> {
-        let mut encoder = GzEncoder::new(Cursor::new(Vec::new()), flate2::Compression::default());
+        let mut encoder = GzEncoder::new(Vec::new(), flate2::Compression::default());
         std::mem::swap(&mut self.encoder, &mut encoder);
 
         encoder.try_finish()?;
-        Ok(encoder.finish()?.into_inner())
+        Ok(encoder.finish()?)
     }
 }

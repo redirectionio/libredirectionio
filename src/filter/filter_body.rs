@@ -1,5 +1,6 @@
 use crate::action::UnitTrace;
 use crate::api::{BodyFilter, TextAction};
+use crate::filter::brotli_filter_body::{BrotliDecodeFilterBody, BrotliEncodeFilterBody};
 use crate::filter::error::Result;
 use crate::filter::gzip_filter_body::{GzDecodeFilterBody, GzEncodeFilterBody};
 use crate::filter::html_body_action::HtmlBodyVisitor;
@@ -19,6 +20,8 @@ pub enum FilterBodyActionItem {
     Text(TextFilterBodyAction),
     UnGzip(GzDecodeFilterBody),
     Gzip(GzEncodeFilterBody),
+    UnBrotli(BrotliDecodeFilterBody),
+    Brotli(BrotliEncodeFilterBody),
 }
 
 impl FilterBodyAction {
@@ -65,6 +68,22 @@ impl FilterBodyAction {
                         in_error: false,
                     }
                 }
+                "br" => {
+                    let mut chain_with_brotli = Vec::new();
+
+                    chain_with_brotli.push(FilterBodyActionItem::UnBrotli(BrotliDecodeFilterBody::new()));
+
+                    for filter in chain {
+                        chain_with_brotli.push(filter);
+                    }
+
+                    chain_with_brotli.push(FilterBodyActionItem::Brotli(BrotliEncodeFilterBody::new()));
+
+                    Self {
+                        chain: chain_with_brotli,
+                        in_error: false,
+                    }
+                }
                 encoding => {
                     log::error!(
                         "redirectionio does not support content-encoding {}, filtering will be disable for this request",
@@ -93,7 +112,7 @@ impl FilterBodyAction {
         match self.do_filter(data.clone(), unit_trace.as_deref_mut()) {
             Ok(filtered) => filtered,
             Err(err) => {
-                log::error!("error while filtering: {}", err);
+                log::error!("error while filtering: {:?}", err);
                 self.in_error = true;
 
                 data
@@ -189,6 +208,8 @@ impl FilterBodyActionItem {
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data, unit_trace.as_deref_mut()),
             FilterBodyActionItem::UnGzip(gzip_body_filter) => gzip_body_filter.filter(data)?,
             FilterBodyActionItem::Gzip(gzip_body_filter) => gzip_body_filter.filter(data)?,
+            FilterBodyActionItem::UnBrotli(brotli_body_filter) => brotli_body_filter.filter(data)?,
+            FilterBodyActionItem::Brotli(brotli_body_filter) => brotli_body_filter.filter(data)?,
         })
     }
 
@@ -198,6 +219,8 @@ impl FilterBodyActionItem {
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
             FilterBodyActionItem::UnGzip(gzip_body_filter) => gzip_body_filter.end()?,
             FilterBodyActionItem::Gzip(gzip_body_filter) => gzip_body_filter.end()?,
+            FilterBodyActionItem::UnBrotli(brotli_body_filter) => brotli_body_filter.end()?,
+            FilterBodyActionItem::Brotli(brotli_body_filter) => brotli_body_filter.end()?,
         })
     }
 }
@@ -210,28 +233,137 @@ mod tests {
     use flate2::Compression;
     use std::io::prelude::*;
 
+    fn init_logger() {
+        struct Logger;
+        static LOGGER: Logger = Logger;
+
+        impl log::Log for Logger {
+            fn enabled(&self, _metadata: &log::Metadata) -> bool {
+                true
+            }
+
+            fn log(&self, record: &log::Record) {
+                println!("{}", record.args());
+            }
+
+            fn flush(&self) {}
+        }
+
+        // If it fails, that just means we've already set it to the same value.
+        let _ = log::set_logger(&LOGGER);
+        log::set_max_level(log::LevelFilter::Trace);
+
+        println!();
+    }
+
     #[test]
     pub fn test_filter_gzip() {
-        let before_filter = "Test".to_string();
-        let mut e = GzEncoder::new(Vec::new(), Compression::default());
-        e.write_all(before_filter.as_bytes()).unwrap();
-        let bytes = e.finish().unwrap();
+        init_logger();
 
-        let headers = vec![Header {
-            name: "Content-Encoding".to_string(),
-            value: "gzip".to_string(),
-        }];
-        let mut filter = FilterBodyAction::new(Vec::new(), &headers);
+        let decompressed_input = "<html><head></head><body class=\"page\"><div>Yolo</div></body></html>".to_string();
+        let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(decompressed_input.as_bytes()).unwrap();
+        let compressed_input = encoder.finish().unwrap();
 
-        let mut filtered = filter.filter(bytes.clone(), None);
+        let headers = vec![
+            Header {
+                name: "Content-Encoding".to_string(),
+                value: "gzip".to_string(),
+            },
+            Header {
+                name: "Content-Type".to_string(),
+                value: "text/html;charset=".to_string(),
+            },
+        ];
+
+        let mut filter = FilterBodyAction::new(
+            vec![BodyFilter::HTML(HTMLBodyFilter {
+                action: "prepend_child".to_string(),
+                element_tree: vec!["html".to_string(), "body".to_string()],
+                css_selector: Some("".to_string()),
+                value: "<p>This is as test</p>".to_string(),
+                id: Some("test".to_string()),
+                target_hash: Some("target_hash".to_string()),
+                inner_value: None,
+            })],
+            &headers,
+        );
+
+        let size = compressed_input.len();
+        let mut filtered_size = 0;
+        let mut filtered = Vec::new();
+
+        while filtered_size < size - 10 {
+            filtered.extend(filter.filter(compressed_input.as_slice()[filtered_size..filtered_size + 10].to_vec(), None));
+            filtered_size += 10;
+        }
+
+        filtered.extend(filter.filter(compressed_input.as_slice()[filtered_size..size].to_vec(), None));
         filtered.extend(filter.end(None));
 
-        let mut gz = GzDecoder::new(Vec::new());
-        gz.write_all(&filtered).unwrap();
-        let data = gz.finish().unwrap();
-        let after_filter = String::from_utf8(data.to_vec()).unwrap();
+        let mut decoder = GzDecoder::new(Vec::new());
+        decoder.write_all(&filtered).unwrap();
+        let decompressed_output = decoder.finish().unwrap();
 
-        assert_eq!(before_filter, after_filter);
+        assert_eq!(
+            String::from_utf8(decompressed_output).unwrap(),
+            "<html><head></head><body class=\"page\"><p>This is as test</p><div>Yolo</div></body></html>".to_string()
+        );
+    }
+
+    #[test]
+    pub fn test_filter_brotli() {
+        init_logger();
+
+        let decompressed_input = "<html><head><h2>This is stupide data to ensure compression before</H2></head><body class=\"page\"><div>Yolo</div></body></html>".to_string();
+        let mut compressed_input = Vec::new();
+        let mut reader = brotli::CompressorReader::new(decompressed_input.as_bytes(), 4096, 11, 22);
+        reader.read_to_end(&mut compressed_input).expect("Failed to compress");
+
+        let headers = vec![
+            Header {
+                name: "Content-Encoding".to_string(),
+                value: "br".to_string(),
+            },
+            Header {
+                name: "Content-Type".to_string(),
+                value: "text/html;charset=".to_string(),
+            },
+        ];
+
+        let mut filter = FilterBodyAction::new(
+            vec![BodyFilter::HTML(HTMLBodyFilter {
+                action: "prepend_child".to_string(),
+                element_tree: vec!["html".to_string(), "body".to_string()],
+                css_selector: Some("".to_string()),
+                value: "<p>This is as test</p>".to_string(),
+                id: Some("test".to_string()),
+                target_hash: Some("target_hash".to_string()),
+                inner_value: None,
+            })],
+            &headers,
+        );
+
+        let size = compressed_input.len();
+        let mut filtered_size = 0;
+        let mut filtered = Vec::new();
+
+        while filtered_size < size - 10 {
+            filtered.extend(filter.filter(compressed_input.as_slice()[filtered_size..filtered_size + 10].to_vec(), None));
+            filtered_size += 10;
+        }
+
+        filtered.extend(filter.filter(compressed_input.as_slice()[filtered_size..size].to_vec(), None));
+        filtered.extend(filter.end(None));
+
+        let mut decompressed_output = Vec::new();
+        let mut reader = brotli::Decompressor::new(filtered.as_slice(), 4096);
+        reader.read_to_end(&mut decompressed_output).expect("Failed to decompress");
+
+        assert_eq!(
+            String::from_utf8(decompressed_output).unwrap(),
+            "<html><head><h2>This is stupide data to ensure compression before</H2></head><body class=\"page\"><p>This is as test</p><div>Yolo</div></body></html>".to_string()
+        );
     }
 
     #[test]

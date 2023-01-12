@@ -1,3 +1,4 @@
+mod brotli_filter_body;
 pub mod buffer;
 mod error;
 mod filter_body;
