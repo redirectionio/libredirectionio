@@ -1,13 +1,20 @@
-use crate::filter::compress::SupportedEncoding;
+use crate::filter::encode::SupportedEncoding;
 use crate::filter::error::Result;
 use brotli::DecompressorWriter;
 use flate2::write::{GzDecoder, ZlibDecoder};
+use std::fmt::{Debug, Formatter};
 use std::io::Write;
 
 pub enum DecodeFilterBody {
     Gzip(GzDecoder<Vec<u8>>),
     Brotli(DecompressorWriter<Vec<u8>>),
     Deflate(ZlibDecoder<Vec<u8>>),
+}
+
+impl Debug for DecodeFilterBody {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("DecodeFilterBody").finish()
+    }
 }
 
 impl DecodeFilterBody {
