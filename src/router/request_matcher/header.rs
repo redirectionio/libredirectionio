@@ -222,7 +222,7 @@ impl<T: RouteData> Default for HeaderMatcher<T> {
 
 impl<T: RouteData> HeaderMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(PathAndQueryMatcher::default())
+        Box::<PathAndQueryMatcher<T>>::default()
     }
 }
 

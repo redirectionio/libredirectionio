@@ -162,6 +162,6 @@ impl<T: RouteData> Default for PathAndQueryMatcher<T> {
 
 impl<T: RouteData> PathAndQueryMatcher<T> {
     fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(RouteMatcher::default())
+        Box::<RouteMatcher<T>>::default()
     }
 }

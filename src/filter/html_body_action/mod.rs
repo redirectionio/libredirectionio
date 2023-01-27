@@ -54,19 +54,19 @@ impl HtmlBodyVisitor {
         }
     }
 
-    pub fn enter(&mut self, data: String, mut unit_trace: Option<&mut UnitTrace>) -> (Option<String>, Option<String>, bool, String) {
+    pub fn enter(&mut self, data: String, unit_trace: Option<&mut UnitTrace>) -> (Option<String>, Option<String>, bool, String) {
         match self {
             Self::Append(append) => append.enter(data),
-            Self::Prepend(prepend) => prepend.enter(data, unit_trace.as_deref_mut()),
+            Self::Prepend(prepend) => prepend.enter(data, unit_trace),
             Self::Replace(replace) => replace.enter(data),
         }
     }
 
-    pub fn leave(&mut self, data: String, mut unit_trace: Option<&mut UnitTrace>) -> Result<(Option<String>, Option<String>, String)> {
+    pub fn leave(&mut self, data: String, unit_trace: Option<&mut UnitTrace>) -> Result<(Option<String>, Option<String>, String)> {
         Ok(match self {
-            Self::Append(append) => append.leave(data, unit_trace.as_deref_mut())?,
-            Self::Prepend(prepend) => prepend.leave(data, unit_trace.as_deref_mut())?,
-            Self::Replace(replace) => replace.leave(data, unit_trace.as_deref_mut()),
+            Self::Append(append) => append.leave(data, unit_trace)?,
+            Self::Prepend(prepend) => prepend.leave(data, unit_trace)?,
+            Self::Replace(replace) => replace.leave(data, unit_trace),
         })
     }
 

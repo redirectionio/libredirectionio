@@ -1106,7 +1106,7 @@ impl<'t> Tokenizer<'t> {
         }
 
         let mut raw = false;
-        let mut byte = self.buffer[self.data.start] as u8;
+        let mut byte = self.buffer[self.data.start];
 
         if (b'A'..=b'Z').contains(&byte) {
             byte += b'a' - b'A';

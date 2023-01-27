@@ -1,4 +1,4 @@
-use crate::filter::encode::SupportedEncoding;
+use crate::filter::encoding::SupportedEncoding;
 use crate::filter::error::Result;
 use brotli::DecompressorWriter;
 use flate2::write::{GzDecoder, ZlibDecoder};
@@ -7,7 +7,7 @@ use std::io::Write;
 
 pub enum DecodeFilterBody {
     Gzip(GzDecoder<Vec<u8>>),
-    Brotli(DecompressorWriter<Vec<u8>>),
+    Brotli(Box<DecompressorWriter<Vec<u8>>>),
     Deflate(ZlibDecoder<Vec<u8>>),
 }
 
@@ -20,7 +20,7 @@ impl Debug for DecodeFilterBody {
 impl DecodeFilterBody {
     pub fn new(encoding: SupportedEncoding) -> Self {
         match encoding {
-            SupportedEncoding::Brotli => Self::Brotli(DecompressorWriter::new(Vec::new(), 4096)),
+            SupportedEncoding::Brotli => Self::Brotli(Box::new(DecompressorWriter::new(Vec::new(), 4096))),
             SupportedEncoding::Gzip => Self::Gzip(GzDecoder::new(Vec::new())),
             SupportedEncoding::Deflate => Self::Deflate(ZlibDecoder::new(Vec::new())),
         }
@@ -37,7 +37,7 @@ impl DecodeFilterBody {
                 }
 
                 let mut buffer = Vec::new();
-                std::mem::swap(&mut buffer, &mut decoder.get_mut());
+                std::mem::swap(&mut buffer, decoder.get_mut());
 
                 Ok(buffer)
             }
@@ -50,7 +50,7 @@ impl DecodeFilterBody {
                 }
 
                 let mut buffer = Vec::new();
-                std::mem::swap(&mut buffer, &mut decoder.get_mut());
+                std::mem::swap(&mut buffer, decoder.get_mut());
 
                 Ok(buffer)
             }
@@ -63,7 +63,7 @@ impl DecodeFilterBody {
                 }
 
                 let mut buffer = Vec::new();
-                std::mem::swap(&mut buffer, &mut decoder.get_mut());
+                std::mem::swap(&mut buffer, decoder.get_mut());
 
                 Ok(buffer)
             }

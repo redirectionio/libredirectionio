@@ -12,7 +12,7 @@ pub struct HeaderRemoveAction {
 }
 
 impl HeaderAction for HeaderRemoveAction {
-    fn filter(&self, headers: Vec<Header>, mut unit_trace: Option<&mut UnitTrace>) -> Vec<Header> {
+    fn filter(&self, headers: Vec<Header>, unit_trace: Option<&mut UnitTrace>) -> Vec<Header> {
         let mut new_headers = Vec::new();
 
         for header in headers {
@@ -21,12 +21,11 @@ impl HeaderAction for HeaderRemoveAction {
             }
         }
 
-        if let Some(trace) = unit_trace.as_deref_mut() {
-            if let Some(id) = &self.id {
-                trace.add_value_computed_by_unit(id, "");
-                if let Some(target_hash) = &self.target_hash {
-                    trace.override_unit_id_with_target(target_hash, id);
-                }
+        if let (Some(trace), Some(id)) = (unit_trace, &self.id) {
+            trace.add_value_computed_by_unit(id, "");
+
+            if let Some(target_hash) = &self.target_hash {
+                trace.override_unit_id_with_target(target_hash, id);
             }
         }
 

@@ -164,13 +164,13 @@ impl HtmlFilterBodyAction {
         &mut self,
         tag_name: String,
         data: String,
-        mut unit_trace: Option<&mut UnitTrace>,
+        unit_trace: Option<&mut UnitTrace>,
     ) -> (Option<Box<BufferLink>>, String) {
         let mut buffer = data;
         let mut buffer_link_actions = 0;
 
         if self.enter.is_some() && self.enter.as_ref().unwrap() == tag_name.as_str() {
-            let (next_enter, next_leave, start_buffer, new_buffer) = self.visitor.enter(buffer, unit_trace.as_deref_mut());
+            let (next_enter, next_leave, start_buffer, new_buffer) = self.visitor.enter(buffer, unit_trace);
 
             buffer = new_buffer;
 
@@ -199,7 +199,7 @@ impl HtmlFilterBodyAction {
         &mut self,
         tag_name: String,
         data: String,
-        mut unit_trace: Option<&mut UnitTrace>,
+        unit_trace: Option<&mut UnitTrace>,
     ) -> Result<(Option<Box<BufferLink>>, String)> {
         let mut buffer: String;
 
@@ -211,7 +211,7 @@ impl HtmlFilterBodyAction {
         }
 
         if self.leave.is_some() && self.leave.as_ref().unwrap() == tag_name.as_str() {
-            let (next_enter, next_leave, new_buffer) = self.visitor.leave(buffer, unit_trace.as_deref_mut())?;
+            let (next_enter, next_leave, new_buffer) = self.visitor.leave(buffer, unit_trace)?;
             buffer = new_buffer;
 
             self.enter = next_enter;

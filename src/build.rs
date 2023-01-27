@@ -260,7 +260,7 @@ fn main() {
 
     cbindgen::generate(crate_dir)
         .expect("Unable to generate bindings")
-        .write_to_file(&output_file);
+        .write_to_file(output_file);
 
     make_router_tests();
     make_test_examples_tests();

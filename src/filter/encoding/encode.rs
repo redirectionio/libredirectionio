@@ -1,4 +1,4 @@
-use crate::filter::encode::SupportedEncoding;
+use crate::filter::encoding::SupportedEncoding;
 use crate::filter::error::Result;
 use brotli::CompressorWriter;
 use flate2::write::{GzEncoder, ZlibEncoder};
@@ -7,7 +7,7 @@ use std::io::Write;
 
 pub enum EncodeFilterBody {
     Gzip(GzEncoder<Vec<u8>>),
-    Brotli(CompressorWriter<Vec<u8>>),
+    Brotli(Box<CompressorWriter<Vec<u8>>>),
     Deflate(ZlibEncoder<Vec<u8>>),
 }
 
@@ -20,7 +20,7 @@ impl Debug for EncodeFilterBody {
 impl EncodeFilterBody {
     pub fn new(encoding: SupportedEncoding) -> Self {
         match encoding {
-            SupportedEncoding::Brotli => Self::Brotli(CompressorWriter::new(Vec::new(), 4096, 11, 22)),
+            SupportedEncoding::Brotli => Self::Brotli(Box::new(CompressorWriter::new(Vec::new(), 4096, 11, 22))),
             SupportedEncoding::Gzip => Self::Gzip(GzEncoder::new(Vec::new(), flate2::Compression::default())),
             SupportedEncoding::Deflate => Self::Deflate(ZlibEncoder::new(Vec::new(), flate2::Compression::default())),
         }
@@ -37,7 +37,7 @@ impl EncodeFilterBody {
                 }
 
                 let mut buffer = Vec::new();
-                std::mem::swap(&mut buffer, &mut encoder.get_mut());
+                std::mem::swap(&mut buffer, encoder.get_mut());
 
                 Ok(buffer)
             }
@@ -50,7 +50,7 @@ impl EncodeFilterBody {
                 }
 
                 let mut buffer = Vec::new();
-                std::mem::swap(&mut buffer, &mut encoder.get_mut());
+                std::mem::swap(&mut buffer, encoder.get_mut());
 
                 Ok(buffer)
             }
@@ -63,7 +63,7 @@ impl EncodeFilterBody {
                 }
 
                 let mut buffer = Vec::new();
-                std::mem::swap(&mut buffer, &mut encoder.get_mut());
+                std::mem::swap(&mut buffer, encoder.get_mut());
 
                 Ok(buffer)
             }

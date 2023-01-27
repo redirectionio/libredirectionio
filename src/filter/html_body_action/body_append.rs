@@ -54,7 +54,7 @@ impl BodyAppend {
         (next_enter, next_leave, should_buffer, data)
     }
 
-    pub fn leave(&mut self, data: String, mut unit_trace: Option<&mut UnitTrace>) -> Result<(Option<String>, Option<String>, String)> {
+    pub fn leave(&mut self, data: String, unit_trace: Option<&mut UnitTrace>) -> Result<(Option<String>, Option<String>, String)> {
         let next_enter = Some(self.element_tree[self.position].clone());
         let is_processing = self.position + 1 >= self.element_tree.len();
         let next_leave = if self.position as i32 > 0 {
@@ -69,7 +69,7 @@ impl BodyAppend {
             if let Some(css_selector) = self.css_selector.as_ref() {
                 if !css_selector.is_empty() {
                     if !evaluate(data.as_str(), css_selector.as_str()) {
-                        if let Some(trace) = unit_trace.as_deref_mut() {
+                        if let Some(trace) = unit_trace {
                             if let Some(id) = self.id.clone() {
                                 trace.add_value_computed_by_unit(&id, &self.inner_content);
                                 if let Some(target_hash) = self.target_hash.clone() {
@@ -88,7 +88,7 @@ impl BodyAppend {
             }
 
             let mut new_data = self.content.clone();
-            if let Some(trace) = unit_trace.as_deref_mut() {
+            if let Some(trace) = unit_trace {
                 if let Some(id) = self.id.clone() {
                     trace.add_value_computed_by_unit(&id, &self.inner_content);
                     if let Some(target_hash) = self.target_hash.clone() {

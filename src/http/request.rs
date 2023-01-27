@@ -89,16 +89,7 @@ impl Request {
         Request {
             path_and_query_skipped: PathAndQueryWithSkipped::from_config(config, path_and_query.as_str()),
             path_and_query: Some(path_and_query),
-            host: match host {
-                Some(host) => {
-                    if config.ignore_host_case {
-                        Some(host.to_lowercase())
-                    } else {
-                        Some(host)
-                    }
-                }
-                None => None,
-            },
+            host: host.map(|s| if config.ignore_host_case { s.to_lowercase() } else { s }),
             scheme,
             method,
             remote_addr,

@@ -219,7 +219,7 @@ impl<T: RouteData> Default for HostMatcher<T> {
 
 impl<T: RouteData> HostMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(IpMatcher::default())
+        Box::<IpMatcher<T>>::default()
     }
 
     pub fn new(config: RouterConfig) -> Self {

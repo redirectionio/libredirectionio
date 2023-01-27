@@ -1,6 +1,6 @@
 use crate::action::UnitTrace;
 use crate::api::{BodyFilter, TextAction};
-use crate::filter::encode::{get_encoding_filters, DecodeFilterBody, EncodeFilterBody};
+use crate::filter::encoding::{get_encoding_filters, DecodeFilterBody, EncodeFilterBody};
 use crate::filter::error::Result;
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::filter::text_filter_body::{TextFilterAction, TextFilterBodyAction};
@@ -17,8 +17,8 @@ pub struct FilterBodyAction {
 pub enum FilterBodyActionItem {
     Html(HtmlFilterBodyAction),
     Text(TextFilterBodyAction),
-    Encode(EncodeFilterBody),
-    Decode(DecodeFilterBody),
+    Encode(Box<EncodeFilterBody>),
+    Decode(Box<DecodeFilterBody>),
 }
 
 impl FilterBodyAction {
@@ -50,8 +50,8 @@ impl FilterBodyAction {
         match content_encoding {
             Some(encoding) => match get_encoding_filters(encoding.as_str()) {
                 Some((decode, encode)) => {
-                    chain.insert(0, FilterBodyActionItem::Decode(decode));
-                    chain.push(FilterBodyActionItem::Encode(encode));
+                    chain.insert(0, FilterBodyActionItem::Decode(Box::new(decode)));
+                    chain.push(FilterBodyActionItem::Encode(Box::new(encode)));
 
                     Self { chain, in_error: false }
                 }
@@ -75,12 +75,12 @@ impl FilterBodyAction {
         self.chain.is_empty()
     }
 
-    pub fn filter(&mut self, data: Vec<u8>, mut unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
+    pub fn filter(&mut self, data: Vec<u8>, unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
         if self.in_error {
             return data;
         }
 
-        match self.do_filter(data.clone(), unit_trace.as_deref_mut()) {
+        match self.do_filter(data.clone(), unit_trace) {
             Ok(filtered) => filtered,
             Err(err) => {
                 log::error!("error while filtering: {:?}", err);
@@ -103,12 +103,12 @@ impl FilterBodyAction {
         Ok(data)
     }
 
-    pub fn end(&mut self, mut unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
+    pub fn end(&mut self, unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
         if self.in_error {
             return Vec::new();
         }
 
-        match self.do_end(unit_trace.as_deref_mut()) {
+        match self.do_end(unit_trace) {
             Ok(end) => end,
             Err(err) => {
                 log::error!("error while ending filtering: {}", err);
@@ -173,10 +173,10 @@ impl FilterBodyActionItem {
         }
     }
 
-    pub fn filter(&mut self, data: Vec<u8>, mut unit_trace: Option<&mut UnitTrace>) -> Result<Vec<u8>> {
+    pub fn filter(&mut self, data: Vec<u8>, unit_trace: Option<&mut UnitTrace>) -> Result<Vec<u8>> {
         Ok(match self {
-            FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data, unit_trace.as_deref_mut())?,
-            FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data, unit_trace.as_deref_mut()),
+            FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data, unit_trace)?,
+            FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data, unit_trace),
             FilterBodyActionItem::Decode(decode_body_filter) => decode_body_filter.filter(data)?,
             FilterBodyActionItem::Encode(encode_body_filter) => encode_body_filter.filter(data)?,
         })

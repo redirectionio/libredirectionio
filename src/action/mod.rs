@@ -235,7 +235,7 @@ impl Action {
         let rule = route.handler();
 
         if let Some(sampling) = rule.source.sampling {
-            let percent_rand = std::cmp::min(100, std::cmp::max(0, sampling));
+            let percent_rand = sampling.clamp(0, 100);
             let random_value = (rand::random::<u32>() % 100) + 1;
 
             match (request.sampling_override, random_value > percent_rand) {

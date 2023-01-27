@@ -24,12 +24,11 @@ impl HeaderAction for HeaderReplaceAction {
                     value: self.value.clone(),
                 });
 
-                if let Some(trace) = unit_trace.as_deref_mut() {
-                    if let Some(id) = &self.id {
-                        trace.add_value_computed_by_unit(id, &self.value);
-                        if let Some(target_hash) = &self.target_hash {
-                            trace.override_unit_id_with_target(target_hash, id);
-                        }
+                if let (Some(trace), Some(id)) = (unit_trace.as_deref_mut(), &self.id) {
+                    trace.add_value_computed_by_unit(id, &self.value);
+
+                    if let Some(target_hash) = &self.target_hash {
+                        trace.override_unit_id_with_target(target_hash, id);
                     }
                 }
             } else {

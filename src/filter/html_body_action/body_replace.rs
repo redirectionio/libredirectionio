@@ -57,7 +57,7 @@ impl BodyReplace {
         (next_enter, next_leave, false, data)
     }
 
-    pub fn leave(&mut self, data: String, mut unit_trace: Option<&mut UnitTrace>) -> (Option<String>, Option<String>, String) {
+    pub fn leave(&mut self, data: String, unit_trace: Option<&mut UnitTrace>) -> (Option<String>, Option<String>, String) {
         let next_enter = Some(self.element_tree[self.position].clone());
 
         let next_leave = if self.position as i32 > 0 && !self.is_buffering {
@@ -71,7 +71,7 @@ impl BodyReplace {
             self.is_buffering = false;
 
             if self.css_selector.is_none() || self.css_selector.as_ref().unwrap().is_empty() {
-                if let Some(trace) = unit_trace.as_deref_mut() {
+                if let Some(trace) = unit_trace {
                     if let Some(id) = self.id.clone() {
                         trace.add_value_computed_by_unit(&id, &self.inner_content);
                         if let Some(target_hash) = self.target_hash.clone() {
@@ -85,7 +85,7 @@ impl BodyReplace {
             }
 
             if evaluate(data.as_str(), self.css_selector.as_ref().unwrap().as_str()) {
-                if let Some(trace) = unit_trace.as_deref_mut() {
+                if let Some(trace) = unit_trace {
                     if let Some(id) = self.id.clone() {
                         trace.add_value_computed_by_unit(&id, &self.inner_content);
                         if let Some(target_hash) = self.target_hash.clone() {

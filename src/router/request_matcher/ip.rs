@@ -137,6 +137,6 @@ impl<T: RouteData> Default for IpMatcher<T> {
 
 impl<T: RouteData> IpMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(MethodMatcher::default())
+        Box::<MethodMatcher<T>>::default()
     }
 }

@@ -15,9 +15,9 @@ impl Transformer {
         match self.kind.as_ref() {
             None => None,
             Some(kind) => match kind.as_str() {
-                "camelize" => Some(Box::new(Camelize::default())),
-                "dasherize" => Some(Box::new(Dasherize::default())),
-                "lowercase" => Some(Box::new(Lowercase::default())),
+                "camelize" => Some(Box::<Camelize>::default()),
+                "dasherize" => Some(Box::<Dasherize>::default()),
+                "lowercase" => Some(Box::<Lowercase>::default()),
                 "replace" => match self.options.as_ref() {
                     None => None,
                     Some(options) => {
@@ -47,8 +47,8 @@ impl Transformer {
                         Some(Box::new(Slice::new(from, to)))
                     }
                 },
-                "underscorize" => Some(Box::new(Underscorize::default())),
-                "uppercase" => Some(Box::new(Uppercase::default())),
+                "underscorize" => Some(Box::<Underscorize>::default()),
+                "uppercase" => Some(Box::<Uppercase>::default()),
                 _ => None,
             },
         }

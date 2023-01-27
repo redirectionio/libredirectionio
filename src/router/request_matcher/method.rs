@@ -148,6 +148,6 @@ impl<T: RouteData> Default for MethodMatcher<T> {
 
 impl<T: RouteData> MethodMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::new(HeaderMatcher::default())
+        Box::<HeaderMatcher<T>>::default()
     }
 }
