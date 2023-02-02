@@ -88,8 +88,9 @@ pub unsafe extern "C" fn redirectionio_router_match_action(_router: *const Route
     let router = &*_router;
     let request = &*_request;
 
-    let routes = router.match_request(request);
-    let action = Action::from_routes_rule(routes, request, None);
+    let request_rebuild = router.rebuild_request(request);
+    let routes = router.match_request(&request_rebuild);
+    let action = Action::from_routes_rule(routes, &request_rebuild, None);
 
     Box::into_raw(Box::new(action))
 }

@@ -50,10 +50,12 @@ impl<T: RouteData> Router<T> {
         self.matcher.remove(id)
     }
 
-    pub fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
-        let request_rebuild = Request::rebuild_with_config(&self.config, request);
+    pub fn rebuild_request(&self, request: &Request) -> Request {
+        Request::rebuild_with_config(&self.config, request)
+    }
 
-        self.matcher.match_request(&request_rebuild)
+    pub fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+        self.matcher.match_request(&request)
     }
 
     pub fn len(&self) -> usize {

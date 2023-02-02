@@ -22,9 +22,11 @@ pub fn sanitize_url(path_and_query_str: &str) -> String {
 
 impl PathAndQueryWithSkipped {
     pub fn from_static(path_and_query_str: &str) -> Self {
+        let url = sanitize_url(path_and_query_str);
+
         Self {
-            path_and_query: path_and_query_str.to_string(),
             path_and_query_matching: Some(path_and_query_str.to_string()),
+            path_and_query: url,
             original: path_and_query_str.to_string(),
             skipped_query_params: None,
         }
