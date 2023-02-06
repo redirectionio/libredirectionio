@@ -28,7 +28,7 @@ chrono = { version = "0.4.23", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }
 console_log = "0.2.0"
 flate2 = "1.0.25"
-heck = "0.4.0"
+heck = "0.4.1"
 http = "0.2.8"
 lazy_static = "1.4.0"
 libc = "0.2.139"
@@ -39,7 +39,7 @@ rand = "0.8.5"
 regex = "1.7.1"
 scraper = "0.14.0"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.91"
+serde_json = "1.0.92"
 stderrlog = "0.5.4"
 string_cache = "=0.8.4"
 url = "2.3.1"
