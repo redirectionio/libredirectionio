@@ -1,6 +1,7 @@
 use crate::action::Action;
-use crate::http::{Header, Request};
+use crate::http::{Header, Request, TrustedProxies};
 use serde::{Deserialize, Serialize};
+use std::net::IpAddr;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -76,12 +77,20 @@ impl Log {
         proxy: &str,
         time: u64,
         client_ip: &str,
+        trusted_proxies: Option<&TrustedProxies>,
     ) -> Log {
         let mut location = None;
         let mut user_agent = None;
         let mut referer = None;
         let mut content_type = None;
-        let mut ips = vec![client_ip.to_string()];
+        let mut ips = Vec::new();
+
+        match client_ip.parse::<IpAddr>() {
+            Ok(ip) => ips.push(ip),
+            Err(e) => {
+                log::error!("cannot parse ip address {}, skipping: {}", client_ip, e);
+            }
+        }
 
         for header in &request.headers {
             if header.name.to_lowercase() == "user-agent" {
@@ -96,10 +105,38 @@ impl Log {
                 let forwarded_ips = header.value.split(',');
 
                 for forwarded_ip in forwarded_ips {
-                    ips.push(forwarded_ip.trim().to_string());
+                    match forwarded_ip.parse::<IpAddr>() {
+                        Ok(ip) => ips.push(ip),
+                        Err(e) => {
+                            log::error!("cannot parse ip address {}, skipping: {}", forwarded_ip, e);
+                        }
+                    }
+                }
+            }
+
+            if header.name.to_lowercase() == "forwarded" {
+                for (name, val) in header.value.split(';').flat_map(|val| val.split(',')).flat_map(|pair| {
+                    let mut items = pair.trim().splitn(2, '=');
+                    Some((items.next()?, items.next()?))
+                }) {
+                    if name.trim().to_lowercase().as_str() == "for" {
+                        let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
+
+                        match ip.parse::<IpAddr>() {
+                            Ok(ip) => ips.push(ip),
+                            Err(e) => {
+                                log::error!("cannot parse ip address {}, skipping: {}", ip, e);
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        let untrusted_ips = match trusted_proxies {
+            Some(trusted_proxies) => trusted_proxies.remove_trusted_ips(ips),
+            None => ips,
+        };
 
         for header in response_headers {
             if header.name.to_lowercase() == "location" {
@@ -127,7 +164,7 @@ impl Log {
             from,
             proxy: proxy.to_string(),
             time,
-            ips: Some(ips),
+            ips: Some(untrusted_ips.iter().map(|ip| ip.to_string()).collect()),
             to: location.unwrap_or_default(),
         }
     }

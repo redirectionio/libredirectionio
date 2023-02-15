@@ -1,10 +1,19 @@
 use cidr::{errors::NetworkParseError, AnyIpCidr};
 use std::net::IpAddr;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Default)]
 pub struct TrustedProxies(Vec<AnyIpCidr>);
 
 impl TrustedProxies {
+    pub fn new_local() -> Self {
+        Self(vec![
+            AnyIpCidr::from_str("10.0.0.0/8").unwrap(),
+            AnyIpCidr::from_str("172.16.0.0/12").unwrap(),
+            AnyIpCidr::from_str("192.168.0.0/16").unwrap(),
+        ])
+    }
+
     pub fn len(&self) -> usize {
         self.0.len()
     }

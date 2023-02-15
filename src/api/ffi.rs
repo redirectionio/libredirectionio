@@ -48,7 +48,7 @@ pub unsafe extern "C" fn redirectionio_api_create_log_in_json(
     let request = &*_request;
     let response_headers = header_map_to_http_headers(_response_headers);
 
-    let log = Log::from_proxy(request, code, &response_headers, action, proxy, time, client_ip);
+    let log = Log::from_proxy(request, code, &response_headers, action, proxy, time, client_ip, None);
 
     let log_serialized = match json_encode(&log) {
         Err(_) => return null(),
