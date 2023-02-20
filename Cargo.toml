@@ -29,7 +29,7 @@ cidr = { version = "0.2.1", features = ["serde"] }
 console_log = "0.2.0"
 flate2 = "1.0.25"
 heck = "0.4.1"
-http = "0.2.8"
+http = "0.2.9"
 lazy_static = "1.4.0"
 libc = "0.2.139"
 linked_hash_set = "0.1.4"
