@@ -5,6 +5,7 @@ pub struct Example {
     pub url: String,
     pub method: Option<String>,
     pub headers: Option<Vec<ExampleHeader>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub datetime: Option<String>,
     pub ip_address: Option<String>,
     pub response_status_code: Option<u16>,

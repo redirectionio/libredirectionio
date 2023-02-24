@@ -122,6 +122,12 @@ struct Source {
     #[serde(skip_serializing_if = "Vec::is_empty", default, with = "serde_yaml::with::singleton_map_recursive")]
     ips: Vec<IpConstraint>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    datetime: Option<Vec<DateTimeConstraint>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    time: Option<Vec<DateTimeConstraint>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    weekdays: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sampling: Option<u32>,
@@ -201,11 +207,15 @@ pub enum IpConstraint {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+struct DateTimeConstraint(pub Option<String>, pub Option<String>);
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleTest {
     uri: String,
     host: Option<String>,
     scheme: Option<String>,
     remote_ip: Option<String>,
+    datetime: Option<String>,
     method: Option<String>,
     headers: Option<Vec<RuleTestHeader>>,
     response_status_code: Option<u16>,

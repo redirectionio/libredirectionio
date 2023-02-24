@@ -1,25 +1,25 @@
 use crate::http::Request;
-use crate::router::route_datetime::RouteDateTime;
+use crate::router::route_time::RouteTime;
 use crate::router::trace::TraceInfo;
-use crate::router::{WeekdayMatcher, RequestMatcher, Route, RouteData, Trace};
+use crate::router::{MethodMatcher, RequestMatcher, Route, RouteData, Trace};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-pub struct DateTimeMatcher<T: RouteData> {
-    matchers: HashMap<RouteDateTime, Box<dyn RequestMatcher<T>>>,
+pub struct TimeMatcher<T: RouteData> {
+    matchers: HashMap<RouteTime, Box<dyn RequestMatcher<T>>>,
     no_matcher: Box<dyn RequestMatcher<T>>,
     count: usize,
 }
 
-impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
+impl<T: RouteData> RequestMatcher<T> for TimeMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
-        match route.datetime() {
-            Some(route_datetimes) => {
-                for route_datetime in route_datetimes {
+        match route.time() {
+            Some(route_times) => {
+                for route_time in route_times {
                     self.matchers
-                        .entry(route_datetime.clone())
+                        .entry(route_time.clone())
                         .or_insert_with(|| Self::create_sub_matcher())
                         .insert(route.clone());
                 }
@@ -56,8 +56,8 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         let mut routes = self.no_matcher.match_request(request);
 
         if let Some(datetime) = request.created_at.as_ref() {
-            for (datetime_matcher, matcher) in &self.matchers {
-                if datetime_matcher.match_datetime(datetime) {
+            for (time_matcher, matcher) in &self.matchers {
+                if time_matcher.match_datetime(datetime) {
                     routes.extend(matcher.match_request(request));
                 }
             }
@@ -70,18 +70,18 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         let mut traces = self.no_matcher.trace(request);
 
         if let Some(datetime) = request.created_at.as_ref() {
-            for (datetime_matcher, matcher) in &self.matchers {
-                if datetime_matcher.match_datetime(datetime) {
-                    let datetime_traces = matcher.trace(request);
+            for (time_matcher, matcher) in &self.matchers {
+                if time_matcher.match_datetime(datetime) {
+                    let time_traces = matcher.trace(request);
 
                     traces.push(Trace::new(
                         true,
                         true,
                         matcher.len() as u64,
-                        datetime_traces,
-                        TraceInfo::DateTime {
+                        time_traces,
+                        TraceInfo::Time {
                             request: datetime.to_string(),
-                            against: datetime_matcher.to_string(),
+                            against: time_matcher.to_string(),
                         },
                     ));
                 } else {
@@ -90,9 +90,9 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
                         true,
                         matcher.len() as u64,
                         Vec::new(),
-                        TraceInfo::DateTime {
+                        TraceInfo::Time {
                             request: datetime.to_string(),
-                            against: datetime_matcher.to_string(),
+                            against: time_matcher.to_string(),
                         },
                     ))
                 }
@@ -125,9 +125,9 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
     }
 }
 
-impl<T: RouteData> Default for DateTimeMatcher<T> {
+impl<T: RouteData> Default for TimeMatcher<T> {
     fn default() -> Self {
-        DateTimeMatcher {
+        TimeMatcher {
             matchers: HashMap::new(),
             no_matcher: Self::create_sub_matcher(),
             count: 0,
@@ -135,8 +135,8 @@ impl<T: RouteData> Default for DateTimeMatcher<T> {
     }
 }
 
-impl<T: RouteData> DateTimeMatcher<T> {
+impl<T: RouteData> TimeMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<WeekdayMatcher<T>>::default()
+        Box::<MethodMatcher<T>>::default()
     }
 }

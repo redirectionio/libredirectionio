@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use chrono::{NaiveTime, NaiveDateTime, DateTime, Utc};
+use chrono::{NaiveTime, DateTime, Utc};
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
 pub struct RouteTime {
@@ -16,22 +16,22 @@ impl RouteTime {
         let mut route_end = None;
         match start {
             None => (),
-            Some(datetime) => {
-                match datetime.parse::<NaiveDateTime>() {
-                    Ok(dt) => route_start = Some(dt.time()),
+            Some(time) => {
+                match time.parse::<NaiveTime>() {
+                    Ok(dt) => route_start = Some(dt),
                     Err(err) => {
-                        log::error!("cannot parse datetime {}: {}", datetime, err);
+                        log::error!("cannot parse time {}: {}", time, err);
                     }
                 }
             }
         }
         match end {
             None => (),
-            Some(datetime) => {
-                match datetime.parse::<NaiveDateTime>() {
-                    Ok(dt) => route_end = Some(dt.time()),
+            Some(time) => {
+                match time.parse::<NaiveTime>() {
+                    Ok(dt) => route_end = Some(dt),
                     Err(err) => {
-                        log::error!("cannot parse datetime {}: {}", datetime, err);
+                        log::error!("cannot parse time {}: {}", time, err);
                     }
                 }
             }
@@ -42,7 +42,7 @@ impl RouteTime {
         };
     }
 
-    pub fn match_datime(&self, datetime: &DateTime<Utc>) -> bool {
+    pub fn match_datetime(&self, datetime: &DateTime<Utc>) -> bool {
         let naive_time = datetime.naive_utc().time();
         match self.start {
             None => {

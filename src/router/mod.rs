@@ -13,7 +13,7 @@ mod transformer;
 use crate::http::Request;
 pub use config::RouterConfig;
 pub use marker_string::{Marker, MarkerString, StaticOrDynamic};
-pub use request_matcher::{HostMatcher, IpMatcher, DateTimeMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
+pub use request_matcher::{HostMatcher, IpMatcher, DateTimeMatcher, WeekdayMatcher, TimeMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
 pub use route::{Route, RouteData};
 pub use route_datetime::RouteDateTime;
 pub use route_header::{RouteHeader, RouteHeaderKind};

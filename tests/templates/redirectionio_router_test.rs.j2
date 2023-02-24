@@ -25,7 +25,7 @@ fn setup_{{ name }}() -> Router<Rule> {
 fn test_{{ name }}_{{ loop.index }}() {
     let router = setup_{{ name }}();
     let default_config = RouterConfig::default();
-    let{% if test.headers %} mut{% endif %} request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"{{ test.uri }}"#), r#"{{ test.uri }}"#.to_string(),
+    let{% if test.headers or test.datetime %} mut{% endif %} request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"{{ test.uri }}"#), r#"{{ test.uri }}"#.to_string(),
     {%- if test.host -%}Some(r#"{{ test.host }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.scheme -%}Some(r#"{{ test.scheme }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.method -%}Some(r#"{{ test.method }}"#.to_string()){% else %}None{%- endif -%},
@@ -37,6 +37,9 @@ fn test_{{ name }}_{{ loop.index }}() {
     request.add_header(r#"{{ header.name }}"#.to_string(), r#"{{ header.value }}"#.to_string(), false);
     {%- endfor -%}
     {%- endif %}
+    {% if test.datetime %}
+    request.set_created_at(Some(r#"{{ test.datetime }}"#.to_string()));
+    {% endif %}
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
