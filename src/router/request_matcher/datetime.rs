@@ -1,25 +1,25 @@
 use crate::http::Request;
-use crate::router::route_ip::RouteIp;
+use crate::router::route_datetime::RouteDateTime;
 use crate::router::trace::TraceInfo;
-use crate::router::{DateTimeMatcher, RequestMatcher, Route, RouteData, Trace};
+use crate::router::{MethodMatcher, RequestMatcher, Route, RouteData, Trace};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
-pub struct IpMatcher<T: RouteData> {
-    matchers: HashMap<RouteIp, Box<dyn RequestMatcher<T>>>,
+pub struct DateTimeMatcher<T: RouteData> {
+    matchers: HashMap<RouteDateTime, Box<dyn RequestMatcher<T>>>,
     no_matcher: Box<dyn RequestMatcher<T>>,
     count: usize,
 }
 
-impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
+impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
     fn insert(&mut self, route: Route<T>) {
         self.count += 1;
 
-        match route.ips() {
-            Some(ips) => {
-                for ip in ips {
+        match route.datetime() {
+            Some(route_datetimes) => {
+                for route_datetime in route_datetimes {
                     self.matchers
-                        .entry(ip.clone())
+                        .entry(route_datetime.clone())
                         .or_insert_with(|| Self::create_sub_matcher())
                         .insert(route.clone());
                 }
@@ -55,9 +55,9 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
     fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
         let mut routes = self.no_matcher.match_request(request);
 
-        if let Some(remote_addr) = request.remote_addr.as_ref() {
-            for (ip_cidr, matcher) in &self.matchers {
-                if ip_cidr.match_ip(remote_addr) {
+        if let Some(datetime) = request.created_at.as_ref() {
+            for (datetime_matcher, matcher) in &self.matchers {
+                if datetime_matcher.match_datetime(datetime) {
                     routes.extend(matcher.match_request(request));
                 }
             }
@@ -69,19 +69,19 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
     fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.no_matcher.trace(request);
 
-        if let Some(remote_addr) = request.remote_addr.as_ref() {
-            for (ip_cidr, matcher) in &self.matchers {
-                if ip_cidr.match_ip(remote_addr) {
-                    let ip_traces = matcher.trace(request);
+        if let Some(datetime) = request.created_at.as_ref() {
+            for (datetime_matcher, matcher) in &self.matchers {
+                if datetime_matcher.match_datetime(datetime) {
+                    let datetime_traces = matcher.trace(request);
 
                     traces.push(Trace::new(
                         true,
                         true,
                         matcher.len() as u64,
-                        ip_traces,
-                        TraceInfo::Ip {
-                            request: remote_addr.to_string(),
-                            against: ip_cidr.to_string(),
+                        datetime_traces,
+                        TraceInfo::DateTime {
+                            request: datetime.to_string(),
+                            against: datetime_matcher.to_string(),
                         },
                     ));
                 } else {
@@ -90,9 +90,9 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
                         true,
                         matcher.len() as u64,
                         Vec::new(),
-                        TraceInfo::Ip {
-                            request: remote_addr.to_string(),
-                            against: ip_cidr.to_string(),
+                        TraceInfo::DateTime {
+                            request: datetime.to_string(),
+                            against: datetime_matcher.to_string(),
                         },
                     ))
                 }
@@ -125,9 +125,9 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
     }
 }
 
-impl<T: RouteData> Default for IpMatcher<T> {
+impl<T: RouteData> Default for DateTimeMatcher<T> {
     fn default() -> Self {
-        IpMatcher {
+        DateTimeMatcher {
             matchers: HashMap::new(),
             no_matcher: Self::create_sub_matcher(),
             count: 0,
@@ -135,8 +135,8 @@ impl<T: RouteData> Default for IpMatcher<T> {
     }
 }
 
-impl<T: RouteData> IpMatcher<T> {
+impl<T: RouteData> DateTimeMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<DateTimeMatcher<T>>::default()
+        Box::<MethodMatcher<T>>::default()
     }
 }

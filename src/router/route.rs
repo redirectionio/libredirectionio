@@ -1,6 +1,9 @@
 use super::RouteHeader;
 use crate::http::Request;
+use crate::router::route_datetime::RouteDateTime;
 use crate::router::route_ip::RouteIp;
+use crate::router::route_time::RouteTime;
+use crate::router::route_weekday::RouteWeekday;
 use crate::router::StaticOrDynamic;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -18,6 +21,9 @@ pub struct Route<T: RouteData> {
     path_and_query: StaticOrDynamic,
     headers: Vec<RouteHeader>,
     ips: Option<Vec<RouteIp>>,
+    datetime: Option<Vec<RouteDateTime>>,
+    time: Option<Vec<RouteTime>>,
+    weekdays: Option<RouteWeekday>,
     id: String,
     priority: i64,
 }
@@ -31,6 +37,9 @@ impl<T: RouteData> Route<T> {
         path_and_query: StaticOrDynamic,
         headers: Vec<RouteHeader>,
         ips: Option<Vec<RouteIp>>,
+        datetime: Option<Vec<RouteDateTime>>,
+        time: Option<Vec<RouteTime>>,
+        weekdays: Option<RouteWeekday>,
         id: String,
         priority: i64,
         handler: T,
@@ -43,6 +52,9 @@ impl<T: RouteData> Route<T> {
             path_and_query,
             headers,
             ips,
+            datetime,
+            time,
+            weekdays,
             id,
             priority,
         }
@@ -78,6 +90,18 @@ impl<T: RouteData> Route<T> {
 
     pub fn ips(&self) -> Option<&Vec<RouteIp>> {
         self.ips.as_ref()
+    }
+
+    pub fn datetime(&self) -> Option<&Vec<RouteDateTime>> {
+        self.datetime.as_ref()
+    }
+
+    pub fn time(&self) -> Option<&Vec<RouteTime>> {
+        self.time.as_ref()
+    }
+
+    pub fn weekdays(&self) -> Option<&RouteWeekday> {
+        self.weekdays.as_ref()
     }
 
     pub fn id(&self) -> &str {

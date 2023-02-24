@@ -1,7 +1,7 @@
-use crate::api::{BodyFilter, Example, HeaderFilter, IpConstraint, Marker, Source, Variable};
+use crate::api::{BodyFilter, Example, HeaderFilter, IpConstraint, DateTimeConstraint, Marker, Source, Variable};
 use crate::http::Request;
 use crate::router::{
-    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouteIp, RouterConfig, StaticOrDynamic, Transform,
+    Marker as RouteMarker, MarkerString, Route, RouteData, RouteHeader, RouteHeaderKind, RouteIp, RouteDateTime, RouteTime, RouteWeekday, RouterConfig, StaticOrDynamic, Transform,
 };
 use cidr::AnyIpCidr;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
@@ -158,6 +158,47 @@ impl Rule {
         }
     }
 
+    fn route_datetimes(&self) -> Option<Vec<RouteDateTime>> {
+        let mut route_datetimes = Vec::new();
+
+        if let Some(source_datetimes) = self.source.datetime.as_ref() {
+            for range in source_datetimes {
+                let DateTimeConstraint(source_start, source_end) = range;
+                route_datetimes.push(RouteDateTime::from_range(source_start, source_end));
+            }
+        }
+
+        if route_datetimes.is_empty() {
+            None
+        } else {
+            Some(route_datetimes)
+        }
+    }
+
+    fn route_times(&self) -> Option<Vec<RouteTime>> {
+        let mut route_times = Vec::new();
+
+        if let Some(source_times) = self.source.time.as_ref() {
+            for range in source_times {
+                let DateTimeConstraint(source_start, source_end) = range;
+                route_times.push(RouteTime::from_range(source_start, source_end));
+            }
+        }
+
+        if route_times.is_empty() {
+            None
+        } else {
+            Some(route_times)
+        }
+    }
+
+    fn route_weekdays(&self) -> Option<RouteWeekday> {
+        if let Some(source_weekdays) = self.source.weekdays.as_ref() {
+            return RouteWeekday::from_weekdays(source_weekdays);
+        }
+        return None;
+    }
+
     fn path_and_query(&self, ignore_case: bool) -> StaticOrDynamic {
         let markers = self.markers();
 
@@ -247,6 +288,9 @@ impl Rule {
             self.path_and_query(config.ignore_path_and_query_case),
             self.headers(config.ignore_header_case),
             self.route_ips(),
+            self.route_datetimes(),
+            self.route_times(),
+            self.route_weekdays(),
             self.id.clone(),
             0 - self.rank as i64,
             self,

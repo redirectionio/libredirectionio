@@ -5,6 +5,7 @@ pub struct Example {
     pub url: String,
     pub method: Option<String>,
     pub headers: Option<Vec<ExampleHeader>>,
+    pub datetime: Option<String>,
     pub ip_address: Option<String>,
     pub response_status_code: Option<u16>,
     pub must_match: bool,

@@ -1,4 +1,5 @@
 mod body_filter;
+mod date_time;
 mod examples;
 mod explain_request;
 #[cfg(not(target_arch = "wasm32"))]
@@ -19,6 +20,7 @@ mod variable;
 
 pub use self::log::{LegacyLog, Log};
 pub use body_filter::{BodyFilter, HTMLBodyFilter, TextAction, TextBodyFilter};
+pub use date_time::DateTimeConstraint;
 pub use examples::Example;
 pub use explain_request::{ExplainRequestInput, ExplainRequestOutput, ExplainRequestOutputError};
 pub use header::Header;

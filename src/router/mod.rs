@@ -2,18 +2,24 @@ mod config;
 mod marker_string;
 pub mod request_matcher;
 mod route;
+mod route_datetime;
 mod route_header;
 mod route_ip;
+mod route_time;
+mod route_weekday;
 mod trace;
 mod transformer;
 
 use crate::http::Request;
 pub use config::RouterConfig;
 pub use marker_string::{Marker, MarkerString, StaticOrDynamic};
-pub use request_matcher::{HostMatcher, IpMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
+pub use request_matcher::{HostMatcher, IpMatcher, DateTimeMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
 pub use route::{Route, RouteData};
+pub use route_datetime::RouteDateTime;
 pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use route_ip::RouteIp;
+pub use route_time::RouteTime;
+pub use route_weekday::RouteWeekday;
 pub use trace::{RouteTrace, Trace};
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 

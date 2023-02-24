@@ -1,3 +1,4 @@
+mod datetime;
 mod header;
 mod host;
 mod ip;
@@ -11,6 +12,7 @@ use crate::http::Request;
 use crate::router::{Route, RouteData, Trace};
 use std::fmt::Debug;
 
+pub use datetime::DateTimeMatcher;
 pub use header::{HeaderMatcher, ValueCondition as HeaderValueCondition};
 pub use host::HostMatcher;
 pub use ip::IpMatcher;
