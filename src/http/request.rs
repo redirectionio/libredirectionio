@@ -128,6 +128,10 @@ impl Request {
             request.remote_addr = Some(IpAddr::from_str(ip).unwrap());
         }
 
+        if let Some(datetime) = &example.datetime {
+            request.set_created_at(Some(datetime.to_string()));
+        }
+
         Ok(request)
     }
 

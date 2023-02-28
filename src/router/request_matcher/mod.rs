@@ -7,14 +7,12 @@ mod method;
 mod path_and_query;
 mod route_matcher;
 mod scheme;
-mod time;
-mod weekday;
 
 use crate::http::Request;
 use crate::router::{Route, RouteData, Trace};
 use std::fmt::Debug;
 
-pub use datetime::DateTimeMatcher;
+pub use datetime::{DateTimeMatcher, DateTimeCondition};
 pub use header::{HeaderMatcher, ValueCondition as HeaderValueCondition};
 pub use host::HostMatcher;
 pub use ip::IpMatcher;
@@ -22,8 +20,6 @@ pub use method::MethodMatcher;
 pub use path_and_query::PathAndQueryMatcher;
 pub use route_matcher::RouteMatcher;
 pub use scheme::SchemeMatcher;
-pub use time::TimeMatcher;
-pub use weekday::WeekdayMatcher;
 
 pub trait RequestMatcher<T: RouteData>: Debug + Send + Sync {
     fn insert(&mut self, route: Route<T>);

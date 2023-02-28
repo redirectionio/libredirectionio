@@ -1,5 +1,6 @@
-use crate::router::request_matcher::HeaderValueCondition;
+use crate::router::request_matcher::{HeaderValueCondition, DateTimeCondition};
 use crate::router::{Route, RouteData};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -27,9 +28,7 @@ pub enum TraceInfo<T: RouteData> {
     HostStatic { request: String, against: Option<String> },
     HostRegex,
     Ip { request: String, against: String },
-    DateTime { request: String, against: String },
-    Time { request: String, against: String },
-    Weekday { request: String, against: String },
+    DateTimeGroup { conditions: Vec<TraceInfoDateTimeCondition> },
     Method { request: String, against: Option<String> },
     HeaderGroup { conditions: Vec<TraceInfoHeaderCondition> },
     PathAndQueryStatic { request: String },
@@ -43,6 +42,14 @@ pub struct TraceInfoHeaderCondition {
     pub result: Option<bool>,
     pub name: String,
     pub condition: HeaderValueCondition,
+    pub cached: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TraceInfoDateTimeCondition {
+    pub result: Option<bool>,
+    pub condition: DateTimeCondition,
+    pub against: DateTime<Utc>,
     pub cached: bool,
 }
 

@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
 use chrono::{Weekday, DateTime, Utc, Datelike};
 use std::fmt::{Display, Formatter, Result};
+use std::cmp::Ordering;
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Weekdays(pub Vec<Weekday>);
-#[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RouteWeekday {
     pub weekdays: Weekdays,
 }
@@ -14,6 +15,19 @@ impl Display for Weekdays {
         self.0.iter().fold(Ok(()), |result, weekday| {
             result.and_then(|_| writeln!(f, "{}", weekday))
         })
+    }
+}
+
+impl Ord for Weekdays {
+    fn cmp(&self, _other: &Self) -> Ordering {
+        // we don't really care about the order
+        Ordering::Equal
+    }
+}
+
+impl PartialOrd for Weekdays {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 

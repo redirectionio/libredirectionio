@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use chrono::{NaiveTime, DateTime, Utc};
 
-#[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RouteTime {
     pub start: Option<NaiveTime>,
     pub end: Option<NaiveTime>,
