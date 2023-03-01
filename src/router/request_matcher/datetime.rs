@@ -232,14 +232,14 @@ impl<T: RouteData> DateTimeMatcher<T> {
 impl DateTimeCondition {
     pub fn match_value(&self, datetime: &DateTime<Utc>) -> bool {
         match self {
-            DateTimeCondition::DateTimeRange(route_date_time) =>  {
+            DateTimeCondition::DateTimeRange(route_date_time) => {
                 for range in route_date_time {
                     if range.match_datetime(datetime) {
                         return true;
                     }
                 }
                 return false;
-            },
+            }
             DateTimeCondition::TimeRange(route_time) => {
                 for range in route_time {
                     if range.match_datetime(datetime) {
@@ -247,7 +247,7 @@ impl DateTimeCondition {
                     }
                 }
                 return false;
-            },
+            }
             DateTimeCondition::Weekdays(route_weekday) => route_weekday.match_datetime(datetime),
         }
     }

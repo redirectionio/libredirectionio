@@ -7592,7 +7592,7 @@ fn test_rule_date_trigger_multiple_2() {
     let default_config = RouterConfig::default();
     let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
     
-    request.set_created_at(Some(r#"2023-03-16T00:42:00+00:00"#.to_string()));
+    request.set_created_at(Some(r#"2023-04-16T00:42:00+00:00"#.to_string()));
     
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);

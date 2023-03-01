@@ -1,5 +1,5 @@
+use chrono::{DateTime, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
-use chrono::{NaiveDateTime, DateTime, Utc};
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RouteDateTime {
@@ -8,33 +8,26 @@ pub struct RouteDateTime {
 }
 
 impl RouteDateTime {
-    pub fn from_range(
-        start: &Option<String>,
-        end: &Option<String>,
-    ) -> RouteDateTime {
+    pub fn from_range(start: &Option<String>, end: &Option<String>) -> RouteDateTime {
         let mut route_start = None;
         let mut route_end = None;
         match start {
             None => (),
-            Some(datetime) => {
-                match datetime.parse::<DateTime<Utc>>() {
-                    Ok(dt) => route_start = Some(dt.naive_utc()),
-                    Err(err) => {
-                        log::error!("cannot parse datetime {}: {}", datetime, err);
-                    }
+            Some(datetime) => match datetime.parse::<DateTime<Utc>>() {
+                Ok(dt) => route_start = Some(dt.naive_utc()),
+                Err(err) => {
+                    log::error!("cannot parse datetime {}: {}", datetime, err);
                 }
-            }
+            },
         }
         match end {
             None => (),
-            Some(datetime) => {
-                match datetime.parse::<DateTime<Utc>>() {
-                    Ok(dt) => route_end = Some(dt.naive_utc()),
-                    Err(err) => {
-                        log::error!("cannot parse datetime {}: {}", datetime, err);
-                    }
+            Some(datetime) => match datetime.parse::<DateTime<Utc>>() {
+                Ok(dt) => route_end = Some(dt.naive_utc()),
+                Err(err) => {
+                    log::error!("cannot parse datetime {}: {}", datetime, err);
                 }
-            }
+            },
         }
         return RouteDateTime {
             start: route_start,
@@ -45,18 +38,14 @@ impl RouteDateTime {
     pub fn match_datetime(&self, datetime: &DateTime<Utc>) -> bool {
         let naive_datetime = datetime.naive_utc();
         match self.start {
-            None => {
-                match self.end {
-                    None => true,
-                    Some(end) => naive_datetime < end,
-                }
+            None => match self.end {
+                None => true,
+                Some(end) => naive_datetime < end,
             },
-            Some(start) => {
-                match self.end {
-                    None => naive_datetime >= start,
-                    Some(end) => (naive_datetime >= start) && (naive_datetime < end),
-                }
-            }
+            Some(start) => match self.end {
+                None => naive_datetime >= start,
+                Some(end) => (naive_datetime >= start) && (naive_datetime < end),
+            },
         }
     }
 }

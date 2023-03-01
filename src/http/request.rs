@@ -187,16 +187,12 @@ impl Request {
     pub fn set_created_at(&mut self, created_at: Option<String>) {
         match created_at {
             None => (),
-            Some(created_at) => {
-                match created_at.parse::<DateTime<Utc>>() {
-                    Ok(dt) => {
-                        self.created_at = Some(dt)
-                    },
-                    Err(err) => {
-                        log::error!("cannot parse datetime {}: {}", created_at, err);
-                    }
+            Some(created_at) => match created_at.parse::<DateTime<Utc>>() {
+                Ok(dt) => self.created_at = Some(dt),
+                Err(err) => {
+                    log::error!("cannot parse datetime {}: {}", created_at, err);
                 }
-            }
+            },
         };
     }
 

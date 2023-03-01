@@ -1,5 +1,5 @@
+use chrono::{DateTime, NaiveTime, Utc};
 use serde::{Deserialize, Serialize};
-use chrono::{NaiveTime, DateTime, Utc};
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RouteTime {
@@ -8,33 +8,26 @@ pub struct RouteTime {
 }
 
 impl RouteTime {
-    pub fn from_range(
-        start: &Option<String>,
-        end: &Option<String>,
-    ) -> RouteTime {
+    pub fn from_range(start: &Option<String>, end: &Option<String>) -> RouteTime {
         let mut route_start = None;
         let mut route_end = None;
         match start {
             None => (),
-            Some(time) => {
-                match time.parse::<NaiveTime>() {
-                    Ok(dt) => route_start = Some(dt),
-                    Err(err) => {
-                        log::error!("cannot parse time {}: {}", time, err);
-                    }
+            Some(time) => match time.parse::<NaiveTime>() {
+                Ok(dt) => route_start = Some(dt),
+                Err(err) => {
+                    log::error!("cannot parse time {}: {}", time, err);
                 }
-            }
+            },
         }
         match end {
             None => (),
-            Some(time) => {
-                match time.parse::<NaiveTime>() {
-                    Ok(dt) => route_end = Some(dt),
-                    Err(err) => {
-                        log::error!("cannot parse time {}: {}", time, err);
-                    }
+            Some(time) => match time.parse::<NaiveTime>() {
+                Ok(dt) => route_end = Some(dt),
+                Err(err) => {
+                    log::error!("cannot parse time {}: {}", time, err);
                 }
-            }
+            },
         }
         return RouteTime {
             start: route_start,
@@ -45,18 +38,14 @@ impl RouteTime {
     pub fn match_datetime(&self, datetime: &DateTime<Utc>) -> bool {
         let naive_time = datetime.naive_utc().time();
         match self.start {
-            None => {
-                match self.end {
-                    None => true,
-                    Some(end) => naive_time < end,
-                }
+            None => match self.end {
+                None => true,
+                Some(end) => naive_time < end,
             },
-            Some(start) => {
-                match self.end {
-                    None => naive_time >= start,
-                    Some(end) => (naive_time >= start) && (naive_time < end),
-                }
-            }
+            Some(start) => match self.end {
+                None => naive_time >= start,
+                Some(end) => (naive_time >= start) && (naive_time < end),
+            },
         }
     }
 }
