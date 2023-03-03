@@ -92,7 +92,6 @@ impl Impact {
 
 impl ImpactOutput {
     pub fn create_result(impact_input: ImpactInput) -> ImpactOutput {
-
         let router_config = impact_input.router_config.clone();
         let mut router = Router::<Rule>::from_config(router_config.clone());
         let mut trace_unique_router = Router::<Rule>::from_config(router_config.clone());
