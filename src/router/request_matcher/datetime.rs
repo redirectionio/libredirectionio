@@ -118,9 +118,9 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
                         }
                     }
                 }
-
-                rules.extend(matcher.match_request(request));
             }
+
+            rules.extend(matcher.match_request(request));
         }
 
         rules
