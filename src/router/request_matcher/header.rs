@@ -1,5 +1,5 @@
 use crate::http::Request;
-use crate::router::request_matcher::{PathAndQueryMatcher, RequestMatcher};
+use crate::router::request_matcher::{DateTimeMatcher, RequestMatcher};
 use crate::router::trace::{TraceInfo, TraceInfoHeaderCondition};
 use crate::router::{Route, RouteData, RouteHeaderKind, Trace};
 use regex::Regex;
@@ -222,7 +222,7 @@ impl<T: RouteData> Default for HeaderMatcher<T> {
 
 impl<T: RouteData> HeaderMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<PathAndQueryMatcher<T>>::default()
+        Box::<DateTimeMatcher<T>>::default()
     }
 }
 

@@ -1,6 +1,5 @@
 use crate::router::request_matcher::{DateTimeCondition, HeaderValueCondition};
 use crate::router::{Route, RouteData};
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -49,7 +48,6 @@ pub struct TraceInfoHeaderCondition {
 pub struct TraceInfoDateTimeCondition {
     pub result: Option<bool>,
     pub condition: DateTimeCondition,
-    pub against: DateTime<Utc>,
     pub cached: bool,
 }
 

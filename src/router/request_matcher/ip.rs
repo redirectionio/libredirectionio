@@ -1,7 +1,7 @@
 use crate::http::Request;
 use crate::router::route_ip::RouteIp;
 use crate::router::trace::TraceInfo;
-use crate::router::{DateTimeMatcher, RequestMatcher, Route, RouteData, Trace};
+use crate::router::{MethodMatcher, RequestMatcher, Route, RouteData, Trace};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -137,6 +137,6 @@ impl<T: RouteData> Default for IpMatcher<T> {
 
 impl<T: RouteData> IpMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<DateTimeMatcher<T>>::default()
+        Box::<MethodMatcher<T>>::default()
     }
 }

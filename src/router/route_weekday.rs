@@ -19,9 +19,10 @@ impl Display for Weekdays {
 }
 
 impl Ord for Weekdays {
-    fn cmp(&self, _other: &Self) -> Ordering {
-        // we don't really care about the order
-        Ordering::Equal
+    fn cmp(&self, other: &Self) -> Ordering {
+        let self_num = self.0.iter().map(|weekday| weekday.num_days_from_monday());
+        let other_num = other.0.iter().map(|weekday| weekday.num_days_from_monday());
+        return self_num.cmp(other_num);
     }
 }
 

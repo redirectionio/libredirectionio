@@ -1,11 +1,10 @@
 use crate::http::Request;
-use crate::router::request_matcher::{MethodMatcher, RequestMatcher};
+use crate::router::request_matcher::{PathAndQueryMatcher, RequestMatcher};
 use crate::router::route_datetime::RouteDateTime;
 use crate::router::route_time::RouteTime;
 use crate::router::route_weekday::RouteWeekday;
 use crate::router::trace::{TraceInfo, TraceInfoDateTimeCondition};
 use crate::router::{Route, RouteData, Trace};
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
@@ -32,13 +31,14 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         self.count += 1;
 
         let mut condition_group = BTreeSet::new();
-        let mut conditions = BTreeSet::new();
+        let mut route_conditions = BTreeSet::new();
 
         match route.datetime() {
             Some(route_datetime) => {
                 let condition = DateTimeCondition::DateTimeRange(route_datetime.clone());
                 condition_group.insert(condition.clone());
-                conditions.insert(condition);
+                route_conditions.insert(condition.clone());
+                self.conditions.insert(condition);
             }
             None => (),
         }
@@ -47,7 +47,8 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
             Some(route_weekdays) => {
                 let condition = DateTimeCondition::Weekdays(route_weekdays.clone());
                 condition_group.insert(condition.clone());
-                conditions.insert(condition);
+                route_conditions.insert(condition.clone());
+                self.conditions.insert(condition);
             }
             None => (),
         }
@@ -56,18 +57,17 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
             Some(route_time) => {
                 let condition = DateTimeCondition::TimeRange(route_time.clone());
                 condition_group.insert(condition.clone());
-                conditions.insert(condition);
+                route_conditions.insert(condition.clone());
+                self.conditions.insert(condition);
             }
             None => (),
         }
 
-        if conditions.is_empty() {
+        if route_conditions.is_empty() {
             self.any_datetime.insert(route);
 
             return;
         }
-
-        self.conditions.extend(conditions);
 
         if !self.condition_groups.contains_key(&condition_group) {
             self.condition_groups.insert(condition_group.clone(), Self::create_sub_matcher());
@@ -98,25 +98,23 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         let mut rules = self.any_datetime.match_request(request);
         let mut execute_conditions = BTreeMap::new();
 
-        if let Some(datetime) = request.created_at.as_ref() {
-            'group: for (conditions, matcher) in &self.condition_groups {
-                for condition in conditions {
-                    match execute_conditions.get(condition) {
-                        None => {
-                            // Execute condition
-                            let result = condition.match_value(datetime);
+        'group: for (conditions, matcher) in &self.condition_groups {
+            for condition in conditions {
+                match execute_conditions.get(condition) {
+                    None => {
+                        // Execute condition
+                        let result = condition.match_value(request);
 
-                            // Save result
-                            execute_conditions.insert(condition.clone(), result);
+                        // Save result
+                        execute_conditions.insert(condition.clone(), result);
 
-                            if !result {
-                                continue 'group;
-                            }
+                        if !result {
+                            continue 'group;
                         }
-                        Some(result) => {
-                            if !result {
-                                continue 'group;
-                            }
+                    }
+                    Some(result) => {
+                        if !result {
+                            continue 'group;
                         }
                     }
                 }
@@ -132,58 +130,54 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         let mut traces = self.any_datetime.trace(request);
         let mut execute_conditions = BTreeMap::new();
 
-        if let Some(datetime) = request.created_at.as_ref() {
-            for (conditions, matcher) in &self.condition_groups {
-                let mut matched = true;
-                let mut executed = true;
-                let mut traces_info_datetime = Vec::new();
+        for (conditions, matcher) in &self.condition_groups {
+            let mut matched = true;
+            let mut executed = true;
+            let mut traces_info_datetime = Vec::new();
 
-                for condition in conditions {
-                    match execute_conditions.get(condition) {
-                        None => {
-                            // Execute condition
-                            let result = condition.match_value(datetime);
-                            matched = matched && result;
+            for condition in conditions {
+                match execute_conditions.get(condition) {
+                    None => {
+                        // Execute condition
+                        let result = condition.match_value(request);
+                        matched = matched && result;
 
-                            // Save result (only if executed to mimic cache behavior)
-                            if executed {
-                                execute_conditions.insert(condition.clone(), matched);
-                            }
-
-                            traces_info_datetime.push(TraceInfoDateTimeCondition {
-                                result: if executed { Some(result) } else { None },
-                                condition: condition.clone(),
-                                against: datetime.clone(),
-                                cached: false,
-                            });
-
-                            executed = matched;
+                        // Save result (only if executed to mimic cache behavior)
+                        if executed {
+                            execute_conditions.insert(condition.clone(), matched);
                         }
-                        Some(result) => {
-                            matched = matched && *result;
 
-                            traces_info_datetime.push(TraceInfoDateTimeCondition {
-                                result: if executed { Some(*result) } else { None },
-                                condition: condition.clone(),
-                                against: datetime.clone(),
-                                cached: true,
-                            });
+                        traces_info_datetime.push(TraceInfoDateTimeCondition {
+                            result: if executed { Some(result) } else { None },
+                            condition: condition.clone(),
+                            cached: false,
+                        });
 
-                            executed = matched;
-                        }
+                        executed = matched;
+                    }
+                    Some(result) => {
+                        matched = matched && *result;
+
+                        traces_info_datetime.push(TraceInfoDateTimeCondition {
+                            result: if executed { Some(*result) } else { None },
+                            condition: condition.clone(),
+                            cached: true,
+                        });
+
+                        executed = matched;
                     }
                 }
-
-                traces.push(Trace::new(
-                    matched,
-                    true,
-                    matcher.len() as u64,
-                    if matched { matcher.trace(request) } else { Vec::new() },
-                    TraceInfo::DateTimeGroup {
-                        conditions: traces_info_datetime,
-                    },
-                ));
             }
+
+            traces.push(Trace::new(
+                matched,
+                true,
+                matcher.len() as u64,
+                if matched { matcher.trace(request) } else { Vec::new() },
+                TraceInfo::DateTimeGroup {
+                    conditions: traces_info_datetime,
+                },
+            ));
         }
 
         traces
@@ -225,30 +219,34 @@ impl<T: RouteData> Default for DateTimeMatcher<T> {
 
 impl<T: RouteData> DateTimeMatcher<T> {
     pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<MethodMatcher<T>>::default()
+        Box::<PathAndQueryMatcher<T>>::default()
     }
 }
 
 impl DateTimeCondition {
-    pub fn match_value(&self, datetime: &DateTime<Utc>) -> bool {
-        match self {
-            DateTimeCondition::DateTimeRange(route_date_time) => {
-                for range in route_date_time {
-                    if range.match_datetime(datetime) {
-                        return true;
+    pub fn match_value(&self, request: &Request) -> bool {
+        if let Some(datetime) = request.created_at.as_ref() {
+            match self {
+                DateTimeCondition::DateTimeRange(route_date_time) => {
+                    for range in route_date_time {
+                        if range.match_datetime(datetime) {
+                            return true;
+                        }
                     }
+                    return false;
                 }
-                return false;
-            }
-            DateTimeCondition::TimeRange(route_time) => {
-                for range in route_time {
-                    if range.match_datetime(datetime) {
-                        return true;
+                DateTimeCondition::TimeRange(route_time) => {
+                    for range in route_time {
+                        if range.match_datetime(datetime) {
+                            return true;
+                        }
                     }
+                    return false;
                 }
-                return false;
+                DateTimeCondition::Weekdays(route_weekday) => route_weekday.match_datetime(datetime),
             }
-            DateTimeCondition::Weekdays(route_weekday) => route_weekday.match_datetime(datetime),
+        } else {
+            false
         }
     }
 }
