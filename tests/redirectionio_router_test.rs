@@ -7555,7 +7555,7 @@ fn setup_rule_date_trigger_multiple() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-multiple","rank":0,"source":{"datetime":[[null,"2023-03-01T00:00:00+00:00"],["2023-03-31T00:00:00+00:00",null]],"path":"/foo","time":[[null,"01:20:00"],["20:30:00",null]],"weekdays":["Sunday"]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-multiple","rank":0,"source":{"datetime":[[null,"2023-03-01T15:07:00+00:00"],["2023-03-31T00:12:00+00:00",null]],"path":"/foo","time":[["15:20:30",null]],"weekdays":["Sunday"]},"status_code":410}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
     router
@@ -7582,7 +7582,7 @@ fn test_rule_date_trigger_multiple_1() {
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
-    assert_eq!(action_status_code, 302);
+    assert_eq!(action_status_code, 410);
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
@@ -7592,7 +7592,7 @@ fn test_rule_date_trigger_multiple_2() {
     let default_config = RouterConfig::default();
     let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
     
-    request.set_created_at(Some(r#"2023-04-16T00:42:00+00:00"#.to_string()));
+    request.set_created_at(Some(r#"2023-04-16T17:42:00+00:00"#.to_string()));
     
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
@@ -7606,7 +7606,7 @@ fn test_rule_date_trigger_multiple_2() {
     let response_status_code = 0;
 
     let action_status_code = action.get_status_code(response_status_code, None);
-    assert_eq!(action_status_code, 302);
+    assert_eq!(action_status_code, 410);
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
@@ -7939,7 +7939,7 @@ fn test_rule_date_trigger_weekdays_4() {
     let default_config = RouterConfig::default();
     let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
     
-    request.set_created_at(Some(r#"20123-02-18T14:30:00+00:00"#.to_string()));
+    request.set_created_at(Some(r#"2023-02-18T14:30:00+00:00"#.to_string()));
     
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);

@@ -327,7 +327,7 @@ fn make_router_tests() {
         .render("redirectionio_router_test.rs.j2", &context)
         .expect("cannot generate");
 
-    // we avoid rewriting the file to keep rust cache as must as possible
+    // we avoid rewriting the file to keep rust cache as much as possible
     if test_path.exists() {
         let existing_content = std::fs::read_to_string(test_path).expect("cannot read");
 
