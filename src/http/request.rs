@@ -45,7 +45,7 @@ impl FromStr for Request {
         Ok(Request::new(
             PathAndQueryWithSkipped::from_config(&config, path_and_query_str),
             path_and_query_str.to_string(),
-            http_request.uri().host().map(|s| s.to_string()),
+            http_request.uri().authority().map(|s| s.to_string()),
             http_request.uri().scheme_str().map(|s| s.to_string()),
             None,
             None,
@@ -111,7 +111,7 @@ impl Request {
         let mut request = Request::from_config(
             router_config,
             path_and_query_str.to_string(),
-            http_request.uri().host().map(|s| s.to_string()),
+            http_request.uri().authority().map(|s| s.to_string()),
             http_request.uri().scheme_str().map(|s| s.to_string()),
             example.method.clone(),
             None,
