@@ -1,6 +1,14 @@
+## 2.6.0 - 08-03-2023
+
+ * Add support for deflate and brotli compression
+ * Avoid creating a body filter if there is only compression and no real filters
+ * Fix supporting host with port
+ * Add support to trusted proxies in log to avoid collecting their ips
+ * Support streaming body when there is compression
+
 ## 2.5.2 - 24-11-2022
 
-* Fix a bug in wasm target compilation that make it impossible to compile
+ * Fix a bug in wasm target compilation that make it impossible to compile
 
 ## 2.5.1 - 23-11-2022
 
