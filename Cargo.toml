@@ -23,6 +23,7 @@ tera = "1.17.1"
 
 [dependencies]
 brotli = "3.3.4"
+byteorder = "1.4.3"
 cfg-if = "1.0.0"
 chrono = { version = "0.4.23", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }
@@ -46,7 +47,8 @@ url = "2.3.1"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 
 [dev-dependencies]
-criterion = "0.4.0"
+pprof = { version = "0.3", features = ["flamegraph"] }
+criterion = { version = "0.4", default-features = false }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wee_alloc = { version = "0.4.5" }
@@ -58,6 +60,10 @@ harness = false
 
 [[bench]]
 name = "build_router_rule_benchmark"
+harness = false
+
+[[bench]]
+name = "filter_body_benchmark"
 harness = false
 
 [dependencies.web-sys]
