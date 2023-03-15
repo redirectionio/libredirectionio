@@ -8478,6 +8478,7 @@ fn test_rule_host_port_1() {
     let router = setup_rule_host_port();
     let default_config = RouterConfig::default();
     let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.org"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -8493,6 +8494,7 @@ fn test_rule_host_port_2() {
     let router = setup_rule_host_port();
     let default_config = RouterConfig::default();
     let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.org:4040"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
@@ -8508,6 +8510,7 @@ fn test_rule_host_port_3() {
     let router = setup_rule_host_port();
     let default_config = RouterConfig::default();
     let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.org:8080"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);
     let traces = router.trace_request(&request_configured);
