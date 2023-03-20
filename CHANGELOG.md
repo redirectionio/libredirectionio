@@ -1,3 +1,7 @@
+## 2.7.0 - 20-03-2023
+
+ * Add new trigger support for date, time and date time
+
 ## 2.6.0 - 08-03-2023
 
  * Add support for deflate and brotli compression
