@@ -1,3 +1,7 @@
+## 2.7.1 - 23-03-2023
+
+ * Add optional features to libredirectionio, to allow better compilation on wasm target
+
 ## 2.7.0 - 20-03-2023
 
  * Add new trigger support for date, time and date time
