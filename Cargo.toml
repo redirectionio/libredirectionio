@@ -21,14 +21,19 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9.17"
 tera = "1.17.1"
 
+[features]
+default = ["compress", "router"]
+compress = ["dep:brotli", "dep:flate2"]
+router = []
+
 [dependencies]
-brotli = "3.3.4"
+brotli = { version = "3.3.4", optional = true }
 byteorder = "1.4.3"
 cfg-if = "1.0.0"
 chrono = { version = "0.4.23", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }
 console_log = "0.2.0"
-flate2 = "1.0.25"
+flate2 = { version = "1.0.25", optional = true }
 heck = "0.4.1"
 http = "0.2.9"
 lazy_static = "1.4.0"

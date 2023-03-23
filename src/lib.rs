@@ -14,7 +14,10 @@ pub mod api;
 pub mod filter;
 pub mod html;
 pub mod http;
+pub mod marker;
+#[cfg(feature = "router")]
 pub mod regex_radix_tree;
+#[cfg(feature = "router")]
 pub mod router;
 
 #[cfg(not(target_arch = "wasm32"))]

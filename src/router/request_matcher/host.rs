@@ -1,8 +1,9 @@
 use crate::http::Request;
+use crate::marker::StaticOrDynamic;
 use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
 use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
 use crate::router::trace::TraceInfo;
-use crate::router::{IpMatcher, RequestMatcher, Route, RouteData, RouterConfig, StaticOrDynamic, Trace};
+use crate::router::{IpMatcher, RequestMatcher, Route, RouteData, RouterConfig, Trace};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]

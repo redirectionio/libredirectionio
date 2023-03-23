@@ -37,6 +37,7 @@ pub struct RuleOutput {
 // Implementation
 
 impl UnitIdsOutput {
+    #[cfg(feature = "router")]
     pub fn create_result(unit_ids_input: UnitIdsInput) -> UnitIdsOutput {
         let mut router = Router::<Rule>::from_config(unit_ids_input.router_config.clone());
         let router_config = router.config.clone();

@@ -1,6 +1,6 @@
 use crate::http::Request;
+use crate::marker::StaticOrDynamic;
 use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
-use crate::router::marker_string::StaticOrDynamic;
 use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
 use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
 use crate::router::trace::TraceInfo;

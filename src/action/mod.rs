@@ -2,18 +2,31 @@
 mod ffi;
 mod log_override;
 mod status_code_update;
+#[cfg(feature = "router")]
+mod trace;
 
 use crate::action::log_override::LogOverride;
-use crate::api::{BodyFilter, HTMLBodyFilter, HeaderFilter, Rule, TextBodyFilter};
+#[cfg(feature = "router")]
+use crate::api::Rule;
+use crate::api::{BodyFilter, HeaderFilter};
+#[cfg(feature = "router")]
+use crate::api::{HTMLBodyFilter, TextBodyFilter};
 use crate::filter::{FilterBodyAction, FilterHeaderAction};
-use crate::http::{Header, Request};
-use crate::router::{Route, StaticOrDynamic, Trace};
+use crate::http::Header;
+#[cfg(feature = "router")]
+use crate::http::Request;
+#[cfg(feature = "router")]
+use crate::marker::StaticOrDynamic;
+#[cfg(feature = "router")]
+use crate::router::Route;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter::FromIterator;
+#[cfg(feature = "router")]
+pub use trace::TraceAction;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
@@ -34,12 +47,6 @@ pub struct Action {
 pub struct RuleTrace {
     id: String,
     on_response_status_codes: Vec<u16>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TraceAction {
-    action: Action,
-    rule: Rule,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -163,40 +170,6 @@ impl Default for Action {
     }
 }
 
-impl TraceAction {
-    pub fn from_trace_rules(traces: &[Trace<Rule>], request: &Request) -> Vec<TraceAction> {
-        let mut traces_action = Vec::new();
-        let mut current_action = Action::default();
-        let mut routes = Trace::<Rule>::get_routes_from_traces(traces);
-
-        // Reverse order of sort
-        routes.sort_by_key(|&a| a.priority());
-
-        for route in routes {
-            let (action_rule_opt, reset, stop, _) = Action::from_route_rule(route, request);
-
-            if let Some(action_rule) = action_rule_opt {
-                if reset {
-                    current_action = action_rule;
-                } else {
-                    current_action.merge(action_rule);
-                }
-            }
-
-            traces_action.push(TraceAction {
-                action: current_action.clone(),
-                rule: route.handler().clone(),
-            });
-
-            if stop {
-                return traces_action;
-            }
-        }
-
-        traces_action
-    }
-}
-
 impl Action {
     pub fn get_applied_rule_ids(&self) -> Vec<String> {
         match &self.rules_applied {
@@ -205,6 +178,7 @@ impl Action {
         }
     }
 
+    #[cfg(feature = "router")]
     pub fn get_target(route: &Route<Rule>, request: &Request) -> Option<String> {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
@@ -229,6 +203,7 @@ impl Action {
         target
     }
 
+    #[cfg(feature = "router")]
     pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Option<Action>, bool, bool, Option<String>) {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
@@ -373,6 +348,7 @@ impl Action {
         )
     }
 
+    #[cfg(feature = "router")]
     pub fn merge(&mut self, other: Self) {
         self.status_code_update = match other.status_code_update {
             None => self.status_code_update.clone(),
@@ -438,6 +414,7 @@ impl Action {
         }
     }
 
+    #[cfg(feature = "router")]
     pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request, mut unit_trace: Option<&mut UnitTrace>) -> Action {
         let mut action = Action::default();
 

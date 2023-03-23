@@ -1,10 +1,14 @@
 use super::header::Header;
 use super::query::PathAndQueryWithSkipped;
+#[cfg(feature = "router")]
 use crate::api::Example;
+#[cfg(feature = "router")]
 use crate::http::sanitize_url;
 use crate::http::TrustedProxies;
+#[cfg(feature = "router")]
 use crate::router::RouterConfig;
 use chrono::{DateTime, Utc};
+#[cfg(feature = "router")]
 use http::Error;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
@@ -40,10 +44,8 @@ impl FromStr for Request {
             Some(path_and_query) => path_and_query.as_str(),
         };
 
-        let config = RouterConfig::default();
-
         Ok(Request::new(
-            PathAndQueryWithSkipped::from_config(&config, path_and_query_str),
+            PathAndQueryWithSkipped::from_static(path_and_query_str),
             path_and_query_str.to_string(),
             http_request.uri().authority().map(|s| s.to_string()),
             http_request.uri().scheme_str().map(|s| s.to_string()),
@@ -77,6 +79,7 @@ impl Request {
         }
     }
 
+    #[cfg(feature = "router")]
     pub fn from_config(
         config: &RouterConfig,
         path_and_query: String,
@@ -99,6 +102,7 @@ impl Request {
         }
     }
 
+    #[cfg(feature = "router")]
     pub fn from_example(router_config: &RouterConfig, example: &Example) -> Result<Self, Error> {
         let method = example.method.as_deref().unwrap_or("GET");
         let url = sanitize_url(example.url.as_str());
@@ -135,6 +139,7 @@ impl Request {
         Ok(request)
     }
 
+    #[cfg(feature = "router")]
     pub fn rebuild_with_config(config: &RouterConfig, request: &Request) -> Self {
         let original_url = match &request.path_and_query {
             Some(str) => str.as_str(),

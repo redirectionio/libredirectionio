@@ -1,10 +1,10 @@
 use super::RouteHeader;
 use crate::http::Request;
+use crate::marker::StaticOrDynamic;
 use crate::router::route_datetime::RouteDateTime;
 use crate::router::route_ip::RouteIp;
 use crate::router::route_time::RouteTime;
 use crate::router::route_weekday::RouteWeekday;
-use crate::router::StaticOrDynamic;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;

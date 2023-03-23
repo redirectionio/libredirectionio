@@ -1,5 +1,6 @@
 use crate::action::UnitTrace;
 use crate::api::{BodyFilter, TextAction};
+#[cfg(feature = "compress")]
 use crate::filter::encoding::{get_encoding_filters, DecodeFilterBody, EncodeFilterBody};
 use crate::filter::error::Result;
 use crate::filter::html_body_action::HtmlBodyVisitor;
@@ -17,7 +18,9 @@ pub struct FilterBodyAction {
 pub enum FilterBodyActionItem {
     Html(HtmlFilterBodyAction),
     Text(TextFilterBodyAction),
+    #[cfg(feature = "compress")]
     Encode(Box<EncodeFilterBody>),
+    #[cfg(feature = "compress")]
     Decode(Box<DecodeFilterBody>),
 }
 
@@ -25,9 +28,11 @@ impl FilterBodyAction {
     pub fn new(filters: Vec<BodyFilter>, headers: &[Header]) -> Self {
         let mut chain = Vec::new();
         let mut content_type = None;
+        #[cfg(feature = "compress")]
         let mut content_encoding = None;
 
         for header in headers {
+            #[cfg(feature = "compress")]
             if header.name.to_lowercase() == "content-encoding" {
                 content_encoding = Some(header.value.to_lowercase());
             }
@@ -43,10 +48,17 @@ impl FilterBodyAction {
             }
         }
 
+        #[cfg(not(feature = "compress"))]
+        {
+            return Self { chain, in_error: false };
+        }
+
+        #[cfg(feature = "compress")]
         if chain.is_empty() {
             return Self { chain, in_error: false };
         }
 
+        #[cfg(feature = "compress")]
         match content_encoding {
             Some(encoding) => match get_encoding_filters(encoding.as_str()) {
                 Some((decode, encode)) => {
@@ -177,7 +189,9 @@ impl FilterBodyActionItem {
         Ok(match self {
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data, unit_trace)?,
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data, unit_trace),
+            #[cfg(feature = "compress")]
             FilterBodyActionItem::Decode(decode_body_filter) => decode_body_filter.filter(data)?,
+            #[cfg(feature = "compress")]
             FilterBodyActionItem::Encode(encode_body_filter) => encode_body_filter.filter(data)?,
         })
     }
@@ -186,7 +200,9 @@ impl FilterBodyActionItem {
         Ok(match self {
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.end(),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
+            #[cfg(feature = "compress")]
             FilterBodyActionItem::Decode(decode_body_filter) => decode_body_filter.end()?,
+            #[cfg(feature = "compress")]
             FilterBodyActionItem::Encode(encode_body_filter) => encode_body_filter.end()?,
         })
     }

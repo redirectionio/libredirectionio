@@ -1,4 +1,4 @@
-use crate::router::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
+use crate::marker::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;

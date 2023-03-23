@@ -1,6 +1,10 @@
+mod transformer;
+
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Marker {
