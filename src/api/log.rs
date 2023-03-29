@@ -88,7 +88,7 @@ impl Log {
         match client_ip.parse::<IpAddr>() {
             Ok(ip) => ips.push(ip),
             Err(e) => {
-                log::error!("cannot parse ip address {}, skipping: {}", client_ip, e);
+                log::warn!("cannot parse ip address {}, skipping: {}", client_ip, e);
             }
         }
 
