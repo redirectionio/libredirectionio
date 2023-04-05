@@ -7,7 +7,6 @@ rule format.
 extern crate lazy_static;
 #[macro_use]
 extern crate log;
-extern crate libc;
 
 pub mod action;
 pub mod api;

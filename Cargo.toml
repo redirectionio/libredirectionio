@@ -28,16 +28,13 @@ router = []
 
 [dependencies]
 brotli = { version = "3.3.4", optional = true }
-byteorder = "1.4.3"
 cfg-if = "1.0.0"
 chrono = { version = "0.4.24", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }
-console_log = "0.2.2"
 flate2 = { version = "1.0.25", optional = true }
 heck = "0.4.1"
 http = "0.2.9"
 lazy_static = "1.4.0"
-libc = "0.2.141"
 linked_hash_set = "0.1.4"
 log = "0.4.17"
 percent-encoding = "2.2.0"
@@ -47,9 +44,7 @@ scraper = "0.16.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.95"
 stderrlog = "0.5.4"
-string_cache = "=0.8.7"
 url = "2.3.1"
-uuid = { version = "0.8", features = ["serde", "v4"] }
 
 [dev-dependencies]
 pprof = { version = "0.11", features = ["flamegraph"] }
