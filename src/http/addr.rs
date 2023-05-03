@@ -27,9 +27,11 @@ impl FromStr for Addr {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if let Ok(addr) = s.parse::<IpAddr>() {
+        let trimmed = s.trim_matches(|c| c == '\0' || c == '\n' || c == '\r' || c == '\t' || c == ' ');
+
+        if let Ok(addr) = trimmed.parse::<IpAddr>() {
             Ok(Self { addr, port: None })
-        } else if let Ok(sock) = s.parse::<SocketAddr>() {
+        } else if let Ok(sock) = trimmed.parse::<SocketAddr>() {
             Ok(Self {
                 addr: sock.ip(),
                 port: Some(sock.port()),
@@ -54,6 +56,15 @@ mod tests {
     #[test]
     fn test_ipv4_without_port() {
         let addr = "127.0.0.1".parse::<Addr>().unwrap();
+
+        assert!(addr.addr.is_ipv4());
+        assert!(addr.port.is_none());
+        assert_eq!(addr.addr.to_string(), "127.0.0.1");
+    }
+
+    #[test]
+    fn test_ipv4_with_null() {
+        let addr = "127.0.0.1\0".parse::<Addr>().unwrap();
 
         assert!(addr.addr.is_ipv4());
         assert!(addr.port.is_none());

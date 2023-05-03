@@ -277,9 +277,7 @@ impl Request {
 
                 match ip.parse::<Addr>() {
                     Ok(ip) => ips.push(ip.addr),
-                    Err(()) => {
-                        log::error!("-cannot parse ip address {}, skipping", ip);
-                    }
+                    Err(()) => (),
                 }
             }
         }
@@ -289,9 +287,7 @@ impl Request {
 
             match ip.parse::<Addr>() {
                 Ok(ip) => ips.push(ip.addr),
-                Err(()) => {
-                    log::error!("cannot parse ip address {}, skipping", ip);
-                }
+                Err(()) => (),
             }
         }
 

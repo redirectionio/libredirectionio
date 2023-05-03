@@ -106,9 +106,7 @@ impl Log {
                 for forwarded_ip in forwarded_ips {
                     match forwarded_ip.parse::<Addr>() {
                         Ok(addr) => ips.push(addr.addr),
-                        Err(()) => {
-                            log::error!("cannot parse ip address {}, skipping", forwarded_ip);
-                        }
+                        Err(()) => (),
                     }
                 }
             }
@@ -123,9 +121,7 @@ impl Log {
 
                         match ip.parse::<Addr>() {
                             Ok(ip) => ips.push(ip.addr),
-                            Err(()) => {
-                                log::error!("cannot parse ip address {}, skipping", ip);
-                            }
+                            Err(()) => (),
                         }
                     }
                 }
