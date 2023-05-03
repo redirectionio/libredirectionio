@@ -1,7 +1,6 @@
 use crate::action::Action;
-use crate::http::{Header, Request, TrustedProxies};
+use crate::http::{Addr, Header, Request, TrustedProxies};
 use serde::{Deserialize, Serialize};
-use std::net::IpAddr;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -85,10 +84,10 @@ impl Log {
         let mut content_type = None;
         let mut ips = Vec::new();
 
-        match client_ip.parse::<IpAddr>() {
-            Ok(ip) => ips.push(ip),
-            Err(e) => {
-                log::warn!("cannot parse ip address {}, skipping: {}", client_ip, e);
+        match client_ip.parse::<Addr>() {
+            Ok(addr) => ips.push(addr.addr),
+            Err(()) => {
+                log::warn!("cannot parse ip address {}, skipping", client_ip);
             }
         }
 
@@ -105,10 +104,10 @@ impl Log {
                 let forwarded_ips = header.value.split(',');
 
                 for forwarded_ip in forwarded_ips {
-                    match forwarded_ip.parse::<IpAddr>() {
-                        Ok(ip) => ips.push(ip),
-                        Err(e) => {
-                            log::error!("cannot parse ip address {}, skipping: {}", forwarded_ip, e);
+                    match forwarded_ip.parse::<Addr>() {
+                        Ok(addr) => ips.push(addr.addr),
+                        Err(()) => {
+                            log::error!("cannot parse ip address {}, skipping", forwarded_ip);
                         }
                     }
                 }
@@ -122,10 +121,10 @@ impl Log {
                     if name.trim().to_lowercase().as_str() == "for" {
                         let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
 
-                        match ip.parse::<IpAddr>() {
-                            Ok(ip) => ips.push(ip),
-                            Err(e) => {
-                                log::error!("cannot parse ip address {}, skipping: {}", ip, e);
+                        match ip.parse::<Addr>() {
+                            Ok(ip) => ips.push(ip.addr),
+                            Err(()) => {
+                                log::error!("cannot parse ip address {}, skipping", ip);
                             }
                         }
                     }

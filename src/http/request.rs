@@ -4,7 +4,7 @@ use super::query::PathAndQueryWithSkipped;
 use crate::api::Example;
 #[cfg(feature = "router")]
 use crate::http::sanitize_url;
-use crate::http::TrustedProxies;
+use crate::http::{Addr, TrustedProxies};
 #[cfg(feature = "router")]
 use crate::router::RouterConfig;
 use chrono::{DateTime, Utc};
@@ -235,18 +235,18 @@ impl Request {
     }
 
     pub fn set_remote_ip(&mut self, remote_addr_str: String, trusted_proxies: &TrustedProxies) {
-        let remote_ip = match remote_addr_str.parse::<IpAddr>() {
-            Ok(ip) => ip,
-            Err(e) => match remote_addr_str.to_socket_addrs() {
+        let remote_ip = match remote_addr_str.parse::<Addr>() {
+            Ok(ip) => ip.addr,
+            Err(()) => match remote_addr_str.to_socket_addrs() {
                 Err(err) => {
-                    log::error!("cannot parse ip address {}, skipping: {} / {}", remote_addr_str, e, err);
+                    log::error!("cannot parse ip address {}, skipping: {}", remote_addr_str, err);
 
                     return;
                 }
                 Ok(mut addrs) => match addrs.next() {
                     Some(addr) => addr.ip(),
                     None => {
-                        log::error!("no ip address for {}, skipping: {}", remote_addr_str, e);
+                        log::error!("no ip address, or incorrect ip for {}, skipping", remote_addr_str);
 
                         return;
                     }
@@ -275,10 +275,10 @@ impl Request {
             if name.trim().to_lowercase().as_str() == "for" {
                 let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
 
-                match ip.parse::<IpAddr>() {
-                    Ok(ip) => ips.push(ip),
-                    Err(e) => {
-                        log::error!("cannot parse ip address {}, skipping: {}", ip, e);
+                match ip.parse::<Addr>() {
+                    Ok(ip) => ips.push(ip.addr),
+                    Err(()) => {
+                        log::error!("-cannot parse ip address {}, skipping", ip);
                     }
                 }
             }
@@ -287,10 +287,10 @@ impl Request {
         for val in self.header_values("x-forwarded-for").iter().flat_map(|val| val.split(',')) {
             let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
 
-            match ip.parse::<IpAddr>() {
-                Ok(ip) => ips.push(ip),
-                Err(e) => {
-                    log::error!("cannot parse ip address {}, skipping: {}", ip, e);
+            match ip.parse::<Addr>() {
+                Ok(ip) => ips.push(ip.addr),
+                Err(()) => {
+                    log::error!("cannot parse ip address {}, skipping", ip);
                 }
             }
         }

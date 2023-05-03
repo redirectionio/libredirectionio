@@ -1,3 +1,4 @@
+mod addr;
 mod header;
 mod query;
 mod request;
@@ -11,3 +12,4 @@ pub use query::sanitize_url;
 pub use query::PathAndQueryWithSkipped;
 pub use request::Request;
 pub use trusted_proxies::TrustedProxies;
+pub use addr::Addr;
