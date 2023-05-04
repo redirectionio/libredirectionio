@@ -9227,6 +9227,108 @@ fn test_rule_ip_trigger_not_in_range_2() {
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
+fn setup_rule_methods_trigger() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-methods","rank":0,"source":{"methods":["GET","POST"],"path":"/exclude-methods"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-include-methods","rank":0,"source":{"methods":["GET","POST"],"path":"/include-methods"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_rule_methods_trigger_1() {
+    let router = setup_rule_methods_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/include-methods"#), r#"/include-methods"#.to_string(),None,None,Some(r#"GET"#.to_string()),None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+#[test]
+fn test_rule_methods_trigger_2() {
+    let router = setup_rule_methods_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/include-methods"#), r#"/include-methods"#.to_string(),None,None,Some(r#"HEAD"#.to_string()),None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_methods_trigger_3() {
+    let router = setup_rule_methods_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/exclude-methods"#), r#"/exclude-methods"#.to_string(),None,None,Some(r#"GET"#.to_string()),None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_methods_trigger_4() {
+    let router = setup_rule_methods_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/exclude-methods"#), r#"/exclude-methods"#.to_string(),None,None,Some(r#"HEAD"#.to_string()),None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
 fn setup_rule_multiple_headers() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
@@ -9669,6 +9771,108 @@ fn test_rule_querystring_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+fn setup_rule_response_status_codes_trigger() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-status-codes","rank":0,"source":{"path":"/exclude-status-codes","response_status_codes":[200,201]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_1.into_route(&router.config));
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-include-status-codes","rank":0,"source":{"path":"/include-status-codes","response_status_codes":[200,201]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_2.into_route(&router.config));
+
+    router
+}
+
+
+#[test]
+fn test_rule_response_status_codes_trigger_1() {
+    let router = setup_rule_response_status_codes_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/include-status-codes"#), r#"/include-status-codes"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 200;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+#[test]
+fn test_rule_response_status_codes_trigger_2() {
+    let router = setup_rule_response_status_codes_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/include-status-codes"#), r#"/include-status-codes"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_response_status_codes_trigger_3() {
+    let router = setup_rule_response_status_codes_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/exclude-status-codes"#), r#"/exclude-status-codes"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_response_status_codes_trigger_4() {
+    let router = setup_rule_response_status_codes_trigger();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/exclude-status-codes"#), r#"/exclude-status-codes"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 400;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar"#);
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 

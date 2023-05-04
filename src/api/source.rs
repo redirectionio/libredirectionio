@@ -14,7 +14,9 @@ pub struct Source {
     pub query: Option<String>,
     pub headers: Option<Vec<Header>>,
     pub methods: Option<Vec<String>>,
+    pub exclude_methods: Option<bool>,
     pub response_status_codes: Option<Vec<u16>>,
+    pub exclude_response_status_codes: Option<bool>,
     pub sampling: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub weekdays: Option<Vec<String>>,

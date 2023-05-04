@@ -18,6 +18,7 @@ pub struct Route<T: RouteData> {
     scheme: Option<String>,
     host: Option<StaticOrDynamic>,
     methods: Option<Vec<String>>,
+    exclude_methods: Option<bool>,
     path_and_query: StaticOrDynamic,
     headers: Vec<RouteHeader>,
     ips: Option<Vec<RouteIp>>,
