@@ -89,9 +89,11 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
     fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_method.trace(request);
         let request_method = request.method();
+        let mut found = false;
 
         for (methods, matcher) in &self.exclude_methods {
             if !methods.contains(&request_method.into()) {
+                found = true;
                 let method_traces = matcher.trace(request);
 
                 traces.push(Trace::new(
@@ -120,6 +122,7 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
 
         for (method, matcher) in &self.methods {
             if method == request_method {
+                found = true;
                 let method_traces = matcher.trace(request);
 
                 traces.push(Trace::new(
@@ -146,7 +149,7 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
             }
         }
 
-        if !self.methods.contains_key(request_method) {
+        if !found {
             traces.push(Trace::new(
                 true,
                 false,
