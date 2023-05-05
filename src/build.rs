@@ -119,6 +119,8 @@ struct Source {
     headers: Option<Vec<SourceHeader>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     methods: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exclude_methods: Option<bool>,
     #[serde(skip_serializing_if = "Vec::is_empty", default, with = "serde_yaml::with::singleton_map_recursive")]
     ips: Vec<IpConstraint>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -129,6 +131,8 @@ struct Source {
     weekdays: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     response_status_codes: Option<Vec<u16>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    exclude_response_status_codes: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sampling: Option<u32>,
 }

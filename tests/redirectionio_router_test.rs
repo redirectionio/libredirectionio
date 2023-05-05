@@ -9231,7 +9231,7 @@ fn setup_rule_methods_trigger() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-methods","rank":0,"source":{"methods":["GET","POST"],"path":"/exclude-methods"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-methods","rank":0,"source":{"exclude_methods":true,"methods":["GET","POST"],"path":"/exclude-methods"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-include-methods","rank":0,"source":{"methods":["GET","POST"],"path":"/include-methods"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
@@ -9778,7 +9778,7 @@ fn setup_rule_response_status_codes_trigger() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-status-codes","rank":0,"source":{"path":"/exclude-status-codes","response_status_codes":[200,201]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-status-codes","rank":0,"source":{"exclude_response_status_codes":true,"path":"/exclude-status-codes","response_status_codes":[200,201]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
     router.insert(route_1.into_route(&router.config));
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-include-status-codes","rank":0,"source":{"path":"/include-status-codes","response_status_codes":[200,201]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");

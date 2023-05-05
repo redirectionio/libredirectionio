@@ -7,6 +7,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone)]
 pub struct MethodMatcher<T: RouteData> {
     methods: HashMap<String, Box<dyn RequestMatcher<T>>>,
+    exclude_methods: HashMap<Vec<String>, Box<dyn RequestMatcher<T>>>,
     any_method: Box<dyn RequestMatcher<T>>,
     count: usize,
 }
@@ -21,6 +22,14 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
                 if methods.is_empty() {
                     self.any_method.insert(route);
                 } else {
+                    if route.exclude_methods().is_some() {
+                        self.exclude_methods
+                            .entry(methods.clone())
+                            .or_insert_with(|| MethodMatcher::create_sub_matcher())
+                            .insert(route.clone());
+
+                        return;
+                    }
                     for method in methods {
                         if !self.methods.contains_key(method) {
                             self.methods.insert(method.to_string(), MethodMatcher::create_sub_matcher());
@@ -48,6 +57,12 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
             matcher.len() > 0
         });
 
+        self.exclude_methods.retain(|_, matcher| {
+            removed = removed || matcher.remove(id);
+
+            matcher.len() > 0
+        });
+
         if removed {
             self.count -= 1;
         }
@@ -62,12 +77,46 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
             routes.extend(matcher.match_request(request));
         }
 
+        for (methods, matcher) in &self.exclude_methods {
+            if !methods.contains(&request.method().into()) {
+                routes.extend(matcher.match_request(request));
+            }
+        }
+
         routes
     }
 
     fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_method.trace(request);
         let request_method = request.method();
+
+        for (methods, matcher) in &self.exclude_methods {
+            if !methods.contains(&request_method.into()) {
+                let method_traces = matcher.trace(request);
+
+                traces.push(Trace::new(
+                    true,
+                    true,
+                    matcher.len() as u64,
+                    method_traces,
+                    TraceInfo::ExcludeMethods {
+                        request: request_method.to_string(),
+                        against: Some(methods.clone()),
+                    },
+                ));
+            } else {
+                traces.push(Trace::new(
+                    false,
+                    false,
+                    matcher.len() as u64,
+                    Vec::new(),
+                    TraceInfo::ExcludeMethods {
+                        request: request_method.to_string(),
+                        against: Some(methods.clone()),
+                    },
+                ));
+            }
+        }
 
         for (method, matcher) in &self.methods {
             if method == request_method {
@@ -140,6 +189,7 @@ impl<T: RouteData> Default for MethodMatcher<T> {
     fn default() -> Self {
         MethodMatcher {
             methods: HashMap::new(),
+            exclude_methods: HashMap::new(),
             any_method: MethodMatcher::create_sub_matcher(),
             count: 0,
         }

@@ -282,6 +282,7 @@ impl Rule {
     pub fn into_route(self, config: &RouterConfig) -> Route<Rule> {
         Route::new(
             self.source.methods.clone(),
+            self.source.exclude_methods,
             self.source.scheme.clone(),
             self.host(config.ignore_host_case),
             self.path_and_query(config.ignore_path_and_query_case),

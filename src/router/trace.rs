@@ -29,6 +29,7 @@ pub enum TraceInfo<T: RouteData> {
     Ip { request: String, against: String },
     DateTimeGroup { conditions: Vec<TraceInfoDateTimeCondition> },
     Method { request: String, against: Option<String> },
+    ExcludeMethods { request: String, against: Option<Vec<String>> },
     HeaderGroup { conditions: Vec<TraceInfoHeaderCondition> },
     PathAndQueryStatic { request: String },
     PathAndQueryRegex,

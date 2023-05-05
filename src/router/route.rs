@@ -33,6 +33,7 @@ impl<T: RouteData> Route<T> {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         methods: Option<Vec<String>>,
+        exclude_methods: Option<bool>,
         scheme: Option<String>,
         host: Option<StaticOrDynamic>,
         path_and_query: StaticOrDynamic,
@@ -50,6 +51,7 @@ impl<T: RouteData> Route<T> {
             scheme,
             host,
             methods,
+            exclude_methods,
             path_and_query,
             headers,
             ips,
@@ -80,6 +82,8 @@ impl<T: RouteData> Route<T> {
     pub fn methods(&self) -> Option<&Vec<String>> {
         self.methods.as_ref()
     }
+
+    pub fn exclude_methods(&self) -> Option<bool> { self.exclude_methods }
 
     pub fn priority(&self) -> i64 {
         self.priority
