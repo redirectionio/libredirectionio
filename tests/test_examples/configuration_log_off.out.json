@@ -14,7 +14,9 @@
           "query": "",
           "headers": [],
           "methods": [],
+          "exclude_methods": null,
           "response_status_codes": [],
+          "exclude_response_status_codes": null,
           "sampling": null
         },
         "target": null,

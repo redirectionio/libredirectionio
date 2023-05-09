@@ -47,6 +47,7 @@ pub struct Action {
 pub struct RuleTrace {
     id: String,
     on_response_status_codes: Vec<u16>,
+    exclude_response_status_codes: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -146,6 +147,7 @@ impl WithTargetUnitTrace {
 struct HeaderFilterAction {
     filter: HeaderFilter,
     on_response_status_codes: Vec<u16>,
+    exclude_response_status_codes: bool,
     rule_id: Option<String>,
 }
 
@@ -153,6 +155,7 @@ struct HeaderFilterAction {
 struct BodyFilterAction {
     filter: BodyFilter,
     on_response_status_codes: Vec<u16>,
+    exclude_response_status_codes: bool,
     rule_id: Option<String>,
 }
 
@@ -230,6 +233,7 @@ impl Action {
             redirect_code => Some(StatusCodeUpdate {
                 status_code: redirect_code,
                 on_response_status_codes: on_response_status_codes.clone(),
+                exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                 fallback_status_code: 0,
                 rule_id: Some(rule.id.clone()),
                 fallback_rule_id: None,
@@ -267,6 +271,7 @@ impl Action {
                         None => Vec::new(),
                         Some(on_response) => on_response.clone(),
                     },
+                    exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                     rule_id: Some(rule.id.clone()),
                 })
             }
@@ -283,6 +288,7 @@ impl Action {
                         target_hash: filter.target_hash.clone(),
                     },
                     on_response_status_codes: on_response_status_codes.clone(),
+                    exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                     rule_id: Some(rule.id.clone()),
                 });
             }
@@ -315,6 +321,7 @@ impl Action {
                         }),
                     },
                     on_response_status_codes: on_response_status_codes.clone(),
+                    exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                     rule_id: Some(rule.id.clone()),
                 });
             }
@@ -327,6 +334,7 @@ impl Action {
             rule_ids: vec![rule.id.clone()],
             rule_traces: Some(vec![RuleTrace {
                 on_response_status_codes: on_response_status_codes.clone(),
+                exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                 id: rule.id.clone(),
             }]),
             rules_applied: Some(LinkedHashSet::new()),
@@ -334,6 +342,7 @@ impl Action {
                 log_override,
                 rule_id: Some(rule.id.clone()),
                 on_response_status_codes: on_response_status_codes.clone(),
+                exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                 fallback_log_override: None,
                 fallback_rule_id: None,
                 unit_id: rule.configuration_log_unit_id.clone(),
@@ -363,6 +372,7 @@ impl Action {
                         Some(StatusCodeUpdate {
                             status_code: new_status_code_update.status_code,
                             on_response_status_codes: new_status_code_update.on_response_status_codes,
+                            exclude_response_status_codes: new_status_code_update.exclude_response_status_codes,
                             fallback_status_code: old_status_code_update.status_code,
                             rule_id: new_status_code_update.rule_id,
                             target_hash: new_status_code_update.target_hash,
@@ -404,6 +414,7 @@ impl Action {
                             log_override: other_log_override.log_override,
                             rule_id: other_log_override.rule_id,
                             on_response_status_codes: other_log_override.on_response_status_codes,
+                            exclude_response_status_codes: other_log_override.exclude_response_status_codes,
                             fallback_log_override: Some(self_log_override.log_override),
                             fallback_rule_id: self_log_override.rule_id.clone(),
                             unit_id: self_log_override.unit_id.clone(),
@@ -482,15 +493,31 @@ impl Action {
 
         if let Some(self_rule_traces) = self.rule_traces.clone() {
             for trace in self_rule_traces {
-                if trace.on_response_status_codes.iter().all(|v| *v == response_status_code) {
+                if trace.on_response_status_codes.is_empty() {
                     self.apply_rule_id(Some(trace.id));
+                    continue;
+                }
+
+                if !trace.exclude_response_status_codes && trace.on_response_status_codes.iter().any(|v| *v != response_status_code) {
+                    self.apply_rule_id(Some(trace.id));
+                    continue;
+                }
+
+                if trace.exclude_response_status_codes && !trace.on_response_status_codes.contains(&response_status_code) {
+                     self.apply_rule_id(Some(trace.id));
                 }
             }
         }
 
         for filter in self.header_filters.clone() {
-            if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
-                continue;
+            if !filter.on_response_status_codes.is_empty() {
+                if !filter.exclude_response_status_codes && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
+                    continue;
+                }
+
+                if filter.exclude_response_status_codes && filter.on_response_status_codes.contains(&response_status_code) {
+                    continue;
+                }
             }
 
             filters.push(filter.filter);
@@ -522,8 +549,14 @@ impl Action {
         let rule_applied = self.rule_traces.is_some();
 
         for filter in self.body_filters.clone() {
-            if !filter.on_response_status_codes.is_empty() && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
-                continue;
+            if !filter.on_response_status_codes.is_empty() {
+                if !filter.exclude_response_status_codes && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
+                    continue;
+                }
+
+                if filter.exclude_response_status_codes && filter.on_response_status_codes.contains(&response_status_code) {
+                    continue;
+                }
             }
 
             if !rule_applied {

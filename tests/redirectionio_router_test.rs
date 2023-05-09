@@ -9827,9 +9827,15 @@ fn test_rule_response_status_codes_trigger_2() {
     let traces = router.trace_request(&request_configured);
     let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
 
-    assert_eq!(!matched.is_empty(), false);
-    assert_eq!(!routes_traces.is_empty(), false);
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
 
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 400;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
@@ -9843,9 +9849,15 @@ fn test_rule_response_status_codes_trigger_3() {
     let traces = router.trace_request(&request_configured);
     let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
 
-    assert_eq!(!matched.is_empty(), false);
-    assert_eq!(!routes_traces.is_empty(), false);
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
 
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 200;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
 #[test]
