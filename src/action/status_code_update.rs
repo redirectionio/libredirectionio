@@ -18,8 +18,7 @@ impl StatusCodeUpdate {
             return (self.status_code, self.rule_id.clone());
         }
 
-        if self.exclude_response_status_codes && !self.on_response_status_codes.contains(&response_status_code)
-        {
+        if self.exclude_response_status_codes && !self.on_response_status_codes.contains(&response_status_code) {
             return (self.status_code, self.rule_id.clone());
         }
 

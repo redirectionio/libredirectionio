@@ -504,7 +504,7 @@ impl Action {
                 }
 
                 if trace.exclude_response_status_codes && !trace.on_response_status_codes.contains(&response_status_code) {
-                     self.apply_rule_id(Some(trace.id));
+                    self.apply_rule_id(Some(trace.id));
                 }
             }
         }

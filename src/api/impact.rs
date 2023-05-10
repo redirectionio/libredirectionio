@@ -137,14 +137,14 @@ impl ImpactOutput {
             let routes = router.match_request(&request);
             let mut action = Action::from_routes_rule(routes, &request, Some(&mut unit_trace));
 
-            let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
+            let example_status_code = example.response_status_code.unwrap_or(0);
+            let action_status_code = action.get_status_code(example_status_code, Some(&mut unit_trace));
             let (final_status_code, backend_status_code) = if action_status_code != 0 {
                 (action_status_code, action_status_code)
             } else {
-                // We call the backend and get a response code
                 let backend_status_code = example.response_status_code.unwrap_or(200);
                 let final_status_code = action.get_status_code(backend_status_code, Some(&mut unit_trace));
-                (final_status_code, backend_status_code)
+                (final_status_code, example_status_code)
             };
 
             let headers = action.filter_headers(Vec::new(), backend_status_code, false, Some(&mut unit_trace));

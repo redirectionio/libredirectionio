@@ -83,7 +83,9 @@ impl<T: RouteData> Route<T> {
         self.methods.as_ref()
     }
 
-    pub fn exclude_methods(&self) -> Option<bool> { self.exclude_methods }
+    pub fn exclude_methods(&self) -> Option<bool> {
+        self.exclude_methods
+    }
 
     pub fn priority(&self) -> i64 {
         self.priority
