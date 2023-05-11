@@ -456,6 +456,16 @@ impl Action {
         action
     }
 
+    // pub fn get_final_status_code_with_fallback(&mut self, response_status_code: u16, fallback_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> (u16, u16) {
+    // let action_status_code = self.get_status_code(response_status_code, Some(&mut unit_trace.unwrap()));
+    // if response_status_code == 0 && action_status_code == 0 {
+    //     let final_status_code = self.get_status_code(fallback_status_code, Some(&mut unit_trace.unwrap()));
+    //     (final_status_code, fallback_status_code)
+    // } else {
+    //     (action_status_code, response_status_code)
+    // }
+    // }
+
     pub fn get_status_code(&mut self, response_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> u16 {
         match self.status_code_update.as_ref() {
             None => 0,
