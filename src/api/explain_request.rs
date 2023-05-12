@@ -74,15 +74,8 @@ impl ExplainRequestOutput {
         let mut action = Action::from_routes_rule(routes, &request, Some(&mut unit_trace));
 
         let example_status_code = example.response_status_code.unwrap_or(0);
-        let action_status_code = action.get_status_code(example_status_code, Some(&mut unit_trace));
-        let (final_status_code, backend_status_code) = if example_status_code == 0 && action_status_code == 0 {
-            let fallback_status_code = 200;
-            let final_status_code = action.get_status_code(fallback_status_code, Some(&mut unit_trace));
-            (final_status_code, fallback_status_code)
-        } else {
-            (action_status_code, example_status_code)
-        };
-        // let (final_status_code, backend_status_code) = action.get_final_status_code_with_fallback(example_status_code, 200, Some(&mut unit_trace));
+        let (final_status_code, backend_status_code) =
+            action.get_final_status_code_with_fallback(example_status_code, 200, &mut unit_trace);
 
         let headers = action.filter_headers(Vec::new(), backend_status_code, false, Some(&mut unit_trace));
 

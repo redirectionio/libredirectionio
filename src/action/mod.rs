@@ -456,15 +456,20 @@ impl Action {
         action
     }
 
-    // pub fn get_final_status_code_with_fallback(&mut self, response_status_code: u16, fallback_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> (u16, u16) {
-    // let action_status_code = self.get_status_code(response_status_code, Some(&mut unit_trace.unwrap()));
-    // if response_status_code == 0 && action_status_code == 0 {
-    //     let final_status_code = self.get_status_code(fallback_status_code, Some(&mut unit_trace.unwrap()));
-    //     (final_status_code, fallback_status_code)
-    // } else {
-    //     (action_status_code, response_status_code)
-    // }
-    // }
+    pub fn get_final_status_code_with_fallback(
+        &mut self,
+        response_status_code: u16,
+        fallback_status_code: u16,
+        unit_trace: &mut UnitTrace,
+    ) -> (u16, u16) {
+        let action_status_code = self.get_status_code(response_status_code, Some(unit_trace));
+        if response_status_code == 0 && action_status_code == 0 {
+            let final_status_code = self.get_status_code(fallback_status_code, Some(unit_trace));
+            (final_status_code, fallback_status_code)
+        } else {
+            (action_status_code, response_status_code)
+        }
+    }
 
     pub fn get_status_code(&mut self, response_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> u16 {
         match self.status_code_update.as_ref() {
@@ -508,7 +513,7 @@ impl Action {
                     continue;
                 }
 
-                if !trace.exclude_response_status_codes && trace.on_response_status_codes.iter().any(|v| *v != response_status_code) {
+                if !trace.exclude_response_status_codes && trace.on_response_status_codes.contains(&response_status_code) {
                     self.apply_rule_id(Some(trace.id));
                     continue;
                 }
@@ -521,7 +526,7 @@ impl Action {
 
         for filter in self.header_filters.clone() {
             if !filter.on_response_status_codes.is_empty() {
-                if !filter.exclude_response_status_codes && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
+                if !filter.exclude_response_status_codes && !filter.on_response_status_codes.contains(&response_status_code) {
                     continue;
                 }
 
@@ -560,7 +565,7 @@ impl Action {
 
         for filter in self.body_filters.clone() {
             if !filter.on_response_status_codes.is_empty() {
-                if !filter.exclude_response_status_codes && filter.on_response_status_codes.iter().all(|v| *v != response_status_code) {
+                if !filter.exclude_response_status_codes && !filter.on_response_status_codes.contains(&response_status_code) {
                     continue;
                 }
 
