@@ -1,3 +1,10 @@
+## 2.8.0 - 26-05-2023
+
+ * Fix parsing bug in ip address for logs and request matching
+ * Fix incorrect behavior when matching a request against a response status code
+ * Add support for excluding methods in request matching
+ * Add support for excluding response status code in request matching
+
 ## 2.7.1 - 23-03-2023
 
  * Add optional features to libredirectionio, to allow better compilation on wasm target
