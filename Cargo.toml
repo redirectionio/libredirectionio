@@ -13,12 +13,12 @@ name = "redirectionio"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-cbindgen="0.24.3"
+cbindgen="0.24.5"
 glob = "^0.3.1"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9.19"
+serde_yaml = "0.9.21"
 tera = "1.18.1"
 
 [features]
@@ -29,26 +29,26 @@ router = []
 [dependencies]
 brotli = { version = "3.3.4", optional = true }
 cfg-if = "1.0.0"
-chrono = { version = "0.4.24", features = ["serde"] }
+chrono = { version = "0.4.25", features = ["serde"] }
 cidr = { version = "0.2.1", features = ["serde"] }
-flate2 = { version = "1.0.25", optional = true }
+flate2 = { version = "1.0.26", optional = true }
 heck = "0.4.1"
 http = "0.2.9"
 lazy_static = "1.4.0"
 linked_hash_set = "0.1.4"
-log = "0.4.17"
+log = "0.4.18"
 percent-encoding = "2.2.0"
 rand = "0.8.5"
-regex = "1.7.3"
+regex = "1.8.3"
 scraper = "0.16.0"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.95"
+serde_json = "1.0.96"
 stderrlog = "0.5.4"
 url = "2.3.1"
 
 [dev-dependencies]
 pprof = { version = "0.11", features = ["flamegraph"] }
-criterion = { version = "0.4", default-features = false }
+criterion = { version = "0.5", default-features = false }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = { version = "0.1.7" }
