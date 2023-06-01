@@ -311,13 +311,13 @@ impl ValueCondition {
         match self {
             ValueCondition::IsDefined => "is defined".to_string(),
             ValueCondition::IsNotDefined => "is not defined".to_string(),
-            ValueCondition::IsEquals(str) => format!("equals {}", str),
-            ValueCondition::IsNotEqualTo(str) => format!("is not equal to {}", str),
-            ValueCondition::Contains(str) => format!("contains {}", str),
-            ValueCondition::DoesNotContain(str) => format!("does not contain {}", str),
-            ValueCondition::EndsWith(str) => format!("ends with {}", str),
-            ValueCondition::StartsWith(str) => format!("starts with {}", str),
-            ValueCondition::MatchRegex(str) => format!("match regex {}", str),
+            ValueCondition::IsEquals(str) => format!("equals {str}"),
+            ValueCondition::IsNotEqualTo(str) => format!("is not equal to {str}"),
+            ValueCondition::Contains(str) => format!("contains {str}"),
+            ValueCondition::DoesNotContain(str) => format!("does not contain {str}"),
+            ValueCondition::EndsWith(str) => format!("ends with {str}"),
+            ValueCondition::StartsWith(str) => format!("starts with {str}"),
+            ValueCondition::MatchRegex(str) => format!("match regex {str}"),
         }
     }
 }

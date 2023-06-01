@@ -57,7 +57,7 @@ impl<T: RouteData> Router<T> {
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
-        self.matcher.match_request(&request)
+        self.matcher.match_request(request)
     }
 
     pub fn len(&self) -> usize {

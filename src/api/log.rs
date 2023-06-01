@@ -104,9 +104,8 @@ impl Log {
                 let forwarded_ips = header.value.split(',');
 
                 for forwarded_ip in forwarded_ips {
-                    match forwarded_ip.parse::<Addr>() {
-                        Ok(addr) => ips.push(addr.addr),
-                        Err(()) => (),
+                    if let Ok(addr) = forwarded_ip.parse::<Addr>() {
+                        ips.push(addr.addr);
                     }
                 }
             }
@@ -119,9 +118,8 @@ impl Log {
                     if name.trim().to_lowercase().as_str() == "for" {
                         let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
 
-                        match ip.parse::<Addr>() {
-                            Ok(ip) => ips.push(ip.addr),
-                            Err(()) => (),
+                        if let Ok(ip) = ip.parse::<Addr>() {
+                            ips.push(ip.addr);
                         }
                     }
                 }

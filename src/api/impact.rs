@@ -125,7 +125,7 @@ impl ImpactOutput {
                 Err(e) => {
                     impacts.push(Impact::new_with_error(
                         example.to_owned(),
-                        format!("Cannot create query from example: {}", e),
+                        format!("Cannot create query from example: {e}"),
                     ));
 
                     continue;

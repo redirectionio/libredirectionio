@@ -20,8 +20,8 @@ impl RouteIp {
 impl ToString for RouteIp {
     fn to_string(&self) -> String {
         match self {
-            Self::InRange(in_range) => format!("in({})", in_range),
-            Self::NotInRange(not_in_range) => format!("not_in({})", not_in_range),
+            Self::InRange(in_range) => format!("in({in_range})"),
+            Self::NotInRange(not_in_range) => format!("not_in({not_in_range})"),
         }
     }
 }

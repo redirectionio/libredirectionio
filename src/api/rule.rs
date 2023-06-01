@@ -195,7 +195,8 @@ impl Rule {
         if let Some(source_weekdays) = self.source.weekdays.as_ref() {
             return RouteWeekday::from_weekdays(source_weekdays);
         }
-        return None;
+
+        None
     }
 
     fn path_and_query(&self, ignore_case: bool) -> StaticOrDynamic {
@@ -211,7 +212,7 @@ impl Rule {
         if let Some(query_string) = query {
             let query_string_encoded = utf8_percent_encode(query_string.as_str(), QUERY_ENCODE_SET).to_string();
 
-            path.push_str(format!("?{}", query_string_encoded).as_str());
+            path.push_str(format!("?{query_string_encoded}").as_str());
         }
 
         StaticOrDynamic::new_with_markers(path.as_str(), markers, ignore_case)

@@ -10,7 +10,7 @@ pub enum HtmlParseError {
 impl std::fmt::Display for HtmlParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::FromUtf8Error(source) => write!(f, "{}", source),
+            Self::FromUtf8Error(source) => write!(f, "{source}"),
         }
     }
 }

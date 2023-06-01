@@ -14,7 +14,7 @@ impl Display for Weekdays {
     fn fmt(&self, f: &mut Formatter) -> Result {
         self.0
             .iter()
-            .fold(Ok(()), |result, weekday| result.and_then(|_| writeln!(f, "{}", weekday)))
+            .fold(Ok(()), |result, weekday| result.and_then(|_| writeln!(f, "{weekday}")))
     }
 }
 
@@ -22,7 +22,8 @@ impl Ord for Weekdays {
     fn cmp(&self, other: &Self) -> Ordering {
         let self_num = self.0.iter().map(|weekday| weekday.num_days_from_monday());
         let other_num = other.0.iter().map(|weekday| weekday.num_days_from_monday());
-        return self_num.cmp(other_num);
+
+        self_num.cmp(other_num)
     }
 }
 
@@ -47,18 +48,15 @@ impl RouteWeekday {
 
         if route_weekdays.is_empty() {
             return None;
-        } else {
-            return Some(RouteWeekday {
-                weekdays: Weekdays(route_weekdays),
-            });
         }
+
+        Some(RouteWeekday {
+            weekdays: Weekdays(route_weekdays),
+        })
     }
 
     pub fn match_datetime(&self, datetime: &DateTime<Utc>) -> bool {
-        if (self.weekdays.0).contains(&datetime.weekday()) {
-            return true;
-        }
-        return false;
+        self.weekdays.0.contains(&datetime.weekday())
     }
 }
 

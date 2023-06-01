@@ -33,34 +33,25 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         let mut condition_group = BTreeSet::new();
         let mut route_conditions = BTreeSet::new();
 
-        match route.datetime() {
-            Some(route_datetime) => {
-                let condition = DateTimeCondition::DateTimeRange(route_datetime.clone());
-                condition_group.insert(condition.clone());
-                route_conditions.insert(condition.clone());
-                self.conditions.insert(condition);
-            }
-            None => (),
+        if let Some(route_datetime) = route.datetime() {
+            let condition = DateTimeCondition::DateTimeRange(route_datetime.clone());
+            condition_group.insert(condition.clone());
+            route_conditions.insert(condition.clone());
+            self.conditions.insert(condition);
         }
 
-        match route.weekdays() {
-            Some(route_weekdays) => {
-                let condition = DateTimeCondition::Weekdays(route_weekdays.clone());
-                condition_group.insert(condition.clone());
-                route_conditions.insert(condition.clone());
-                self.conditions.insert(condition);
-            }
-            None => (),
+        if let Some(route_weekdays) = route.weekdays() {
+            let condition = DateTimeCondition::Weekdays(route_weekdays.clone());
+            condition_group.insert(condition.clone());
+            route_conditions.insert(condition.clone());
+            self.conditions.insert(condition);
         }
 
-        match route.time() {
-            Some(route_time) => {
-                let condition = DateTimeCondition::TimeRange(route_time.clone());
-                condition_group.insert(condition.clone());
-                route_conditions.insert(condition.clone());
-                self.conditions.insert(condition);
-            }
-            None => (),
+        if let Some(route_time) = route.time() {
+            let condition = DateTimeCondition::TimeRange(route_time.clone());
+            condition_group.insert(condition.clone());
+            route_conditions.insert(condition.clone());
+            self.conditions.insert(condition);
         }
 
         if route_conditions.is_empty() {
@@ -233,7 +224,8 @@ impl DateTimeCondition {
                             return true;
                         }
                     }
-                    return false;
+
+                    false
                 }
                 DateTimeCondition::TimeRange(route_time) => {
                     for range in route_time {
@@ -241,7 +233,8 @@ impl DateTimeCondition {
                             return true;
                         }
                     }
-                    return false;
+
+                    false
                 }
                 DateTimeCondition::Weekdays(route_weekday) => route_weekday.match_datetime(datetime),
             }

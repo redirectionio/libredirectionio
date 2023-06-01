@@ -29,10 +29,11 @@ impl RouteTime {
                 }
             },
         }
-        return RouteTime {
+
+        RouteTime {
             start: route_start,
             end: route_end,
-        };
+        }
     }
 
     pub fn match_datetime(&self, datetime: &DateTime<Utc>) -> bool {

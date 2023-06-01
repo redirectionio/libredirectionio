@@ -275,9 +275,8 @@ impl Request {
             if name.trim().to_lowercase().as_str() == "for" {
                 let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
 
-                match ip.parse::<Addr>() {
-                    Ok(ip) => ips.push(ip.addr),
-                    Err(()) => (),
+                if let Ok(ip) = ip.parse::<Addr>() {
+                    ips.push(ip.addr);
                 }
             }
         }
@@ -285,9 +284,8 @@ impl Request {
         for val in self.header_values("x-forwarded-for").iter().flat_map(|val| val.split(',')) {
             let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
 
-            match ip.parse::<Addr>() {
-                Ok(ip) => ips.push(ip.addr),
-                Err(()) => (),
+            if let Ok(ip) = ip.parse::<Addr>() {
+                ips.push(ip.addr);
             }
         }
 

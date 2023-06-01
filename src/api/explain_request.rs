@@ -64,7 +64,7 @@ impl ExplainRequestOutput {
             Ok(request) => request,
             Err(e) => {
                 return Err(ExplainRequestOutputError {
-                    message: format!("Invalid example: {}", e),
+                    message: format!("Invalid example: {e}"),
                 });
             }
         };
