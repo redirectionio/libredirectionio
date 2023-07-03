@@ -217,6 +217,10 @@ impl ImpactOutput {
                 break;
             }
 
+            if "GET" != new_example.method.unwrap_or(String::from("GET")) {
+                break;
+            }
+
             let headers = action.filter_headers(Vec::new(), backend_status_code, false, None);
 
             let mut found = false;
