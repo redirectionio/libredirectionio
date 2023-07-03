@@ -217,7 +217,7 @@ impl ImpactOutput {
                 break;
             }
 
-            if "GET" != new_example.method.unwrap_or(String::from("GET")) {
+            if "GET" != new_example.method.unwrap_or(String::from("GET")) && [301, 302].contains(&final_status_code) {
                 break;
             }
 
