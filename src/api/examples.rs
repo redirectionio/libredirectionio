@@ -25,4 +25,10 @@ impl Example {
         new_exemple.url = url;
         new_exemple
     }
+
+    pub fn with_method(&self, method: Option<String>) -> Example {
+        let mut new_example = self.clone();
+        new_example.method = method;
+        new_example
+    }
 }

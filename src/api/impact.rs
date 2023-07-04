@@ -189,6 +189,7 @@ impl ImpactOutput {
 
     fn compute_redirection_loop(router: &Router<Rule>, impact_input: &ImpactInput, example: &Example) -> RedirectionLoop {
         let mut current_url = example.url.clone();
+        let mut current_method = example.method.clone();
         let mut error = None;
 
         let mut hops = vec![RedirectionHop {
@@ -197,7 +198,7 @@ impl ImpactOutput {
         }];
 
         'outer: for i in 1..=impact_input.max_hops {
-            let new_example = example.with_url(current_url.clone());
+            let new_example = example.with_url(current_url.clone()).with_method(current_method.clone());
 
             let request = Request::from_example(&router.config, &new_example).unwrap();
             let routes = router.match_request(&request);
@@ -214,10 +215,6 @@ impl ImpactOutput {
             };
 
             if !REDIRECTION_CODES.contains(&final_status_code) {
-                break;
-            }
-
-            if "GET" != new_example.method.unwrap_or(String::from("GET")) && [301, 302].contains(&final_status_code) {
                 break;
             }
 
@@ -259,6 +256,10 @@ impl ImpactOutput {
             if i >= impact_input.max_hops {
                 error = Some(RedirectionError::TooManyHops);
                 break;
+            }
+
+            if [301, 302].contains(&final_status_code) {
+                current_method = Some(String::from("GET"));
             }
         }
 
