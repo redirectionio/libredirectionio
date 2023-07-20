@@ -413,7 +413,7 @@ mod tests {
         let end = filter.end(None);
 
         assert_eq!(before_filter, filtered);
-        assert_eq!(true, end.is_empty());
+        assert!(end.is_empty());
     }
 
     #[test]

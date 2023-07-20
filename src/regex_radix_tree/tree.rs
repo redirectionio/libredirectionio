@@ -82,8 +82,8 @@ mod tests {
     fn test_find_no_rule() {
         let tree: RegexRadixTree<TestItem, Vec<TestItem>> = RegexRadixTree::default();
 
-        assert_eq!(tree.find("tata").is_empty(), true);
-        assert_eq!(tree.find("test").is_empty(), true);
+        assert!(tree.find("tata").is_empty());
+        assert!(tree.find("test").is_empty());
         assert_eq!(tree.len(), 0);
     }
 
@@ -94,8 +94,8 @@ mod tests {
 
         tree.insert(item1);
 
-        assert_eq!(tree.find("tata").is_empty(), false);
-        assert_eq!(tree.find("test").is_empty(), true);
+        assert!(!tree.find("tata").is_empty());
+        assert!(tree.find("test").is_empty());
         assert_eq!(tree.len(), 1);
     }
 
@@ -105,10 +105,10 @@ mod tests {
 
         tree.insert(TestItem::new("/emoji/(([\\p{Ll}]|\\-|➡️|🤘)+?)".to_string()));
 
-        assert_eq!(tree.find("/emoji/test").is_empty(), false);
-        assert_eq!(tree.find("/emoji/➡️").is_empty(), false);
-        assert_eq!(tree.find("/emoji/🤘").is_empty(), false);
-        assert_eq!(tree.find("/not-emoji").is_empty(), true);
+        assert!(!tree.find("/emoji/test").is_empty());
+        assert!(!tree.find("/emoji/➡️").is_empty());
+        assert!(!tree.find("/emoji/🤘").is_empty());
+        assert!(tree.find("/not-emoji").is_empty());
         assert_eq!(tree.len(), 1);
     }
 
@@ -121,14 +121,14 @@ mod tests {
         tree.insert(TestItem::new("/a/b/d".to_string()));
         tree.insert(TestItem::new("/b/a".to_string()));
 
-        assert_eq!(tree.find("/a/b").is_empty(), false);
-        assert_eq!(tree.find("/a/b/c").is_empty(), false);
-        assert_eq!(tree.find("/a/b/d").is_empty(), false);
-        assert_eq!(tree.find("/b/a").is_empty(), false);
+        assert!(!tree.find("/a/b").is_empty());
+        assert!(!tree.find("/a/b/c").is_empty());
+        assert!(!tree.find("/a/b/d").is_empty());
+        assert!(!tree.find("/b/a").is_empty());
 
-        assert_eq!(tree.find("/b").is_empty(), true);
-        assert_eq!(tree.find("/a").is_empty(), true);
-        assert_eq!(tree.find("/no-match").is_empty(), true);
+        assert!(tree.find("/b").is_empty());
+        assert!(tree.find("/a").is_empty());
+        assert!(tree.find("/no-match").is_empty());
         assert_eq!(tree.len(), 4);
     }
 
@@ -138,9 +138,9 @@ mod tests {
 
         tree.insert(TestItem::new("/a/(.+?)/c".to_string()));
 
-        assert_eq!(tree.find("/a/b/c").is_empty(), false);
-        assert_eq!(tree.find("/a/b/d").is_empty(), true);
-        assert_eq!(tree.find("/a/b").is_empty(), true);
+        assert!(!tree.find("/a/b/c").is_empty());
+        assert!(tree.find("/a/b/d").is_empty());
+        assert!(tree.find("/a/b").is_empty());
         assert_eq!(tree.len(), 1);
     }
 
@@ -151,13 +151,13 @@ mod tests {
         tree.insert(TestItem::new("/a/(.+?)/c".to_string()));
         tree.insert(TestItem::new("/a/(.+?)/b".to_string()));
 
-        assert_eq!(tree.find("/a/b/c").is_empty(), false);
-        assert_eq!(tree.find("/a/b/d").is_empty(), true);
-        assert_eq!(tree.find("/a/b").is_empty(), true);
-        assert_eq!(tree.find("/a/b/b").is_empty(), false);
-        assert_eq!(tree.find("/a/c/b").is_empty(), false);
-        assert_eq!(tree.find("/a/c/d").is_empty(), true);
-        assert_eq!(tree.find("/a/c/").is_empty(), true);
+        assert!(!tree.find("/a/b/c").is_empty());
+        assert!(tree.find("/a/b/d").is_empty());
+        assert!(tree.find("/a/b").is_empty());
+        assert!(!tree.find("/a/b/b").is_empty());
+        assert!(!tree.find("/a/c/b").is_empty());
+        assert!(tree.find("/a/c/d").is_empty());
+        assert!(tree.find("/a/c/").is_empty());
         assert_eq!(tree.len(), 2);
     }
 
@@ -170,14 +170,14 @@ mod tests {
         tree.insert(TestItem::new("/a/b/d".to_string()));
         tree.insert(TestItem::new("/b/a".to_string()));
 
-        assert_eq!(tree.find("/a/b").is_empty(), false);
-        assert_eq!(tree.find("/a/b/c").is_empty(), false);
+        assert!(!tree.find("/a/b").is_empty());
+        assert!(!tree.find("/a/b/c").is_empty());
         assert_eq!(tree.len(), 4);
 
         tree.remove("/a/b");
 
-        assert_eq!(tree.find("/a/b").is_empty(), true);
-        assert_eq!(tree.find("/a/b/c").is_empty(), false);
+        assert!(tree.find("/a/b").is_empty());
+        assert!(!tree.find("/a/b/c").is_empty());
         assert_eq!(tree.len(), 3);
     }
 
@@ -217,11 +217,9 @@ mod tests {
             "/string\\-specificCharacters\\-other/from/(?:(a|\\-|z)+?)".to_string(),
         ));
 
-        assert_eq!(tree.find("/string-lowercase/from/coucou").is_empty(), false);
-        assert_eq!(
-            tree.find("/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘")
-                .is_empty(),
-            false
-        );
+        assert!(!tree.find("/string-lowercase/from/coucou").is_empty());
+        assert!(!tree
+            .find("/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘")
+            .is_empty());
     }
 }

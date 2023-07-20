@@ -92,9 +92,8 @@ impl Impact {
 
 impl ImpactOutput {
     pub fn create_result(impact_input: ImpactInput) -> ImpactOutput {
-        let router_config = impact_input.router_config.clone();
-        let mut router = Router::<Rule>::from_config(router_config.clone());
-        let mut trace_unique_router = Router::<Rule>::from_config(router_config.clone());
+        let mut router = Router::<Rule>::from_config(impact_input.router_config.clone());
+        let mut trace_unique_router = Router::<Rule>::from_config(impact_input.router_config.clone());
 
         for rule in impact_input.rules.rules.iter() {
             // Even for a "add" action, we remove a potential previous version
@@ -104,12 +103,12 @@ impl ImpactOutput {
             if rule.id == impact_input.rule.id {
                 continue;
             }
-            router.insert(rule.clone().into_route(&router_config));
+            router.insert(rule.clone().into_route(&impact_input.router_config));
         }
 
         if impact_input.action == "add" || impact_input.action == "update" {
-            router.insert(impact_input.rule.clone().into_route(&router_config));
-            trace_unique_router.insert(impact_input.rule.clone().into_route(&router_config));
+            router.insert(impact_input.rule.clone().into_route(&impact_input.router_config));
+            trace_unique_router.insert(impact_input.rule.clone().into_route(&impact_input.router_config));
         }
 
         let impacts = ImpactOutput::compute_impacts(&router, &trace_unique_router, &impact_input);

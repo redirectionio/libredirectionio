@@ -10,9 +10,9 @@ use redirectionio::http::{Header, Request};
 use redirectionio::router::RouterConfig;
 use std::io::Write;
 
-pub const STATIC_SMALL_BODY: &'static str = r##"<html><body><p>hello world</p></body></html>"##;
+pub const STATIC_SMALL_BODY: &str = r##"<html><body><p>hello world</p></body></html>"##;
 
-pub const STATIC_BIG_BODY: &'static str = r##"
+pub const STATIC_BIG_BODY: &str = r##"
                <!DOCTYPE html> <html lang="fr" prefix="og: http://ogp.me/ns#"> <head> <meta charset="UTF-8"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta name="referrer" content="no-referrer-when-downgrade"> <meta name="theme-color" content="ffffff">   <script type="text/plain" data-gdpr-purposes="personalization" data-gdpr-src="//www.lemonde.fr/bucket/f2e93c4549451b50e31d0296c7b2ba5b30b944c0/js/chartbeatMab.bundle.js" async="1"></script>     <link data-rh="true" rel="alternate" href="https://www.lemonde.fr/en/" hreflang="en-US"> <link data-rh="true" rel="alternate" href="https://www.lemonde.fr/en/" hreflang="en"> <link data-rh="true" rel="alternate" href="https://www.lemonde.fr/en/" hreflang="en-CA"> <link data-rh="true" rel="alternate" href="https://www.lemonde.fr/en/" hreflang="en-GB">  <link rel="preconnect" href="//img.lemde.fr">   <link rel="preload" as="image" fetchpriority="high" media="(max-width: 575px)" imagesrcset=" https://img.lemde.fr/2023/03/09/0/0/5568/3712/400/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 400w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/500/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 500w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/600/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 600w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/700/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 700w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/800/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 800w" imagesizes="100vw"> <link rel="preload" as="image" fetchpriority="high" media="(min-width: 576px) and (max-width: 1023px)" imagesrcset=" https://img.lemde.fr/2023/03/09/0/0/5568/3712/600/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 600w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/700/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 700w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/800/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 800w" imagesizes="100vw"> <link rel="preload" as="image" fetchpriority="high" media="(min-width: 1024px)" imagesrcset=" https://img.lemde.fr/2023/03/09/0/0/5568/3712/500/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 500w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/600/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 600w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/700/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 700w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/800/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 800w, https://img.lemde.fr/2023/03/09/0/0/5568/3712/900/0/75/0/4a61671_1678347482945-000-1ti04i.jpeg 900w" imagesizes="421px">    <link rel="preload" href="//www.lemonde.fr/dist/assets/fonts/marr-sans/MarrSans-Medium-Web.woff2" as="font" type="font/woff2" crossorigin> <link rel="preload" href="//www.lemonde.fr/dist/assets/fonts/marr-sans-cond/MarrSansCondensed-Medium-Web.woff2" as="font" type="font/woff2" crossorigin> <link rel="preload" href="//www.lemonde.fr/dist/assets/fonts/variables/the-antiqua-b/TheAntiquaB-LeMonde.woff2" as="font" type="font/woff2" crossorigin>  <link rel="manifest" href="/manifest.json"> <script>
 var lmd={"consent":{"version":1},"context":{"aec":false,"pageType":"Rubrique_Une"},"user":false,"lang":"fr","projectLangFR":true,"hosts":{"lemonde":"www.lemonde.fr","sf_secure":"secure.lemonde.fr","forecast":"forecast.lemonde.fr"},"env":"prd","analytics":{"oneNext":{"id":"244044216595"},"fba":{"id":"122349388153507","idCommunication":"607705069438811"},"amplitude":{"id":"7dec6d6e90d5288af6e9a882f8def199","arvatoSelectionCode":"false"},"chartbeat":{"domain":"lemonde.fr"},"smart_tag":{"url":"https:\/\/www.lemonde.fr\/bucket\/f2e93c4549451b50e31d0296c7b2ba5b30b944c0\/js\/f2e93c4549451b50e31d0296c7b2ba5b30b944c0.__site_id__.js","pixelPath":"\/f2e93c4549451b50e31d0296c7b2ba5b30b944c0","customObject":{"Pagetype":"Home","Population":"Gratuit","Producteur":"Edito"},"level2":5,"chapter1":"Home","chapter2":"Beta","chapter3":"default","name":"Home"},"smart_tag_events":{"scroll":{"reachBottom":{"div.zone7":{"level2":5,"chapter1":"Scroll","chapter2":"Home","chapter3":"","name":"2_Pub_haut"},"div.Block--opinions":{"level2":5,"chapter1":"Scroll","chapter2":"Home","chapter3":"","name":"3_Pub_bas"}}}}},"features":{"capping":false},"batch":{"smallIcon":"https:\/\/www.lemonde.fr\/bucket\/f2e93c4549451b50e31d0296c7b2ba5b30b944c0\/img\/logos\/pwa-96-transparent.png","defaultIcon":"https:\/\/www.lemonde.fr\/bucket\/f2e93c4549451b50e31d0296c7b2ba5b30b944c0\/img\/logos\/pwa-192.png"},"metas":{"canonicalUrl":"https:\/\/www.lemonde.fr"},"ab_test":"home:desktop:home_03_abonnement:versionA;home:desktop:home_03_abo_promo:versionA","LiveRefreshTime":30000,"urlfriendly":"a-la-une","typePage":"home","homeLayout":"default","cat1":"a-la-une","isAbo":false};lmd.device="desktop";</script>  <script type="text/javascript">!function(){"use strict";var e;(function(e){e.exports=function(){for(var e,t="__tcfapiLocator",a=[],r=window;r;){try{if(r.frames[t]){e=r;break}}catch(e){}if(r===window.top)break;r=r.parent}e||(function e(){var a=r.document,n=!!r.frames[t];if(!n)if(a.body){var s=a.createElement("iframe");s.style.cssText="display:none",s.name=t,a.body.appendChild(s)}else setTimeout(e,5);return!n}(),r.__tcfapi=function(){for(var e,t=arguments.length,r=new Array(t),n=0;n<t;n++)r[n]=arguments[n];if(!r.length)return a;if("setGdprApplies"===r[0])r.length>3&&2===parseInt(r[1],10)&&"boolean"==typeof r[3]&&(e=r[3],"function"==typeof r[2]&&r[2]("set",!0));else if("ping"===r[0]){var s={gdprApplies:e,cmpLoaded:!1,cmpStatus:"stub"};"function"==typeof r[2]&&r[2](s)}else a.push(r)},r.addEventListener("message",(function(e){var t="string"==typeof e.data,a={};try{a=t?JSON.parse(e.data):e.data}catch(e){}var r=a.__tcfapiCall;r&&window.__tcfapi(r.command,r.version,(function(a,n){var s={__tcfapiReturn:{returnValue:a,success:n,callId:r.callId}};t&&(s=JSON.stringify(s)),e&&e.source&&e.source.postMessage&&e.source.postMessage(s,"*")}),r.parameter)}),!1))}}(e={exports:{}},e.exports),e.exports)()}();</script> <script type="text/javascript">var GDPR_CONFIG = {"displayMode":"standard"};</script>  <script type="text/javascript" src="//cmp.lemonde.fr/js/lemonde.min.js" async="1"></script>     <script>
 if(typeof Promise === 'undefined' || (sessionStorage.fontsFirst && sessionStorage.fontsLast && 'fonts' in document)) {
@@ -69,7 +69,7 @@ fn filter_body_inject_html_append(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_append_small"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &vec![]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
                 body.filter(STATIC_SMALL_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -80,7 +80,7 @@ fn filter_body_inject_html_append(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_append_big"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &vec![]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
                 body.filter(STATIC_BIG_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -127,7 +127,7 @@ fn filter_body_inject_html_prepend(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_prepend_small"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &vec![]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
                 body.filter(STATIC_SMALL_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -139,7 +139,7 @@ fn filter_body_inject_html_prepend(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_prepend_big"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &vec![]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
                 body.filter(STATIC_BIG_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -198,7 +198,7 @@ fn filter_body_inject_html_append_gzip(c: &mut Criterion) {
             let mut cloned_action = action.clone();
             if let Some(mut body) = cloned_action.create_filter_body(
                 200,
-                &vec![Header {
+                &[Header {
                     name: "Content-Encoding".to_string(),
                     value: "gzip".to_string(),
                 }],
@@ -215,7 +215,7 @@ fn filter_body_inject_html_append_gzip(c: &mut Criterion) {
             let mut cloned_action = action.clone();
             if let Some(mut body) = cloned_action.create_filter_body(
                 200,
-                &vec![Header {
+                &[Header {
                     name: "Content-Encoding".to_string(),
                     value: "gzip".to_string(),
                 }],

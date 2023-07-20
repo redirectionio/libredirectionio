@@ -68,6 +68,7 @@ impl Log {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn from_proxy(
         request: &Request,
         code: u16,

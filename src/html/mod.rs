@@ -212,7 +212,7 @@ impl<'t> Tokenizer<'t> {
 
             let token_type: TokenType;
 
-            if ('a'..='z').contains(&byte) || ('A'..='Z').contains(&byte) {
+            if byte.is_ascii_alphabetic() {
                 token_type = StartTagToken;
             } else if byte == '/' {
                 token_type = EndTagToken;
@@ -253,7 +253,7 @@ impl<'t> Tokenizer<'t> {
                         return Ok(self.token);
                     }
 
-                    if ('a'..='z').contains(&end_byte) || ('A'..='Z').contains(&end_byte) {
+                    if end_byte.is_ascii_alphabetic() {
                         self.read_tag(false);
 
                         if self.err.is_some() {
@@ -723,7 +723,7 @@ impl<'t> Tokenizer<'t> {
             return;
         }
 
-        if ('a'..='z').contains(&byte) || ('A'..='Z').contains(&byte) {
+        if byte.is_ascii_alphabetic() {
             self.read_script_data_double_escape_start();
 
             return;
@@ -1083,7 +1083,7 @@ impl<'t> Tokenizer<'t> {
             for i in 0..s.len() {
                 let mut c = self.buffer[self.data.start + i];
 
-                if (b'A'..=b'Z').contains(&c) {
+                if c.is_ascii_uppercase() {
                     c += b'a' - b'A';
                 }
 
@@ -1108,7 +1108,7 @@ impl<'t> Tokenizer<'t> {
         let mut raw = false;
         let mut byte = self.buffer[self.data.start];
 
-        if (b'A'..=b'Z').contains(&byte) {
+        if byte.is_ascii_uppercase() {
             byte += b'a' - b'A';
         }
 
