@@ -64,6 +64,7 @@ pub struct RedirectionLoop {
 pub struct RedirectionHop {
     pub url: String,
     pub status_code: u16,
+    pub method: String,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -188,16 +189,17 @@ impl ImpactOutput {
 
     fn compute_redirection_loop(router: &Router<Rule>, impact_input: &ImpactInput, example: &Example) -> RedirectionLoop {
         let mut current_url = example.url.clone();
-        let mut current_method = example.method.clone();
+        let mut current_method = example.method.clone().unwrap_or(String::from("GET"));
         let mut error = None;
 
         let mut hops = vec![RedirectionHop {
             url: current_url.clone(),
             status_code: 0,
+            method: current_method.clone(),
         }];
 
         'outer: for i in 1..=impact_input.max_hops {
-            let new_example = example.with_url(current_url.clone()).with_method(current_method.clone());
+            let new_example = example.with_url(current_url.clone()).with_method(Some(current_method.clone()));
 
             let request = Request::from_example(&router.config, &new_example).unwrap();
             let routes = router.match_request(&request);
@@ -236,11 +238,16 @@ impl ImpactOutput {
                 error = Some(RedirectionError::AtLeastOneHop);
             }
 
+            if [301, 302].contains(&final_status_code) {
+                current_method = String::from("GET");
+            }
+
             for hop in hops.iter() {
-                if hop.url == current_url {
+                if hop.url == current_url && hop.method == current_method {
                     hops.push(RedirectionHop {
                         url: current_url,
                         status_code: final_status_code,
+                        method: current_method,
                     });
                     error = Some(RedirectionError::Loop);
                     break 'outer;
@@ -250,15 +257,12 @@ impl ImpactOutput {
             hops.push(RedirectionHop {
                 url: current_url.clone(),
                 status_code: final_status_code,
+                method: current_method.clone(),
             });
 
             if i >= impact_input.max_hops {
                 error = Some(RedirectionError::TooManyHops);
                 break;
-            }
-
-            if [301, 302].contains(&final_status_code) {
-                current_method = Some(String::from("GET"));
             }
         }
 
