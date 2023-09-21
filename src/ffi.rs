@@ -21,7 +21,7 @@ pub unsafe extern "C" fn redirectionio_router_create(
                 match serde_json::from_str(str) {
                     Ok(value) => value,
                     Err(error) => {
-                        error!("Unable to deserialize router config: {}", error,);
+                        error!("Unable to deserialize router_old config: {}", error,);
 
                         RouterConfig::default()
                     }

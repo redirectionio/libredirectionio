@@ -1,119 +1,120 @@
+use super::super::trace::TraceInfo;
+use super::super::{Route, RouterConfig, Trace};
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
-use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
-use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
-use crate::router::request_matcher::{RequestMatcher, RouteMatcher};
-use crate::router::trace::TraceInfo;
-use crate::router::{Route, RouteData, Trace};
+use crate::regex_radix_tree::{RegexTreeMap, Trace as TreeTrace};
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-struct PathAndQueryRegexNodeItem<T: RouteData> {
-    route: Route<T>,
-    path_regex: String,
-    ignore_case: bool,
-}
-
-impl<T: RouteData> NodeItem for PathAndQueryRegexNodeItem<T> {
-    fn regex(&self) -> &str {
-        self.path_regex.as_str()
-    }
-
-    fn case_insensitive(&self) -> bool {
-        self.ignore_case
-    }
-}
-impl<T: RouteData> ItemRoute<T> for PathAndQueryRegexNodeItem<T> {
-    fn route(self) -> Route<T> {
-        self.route
-    }
-}
-
-type PathAndQueryRegexTreeMatcher<T> = MatcherTreeStorage<T, PathAndQueryRegexNodeItem<T>, RouteMatcher<T>>;
-
-#[derive(Debug, Clone)]
-pub struct PathAndQueryMatcher<T: RouteData> {
-    regex_tree_rule: RegexRadixTree<PathAndQueryRegexNodeItem<T>, PathAndQueryRegexTreeMatcher<T>>,
-    static_rules: HashMap<String, Box<dyn RequestMatcher<T>>>,
+pub struct PathAndQueryMatcher<T> {
+    regex_tree_rule: RegexTreeMap<Arc<Route<T>>>,
+    static_rules: HashMap<String, HashMap<String, Arc<Route<T>>>>,
     count: usize,
 }
 
-impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
-    fn insert(&mut self, route: Route<T>) {
+impl<T> PathAndQueryMatcher<T> {
+    pub fn new(config: Arc<RouterConfig>) -> Self {
+        PathAndQueryMatcher {
+            regex_tree_rule: RegexTreeMap::new(config.ignore_path_and_query_case),
+            static_rules: HashMap::new(),
+            count: 0,
+        }
+    }
+
+    pub fn insert(&mut self, route: Arc<Route<T>>) {
         self.count += 1;
 
         match route.path_and_query() {
             StaticOrDynamic::Static(path) => {
                 if !self.static_rules.contains_key(path) {
-                    self.static_rules.insert(path.clone(), PathAndQueryMatcher::create_sub_matcher());
+                    self.static_rules.insert(path.clone(), HashMap::new());
                 }
 
-                self.static_rules.get_mut(path).unwrap().insert(route);
+                self.static_rules
+                    .get_mut(path)
+                    .unwrap()
+                    .insert(route.id().to_string(), route.clone());
             }
             StaticOrDynamic::Dynamic(path) => {
-                self.regex_tree_rule.insert(PathAndQueryRegexNodeItem {
-                    path_regex: path.regex.clone(),
-                    ignore_case: path.ignore_case,
-                    route,
-                });
+                self.regex_tree_rule.insert(path.regex.as_str(), route.id(), route.clone());
             }
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut removed = false;
+    pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
+        match self.regex_tree_rule.remove(id) {
+            None => (),
+            Some(route) => {
+                self.count -= 1;
 
-        if self.regex_tree_rule.remove(id) {
-            self.count -= 1;
-
-            return true;
+                return Some(route);
+            }
         }
 
+        let mut removed = None;
+
         self.static_rules.retain(|_, matcher| {
-            removed = removed || matcher.remove(id);
+            if removed.is_some() {
+                return true;
+            }
+
+            removed = matcher.remove(id);
 
             matcher.len() > 0
         });
 
-        if removed {
+        if removed.is_some() {
             self.count -= 1;
         }
 
         removed
     }
 
-    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {
         let path = request.path_and_query();
-        let storages = self.regex_tree_rule.find(path.as_str());
-        let mut routes = Vec::new();
-
-        for storage in storages {
-            routes.extend(storage.matcher.match_request(request));
-        }
+        let mut routes: Vec<Arc<Route<T>>> = self
+            .regex_tree_rule
+            .find(path.as_str())
+            .iter()
+            .map(|route| (*route).clone())
+            .collect();
 
         match self.static_rules.get(path.as_str()) {
             None => (),
-            Some(static_matcher) => {
-                routes.extend(static_matcher.match_request(request));
+            Some(static_storage) => {
+                routes.extend(static_storage.values().map(|r| r.clone()).collect::<Vec<Arc<Route<T>>>>());
             }
         }
 
         routes
     }
 
-    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
+    pub fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let path = request.path_and_query();
-        let node_trace = self.regex_tree_rule.trace(path.as_str());
-        let mut traces = vec![PathAndQueryRegexTreeMatcher::<T>::node_trace_to_router_trace(
-            path.as_str(),
-            node_trace,
-            request,
-            Some(TraceInfo::PathAndQueryRegex),
+        let trace = tree_trace_to_trace(path.as_str(), self.regex_tree_rule.trace(path.as_str()));
+
+        let mut traces = vec![Trace::new(
+            trace.matched,
+            true,
+            trace.count,
+            vec![trace],
+            TraceInfo::PathAndQueryRegex,
         )];
 
         let static_traces = match self.static_rules.get(path.as_str()) {
             None => Vec::new(),
-            Some(static_matcher) => static_matcher.trace(request),
+            Some(routes) => {
+                vec![Trace::new(
+                    true,
+                    true,
+                    routes.len() as u64,
+                    Vec::new(),
+                    TraceInfo::Storage {
+                        routes: routes.values().map(|r| r.clone()).collect::<Vec<Arc<Route<T>>>>(),
+                    },
+                )]
+            }
         };
 
         traces.push(Trace::new(
@@ -127,41 +128,50 @@ impl<T: RouteData> RequestMatcher<T> for PathAndQueryMatcher<T> {
         traces
     }
 
-    fn cache(&mut self, limit: u64, level: u64) -> u64 {
-        let mut new_limit = self.regex_tree_rule.cache(limit, level);
-
-        for matcher in self.static_rules.values_mut() {
-            new_limit = matcher.cache(new_limit, level)
-        }
-
-        new_limit
+    pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
+        self.regex_tree_rule.cache(limit, Some(level))
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.count
     }
 
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
     }
-
-    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
-        Box::new((*self).clone())
-    }
 }
 
-impl<T: RouteData> Default for PathAndQueryMatcher<T> {
-    fn default() -> Self {
-        PathAndQueryMatcher {
-            regex_tree_rule: RegexRadixTree::default(),
-            static_rules: HashMap::new(),
-            count: 0,
-        }
-    }
-}
+fn tree_trace_to_trace<T>(haystack: &str, tree_trace: TreeTrace<Arc<Route<T>>>) -> Trace<T> {
+    let mut children = Vec::new();
 
-impl<T: RouteData> PathAndQueryMatcher<T> {
-    fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<RouteMatcher<T>>::default()
+    for child in tree_trace.children {
+        children.push(tree_trace_to_trace(haystack, child));
     }
+
+    if !tree_trace.values.is_empty() {
+        children.push(Trace::new(
+            tree_trace.matched,
+            true,
+            tree_trace.values.len() as u64,
+            Vec::new(),
+            TraceInfo::Storage {
+                routes: if tree_trace.matched {
+                    tree_trace.values.iter().map(|r| (*r).clone()).collect::<Vec<Arc<Route<T>>>>()
+                } else {
+                    Vec::new()
+                },
+            },
+        ))
+    }
+
+    Trace::new(
+        tree_trace.matched,
+        true,
+        tree_trace.count,
+        children,
+        TraceInfo::Regex {
+            request: haystack.to_string(),
+            against: tree_trace.regex,
+        },
+    )
 }

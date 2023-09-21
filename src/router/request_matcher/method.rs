@@ -1,20 +1,34 @@
+use super::super::request_matcher::HeaderMatcher;
+use super::super::trace::TraceInfo;
+use super::super::{Route, RouterConfig, Trace};
 use crate::http::Request;
-use crate::router::request_matcher::{HeaderMatcher, RequestMatcher};
-use crate::router::trace::TraceInfo;
-use crate::router::{Route, RouteData, Trace};
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-pub struct MethodMatcher<T: RouteData> {
-    methods: HashMap<String, Box<dyn RequestMatcher<T>>>,
-    exclude_methods: HashMap<Vec<String>, Box<dyn RequestMatcher<T>>>,
-    any_method: Box<dyn RequestMatcher<T>>,
+pub struct MethodMatcher<T> {
+    methods: HashMap<String, HeaderMatcher<T>>,
+    exclude_methods: HashMap<Vec<String>, HeaderMatcher<T>>,
+    any_method: HeaderMatcher<T>,
     count: usize,
+    config: Arc<RouterConfig>,
 }
 
-impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
-    fn insert(&mut self, route: Route<T>) {
+impl<T> MethodMatcher<T> {
+    pub fn new(config: Arc<RouterConfig>) -> Self {
+        Self {
+            methods: HashMap::new(),
+            exclude_methods: HashMap::new(),
+            any_method: HeaderMatcher::new(config.clone()),
+            count: 0,
+            config,
+        }
+    }
+
+    pub fn insert(&mut self, route: Arc<Route<T>>) {
         self.count += 1;
+
+        let config = self.config.clone();
 
         match route.methods() {
             None => self.any_method.insert(route),
@@ -25,14 +39,14 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
                     if route.exclude_methods().is_some() {
                         self.exclude_methods
                             .entry(methods.clone())
-                            .or_insert_with(|| MethodMatcher::create_sub_matcher())
+                            .or_insert_with(|| HeaderMatcher::new(config.clone()))
                             .insert(route.clone());
 
                         return;
                     }
                     for method in methods {
                         if !self.methods.contains_key(method) {
-                            self.methods.insert(method.to_string(), MethodMatcher::create_sub_matcher());
+                            self.methods.insert(method.to_string(), HeaderMatcher::new(config.clone()));
                         }
 
                         self.methods.get_mut(method).unwrap().insert(route.clone());
@@ -42,35 +56,39 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut removed = false;
+    pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
+        let mut removed = self.any_method.remove(id);
 
-        if self.any_method.remove(id) {
+        if removed.is_some() {
             self.count -= 1;
 
-            return true;
+            return removed;
         }
 
         self.methods.retain(|_, matcher| {
-            removed = removed || matcher.remove(id);
+            if let Some(value) = matcher.remove(id) {
+                removed = Some(value);
+            }
 
             matcher.len() > 0
         });
 
         self.exclude_methods.retain(|_, matcher| {
-            removed = removed || matcher.remove(id);
+            if let Some(value) = matcher.remove(id) {
+                removed = Some(value);
+            }
 
             matcher.len() > 0
         });
 
-        if removed {
+        if removed.is_some() {
             self.count -= 1;
         }
 
         removed
     }
 
-    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {
         let mut routes = self.any_method.match_request(request);
 
         if let Some(matcher) = self.methods.get(request.method()) {
@@ -86,7 +104,7 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         routes
     }
 
-    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
+    pub fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_method.trace(request);
         let request_method = request.method();
         let mut found = false;
@@ -165,7 +183,7 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         traces
     }
 
-    fn cache(&mut self, limit: u64, level: u64) -> u64 {
+    pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.any_method.cache(limit, level);
 
         for matcher in self.methods.values_mut() {
@@ -175,32 +193,11 @@ impl<T: RouteData> RequestMatcher<T> for MethodMatcher<T> {
         new_limit
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.count
     }
 
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
-    }
-
-    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
-        Box::new((*self).clone())
-    }
-}
-
-impl<T: RouteData> Default for MethodMatcher<T> {
-    fn default() -> Self {
-        MethodMatcher {
-            methods: HashMap::new(),
-            exclude_methods: HashMap::new(),
-            any_method: MethodMatcher::create_sub_matcher(),
-            count: 0,
-        }
-    }
-}
-
-impl<T: RouteData> MethodMatcher<T> {
-    pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<HeaderMatcher<T>>::default()
     }
 }

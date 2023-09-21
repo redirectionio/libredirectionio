@@ -1,25 +1,62 @@
-use crate::regex_radix_tree::{NodeItem, Storage};
-use std::marker::PhantomData;
+use super::item::Item;
+use super::leaf::Leaf;
+use super::node::Node;
 
 #[derive(Debug, Clone)]
-pub struct Trace<T: NodeItem, S: Storage<T>> {
-    pub regex: String,
-    pub count: u64,
-    pub matched: bool,
-    pub children: Vec<Trace<T, S>>,
-    pub storage: Option<S>,
-    phantom: PhantomData<T>,
+pub struct Trace<'a, V> {
+    pub(crate) regex: String,
+    pub(crate) count: u64,
+    pub(crate) matched: bool,
+    pub(crate) children: Vec<Trace<'a, V>>,
+    pub(crate) values: Vec<&'a V>,
 }
 
-impl<T: NodeItem, S: Storage<T>> Trace<T, S> {
-    pub fn new(regex: String, matched: bool, count: u64, children: Vec<Trace<T, S>>, storage: Option<S>) -> Trace<T, S> {
+impl<V> Leaf<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<V> {
+        let matched = self.regex.is_match(haystack);
+
         Trace {
-            regex,
+            regex: self.regex.original.clone(),
             matched,
+            count: self.values.len() as u64,
+            children: Vec::new(),
+            values: self.values.values().into_iter().collect(),
+        }
+    }
+}
+impl<V> Node<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<V> {
+        let mut children = Vec::new();
+        let matched = self.regex.is_match(haystack);
+
+        if matched {
+            for child in &self.children {
+                children.push(child.trace(haystack));
+            }
+        }
+
+        Trace {
+            regex: self.regex.original.clone(),
+            matched,
+            count: self.len() as u64,
             children,
-            count,
-            storage,
-            phantom: PhantomData,
+            values: Vec::new(),
+        }
+    }
+}
+
+impl<V> Item<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<V> {
+        match self {
+            Item::Empty(_) => Trace {
+                regex: "".to_string(),
+                matched: true,
+                count: 0,
+                children: Vec::new(),
+                values: Vec::new(),
+            },
+            Item::Node(node) => node.trace(haystack),
+            Item::Leaf(leaf) => leaf.trace(haystack),
         }
     }
 }

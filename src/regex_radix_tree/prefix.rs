@@ -7,6 +7,13 @@ macro_rules! next_char_or_return {
     };
 }
 
+pub fn common_prefix(left: &str, right: &str) -> String {
+    let size = common_prefix_char_size(left, right);
+    let prefix = get_prefix_with_char_size(left, size);
+
+    prefix
+}
+
 pub fn common_prefix_char_size(left: &str, right: &str) -> u32 {
     let mut prefix_length = 0;
     let mut left_chars = left.chars();
@@ -44,6 +51,10 @@ pub fn common_prefix_char_size(left: &str, right: &str) -> u32 {
 }
 
 pub fn get_prefix_with_char_size(str: &str, size: u32) -> String {
+    if size == 0 {
+        return "".to_string();
+    }
+
     let mut chars = str.chars();
     let mut prefix = Vec::new();
 

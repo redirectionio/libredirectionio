@@ -140,8 +140,6 @@ mod tests {
         let sanitized = sanitize_url(path);
         let url = sanitized.parse::<PathAndQuery>();
 
-        println!("{:#?}", url);
-
         assert!(url.is_ok());
     }
 

@@ -1,26 +1,39 @@
+use super::super::route_ip::RouteIp;
+use super::super::trace::TraceInfo;
+use super::super::{MethodMatcher, Route, RouterConfig, Trace};
 use crate::http::Request;
-use crate::router::route_ip::RouteIp;
-use crate::router::trace::TraceInfo;
-use crate::router::{MethodMatcher, RequestMatcher, Route, RouteData, Trace};
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-pub struct IpMatcher<T: RouteData> {
-    matchers: HashMap<RouteIp, Box<dyn RequestMatcher<T>>>,
-    no_matcher: Box<dyn RequestMatcher<T>>,
+pub struct IpMatcher<T> {
+    matchers: HashMap<RouteIp, MethodMatcher<T>>,
+    no_matcher: MethodMatcher<T>,
     count: usize,
+    config: Arc<RouterConfig>,
 }
 
-impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
-    fn insert(&mut self, route: Route<T>) {
+impl<T> IpMatcher<T> {
+    pub fn new(config: Arc<RouterConfig>) -> Self {
+        IpMatcher {
+            matchers: HashMap::new(),
+            no_matcher: MethodMatcher::new(config.clone()),
+            count: 0,
+            config,
+        }
+    }
+
+    pub fn insert(&mut self, route: Arc<Route<T>>) {
         self.count += 1;
+
+        let config = self.config.clone();
 
         match route.ips() {
             Some(ips) => {
                 for ip in ips {
                     self.matchers
                         .entry(ip.clone())
-                        .or_insert_with(|| Self::create_sub_matcher())
+                        .or_insert_with(|| MethodMatcher::new(config.clone()))
                         .insert(route.clone());
                 }
             }
@@ -30,29 +43,31 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut removed = false;
+    pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
+        let mut removed = self.no_matcher.remove(id);
 
-        if self.no_matcher.remove(id) {
+        if removed.is_some() {
             self.count -= 1;
 
-            return true;
+            return removed;
         }
 
         self.matchers.retain(|_, matcher| {
-            removed = removed || matcher.remove(id);
+            if let Some(value) = matcher.remove(id) {
+                removed = Some(value);
+            }
 
             matcher.len() > 0
         });
 
-        if removed {
+        if removed.is_some() {
             self.count -= 1;
         }
 
         removed
     }
 
-    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {
         let mut routes = self.no_matcher.match_request(request);
 
         if let Some(remote_addr) = request.remote_addr.as_ref() {
@@ -66,7 +81,7 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
         routes
     }
 
-    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
+    pub fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.no_matcher.trace(request);
 
         if let Some(remote_addr) = request.remote_addr.as_ref() {
@@ -102,7 +117,7 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
         traces
     }
 
-    fn cache(&mut self, limit: u64, level: u64) -> u64 {
+    pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.no_matcher.cache(limit, level);
 
         for matcher in self.matchers.values_mut() {
@@ -112,31 +127,11 @@ impl<T: RouteData> RequestMatcher<T> for IpMatcher<T> {
         new_limit
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.count
     }
 
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
-    }
-
-    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
-        Box::new((*self).clone())
-    }
-}
-
-impl<T: RouteData> Default for IpMatcher<T> {
-    fn default() -> Self {
-        IpMatcher {
-            matchers: HashMap::new(),
-            no_matcher: Self::create_sub_matcher(),
-            count: 0,
-        }
-    }
-}
-
-impl<T: RouteData> IpMatcher<T> {
-    pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<MethodMatcher<T>>::default()
     }
 }

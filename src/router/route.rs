@@ -1,19 +1,17 @@
+use super::route_datetime::RouteDateTime;
+use super::route_ip::RouteIp;
+use super::route_time::RouteTime;
+use super::route_weekday::RouteWeekday;
 use super::RouteHeader;
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
-use crate::router::route_datetime::RouteDateTime;
-use crate::router::route_ip::RouteIp;
-use crate::router::route_time::RouteTime;
-use crate::router::route_weekday::RouteWeekday;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-pub trait RouteData: Debug + Clone + Send + Sync + Ord + 'static {}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Route<T: RouteData> {
+pub struct Route<T> {
     handler: T,
     scheme: Option<String>,
     host: Option<StaticOrDynamic>,
@@ -29,7 +27,7 @@ pub struct Route<T: RouteData> {
     priority: i64,
 }
 
-impl<T: RouteData> Route<T> {
+impl<T> Route<T> {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         methods: Option<Vec<String>>,
@@ -139,22 +137,31 @@ impl<T: RouteData> Route<T> {
     }
 }
 
-impl<T: RouteData> Ord for Route<T> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.handler.cmp(&other.handler)
-    }
-}
-
-impl<T: RouteData> PartialOrd for Route<T> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.handler.partial_cmp(&other.handler)
-    }
-}
-
-impl<T: RouteData> PartialEq for Route<T> {
+impl<T> PartialEq for Route<T>
+where
+    T: PartialEq,
+{
     fn eq(&self, other: &Self) -> bool {
         self.handler.eq(&other.handler)
     }
 }
 
-impl<T: RouteData> Eq for Route<T> {}
+impl<T> Eq for Route<T> where T: PartialEq {}
+
+impl<T> PartialOrd for Route<T>
+where
+    T: PartialOrd,
+{
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.handler.partial_cmp(&other.handler)
+    }
+}
+
+impl<T> Ord for Route<T>
+where
+    T: Ord,
+{
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.handler.cmp(&other.handler)
+    }
+}

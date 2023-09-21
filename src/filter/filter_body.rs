@@ -216,33 +216,8 @@ mod tests {
     use flate2::Compression;
     use std::io::prelude::*;
 
-    fn init_logger() {
-        struct Logger;
-        static LOGGER: Logger = Logger;
-
-        impl log::Log for Logger {
-            fn enabled(&self, _metadata: &log::Metadata) -> bool {
-                true
-            }
-
-            fn log(&self, record: &log::Record) {
-                println!("{}", record.args());
-            }
-
-            fn flush(&self) {}
-        }
-
-        // If it fails, that just means we've already set it to the same value.
-        let _ = log::set_logger(&LOGGER);
-        log::set_max_level(log::LevelFilter::Trace);
-
-        println!();
-    }
-
     #[test]
     pub fn test_filter_gzip() {
-        init_logger();
-
         let decompressed_input = "<html><head></head><body class=\"page\"><div>Yolo</div></body></html>".to_string();
         let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
         encoder.write_all(decompressed_input.as_bytes()).unwrap();
@@ -296,8 +271,6 @@ mod tests {
 
     #[test]
     pub fn test_filter_deflate() {
-        init_logger();
-
         let decompressed_input = "<html><head></head><body class=\"page\"><div>Yolo</div></body></html>".to_string();
         let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
         encoder.write_all(decompressed_input.as_bytes()).unwrap();
@@ -351,8 +324,6 @@ mod tests {
 
     #[test]
     pub fn test_filter_brotli() {
-        init_logger();
-
         let decompressed_input = "<html><head><h2>This is stupide data to ensure compression before</H2></head><body class=\"page\"><div>Yolo</div></body></html>".to_string();
         let mut compressed_input = Vec::new();
         let mut reader = brotli::CompressorReader::new(decompressed_input.as_bytes(), 4096, 11, 22);

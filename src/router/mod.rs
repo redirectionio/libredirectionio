@@ -10,8 +10,8 @@ mod trace;
 
 use crate::http::Request;
 pub use config::RouterConfig;
-pub use request_matcher::{DateTimeMatcher, HostMatcher, IpMatcher, MethodMatcher, PathAndQueryMatcher, RequestMatcher, SchemeMatcher};
-pub use route::{Route, RouteData};
+pub use request_matcher::{DateTimeMatcher, HostMatcher, IpMatcher, MethodMatcher, PathAndQueryMatcher, SchemeMatcher};
+pub use route::Route;
 pub use route_datetime::RouteDateTime;
 pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use route_ip::RouteIp;
@@ -20,43 +20,51 @@ pub use route_weekday::RouteWeekday;
 pub use trace::{RouteTrace, Trace};
 
 use core::cmp::Reverse;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-pub struct Router<T: RouteData> {
+pub struct Router<T> {
     matcher: SchemeMatcher<T>,
-    pub config: RouterConfig,
+    pub config: Arc<RouterConfig>,
 }
 
-impl<T: RouteData> Default for Router<T> {
+impl<T> Default for Router<T> {
     fn default() -> Self {
-        Router {
-            matcher: SchemeMatcher::new(RouterConfig::default()),
-            config: RouterConfig::default(),
-        }
-    }
-}
+        let config = Arc::new(RouterConfig::default());
 
-impl<T: RouteData> Router<T> {
-    pub fn from_config(config: RouterConfig) -> Self {
-        Self {
+        Router {
             matcher: SchemeMatcher::new(config.clone()),
             config,
         }
     }
+}
 
-    pub fn insert(&mut self, route: Route<T>) {
-        self.matcher.insert(route);
+impl<T> Router<T>
+where
+    T: Clone,
+{
+    pub fn from_config(config: RouterConfig) -> Self {
+        let config_arc = Arc::new(config);
+
+        Self {
+            matcher: SchemeMatcher::new(config_arc.clone()),
+            config: config_arc,
+        }
     }
 
-    pub fn remove(&mut self, id: &str) -> bool {
+    pub fn insert(&mut self, route: Route<T>) {
+        self.matcher.insert(Arc::new(route));
+    }
+
+    pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
         self.matcher.remove(id)
     }
 
     pub fn rebuild_request(&self, request: &Request) -> Request {
-        Request::rebuild_with_config(&self.config, request)
+        Request::rebuild_with_config(self.config.as_ref(), request)
     }
 
-    pub fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {
         self.matcher.match_request(request)
     }
 
@@ -69,24 +77,20 @@ impl<T: RouteData> Router<T> {
     }
 
     pub fn trace_request(&self, request: &Request) -> Vec<Trace<T>> {
-        let request_rebuild = Request::rebuild_with_config(&self.config, request);
+        let request_rebuild = Request::rebuild_with_config(self.config.as_ref(), request);
 
         self.matcher.trace(&request_rebuild)
     }
 
-    pub fn get_route(&self, request: &Request) -> Option<&Route<T>> {
+    pub fn get_route(&self, request: &Request) -> Option<Arc<Route<T>>> {
         let mut routes = self.match_request(request);
 
         if routes.is_empty() {
             return None;
         }
 
-        routes.sort_by_key(|&b| Reverse(b.priority()));
-
-        match routes.get(0) {
-            None => None,
-            Some(&route) => Some(route),
-        }
+        routes.sort_by_key(|b| Reverse(b.priority()));
+        routes.first().cloned()
     }
 
     pub fn get_trace(&self, request: &Request) -> RouteTrace<T> {
@@ -94,13 +98,13 @@ impl<T: RouteData> Router<T> {
         let mut routes_traces = Trace::get_routes_from_traces(&traces);
         let mut routes = Vec::new();
 
-        for &route in &routes_traces {
+        for route in &routes_traces {
             routes.push(route.clone());
         }
 
-        routes_traces.sort_by(|&a, &b| b.priority().cmp(&a.priority()));
+        routes_traces.sort_by(|a, b| b.priority().cmp(&a.priority()));
 
-        let final_route = routes_traces.first().map(|&route| route.clone());
+        let final_route = routes_traces.first().cloned();
 
         RouteTrace::new(traces, routes, final_route)
     }

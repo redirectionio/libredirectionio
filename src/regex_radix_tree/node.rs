@@ -1,34 +1,154 @@
-use crate::regex_radix_tree::{NodeItem, Storage, Trace};
-use std::fmt::Debug;
+use super::item::Item;
+use super::leaf::Leaf;
+use super::prefix::{common_prefix_char_size, get_prefix_with_char_size};
+use super::regex::LazyRegex;
 
-pub trait Node<T: NodeItem, S: Storage<T>>: Debug + Send + Sync {
+#[derive(Debug)]
+pub struct Node<V> {
+    pub(crate) regex: LazyRegex,
+    pub(crate) children: Vec<Item<V>>,
+}
+
+impl<V> Clone for Node<V>
+where
+    V: Clone,
+{
+    fn clone(&self) -> Self {
+        Node {
+            regex: self.regex.clone(),
+            children: self.children.clone(),
+        }
+    }
+}
+
+impl<V> Node<V> {
     /// Insert a new item into this node
-    fn insert(&mut self, item: T, parent_prefix_size: u32);
+    pub fn insert(mut self, regex: &str, id: String, item: V) -> Item<V> {
+        let mut max_prefix_size = self.regex.original.len() as u32;
+        let prefix_size = common_prefix_char_size(regex, self.regex.original.as_str());
 
-    /// Find storage associated to this value
-    fn find(&self, value: &str) -> Vec<&S>;
+        if prefix_size < max_prefix_size {
+            let prefix = get_prefix_with_char_size(self.regex.original.as_str(), prefix_size);
+
+            let left = Item::Leaf(Leaf::new(regex, id, item, self.regex.ignore_case));
+
+            return Item::Node(Node {
+                regex: LazyRegex::new_node(prefix, self.regex.ignore_case),
+                children: vec![left, Item::Node(self)],
+            });
+        }
+
+        let mut max_prefix_item = None;
+
+        for i in 0..self.children.len() {
+            let prefix_size = common_prefix_char_size(regex, self.children[i].regex());
+
+            if prefix_size > max_prefix_size {
+                max_prefix_size = prefix_size;
+                max_prefix_item = Some(i);
+            }
+        }
+
+        match max_prefix_item {
+            Some(child_index) => {
+                let mut children = self.children.remove(child_index);
+                children = children.insert(regex, id, item);
+                self.children.push(children);
+            }
+            None => {
+                self.children.push(Item::Leaf(Leaf::new(regex, id, item, self.regex.ignore_case)));
+            }
+        }
+
+        Item::Node(self)
+    }
+
+    /// Find values associated to this haystack
+    pub fn find(&self, haystack: &str) -> Vec<&V> {
+        let mut values = Vec::new();
+
+        if self.regex.is_match(haystack) {
+            for child in &self.children {
+                values.extend(child.find(haystack));
+            }
+        }
+
+        values
+    }
+
+    pub fn get(&self, regex: &str) -> Vec<&V> {
+        let mut values = Vec::new();
+
+        if regex.starts_with(self.regex.original.as_str()) {
+            for child in &self.children {
+                values.extend(child.get(regex));
+            }
+        }
+
+        values
+    }
+
+    pub fn get_mut(&mut self, regex: &str) -> Vec<&mut V> {
+        let mut values = Vec::new();
+
+        if regex.starts_with(self.regex.original.as_str()) {
+            for child in &mut self.children {
+                values.extend(child.get_mut(regex));
+            }
+        }
+
+        values
+    }
+
+    pub fn regex(&self) -> &str {
+        self.regex.original.as_str()
+    }
 
     /// Traces when finding a value
-    fn trace(&self, value: &str) -> Trace<T, S>;
+    // fn trace(&self, haystack: &str) -> Trace<V> {}
 
     /// Remove an item on this tree
     ///
     /// This method returns true if there is no more data so it can be cleaned up
-    fn remove(&mut self, id: &str) -> bool;
+    pub fn remove(mut self, id: &str) -> (Item<V>, Option<V>) {
+        let mut removed = None;
+        let mut children = Vec::new();
 
-    /// Return regex used by this node
-    fn regex(&self) -> &str;
+        for child in self.children {
+            if removed.is_some() {
+                children.push(child);
+            } else {
+                let (child, value) = child.remove(id);
+
+                if value.is_some() {
+                    removed = value;
+                }
+
+                if child.len() > 0 {
+                    children.push(child);
+                }
+            }
+        }
+
+        if children.len() == 1 {
+            return (children.pop().unwrap(), removed);
+        }
+
+        self.children = children;
+
+        (Item::Node(self), removed)
+    }
 
     /// Length of node
-    fn len(&self) -> usize;
+    pub fn len(&self) -> usize {
+        let mut count = 0;
 
-    /// Is node empty
-    fn is_empty(&self) -> bool;
+        for child in &self.children {
+            count += child.len();
+        }
 
-    fn can_insert_item(&self, prefix: &str, item: &T) -> bool;
-
-    /// Incr level of node by one
-    fn incr_level(&mut self);
+        count
+    }
 
     /// Cache current regex according to a limit and a level
     ///
@@ -41,14 +161,20 @@ pub trait Node<T: NodeItem, S: Storage<T>>: Debug + Send + Sync {
     /// Level argument allow to build cache on first level of the tree by priority
     /// Implementation must retain at which level this node is build and not do any caching
     /// if we are not on the current level
-    fn cache(&mut self, limit: u64, level: u64) -> u64;
+    pub fn cache(&mut self, mut left: u64, cache_level: u64, current_level: u64) -> u64 {
+        // Already cached
+        if cache_level == current_level && self.regex.compiled.is_none() {
+            self.regex.compile();
 
-    /// Allow to clone object
-    fn box_clone(&self) -> Box<dyn Node<T, S>>;
-}
+            if self.regex.compiled.is_some() {
+                left = left - 1;
+            }
+        }
 
-impl<T: NodeItem, S: Storage<T>> Clone for Box<dyn Node<T, S>> {
-    fn clone(&self) -> Self {
-        self.box_clone()
+        for child in &mut self.children {
+            left = child.cache(left, cache_level, current_level + 1);
+        }
+
+        left
     }
 }

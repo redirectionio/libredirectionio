@@ -1,6 +1,6 @@
 use regex::{Regex, RegexBuilder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LazyRegex {
     pub(crate) original: String,
     pub(crate) regex: String,

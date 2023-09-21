@@ -9,6 +9,7 @@ use redirectionio::api::Rule;
 use redirectionio::http::{Header, Request};
 use redirectionio::router::RouterConfig;
 use std::io::Write;
+use std::sync::Arc;
 
 pub const STATIC_SMALL_BODY: &str = r##"<html><body><p>hello world</p></body></html>"##;
 
@@ -58,7 +59,7 @@ fn filter_body_inject_html_append(c: &mut Criterion) {
     .unwrap()
     .into_route(&config);
     let request = Request::from_config(&config, "/".to_string(), None, None, None, None, None);
-    let action = if let (Some(action), _, _, _) = Action::from_route_rule(&rule, &request) {
+    let action = if let (Some(action), _, _, _) = Action::from_route_rule(Arc::new(rule), &request) {
         action
     } else {
         panic!("Cannot create action");
@@ -115,7 +116,7 @@ fn filter_body_inject_html_prepend(c: &mut Criterion) {
     .unwrap()
     .into_route(&config);
     let request = Request::from_config(&config, "/".to_string(), None, None, None, None, None);
-    let action = if let (Some(action), _, _, _) = Action::from_route_rule(&rule, &request) {
+    let action = if let (Some(action), _, _, _) = Action::from_route_rule(Arc::new(rule), &request) {
         action
     } else {
         panic!("Cannot create action");
@@ -174,7 +175,7 @@ fn filter_body_inject_html_append_gzip(c: &mut Criterion) {
     .unwrap()
     .into_route(&config);
     let request = Request::from_config(&config, "/".to_string(), None, None, None, None, None);
-    let action = if let (Some(action), _, _, _) = Action::from_route_rule(&rule, &request) {
+    let action = if let (Some(action), _, _, _) = Action::from_route_rule(Arc::new(rule), &request) {
         action
     } else {
         panic!("Cannot create action");

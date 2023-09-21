@@ -1,28 +1,29 @@
-use crate::router::request_matcher::{DateTimeCondition, HeaderValueCondition};
-use crate::router::{Route, RouteData};
+use super::request_matcher::{DateTimeCondition, HeaderValueCondition};
+use super::route::Route;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct RouteTrace<T: RouteData> {
+pub struct RouteTrace<T> {
     traces: Vec<Trace<T>>,
-    routes: Vec<Route<T>>,
-    final_route: Option<Route<T>>,
+    routes: Vec<Arc<Route<T>>>,
+    final_route: Option<Arc<Route<T>>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Trace<T: RouteData> {
-    matched: bool,
-    executed: bool,
-    count: u64,
+pub struct Trace<T> {
+    pub(crate) matched: bool,
+    pub(crate) executed: bool,
+    pub(crate) count: u64,
     #[serde(flatten)]
-    info: TraceInfo<T>,
-    children: Vec<Trace<T>>,
+    pub(crate) info: TraceInfo<T>,
+    pub(crate) children: Vec<Trace<T>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
-pub enum TraceInfo<T: RouteData> {
+pub enum TraceInfo<T> {
     Scheme { request: String, against: Option<String> },
     HostStatic { request: String, against: Option<String> },
     HostRegex,
@@ -34,7 +35,7 @@ pub enum TraceInfo<T: RouteData> {
     PathAndQueryStatic { request: String },
     PathAndQueryRegex,
     Regex { request: String, against: String },
-    Storage { routes: Vec<Route<T>> },
+    Storage { routes: Vec<Arc<Route<T>>> },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -52,8 +53,8 @@ pub struct TraceInfoDateTimeCondition {
     pub cached: bool,
 }
 
-impl<T: RouteData> RouteTrace<T> {
-    pub fn new(traces: Vec<Trace<T>>, routes: Vec<Route<T>>, final_route: Option<Route<T>>) -> RouteTrace<T> {
+impl<T> RouteTrace<T> {
+    pub fn new(traces: Vec<Trace<T>>, routes: Vec<Arc<Route<T>>>, final_route: Option<Arc<Route<T>>>) -> RouteTrace<T> {
         RouteTrace {
             traces,
             routes,
@@ -62,7 +63,7 @@ impl<T: RouteData> RouteTrace<T> {
     }
 }
 
-impl<T: RouteData> Trace<T> {
+impl<T> Trace<T> {
     pub fn new(matched: bool, executed: bool, count: u64, children: Vec<Trace<T>>, info: TraceInfo<T>) -> Trace<T> {
         Trace {
             matched,
@@ -73,12 +74,12 @@ impl<T: RouteData> Trace<T> {
         }
     }
 
-    pub fn get_routes_from_traces(traces: &[Trace<T>]) -> Vec<&Route<T>> {
+    pub fn get_routes_from_traces(traces: &[Trace<T>]) -> Vec<Arc<Route<T>>> {
         let mut routes = Vec::new();
 
         for trace in traces {
             if let TraceInfo::Storage { routes: routes_stored } = &trace.info {
-                routes.extend(routes_stored.iter().collect::<Vec<_>>());
+                routes.extend(routes_stored.clone());
             }
 
             if !trace.children.is_empty() {

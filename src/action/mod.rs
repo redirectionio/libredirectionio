@@ -25,6 +25,7 @@ pub use status_code_update::StatusCodeUpdate;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter::FromIterator;
+use std::sync::Arc;
 #[cfg(feature = "router")]
 pub use trace::TraceAction;
 
@@ -207,7 +208,7 @@ impl Action {
     }
 
     #[cfg(feature = "router")]
-    pub fn from_route_rule(route: &Route<Rule>, request: &Request) -> (Option<Action>, bool, bool, Option<String>) {
+    pub fn from_route_rule(route: Arc<Route<Rule>>, request: &Request) -> (Option<Action>, bool, bool, Option<String>) {
         let markers_captured = route.capture(request);
         let variables = route.handler().variables(&markers_captured, request);
         let rule = route.handler();
@@ -426,7 +427,7 @@ impl Action {
     }
 
     #[cfg(feature = "router")]
-    pub fn from_routes_rule(mut routes: Vec<&Route<Rule>>, request: &Request, mut unit_trace: Option<&mut UnitTrace>) -> Action {
+    pub fn from_routes_rule(mut routes: Vec<Arc<Route<Rule>>>, request: &Request, mut unit_trace: Option<&mut UnitTrace>) -> Action {
         let mut action = Action::default();
 
         routes.sort();

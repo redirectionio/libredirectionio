@@ -1,23 +1,24 @@
+use super::super::request_matcher::DateTimeMatcher;
+use super::super::trace::{TraceInfo, TraceInfoHeaderCondition};
+use super::super::RouterConfig;
+use super::super::{Route, RouteHeaderKind, Trace};
 use crate::http::Request;
-use crate::router::request_matcher::{DateTimeMatcher, RequestMatcher};
-use crate::router::trace::{TraceInfo, TraceInfoHeaderCondition};
-use crate::router::{Route, RouteData, RouteHeaderKind, Trace};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-pub struct HeaderMatcher<T: RouteData> {
-    any_header: Box<dyn RequestMatcher<T>>,
+pub struct HeaderMatcher<T> {
+    any_header: DateTimeMatcher<T>,
     conditions: BTreeSet<HeaderCondition>,
-    condition_groups: BTreeMap<BTreeSet<HeaderCondition>, Box<dyn RequestMatcher<T>>>,
+    condition_groups: BTreeMap<BTreeSet<HeaderCondition>, DateTimeMatcher<T>>,
     count: usize,
+    config: Arc<RouterConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
-#[serde(rename_all = "snake_case")]
-#[serde(tag = "type", content = "value")]
 pub enum ValueCondition {
     IsDefined,
     IsNotDefined,
@@ -36,8 +37,18 @@ pub struct HeaderCondition {
     condition: ValueCondition,
 }
 
-impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
-    fn insert(&mut self, route: Route<T>) {
+impl<T> HeaderMatcher<T> {
+    pub fn new(config: Arc<RouterConfig>) -> Self {
+        HeaderMatcher {
+            any_header: DateTimeMatcher::new(config.clone()),
+            conditions: BTreeSet::new(),
+            condition_groups: BTreeMap::new(),
+            count: 0,
+            config,
+        }
+    }
+
+    pub fn insert(&mut self, route: Arc<Route<T>>) {
         self.count += 1;
 
         if route.headers().is_empty() {
@@ -71,7 +82,8 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         }
 
         if !self.condition_groups.contains_key(&condition_group) {
-            self.condition_groups.insert(condition_group.clone(), Self::create_sub_matcher());
+            self.condition_groups
+                .insert(condition_group.clone(), DateTimeMatcher::new(self.config.clone()));
         }
 
         let matcher = self.condition_groups.get_mut(&condition_group).unwrap();
@@ -79,23 +91,31 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         matcher.insert(route)
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut removed = false;
+    pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
+        match self.any_header.remove(id) {
+            None => (),
+            Some(route) => {
+                self.count -= 1;
+
+                return Some(route);
+            }
+        }
 
         for matcher in self.condition_groups.values_mut() {
-            removed = removed || matcher.remove(id);
+            match matcher.remove(id) {
+                None => (),
+                Some(route) => {
+                    self.count -= 1;
+
+                    return Some(route);
+                }
+            }
         }
 
-        removed = removed || self.any_header.remove(id);
-
-        if removed {
-            self.count -= 1;
-        }
-
-        removed
+        None
     }
 
-    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {
         let mut rules = self.any_header.match_request(request);
         let mut execute_conditions = BTreeMap::new();
 
@@ -127,7 +147,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         rules
     }
 
-    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
+    pub fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_header.trace(request);
         let mut execute_conditions = BTreeMap::new();
 
@@ -186,7 +206,7 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         traces
     }
 
-    fn cache(&mut self, limit: u64, level: u64) -> u64 {
+    pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = limit;
 
         for matcher in self.condition_groups.values_mut() {
@@ -196,33 +216,12 @@ impl<T: RouteData> RequestMatcher<T> for HeaderMatcher<T> {
         self.any_header.cache(new_limit, level)
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.count
     }
 
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
-    }
-
-    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
-        Box::new((*self).clone())
-    }
-}
-
-impl<T: RouteData> Default for HeaderMatcher<T> {
-    fn default() -> Self {
-        HeaderMatcher {
-            any_header: HeaderMatcher::create_sub_matcher(),
-            conditions: BTreeSet::new(),
-            condition_groups: BTreeMap::new(),
-            count: 0,
-        }
-    }
-}
-
-impl<T: RouteData> HeaderMatcher<T> {
-    pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<DateTimeMatcher<T>>::default()
     }
 }
 

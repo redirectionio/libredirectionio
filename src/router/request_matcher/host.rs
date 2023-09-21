@@ -1,112 +1,104 @@
+use super::super::trace::TraceInfo;
+use super::super::{IpMatcher, Route, RouterConfig, Trace};
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
-use crate::regex_radix_tree::{NodeItem, RegexRadixTree};
-use crate::router::request_matcher::matcher_tree_storage::{ItemRoute, MatcherTreeStorage};
-use crate::router::trace::TraceInfo;
-use crate::router::{IpMatcher, RequestMatcher, Route, RouteData, RouterConfig, Trace};
+use crate::regex_radix_tree::{Trace as TreeTrace, UniqueRegexTreeMap};
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-struct HostRegexNodeItem<T: RouteData> {
-    route: Route<T>,
-    host_regex: String,
-    ignore_case: bool,
-}
-
-impl<T: RouteData> NodeItem for HostRegexNodeItem<T> {
-    fn regex(&self) -> &str {
-        self.host_regex.as_str()
-    }
-
-    fn case_insensitive(&self) -> bool {
-        self.ignore_case
-    }
-}
-
-impl<T: RouteData> ItemRoute<T> for HostRegexNodeItem<T> {
-    fn route(self) -> Route<T> {
-        self.route
-    }
-}
-
-type HostRegexTreeMatcher<T> = MatcherTreeStorage<T, HostRegexNodeItem<T>, IpMatcher<T>>;
-
-#[derive(Debug, Clone)]
-pub struct HostMatcher<T: RouteData> {
-    static_hosts: HashMap<String, Box<dyn RequestMatcher<T>>>,
-    regex_tree_rule: RegexRadixTree<HostRegexNodeItem<T>, HostRegexTreeMatcher<T>>,
-    any_host: Box<dyn RequestMatcher<T>>,
+pub struct HostMatcher<T> {
+    static_hosts: HashMap<String, IpMatcher<T>>,
+    regex_tree_rule: UniqueRegexTreeMap<IpMatcher<T>>,
+    any_host: IpMatcher<T>,
     always_match_any_host: bool,
     count: usize,
+    config: Arc<RouterConfig>,
 }
 
-impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
-    fn insert(&mut self, route: Route<T>) {
+impl<T> HostMatcher<T> {
+    pub fn new(config: Arc<RouterConfig>) -> Self {
+        HostMatcher {
+            static_hosts: HashMap::new(),
+            any_host: IpMatcher::new(config.clone()),
+            count: 0,
+            regex_tree_rule: UniqueRegexTreeMap::new(config.ignore_host_case),
+            always_match_any_host: config.always_match_any_host,
+            config,
+        }
+    }
+
+    pub fn insert(&mut self, route: Arc<Route<T>>) {
         self.count += 1;
 
         match route.host() {
-            None => self.any_host.insert(route),
+            None => self.any_host.insert(route.clone()),
             Some(host) => match host {
                 StaticOrDynamic::Static(static_host) => {
                     if static_host.is_empty() {
-                        self.any_host.insert(route);
+                        self.any_host.insert(route.clone());
 
                         return;
                     }
 
                     if !self.static_hosts.contains_key(static_host) {
-                        self.static_hosts.insert(static_host.clone(), HostMatcher::create_sub_matcher());
+                        self.static_hosts.insert(static_host.clone(), IpMatcher::new(self.config.clone()));
                     }
 
-                    self.static_hosts.get_mut(static_host).unwrap().insert(route);
+                    self.static_hosts.get_mut(static_host).unwrap().insert(route.clone());
                 }
-                StaticOrDynamic::Dynamic(dynamic_host) => {
-                    self.regex_tree_rule.insert(HostRegexNodeItem {
-                        host_regex: dynamic_host.regex.clone(),
-                        ignore_case: dynamic_host.ignore_case,
-                        route,
-                    });
-                }
+                StaticOrDynamic::Dynamic(dynamic_host) => match self.regex_tree_rule.get_mut(dynamic_host.regex.as_str()) {
+                    Some(matcher) => matcher.insert(route.clone()),
+                    None => {
+                        let mut matcher = IpMatcher::new(self.config.clone());
+                        matcher.insert(route.clone());
+
+                        self.regex_tree_rule.insert(dynamic_host.regex.as_str(), matcher);
+                    }
+                },
             },
         }
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut removed = false;
+    pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
+        let mut removed = self.any_host.remove(id);
 
-        if self.any_host.remove(id) {
+        if removed.is_some() {
             self.count -= 1;
 
-            return true;
+            return removed;
         }
 
-        if self.regex_tree_rule.remove(id) {
-            self.count -= 1;
-
-            return true;
-        }
+        // @TODO iterate in regex tree
+        // if self.regex_tree_rule.remove(id) {
+        //     self.count -= 1;
+        //
+        //     return true;
+        // }
 
         self.static_hosts.retain(|_, matcher| {
-            removed = removed || matcher.remove(id);
+            if let Some(value) = matcher.remove(id) {
+                removed = Some(value);
+            }
 
             matcher.len() > 0
         });
 
-        if removed {
+        if removed.is_some() {
             self.count -= 1;
         }
 
         removed
     }
 
-    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {
         let mut routes = Vec::new();
 
         if let Some(host) = request.host() {
-            let storages = self.regex_tree_rule.find(host);
+            let matchers = self.regex_tree_rule.find(host);
 
-            for storage in storages {
-                routes.extend(storage.matcher.match_request(request));
+            for matcher in matchers {
+                routes.extend(matcher.match_request(request));
             }
 
             if let Some(matcher) = self.static_hosts.get(host) {
@@ -121,7 +113,7 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         routes
     }
 
-    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
+    pub fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = Vec::new();
         let request_host = request.host().unwrap_or("");
 
@@ -154,13 +146,9 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         }
 
         if let Some(host) = request.host() {
-            let node_trace = self.regex_tree_rule.trace(host);
-            traces.push(HostRegexTreeMatcher::<T>::node_trace_to_router_trace(
-                host,
-                node_trace,
-                request,
-                Some(TraceInfo::HostRegex),
-            ));
+            let tree_trace = self.regex_tree_rule.trace(host);
+            let trace = tree_trace_to_trace(host, tree_trace, request);
+            traces.push(Trace::new(trace.matched, true, trace.count, vec![trace], TraceInfo::HostRegex));
 
             if !self.static_hosts.contains_key(host) {
                 traces.push(Trace::new(
@@ -183,8 +171,8 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         traces
     }
 
-    fn cache(&mut self, limit: u64, level: u64) -> u64 {
-        let mut new_limit = self.regex_tree_rule.cache(limit, level);
+    pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
+        let mut new_limit = self.regex_tree_rule.cache(limit, Some(level));
 
         for matcher in self.static_hosts.values_mut() {
             new_limit = matcher.cache(new_limit, level);
@@ -193,43 +181,36 @@ impl<T: RouteData> RequestMatcher<T> for HostMatcher<T> {
         self.any_host.cache(new_limit, level)
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.count
     }
 
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
     }
-
-    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
-        Box::new((*self).clone())
-    }
 }
 
-impl<T: RouteData> Default for HostMatcher<T> {
-    fn default() -> Self {
-        HostMatcher {
-            static_hosts: HashMap::new(),
-            any_host: HostMatcher::create_sub_matcher(),
-            count: 0,
-            regex_tree_rule: RegexRadixTree::default(),
-            always_match_any_host: false,
-        }
-    }
-}
+fn tree_trace_to_trace<T>(haystack: &str, tree_trace: TreeTrace<IpMatcher<T>>, request: &Request) -> Trace<T> {
+    let mut children = Vec::new();
 
-impl<T: RouteData> HostMatcher<T> {
-    pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<IpMatcher<T>>::default()
+    for child in tree_trace.children {
+        children.push(tree_trace_to_trace(haystack, child, request));
     }
 
-    pub fn new(config: RouterConfig) -> Self {
-        HostMatcher {
-            static_hosts: HashMap::new(),
-            any_host: HostMatcher::create_sub_matcher(),
-            count: 0,
-            regex_tree_rule: RegexRadixTree::default(),
-            always_match_any_host: config.always_match_any_host,
+    for matcher in tree_trace.values {
+        if tree_trace.matched {
+            children.extend(matcher.trace(request));
         }
     }
+
+    Trace::new(
+        tree_trace.matched,
+        true,
+        tree_trace.count,
+        children,
+        TraceInfo::Regex {
+            request: haystack.to_string(),
+            against: tree_trace.regex,
+        },
+    )
 }

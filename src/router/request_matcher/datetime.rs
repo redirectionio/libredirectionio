@@ -1,33 +1,43 @@
+use super::super::request_matcher::PathAndQueryMatcher;
+use super::super::route_datetime::RouteDateTime;
+use super::super::route_time::RouteTime;
+use super::super::route_weekday::RouteWeekday;
+use super::super::trace::{TraceInfo, TraceInfoDateTimeCondition};
+use super::super::{Route, RouterConfig, Trace};
 use crate::http::Request;
-use crate::router::request_matcher::{PathAndQueryMatcher, RequestMatcher};
-use crate::router::route_datetime::RouteDateTime;
-use crate::router::route_time::RouteTime;
-use crate::router::route_weekday::RouteWeekday;
-use crate::router::trace::{TraceInfo, TraceInfoDateTimeCondition};
-use crate::router::{Route, RouteData, Trace};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::sync::Arc;
 
 #[derive(Debug, Clone)]
-pub struct DateTimeMatcher<T: RouteData> {
-    any_datetime: Box<dyn RequestMatcher<T>>,
+pub struct DateTimeMatcher<T> {
+    any_datetime: PathAndQueryMatcher<T>,
     conditions: BTreeSet<DateTimeCondition>,
-    condition_groups: BTreeMap<BTreeSet<DateTimeCondition>, Box<dyn RequestMatcher<T>>>,
+    condition_groups: BTreeMap<BTreeSet<DateTimeCondition>, PathAndQueryMatcher<T>>,
     count: usize,
+    config: Arc<RouterConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
-#[serde(rename_all = "snake_case")]
-#[serde(tag = "type", content = "date_time_type")]
 pub enum DateTimeCondition {
     DateTimeRange(Vec<RouteDateTime>),
     TimeRange(Vec<RouteTime>),
     Weekdays(RouteWeekday),
 }
 
-impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
-    fn insert(&mut self, route: Route<T>) {
+impl<T> DateTimeMatcher<T> {
+    pub fn new(config: Arc<RouterConfig>) -> Self {
+        DateTimeMatcher {
+            any_datetime: PathAndQueryMatcher::new(config.clone()),
+            conditions: BTreeSet::new(),
+            condition_groups: BTreeMap::new(),
+            count: 0,
+            config,
+        }
+    }
+
+    pub fn insert(&mut self, route: Arc<Route<T>>) {
         self.count += 1;
 
         let mut condition_group = BTreeSet::new();
@@ -61,7 +71,8 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         }
 
         if !self.condition_groups.contains_key(&condition_group) {
-            self.condition_groups.insert(condition_group.clone(), Self::create_sub_matcher());
+            self.condition_groups
+                .insert(condition_group.clone(), PathAndQueryMatcher::new(self.config.clone()));
         }
 
         let matcher = self.condition_groups.get_mut(&condition_group).unwrap();
@@ -69,23 +80,31 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         matcher.insert(route)
     }
 
-    fn remove(&mut self, id: &str) -> bool {
-        let mut removed = false;
+    pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
+        match self.any_datetime.remove(id) {
+            None => (),
+            Some(route) => {
+                self.count -= 1;
+
+                return Some(route);
+            }
+        }
 
         for matcher in self.condition_groups.values_mut() {
-            removed = removed || matcher.remove(id);
+            match matcher.remove(id) {
+                None => (),
+                Some(route) => {
+                    self.count -= 1;
+
+                    return Some(route);
+                }
+            }
         }
 
-        removed = removed || self.any_datetime.remove(id);
-
-        if removed {
-            self.count -= 1;
-        }
-
-        removed
+        None
     }
 
-    fn match_request(&self, request: &Request) -> Vec<&Route<T>> {
+    pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {
         let mut rules = self.any_datetime.match_request(request);
         let mut execute_conditions = BTreeMap::new();
 
@@ -117,7 +136,7 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         rules
     }
 
-    fn trace(&self, request: &Request) -> Vec<Trace<T>> {
+    pub fn trace(&self, request: &Request) -> Vec<Trace<T>> {
         let mut traces = self.any_datetime.trace(request);
         let mut execute_conditions = BTreeMap::new();
 
@@ -174,7 +193,7 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         traces
     }
 
-    fn cache(&mut self, limit: u64, level: u64) -> u64 {
+    pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = limit;
 
         for matcher in self.condition_groups.values_mut() {
@@ -184,33 +203,12 @@ impl<T: RouteData> RequestMatcher<T> for DateTimeMatcher<T> {
         self.any_datetime.cache(new_limit, level)
     }
 
-    fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.count
     }
 
-    fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
-    }
-
-    fn box_clone(&self) -> Box<dyn RequestMatcher<T>> {
-        Box::new((*self).clone())
-    }
-}
-
-impl<T: RouteData> Default for DateTimeMatcher<T> {
-    fn default() -> Self {
-        DateTimeMatcher {
-            any_datetime: DateTimeMatcher::create_sub_matcher(),
-            conditions: BTreeSet::new(),
-            condition_groups: BTreeMap::new(),
-            count: 0,
-        }
-    }
-}
-
-impl<T: RouteData> DateTimeMatcher<T> {
-    pub fn create_sub_matcher() -> Box<dyn RequestMatcher<T>> {
-        Box::<PathAndQueryMatcher<T>>::default()
     }
 }
 

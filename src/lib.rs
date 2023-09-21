@@ -25,5 +25,3 @@ mod callback_log;
 mod ffi;
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi_helpers;
-mod regex_radix_tree_new;
-mod router_new;

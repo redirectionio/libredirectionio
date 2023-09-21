@@ -1,122 +1,136 @@
-use crate::regex_radix_tree::{Node, NodeItem, Storage, Trace};
-use regex::{Regex, RegexBuilder};
-use std::marker::PhantomData;
+use super::item::Item;
+use super::node::Node;
+use super::prefix::common_prefix;
+use super::regex::LazyRegex;
+use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
-pub struct Leaf<T: NodeItem, S: Storage<T>> {
-    storage: S,
-    level: u64,
-    prefix: String,
-    prefix_compiled: Option<Regex>,
-    ignore_case: bool,
-    phantom: PhantomData<T>,
+#[derive(Debug)]
+pub struct Leaf<V> {
+    pub(crate) values: HashMap<String, V>,
+    pub(crate) regex: LazyRegex,
 }
 
-impl<T: NodeItem, S: Storage<T>> Node<T, S> for Leaf<T, S> {
-    fn insert(&mut self, item: T, _parent_prefix_size: u32) {
-        self.ignore_case = self.ignore_case || item.case_insensitive();
-        self.storage.push(item)
+impl<V> Clone for Leaf<V>
+where
+    V: Clone,
+{
+    fn clone(&self) -> Self {
+        Leaf {
+            values: self.values.clone(),
+            regex: self.regex.clone(),
+        }
+    }
+}
+
+impl<V> Leaf<V> {
+    pub fn new(regex: &str, id: String, item: V, ignore_case: bool) -> Self {
+        let mut values = HashMap::new();
+        values.insert(id, item);
+
+        Leaf {
+            values,
+            regex: LazyRegex::new_leaf(regex, ignore_case),
+        }
     }
 
-    fn find(&self, value: &str) -> Vec<&S> {
-        if self.is_match(value) {
-            return vec![&self.storage];
+    /// Insert a new item into this node
+    pub fn insert(mut self, regex: &str, id: String, item: V) -> Item<V> {
+        if regex == self.regex.original.as_str() {
+            self.values.insert(id, item);
+
+            return Item::Leaf(self);
+        }
+
+        let prefix = common_prefix(self.regex.original.as_str(), regex);
+        let mut leaf_values = HashMap::new();
+        leaf_values.insert(id, item);
+
+        let leaf = Item::Leaf(Leaf {
+            values: leaf_values,
+            regex: LazyRegex::new_leaf(regex, self.regex.ignore_case),
+        });
+
+        Item::Node(Node {
+            regex: LazyRegex::new_node(prefix, self.regex.ignore_case),
+            children: vec![Item::Leaf(self), leaf],
+        })
+    }
+
+    /// Find values associated to this haystack
+    pub fn find(&self, haystack: &str) -> Vec<&V> {
+        if self.regex.is_match(haystack) {
+            return self.values.values().collect();
         }
 
         Vec::new()
     }
 
-    fn trace(&self, value: &str) -> Trace<T, S> {
-        let matched = self.is_match(value);
-        let storage = if matched { Some(self.storage.clone()) } else { None };
-
-        Trace::new(self.prefix.clone(), matched, self.storage.len() as u64, Vec::new(), storage)
-    }
-
-    fn remove(&mut self, id: &str) -> bool {
-        self.storage.remove(id)
-    }
-
-    fn regex(&self) -> &str {
-        self.prefix.as_str()
-    }
-
-    fn len(&self) -> usize {
-        self.storage.len()
-    }
-
-    fn is_empty(&self) -> bool {
-        self.storage.is_empty()
-    }
-
-    fn can_insert_item(&self, _prefix: &str, item: &T) -> bool {
-        item.regex() == self.prefix
-    }
-
-    fn incr_level(&mut self) {
-        self.level += 1
-    }
-
-    fn cache(&mut self, limit: u64, level: u64) -> u64 {
-        if self.level != level {
-            return limit;
+    pub fn get(&self, regex: &str) -> Vec<&V> {
+        if self.regex.original.as_str() == regex {
+            return self.values.values().collect();
         }
 
-        if limit == 0 {
-            return limit;
-        }
-
-        self.prefix_compiled = self.create_regex();
-
-        if self.prefix_compiled.is_some() {
-            return limit - 1;
-        }
-
-        limit
+        Vec::new()
     }
 
-    fn box_clone(&self) -> Box<dyn Node<T, S>> {
-        Box::new(self.clone())
-    }
-}
-
-impl<T: NodeItem, S: Storage<T>> Leaf<T, S> {
-    pub fn new(item: T, level: u64, ignore_case: bool) -> Leaf<T, S> {
-        let mut storage = S::new(item.regex());
-        let prefix = item.regex().to_string();
-
-        storage.push(item);
-
-        Leaf {
-            prefix,
-            storage,
-            level,
-            prefix_compiled: None,
-            ignore_case,
-            phantom: PhantomData,
+    pub fn get_mut(&mut self, regex: &str) -> Vec<&mut V> {
+        if self.regex.original.as_str() == regex {
+            return self.values.values_mut().collect();
         }
+
+        Vec::new()
     }
 
-    fn is_match(&self, value: &str) -> bool {
-        match self.prefix_compiled.as_ref() {
-            Some(regex) => regex.is_match(value),
-            None => match self.create_regex() {
-                None => false,
-                Some(regex) => regex.is_match(value),
-            },
-        }
-    }
+    /// Remove an item on this tree
+    ///
+    /// This method returns true if there is no more data so it can be cleaned up
+    pub fn remove(mut self, id: &str) -> (Item<V>, Option<V>) {
+        let removed = self.values.remove(id);
 
-    fn create_regex(&self) -> Option<Regex> {
-        let regex = ["^", self.prefix.as_str(), "$"].join("");
-
-        match RegexBuilder::new(regex.as_str()).case_insensitive(self.ignore_case).build() {
-            Err(e) => {
-                error!("Cannot create regex: {:?}", e);
-
-                None
+        match removed {
+            None => (Item::Leaf(self), None),
+            Some(value) => {
+                if self.values.is_empty() {
+                    (Item::Empty(self.regex.ignore_case), Some(value))
+                } else {
+                    (Item::Leaf(self), Some(value))
+                }
             }
-            Ok(regex) => Some(regex),
         }
+    }
+
+    /// Length of node
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    pub fn regex(&self) -> &str {
+        self.regex.original.as_str()
+    }
+
+    /// Cache current regex according to a limit and a level
+    ///
+    /// This method must return new limit of element cached (passed limit minus number of element cached)
+    /// which allow other node to avoid caching extra node
+    ///
+    /// Implementation must not cache item if limit is equal to 0
+    /// Implementation must not cache item if not caching on the current node level
+    ///
+    /// Level argument allow to build cache on first level of the tree by priority
+    /// Implementation must retain at which level this node is build and not do any caching
+    /// if we are not on the current level
+    pub fn cache(&mut self, left: u64) -> u64 {
+        // Already cached
+        if self.regex.compiled.is_some() {
+            return left;
+        }
+
+        self.regex.compile();
+
+        if self.regex.compiled.is_some() {
+            return left - 1;
+        }
+
+        left
     }
 }

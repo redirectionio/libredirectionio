@@ -1,7 +1,7 @@
 use crate::api::{BodyFilter, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Source, Variable};
 use crate::http::Request;
 use crate::marker::{Marker as RouteMarker, MarkerString, StaticOrDynamic, Transform};
-use crate::router::{Route, RouteData, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday, RouterConfig};
+use crate::router::{Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday, RouterConfig};
 use cidr::AnyIpCidr;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
@@ -36,8 +36,6 @@ pub struct Rule {
     pub configuration_reset_unit_id: Option<String>,
     pub target_hash: Option<String>,
 }
-
-impl RouteData for Rule {}
 
 impl Ord for Rule {
     fn cmp(&self, other: &Self) -> Ordering {

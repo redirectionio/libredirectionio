@@ -17,10 +17,10 @@ impl TraceAction {
         let mut routes = Trace::<Rule>::get_routes_from_traces(traces);
 
         // Reverse order of sort
-        routes.sort_by_key(|&a| a.priority());
+        routes.sort_by_key(|a| a.priority());
 
         for route in routes {
-            let (action_rule_opt, reset, stop, _) = Action::from_route_rule(route, request);
+            let (action_rule_opt, reset, stop, _) = Action::from_route_rule(route.clone(), request);
 
             if let Some(action_rule) = action_rule_opt {
                 if reset {
