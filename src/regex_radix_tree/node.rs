@@ -124,7 +124,7 @@ impl<V> Node<V> {
                     removed = value;
                 }
 
-                if child.len() > 0 {
+                if !child.is_empty() {
                     children.push(child);
                 }
             }
@@ -150,6 +150,16 @@ impl<V> Node<V> {
         count
     }
 
+    pub fn is_empty(&self) -> bool {
+        for child in &self.children {
+            if !child.is_empty() {
+                return false;
+            }
+        }
+
+        true
+    }
+
     /// Cache current regex according to a limit and a level
     ///
     /// This method must return new limit of element cached (passed limit minus number of element cached)
@@ -167,7 +177,7 @@ impl<V> Node<V> {
             self.regex.compile();
 
             if self.regex.compiled.is_some() {
-                left = left - 1;
+                left -= 1;
             }
         }
 

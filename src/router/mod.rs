@@ -102,7 +102,7 @@ where
             routes.push(route.clone());
         }
 
-        routes_traces.sort_by(|a, b| b.priority().cmp(&a.priority()));
+        routes_traces.sort_by_key(|b| Reverse(b.priority()));
 
         let final_route = routes_traces.first().cloned();
 

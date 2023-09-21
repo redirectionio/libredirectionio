@@ -76,6 +76,14 @@ impl<V> Item<V> {
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Item::Empty(_) => true,
+            Item::Node(node) => node.is_empty(),
+            Item::Leaf(leaf) => leaf.is_empty(),
+        }
+    }
+
     pub fn regex(&self) -> &str {
         match self {
             Item::Empty(_) => "",
@@ -96,7 +104,7 @@ impl<V> Item<V> {
     /// Implementation must retain at which level this node is build and not do any caching
     /// if we are not on the current level
     pub fn cache(&mut self, left: u64, cache_level: u64, current_level: u64) -> u64 {
-        if left <= 0 {
+        if left == 0 {
             return left;
         }
 

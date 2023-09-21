@@ -9,9 +9,8 @@ macro_rules! next_char_or_return {
 
 pub fn common_prefix(left: &str, right: &str) -> String {
     let size = common_prefix_char_size(left, right);
-    let prefix = get_prefix_with_char_size(left, size);
 
-    prefix
+    get_prefix_with_char_size(left, size)
 }
 
 pub fn common_prefix_char_size(left: &str, right: &str) -> u32 {

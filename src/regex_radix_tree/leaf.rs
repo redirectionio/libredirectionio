@@ -104,6 +104,10 @@ impl<V> Leaf<V> {
         self.values.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
+
     pub fn regex(&self) -> &str {
         self.regex.original.as_str()
     }

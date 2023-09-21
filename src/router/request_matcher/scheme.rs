@@ -55,7 +55,7 @@ impl<T> SchemeMatcher<T> {
                 removed = Some(value);
             }
 
-            matcher.len() > 0
+            !matcher.is_empty()
         });
 
         if removed.is_some() {

@@ -48,7 +48,7 @@ impl LazyRegex {
     }
 
     pub fn create_regex(&self) -> Option<Regex> {
-        match RegexBuilder::new(&self.regex.as_str()).case_insensitive(self.ignore_case).build() {
+        match RegexBuilder::new(self.regex.as_str()).case_insensitive(self.ignore_case).build() {
             Ok(regex) => Some(regex),
             Err(e) => {
                 tracing::error!("cannot create regex: {:?}", e);

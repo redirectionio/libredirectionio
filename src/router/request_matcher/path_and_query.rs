@@ -61,7 +61,7 @@ impl<T> PathAndQueryMatcher<T> {
 
             removed = matcher.remove(id);
 
-            matcher.len() > 0
+            !matcher.is_empty()
         });
 
         if removed.is_some() {
@@ -83,7 +83,7 @@ impl<T> PathAndQueryMatcher<T> {
         match self.static_rules.get(path.as_str()) {
             None => (),
             Some(static_storage) => {
-                routes.extend(static_storage.values().map(|r| r.clone()).collect::<Vec<Arc<Route<T>>>>());
+                routes.extend(static_storage.values().cloned().collect::<Vec<Arc<Route<T>>>>());
             }
         }
 
@@ -111,7 +111,7 @@ impl<T> PathAndQueryMatcher<T> {
                     routes.len() as u64,
                     Vec::new(),
                     TraceInfo::Storage {
-                        routes: routes.values().map(|r| r.clone()).collect::<Vec<Arc<Route<T>>>>(),
+                        routes: routes.values().cloned().collect::<Vec<Arc<Route<T>>>>(),
                     },
                 )]
             }

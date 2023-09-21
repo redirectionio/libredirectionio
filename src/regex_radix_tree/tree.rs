@@ -46,6 +46,9 @@ impl<V> RegexTreeMap<V> {
     pub fn len(&self) -> usize {
         self.root.len()
     }
+    pub fn is_empty(&self) -> bool {
+        self.root.is_empty()
+    }
 
     pub fn find(&self, haystack: &str) -> Vec<&V> {
         self.root.find(haystack)
@@ -115,6 +118,10 @@ impl<V> UniqueRegexTreeMap<V> {
         self.tree.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.tree.is_empty()
+    }
+
     pub fn find(&self, haystack: &str) -> Vec<&V> {
         self.tree.find(haystack)
     }
@@ -123,7 +130,7 @@ impl<V> UniqueRegexTreeMap<V> {
         self.tree.get(regex).pop()
     }
 
-    pub fn get_mut<'a>(&mut self, regex: &str) -> Option<&mut V> {
+    pub fn get_mut(&mut self, regex: &str) -> Option<&mut V> {
         self.tree.get_mut(regex).pop()
     }
 

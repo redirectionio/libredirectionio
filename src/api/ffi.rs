@@ -15,14 +15,14 @@ pub unsafe extern "C" fn redirectionio_api_get_rule_api_version() -> *const c_ch
 #[no_mangle]
 pub unsafe extern "C" fn redirectionio_api_create_rules_message_from_json(content: *mut c_char) -> *const RulesMessage {
     let message_string = match c_char_to_str(content) {
-        None => return null() as *const RulesMessage,
+        None => return null(),
         Some(str) => str,
     };
 
     match json_decode(message_string) {
         Err(error) => {
             error!("{}", error);
-            null() as *const RulesMessage
+            null()
         }
         Ok(message) => Box::into_raw(Box::new(message)),
     }

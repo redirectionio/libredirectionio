@@ -15,7 +15,7 @@ pub struct HeaderMap {
 
 /// # Safety
 pub unsafe fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
-    let mut current: *const HeaderMap = null() as *const HeaderMap;
+    let mut current: *const HeaderMap = null();
 
     for header in &headers {
         current = Box::into_raw(Box::new(HeaderMap {
@@ -59,7 +59,7 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
 /// # Safety
 pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
     let request_str = match c_char_to_str(str) {
-        None => return null() as *const Request,
+        None => return null(),
         Some(str) => str,
     };
 
@@ -67,7 +67,7 @@ pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char
         Err(err) => {
             error!("cannot deserialize request {} for string {}", err, request_str);
 
-            return null() as *const Request;
+            return null();
         }
         Ok(request) => request,
     };
@@ -201,7 +201,7 @@ pub unsafe extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> 
         Err(err) => {
             error!("cannot create request for url {}: {}", url, err);
 
-            null() as *const Request
+            null()
         }
         Ok(request) => Box::into_raw(Box::new(request)),
     }

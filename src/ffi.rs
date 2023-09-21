@@ -82,7 +82,7 @@ pub unsafe extern "C" fn redirectionio_router_drop(_router: *mut Router<Rule>) {
 #[no_mangle]
 pub unsafe extern "C" fn redirectionio_router_match_action(_router: *const Router<Rule>, _request: *const Request) -> *const Action {
     if _router.is_null() || _request.is_null() {
-        return null() as *const Action;
+        return null();
     }
 
     let router = &*_router;

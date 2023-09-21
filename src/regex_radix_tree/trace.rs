@@ -20,7 +20,7 @@ impl<V> Leaf<V> {
             matched,
             count: self.values.len() as u64,
             children: Vec::new(),
-            values: self.values.values().into_iter().collect(),
+            values: self.values.values().collect(),
         }
     }
 }

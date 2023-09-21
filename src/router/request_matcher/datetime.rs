@@ -81,27 +81,27 @@ impl<T> DateTimeMatcher<T> {
     }
 
     pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
-        match self.any_datetime.remove(id) {
-            None => (),
-            Some(route) => {
-                self.count -= 1;
+        let mut removed = self.any_datetime.remove(id);
 
-                return Some(route);
-            }
+        if removed.is_some() {
+            self.count -= 1;
+
+            return removed;
         }
 
-        for matcher in self.condition_groups.values_mut() {
-            match matcher.remove(id) {
-                None => (),
-                Some(route) => {
-                    self.count -= 1;
-
-                    return Some(route);
-                }
+        self.condition_groups.retain(|_, matcher| {
+            if let Some(value) = matcher.remove(id) {
+                removed = Some(value);
             }
+
+            !matcher.is_empty()
+        });
+
+        if removed.is_some() {
+            self.count -= 1;
         }
 
-        None
+        removed
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {

@@ -12,7 +12,7 @@ use std::ptr::null;
 /// Returns null if an error happens, otherwise it returns a pointer to an action
 pub unsafe extern "C" fn redirectionio_action_json_deserialize(str: *mut c_char) -> *const Action {
     let action_str = match c_char_to_str(str) {
-        None => return null() as *const Action,
+        None => return null(),
         Some(str) => str,
     };
 
@@ -20,7 +20,7 @@ pub unsafe extern "C" fn redirectionio_action_json_deserialize(str: *mut c_char)
         Err(error) => {
             error!("Unable to deserialize \"{}\" to action: {}", action_str, error,);
 
-            return null() as *const Action;
+            return null();
         }
         Ok(action) => action,
     };
@@ -96,7 +96,7 @@ pub unsafe extern "C" fn redirectionio_action_body_filter_create(
     response_header_map: *const HeaderMap,
 ) -> *const FilterBodyAction {
     if _action.is_null() {
-        return null() as *const FilterBodyAction;
+        return null();
     }
 
     let action = &mut *_action;
