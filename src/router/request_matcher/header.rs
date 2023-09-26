@@ -19,6 +19,8 @@ pub struct HeaderMatcher<T> {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", content = "value")]
 pub enum ValueCondition {
     IsDefined,
     IsNotDefined,

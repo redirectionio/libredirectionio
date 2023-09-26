@@ -20,6 +20,8 @@ pub struct DateTimeMatcher<T> {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "type", content = "date_time_type")]
 pub enum DateTimeCondition {
     DateTimeRange(Vec<RouteDateTime>),
     TimeRange(Vec<RouteTime>),
