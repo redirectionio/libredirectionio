@@ -3,7 +3,6 @@ use crate::filter::error::Result;
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::html;
 use std::collections::HashSet;
-use std::io::Cursor;
 
 #[derive(Debug)]
 struct BufferLink {
@@ -59,8 +58,7 @@ impl HtmlFilterBodyAction {
         let mut data = self.last_buffer.clone();
         data.extend(input);
 
-        let mut cursor = Cursor::new(data);
-        let mut tokenizer = html::Tokenizer::new(&mut cursor);
+        let mut tokenizer = html::Tokenizer::new(data);
         let mut to_return = "".to_string();
 
         loop {

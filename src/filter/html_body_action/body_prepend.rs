@@ -107,7 +107,7 @@ impl BodyPrepend {
 }
 
 fn prepend_child(content: String, child: String) -> Result<String> {
-    let buffer = &mut content.as_bytes() as &mut dyn std::io::Read;
+    let buffer = content.as_bytes().to_vec();
     let mut tokenizer = html::Tokenizer::new(buffer);
     let mut output = "".to_string();
 

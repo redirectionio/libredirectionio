@@ -3,7 +3,6 @@ mod error;
 use crate::html::TokenType::{CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken, TextToken};
 pub use error::HtmlParseError;
 use error::Result;
-use std::io::Read;
 use std::string::ToString;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,13 +48,11 @@ struct Span {
     end: usize,
 }
 
-pub struct Tokenizer<'t> {
-    reader: &'t mut dyn Read,
+pub struct Tokenizer {
+    reader: Vec<u8>,
     token: TokenType,
     err: Option<Error>,
     raw: Span,
-    buffer: Vec<u8>,
-    max_buffer: usize,
     data: Span,
     pending_attribute: [Span; 2],
     attribute: Vec<[Span; 2]>,
@@ -105,19 +102,17 @@ impl ToString for Token {
     }
 }
 
-impl<'t> Tokenizer<'t> {
-    pub fn new(reader: &'t mut dyn Read) -> Tokenizer {
+impl Tokenizer {
+    pub fn new(reader: Vec<u8>) -> Tokenizer {
         Tokenizer::new_fragment(reader, "".to_string())
     }
 
-    pub fn new_fragment(reader: &'t mut dyn Read, mut context_tag: String) -> Tokenizer {
+    pub fn new_fragment(reader: Vec<u8>, mut context_tag: String) -> Tokenizer {
         let mut tokenizer = Tokenizer {
             reader,
             token: TokenType::NoneToken,
             err: None,
             raw: Span { start: 0, end: 0 },
-            buffer: Vec::new(),
-            max_buffer: 0,
             data: Span { start: 0, end: 0 },
             pending_attribute: [Span { start: 0, end: 0 }, Span { start: 0, end: 0 }],
             attribute: Vec::new(),
@@ -148,14 +143,6 @@ impl<'t> Tokenizer<'t> {
 
     pub fn allow_cdata(&mut self, allow_cdata: bool) {
         self.allow_cdata = allow_cdata;
-    }
-
-    pub fn buffered(&self) -> Vec<u8> {
-        self.buffer[self.raw.end..].to_vec()
-    }
-
-    pub fn buffered_as_string(&self) -> Result<String> {
-        Ok(String::from_utf8(self.buffered())?)
     }
 
     #[allow(clippy::should_implement_trait)]
@@ -300,8 +287,16 @@ impl<'t> Tokenizer<'t> {
         Ok(self.token)
     }
 
+    pub fn buffered(&self) -> Vec<u8> {
+        self.reader[self.raw.end..].to_vec()
+    }
+
+    pub fn buffered_as_string(&self) -> Result<String> {
+        Ok(String::from_utf8(self.buffered())?)
+    }
+
     pub fn raw(&self) -> Vec<u8> {
-        self.buffer[self.raw.start..self.raw.end].to_vec()
+        self.reader[self.raw.start..self.raw.end].to_vec()
     }
 
     pub fn raw_as_string(&self) -> Result<String> {
@@ -311,7 +306,7 @@ impl<'t> Tokenizer<'t> {
     pub fn text(&mut self) -> Result<Option<String>> {
         match self.token {
             TextToken | CommentToken | DoctypeToken => {
-                let mut s = String::from_utf8(self.buffer[self.data.start..self.data.end].to_vec())?;
+                let mut s = String::from_utf8(self.reader[self.data.start..self.data.end].to_vec())?;
 
                 self.data.start = self.raw.end;
                 self.data.end = self.raw.end;
@@ -330,7 +325,7 @@ impl<'t> Tokenizer<'t> {
         if self.data.start < self.data.end {
             match self.token {
                 StartTagToken | EndTagToken | SelfClosingTagToken => {
-                    let s = String::from_utf8(self.buffer[self.data.start..self.data.end].to_vec())?;
+                    let s = String::from_utf8(self.reader[self.data.start..self.data.end].to_vec())?;
 
                     self.data.start = self.raw.end;
                     self.data.end = self.raw.end;
@@ -351,8 +346,8 @@ impl<'t> Tokenizer<'t> {
                     let attr = &self.attribute[self.number_attribute_returned];
                     self.number_attribute_returned += 1;
 
-                    let key = String::from_utf8(self.buffer[attr[0].start..attr[0].end].to_vec())?;
-                    let val = String::from_utf8(self.buffer[attr[1].start..attr[1].end].to_vec())?;
+                    let key = String::from_utf8(self.reader[attr[0].start..attr[0].end].to_vec())?;
+                    let val = String::from_utf8(self.reader[attr[1].start..attr[1].end].to_vec())?;
 
                     return Ok((
                         Some(key.to_lowercase()),
@@ -400,69 +395,22 @@ impl<'t> Tokenizer<'t> {
         Ok(token)
     }
 
-    pub fn set_max_buffer(&mut self, max_buffer: usize) {
-        self.max_buffer = max_buffer;
-    }
-
     fn read_byte(&mut self) -> u8 {
-        if self.raw.end >= self.buffer.len() {
-            //            let new_buffer= self.buffer[self.raw.start..self.raw.end].to_vec().clone();
-            //            let start = self.raw.start;
-            //
-            //            if start != 0 {
-            //                self.data.start -= start;
-            //                self.data.end -= start;
-            //                self.pending_attribute[0].start -= start;
-            //                self.pending_attribute[0].end -= start;
-            //                self.pending_attribute[1].start -= start;
-            //                self.pending_attribute[1].end -= start;
-            //
-            //                for attribute in &mut self.attribute {
-            //                    attribute[0].start -= start;
-            //                    attribute[0].end -= start;
-            //                    attribute[1].start -= start;
-            //                    attribute[1].end -= start;
-            //                }
-            //            }
+        match self.reader.get(self.raw.end) {
+            Some(byte) => {
+                self.raw.end += 1;
 
-            let mut new_byte_buffer = Vec::new();
-            let error = self.reader.read_to_end(new_byte_buffer.as_mut());
-
-            if error.is_err() {
-                self.err = Some(Error {
-                    kind: ErrorKind::ReadError,
-                    read_error: error.err(),
-                });
-
-                return 0;
+                *byte
             }
-
-            if new_byte_buffer.is_empty() {
+            None => {
                 self.err = Some(Error {
                     kind: ErrorKind::EOFError,
                     read_error: None,
                 });
 
-                return 0;
+                0
             }
-
-            self.buffer.append(&mut new_byte_buffer);
         }
-
-        let byte = self.buffer[self.raw.end];
-
-        self.raw.end += 1;
-
-        if self.max_buffer > 0 && self.raw.end - self.raw.start >= self.max_buffer {
-            self.err = Some(Error {
-                kind: ErrorKind::MaxBufferError,
-                read_error: None,
-            });
-
-            return 0;
-        }
-
-        byte
     }
 
     fn skip_white_space(&mut self) {
@@ -1081,7 +1029,7 @@ impl<'t> Tokenizer<'t> {
             }
 
             for i in 0..s.len() {
-                let mut c = self.buffer[self.data.start + i];
+                let mut c = self.reader[self.data.start + i];
 
                 if c.is_ascii_uppercase() {
                     c += b'a' - b'A';
@@ -1106,7 +1054,7 @@ impl<'t> Tokenizer<'t> {
         }
 
         let mut raw = false;
-        let mut byte = self.buffer[self.data.start];
+        let mut byte = self.reader[self.data.start];
 
         if byte.is_ascii_uppercase() {
             byte += b'a' - b'A';
@@ -1137,10 +1085,10 @@ impl<'t> Tokenizer<'t> {
         }
 
         if raw {
-            self.raw_tag = String::from_utf8(self.buffer[self.data.start..self.data.end].to_vec())?.to_lowercase();
+            self.raw_tag = String::from_utf8(self.reader[self.data.start..self.data.end].to_vec())?.to_lowercase();
         }
 
-        if self.err.is_none() && self.buffer[self.raw.end - 2] == b'/' {
+        if self.err.is_none() && self.reader[self.raw.end - 2] == b'/' {
             return Ok(SelfClosingTagToken);
         }
 
@@ -1334,7 +1282,7 @@ mod tests {
             #[test]
             fn $name() {
                 let (html, golden) = $value;
-                let reader = &mut html.as_bytes() as &mut dyn std::io::Read;
+                let reader = html.as_bytes().to_vec();
                 let mut tokenizer = Tokenizer::new(reader);
 
                 if !golden.is_empty() {
