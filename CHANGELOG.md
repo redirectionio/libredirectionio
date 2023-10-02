@@ -1,3 +1,10 @@
+## 2.9.0 - 02-10-2023
+
+ * Updated dependencies
+ * Improve memory usage in router
+ * Improve performance when creating a router
+ * Improve performance when using html filters
+
 ## 2.8.0 - 26-05-2023
 
  * Fix parsing bug in ip address for logs and request matching
