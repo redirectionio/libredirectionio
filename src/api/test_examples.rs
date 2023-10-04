@@ -73,7 +73,7 @@ pub struct ErroredExample {
 
 impl TestExamplesOutput {
     pub fn from_project(test_examples_input: TestExamplesProjectInput, existing_router: Arc<Router<Rule>>) -> TestExamplesOutput {
-        let test_example_router = test_examples_input.change_set.update_existing_router(existing_router.clone());
+        let test_example_router = test_examples_input.change_set.update_existing_router(existing_router);
         let mut results = TestExamplesOutput::default();
 
         for (id, route) in test_example_router.routes() {

@@ -46,7 +46,7 @@ pub struct RuleOutput {
 impl UnitIdsOutput {
     #[cfg(feature = "router")]
     pub fn create_result_from_project(unit_ids_input: UnitIdsProjectInput, existing_router: Arc<Router<Rule>>) -> UnitIdsOutput {
-        let unit_ids_router = unit_ids_input.change_set.update_existing_router(existing_router.clone());
+        let unit_ids_router = unit_ids_input.change_set.update_existing_router(existing_router);
         let mut rules = HashMap::new();
 
         for (id, route) in unit_ids_router.routes() {

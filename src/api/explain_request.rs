@@ -62,7 +62,7 @@ impl ExplainRequestOutput {
         explain_request_input: ExplainRequestProjectInput,
         existing_router: Arc<Router<Rule>>,
     ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
-        let explain_request_router = explain_request_input.change_set.update_existing_router(existing_router.clone());
+        let explain_request_router = explain_request_input.change_set.update_existing_router(existing_router);
 
         Self::create_result(&explain_request_router, &explain_request_input.example)
     }
@@ -70,8 +70,7 @@ impl ExplainRequestOutput {
     pub fn create_result_without_project(
         explain_request_input: ExplainRequestInput,
     ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
-        let router_config = explain_request_input.router_config;
-        let mut router = Router::<Rule>::from_config(router_config.clone());
+        let mut router = Router::<Rule>::from_config(explain_request_input.router_config);
 
         for rule in explain_request_input.rules.rules.iter() {
             router.insert(rule.clone());
