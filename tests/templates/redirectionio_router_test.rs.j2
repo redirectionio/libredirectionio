@@ -15,7 +15,7 @@ fn setup_{{ name }}() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 {% for _, rule in rule_set.rules %}
     let route_{{ loop.index }}: Rule = serde_json::from_str(r#"{{ rule.agentInput | json_encode() }}"#).expect("cannot deserialize");
-    router.insert(route_{{ loop.index }}.into_route(&router.config));
+    router.insert(route_{{ loop.index }});
 {% endfor %}
     router
 }

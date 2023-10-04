@@ -13,7 +13,7 @@ fn setup_00_common_rules() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"simple-foobar-rule","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -68,43 +68,43 @@ fn setup_01_straight_rule_match() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"any-host-path","rank":0,"source":{"path":"/foo"},"status_code":301,"target":"/any-host--path-only"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"any-host-path-query","rank":0,"source":{"path":"/foo","query":"bar=baz"},"status_code":301,"target":"/any-host--path-query"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"any-host-query-only","rank":0,"source":{"path":"/","query":"bar=baz"},"status_code":301,"target":"/any-host--query-only"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     let route_4: Rule = serde_json::from_str(r#"{"id":"empty","rank":0,"source":{"path":"/"},"status_code":301,"target":"/empty"}"#).expect("cannot deserialize");
-    router.insert(route_4.into_route(&router.config));
+    router.insert(route_4);
 
     let route_5: Rule = serde_json::from_str(r#"{"id":"example-net-host-only","rank":0,"source":{"host":"example.net","path":"/"},"status_code":301,"target":"/example.net--host-only"}"#).expect("cannot deserialize");
-    router.insert(route_5.into_route(&router.config));
+    router.insert(route_5);
 
     let route_6: Rule = serde_json::from_str(r#"{"id":"example-net-host-path","rank":0,"source":{"host":"example.net","path":"/foo"},"status_code":301,"target":"/example.net--host-path-only"}"#).expect("cannot deserialize");
-    router.insert(route_6.into_route(&router.config));
+    router.insert(route_6);
 
     let route_7: Rule = serde_json::from_str(r#"{"id":"example-net-host-path-query","rank":0,"source":{"host":"example.net","path":"/foo","query":"bar=baz"},"status_code":301,"target":"/example.net--host-path-query"}"#).expect("cannot deserialize");
-    router.insert(route_7.into_route(&router.config));
+    router.insert(route_7);
 
     let route_8: Rule = serde_json::from_str(r#"{"id":"host","rank":0,"source":{"host":"example.org","path":"/"},"status_code":301,"target":"/example.org--host-only"}"#).expect("cannot deserialize");
-    router.insert(route_8.into_route(&router.config));
+    router.insert(route_8);
 
     let route_9: Rule = serde_json::from_str(r#"{"id":"host-path-query","rank":0,"source":{"host":"example.org","path":"/foo","query":"bar=baz"},"status_code":301,"target":"/example.org--host-path-query"}"#).expect("cannot deserialize");
-    router.insert(route_9.into_route(&router.config));
+    router.insert(route_9);
 
     let route_10: Rule = serde_json::from_str(r#"{"id":"host-with-path","rank":0,"source":{"host":"example.org","path":"/foo"},"status_code":301,"target":"/example.org--host-path-only"}"#).expect("cannot deserialize");
-    router.insert(route_10.into_route(&router.config));
+    router.insert(route_10);
 
     let route_11: Rule = serde_json::from_str(r#"{"id":"host-with-query","rank":0,"source":{"host":"example.org","path":"/","query":"bar=baz"},"status_code":301,"target":"/example.org--host-query-only"}"#).expect("cannot deserialize");
-    router.insert(route_11.into_route(&router.config));
+    router.insert(route_11);
 
     let route_12: Rule = serde_json::from_str(r#"{"id":"path-with-plus-sign","rank":0,"source":{"host":"www.domain.nl","path":"/zwart+janstraat"},"status_code":301,"target":"/plus-sign"}"#).expect("cannot deserialize");
-    router.insert(route_12.into_route(&router.config));
+    router.insert(route_12);
 
     let route_13: Rule = serde_json::from_str(r#"{"id":"path-with-space-percent-encoded","rank":0,"source":{"host":"example.net","path":"/i%20have%20space"},"status_code":301,"target":"/space"}"#).expect("cannot deserialize");
-    router.insert(route_13.into_route(&router.config));
+    router.insert(route_13);
 
     router
 }
@@ -399,22 +399,22 @@ fn setup_03_priority_match() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"complex-example","rank":10,"source":{"path":"/foo"},"status_code":301,"target":"/complex-example-org"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"complex-example-net","rank":10,"source":{"path":"/foo"},"status_code":301,"target":"/complex-example-net"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"straight-any-host","rank":1,"source":{"path":"/foo"},"status_code":301,"target":"/straight-any-host"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     let route_4: Rule = serde_json::from_str(r#"{"id":"straight-example-net","rank":20,"source":{"host":"example.net","path":"/foo"},"status_code":301,"target":"/straight-example-net"}"#).expect("cannot deserialize");
-    router.insert(route_4.into_route(&router.config));
+    router.insert(route_4);
 
     let route_5: Rule = serde_json::from_str(r#"{"id":"straigth-example","rank":1,"source":{"host":"example.org","path":"/foo"},"status_code":301,"target":"/straight-example-org"}"#).expect("cannot deserialize");
-    router.insert(route_5.into_route(&router.config));
+    router.insert(route_5);
 
     let route_6: Rule = serde_json::from_str(r#"{"id":"straigth-example-same-rank-but-after","rank":1,"source":{"host":"example.fr","path":"/foo"},"status_code":301,"target":"/straight-example-fr"}"#).expect("cannot deserialize");
-    router.insert(route_6.into_route(&router.config));
+    router.insert(route_6);
 
     router
 }
@@ -537,13 +537,13 @@ fn setup_04_rfc3986_relative_references() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"doublepathSource","rank":0,"source":{"path":"//xyz"},"status_code":301,"target":"/xyz"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"doublepathSourceWithHost","rank":0,"source":{"host":"yolo.com","path":"//doubledragon"},"status_code":301,"target":"/simpledragon"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"doublepathTarget","rank":0,"source":{"path":"/source"},"status_code":301,"target":"//target"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     router
 }
@@ -654,10 +654,10 @@ fn setup_05_query_parameters_order() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-inverted-with-query-parameters","rank":0,"source":{"path":"/foo","query":"c=c&b=b"},"status_code":302,"target":"/bar-inverted"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-with-query-parameters","rank":0,"source":{"path":"/foo","query":"a=a&b=b"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -796,7 +796,7 @@ fn setup_06_emojis() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"simple-emoji-rule","rank":0,"source":{"path":"/🍕"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -835,10 +835,10 @@ fn setup_action_custom_body() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace_text","content":"{\"pets\":[{\"name\":\"Jo\",\"species\":\"Parrot\",\"birthYear\":2016},{\"name\":\"Charlotte\",\"species\":\"Cat\",\"birthYear\":2008}]}"}],"header_filters":[{"action":"override","header":"Content-Type","value":"application/json"}],"id":"action-custom-body","rank":0,"source":{"path":"/json-body"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace_text","content":"{\"pets\":[{\"name\":\"Jo\",\"species\":\"Parrot\",\"birthYear\":2016},{\"name\":\"Charlotte\",\"species\":\"Cat\",\"birthYear\":2008}]}"}],"header_filters":[{"action":"override","header":"Content-Type","value":"text/javascript"}],"id":"action-custom-body-with-header","rank":0,"source":{"path":"/json-body-and-header"}}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -937,10 +937,10 @@ fn setup_action_disable_log() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"action-disable-log","log_override":false,"rank":0,"reset":true,"source":{"path":"/no-log"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"action-enabled-log","log_override":true,"rank":0,"reset":true,"source":{"path":"/with-log"}}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -1011,7 +1011,7 @@ fn setup_action_filter_header_add() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo2"}],"id":"action-header-add","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -1091,7 +1091,7 @@ fn setup_action_filter_header_override() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"override","header":"X-Foo","value":"foo2"}],"id":"action-header-override","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -1185,13 +1185,13 @@ fn setup_action_reset() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Bar","value":"bar"}],"id":"action-after","rank":0,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo"}],"id":"action-before","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"action-stop","rank":1,"reset":true,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     router
 }
@@ -1238,7 +1238,7 @@ fn setup_action_robots_txt() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace_text","content":"User-Agent: *"}],"id":"action-serve-robotxt","rank":0,"source":{"path":"/robots.txt"},"status_code":200}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -1278,7 +1278,7 @@ fn setup_action_seo_override_meta_author() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[name=\"author\"]","element_tree":["html","head"],"value":"<meta name=\"author\" content=\"Author name\" />"},{"action":"replace","css_selector":"meta[name=\"author\"]","element_tree":["html","head","meta"],"value":"<meta name=\"author\" content=\"Author name\" />"}],"id":"override-meta-author-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -1521,7 +1521,7 @@ fn setup_action_seo_override_meta_description() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[name=\"description\"]","element_tree":["html","head"],"value":"<meta name=\"description\" content=\"New Description\" />"},{"action":"replace","css_selector":"meta[name=\"description\"]","element_tree":["html","head","meta"],"value":"<meta name=\"description\" content=\"New Description\" />"}],"id":"override-meta-description-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -1706,7 +1706,7 @@ fn setup_action_seo_override_meta_keywords() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[name=\"keywords\"]","element_tree":["html","head"],"value":"<meta name=\"keywords\" content=\"some, keywords, here\" />"},{"action":"replace","css_selector":"meta[name=\"keywords\"]","element_tree":["html","head","meta"],"value":"<meta name=\"keywords\" content=\"some, keywords, here\" />"}],"id":"override-meta-keywords-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -1920,10 +1920,10 @@ fn setup_action_seo_override_og_description() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:description\"]","element_tree":["html","head"],"value":"<meta property=\"og:description\" content=\"🍕🍕 Pizza rapido 🍕🍕\" />"},{"action":"replace","css_selector":"meta[property=\"og:description\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:description\" content=\"🍕🍕 Pizza rapido 🍕🍕\" />"}],"id":"override-og-description-emoji-rule","rank":0,"source":{"host":"","path":"/pizza-rapido","query":""}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:description\"]","element_tree":["html","head"],"value":"<meta property=\"og:description\" content=\"New Description\" />"},{"action":"replace","css_selector":"meta[property=\"og:description\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:description\" content=\"New Description\" />"}],"id":"override-og-description-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -2137,7 +2137,7 @@ fn setup_action_seo_override_og_image() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:image\"]","element_tree":["html","head"],"value":"<meta property=\"og:image\" content=\"/some-image.png\" />"},{"action":"replace","css_selector":"meta[property=\"og:image\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:image\" content=\"/some-image.png\" />"}],"id":"override-og-image-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -2264,7 +2264,7 @@ fn setup_action_seo_override_og_locale() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:locale\"]","element_tree":["html","head"],"value":"<meta property=\"og:locale\" content=\"fr_FR\" />"},{"action":"replace","css_selector":"meta[property=\"og:locale\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:locale\" content=\"fr_FR\" />"}],"id":"override-og-locale-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -2391,7 +2391,7 @@ fn setup_action_seo_override_og_site_name() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:site_name\"]","element_tree":["html","head"],"value":"<meta property=\"og:site_name\" content=\"redirection.io\" />"},{"action":"replace","css_selector":"meta[property=\"og:site_name\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:site_name\" content=\"redirection.io\" />"}],"id":"override-og-site_name-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -2518,7 +2518,7 @@ fn setup_action_seo_override_og_title() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:title\"]","element_tree":["html","head"],"value":"<meta property=\"og:title\" content=\"New Title\" />"},{"action":"replace","css_selector":"meta[property=\"og:title\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:title\" content=\"New Title\" />"}],"id":"override-og-title-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -2645,7 +2645,7 @@ fn setup_action_seo_override_og_type() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:type\"]","element_tree":["html","head"],"value":"<meta property=\"og:type\" content=\"website\" />"},{"action":"replace","css_selector":"meta[property=\"og:type\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:type\" content=\"website\" />"}],"id":"override-og-type-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -2772,7 +2772,7 @@ fn setup_action_seo_override_og_url() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"meta[property=\"og:url\"]","element_tree":["html","head"],"value":"<meta property=\"og:url\" content=\"https://redirection.io/features\" />"},{"action":"replace","css_selector":"meta[property=\"og:url\"]","element_tree":["html","head","meta"],"value":"<meta property=\"og:url\" content=\"https://redirection.io/features\" />"}],"id":"override-og-url-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -2899,7 +2899,7 @@ fn setup_action_seo_override_title() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_child","css_selector":"title","element_tree":["html","head"],"value":"<title>New Title</title>"},{"action":"replace","css_selector":"","element_tree":["html","head","title"],"value":"<title>New Title</title>"}],"id":"override-title-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3026,7 +3026,7 @@ fn setup_action_sitemap() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace_text","content":"<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><sitemap><loc>https://redirection.io/sitemap_static.xml</loc></sitemap><sitemap><loc>https://redirection.io/features/sitemap/</loc></sitemap><sitemap><loc>https://redirection.io/news/sitemap/</loc></sitemap></sitemapindex>"}],"id":"action-sitemap","rank":0,"source":{"path":"/sitemap.xml"},"status_code":200}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3066,13 +3066,13 @@ fn setup_action_stop() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Bar","value":"bar"}],"id":"action-after","rank":0,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Foo","value":"foo"}],"id":"action-before","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"action-stop","rank":1,"source":{"path":"/foo"},"stop":true}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     router
 }
@@ -3119,7 +3119,7 @@ fn setup_action_text_append() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_text","content":"new content"}],"id":"override-title-rule","rank":0,"source":{"host":"","path":"/source","query":""}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3159,7 +3159,7 @@ fn setup_action_text_prepend() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"prepend_text","content":"new content"}],"id":"override-title-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3199,7 +3199,7 @@ fn setup_action_text_replace() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace_text","content":"new content"}],"id":"override-title-rule","rank":0,"source":{"path":"/source"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3268,10 +3268,10 @@ fn setup_ignore_path_case() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule","rank":0,"source":{"path":"/FOo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-marker","markers":[{"name":"marker","regex":"([A-Z]+?)"}],"rank":0,"source":{"path":"/marker/@marker"},"status_code":302,"target":"/marker-target"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -3466,13 +3466,13 @@ fn setup_marker() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"foobar-rule","markers":[{"name":"marker","regex":"(?:.+?)"}],"rank":0,"source":{"path":"/foo/@marker"},"status_code":302,"target":"/bar/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-segfault-on-target","markers":[{"name":"marker","regex":"(?:([\\p{Ll}\\p{Lu}\\p{Lt}0-9]|%[0-9A-Z]{2})+?)"}],"rank":0,"source":{"path":"/monthly-tides/North%20Carolina-North%20Shore/@marker"},"status_code":301,"target":"https://www.usharbors.com/harbor/western-pacific-coast/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"transformerRule","markers":[{"name":"marker","regex":"(?:.+?)","transformers":[{"options":null,"type":"dasherize"},{"options":null,"type":"uppercase"}]}],"rank":0,"source":{"path":"/a/@marker"},"status_code":302,"target":"/a/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     router
 }
@@ -3611,7 +3611,7 @@ fn setup_marker_case() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"anything-rule","markers":[{"name":"anything","regex":".*"}],"rank":0,"source":{"path":"/ExampleTest/@anything"},"status_code":301,"target":"/target/@anything"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3678,7 +3678,7 @@ fn setup_marker_in_body_filter() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"replace","css_selector":"","element_tree":["html","head","title"],"value":"<title>@marker</title>"}],"id":"marker-in-header-filter","markers":[{"name":"marker","regex":"(?:.+?)"}],"rank":0,"source":{"path":"/@marker"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3718,7 +3718,7 @@ fn setup_marker_in_header_filter() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"replace","header":"X-Test","value":"@marker"}],"id":"marker-in-body-filter","markers":[{"name":"marker","regex":"(?:.+?)"}],"rank":0,"source":{"path":"/@marker"}}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3766,7 +3766,7 @@ fn setup_marker_in_host() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"marker-in-host-rule","markers":[{"name":"marker","regex":"(?:.+?)"}],"rank":0,"source":{"host":"@marker.test.com","path":"/"},"status_code":302,"target":"https://@marker.test.io"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -3837,10 +3837,10 @@ fn setup_marker_in_querystring() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"matchany-rule","markers":[{"name":"marker","regex":"(?:.+?)"}],"rank":0,"source":{"path":"/a@marker"},"status_code":302,"target":"/b@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"querystring-rule","markers":[{"name":"marker","regex":"([\\p{Ll}])+?"}],"rank":0,"source":{"path":"/querystring/from","query":"slug=@marker"},"status_code":302,"target":"/querystring/target/some-target/@marker.html"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -3939,7 +3939,7 @@ fn setup_marker_transformation_camelize() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"camelize"}]}],"rank":0,"source":{"path":"/camelize/from/@marker"},"status_code":302,"target":"/camelize/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -4062,7 +4062,7 @@ fn setup_marker_transformation_dasherize() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"dasherize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"dasherize"}]}],"rank":0,"source":{"path":"/dasherize/from/@marker"},"status_code":302,"target":"/dasherize/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -4157,7 +4157,7 @@ fn setup_marker_transformation_lowercase() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"lowercase-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"lowercase"}]}],"rank":0,"source":{"path":"/lowercase/from/@marker"},"status_code":302,"target":"/lowercase/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -4252,10 +4252,10 @@ fn setup_marker_transformation_replace() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"replace-rule","markers":[{"name":"marker","regex":"(cat|dog|fish)","transformers":[{"options":{"something":"cat","with":"tiger"},"type":"replace"}]}],"rank":0,"source":{"path":"/replace/from/@marker"},"status_code":302,"target":"/replace/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"replace-rule-2","markers":[{"name":"marker","regex":".*","transformers":[{"options":{"something":"disappear","with":""},"type":"replace"}]}],"rank":0,"source":{"path":"/replace-2/from/@marker"},"status_code":302,"target":"/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -4394,13 +4394,13 @@ fn setup_marker_transformation_slice() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"slice-middle-rule","markers":[{"name":"marker","regex":"([\\p{Lu}\\p{Lt}])+?","transformers":[{"options":{"from":"5","to":"15"},"type":"slice"}]}],"rank":0,"source":{"path":"/slice-middle/from/@marker"},"status_code":302,"target":"/slice-middle/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"slice-rule","markers":[{"name":"marker","regex":"([\\p{Lu}\\p{Lt}])+?","transformers":[{"options":{"from":"0","to":"10"},"type":"slice"}]}],"rank":0,"source":{"path":"/slice/from/@marker"},"status_code":302,"target":"/slice/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"slice-rule-4-6","markers":[{"name":"marker","regex":".*","transformers":[{"options":{"from":"4","to":"6"},"type":"slice"}]}],"rank":0,"source":{"path":"/slice-rule-4-6/from/@marker"},"status_code":302,"target":"/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     router
 }
@@ -4635,7 +4635,7 @@ fn setup_marker_transformation_underscorize() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"underscorize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-|_)+?","transformers":[{"options":null,"type":"underscorize"}]}],"rank":0,"source":{"path":"/underscorize/from/@marker"},"status_code":302,"target":"/underscorize/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -4758,7 +4758,7 @@ fn setup_marker_transformation_uppercase() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"uppercase-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":null,"type":"uppercase"}]}],"rank":0,"source":{"path":"/uppercase/from/@marker"},"status_code":302,"target":"/uppercase/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -4853,7 +4853,7 @@ fn setup_marker_type_anything() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"anything-rule","markers":[{"name":"marker","regex":".*"}],"rank":0,"source":{"path":"/anything/from/@marker"},"status_code":302,"target":"/anything/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -4948,7 +4948,7 @@ fn setup_marker_type_date() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"date-rule","markers":[{"name":"marker","regex":"([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])"}],"rank":0,"source":{"path":"/date/from/@marker"},"status_code":302,"target":"/date/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -5019,10 +5019,10 @@ fn setup_marker_type_datetime() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"datetime-rule","markers":[{"name":"marker","regex":"([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\\.[0-9]+)?(([Zz])|([\\+|\\-]([01][0-9]|2[0-3])(:?[03]0)?))"}],"rank":0,"source":{"path":"/datetime/from/@marker"},"status_code":302,"target":"/datetime/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"datetime-rule-with-transform","markers":[{"name":"marker","regex":"([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])T([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\\.[0-9]+)?(([Zz])|([\\+|\\-]([01][0-9]|2[0-3])(:?[03]0)?))","transformers":[{"options":{"from":"0","to":"10"},"type":"slice"}]}],"rank":0,"source":{"path":"/datetime-transform/from/@marker"},"status_code":302,"target":"/datetime-transform/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -5133,7 +5133,7 @@ fn setup_marker_type_enum() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"enum-rule","markers":[{"name":"marker","regex":"(cat|dog|fish)"}],"rank":0,"source":{"path":"/enum/from/@marker"},"status_code":302,"target":"/enum/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -5232,16 +5232,16 @@ fn setup_marker_type_integer() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"integer-max-rule","markers":[{"name":"marker","regex":"([0-9]|[1-3][0-9]|4[0-2])"}],"rank":0,"source":{"path":"/integer-max/from/@marker"},"status_code":302,"target":"/integer-max/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"integer-min-max-rule","markers":[{"name":"marker","regex":"(4[2-9]|[5-9][0-9]|[1-9][0-9]{2}|1[0-2][0-9]{2}|13[0-2][0-9]|133[0-7])"}],"rank":0,"source":{"path":"/integer-min-max/from/@marker"},"status_code":302,"target":"/integer-min-max/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"integer-min-rule","markers":[{"name":"marker","regex":"[1-3][0-9]{2,}|4([1-1][0-9]{1,}|[2-9][0-9]*)|[5-9][0-9]{1,}"}],"rank":0,"source":{"path":"/integer-min/from/@marker"},"status_code":302,"target":"/integer-min/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     let route_4: Rule = serde_json::from_str(r#"{"id":"integer-rule","markers":[{"name":"marker","regex":"[0-9]+"}],"rank":0,"source":{"path":"/integer/from/@marker"},"status_code":302,"target":"/integer/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_4.into_route(&router.config));
+    router.insert(route_4);
 
     router
 }
@@ -5460,49 +5460,49 @@ fn setup_marker_type_string() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"string-allowLowercaseAlphabet-specificCharacters-starting-containing-rule","markers":[{"name":"marker","regex":"JOHN\\-SNOW(([\\p{Ll}]|\\-)*?L33T([\\p{Ll}]|\\-)*?)+?"}],"rank":0,"source":{"path":"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/from/@marker"},"status_code":302,"target":"/string-allowLowercaseAlphabet-specificCharacters-starting-containing/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"string-allowPercentEncodedChars-rule","markers":[{"name":"marker","regex":"(%[0-9A-Z]{2})+?"}],"rank":0,"source":{"path":"/string-allowPercentEncodedChars/from/@marker"},"status_code":302,"target":"/string-allowPercentEncodedChars/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"string-containing-rule","markers":[{"name":"marker","regex":"(L33T)+?"}],"rank":0,"source":{"path":"/string-containing/from/@marker"},"status_code":302,"target":"/string-containing/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     let route_4: Rule = serde_json::from_str(r#"{"id":"string-ending-rule","markers":[{"name":"marker","regex":"([\\p{Ll}]|\\-)+?JOHN\\-SNOW"}],"rank":0,"source":{"path":"/string-ending/from/@marker"},"status_code":302,"target":"/string-ending/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_4.into_route(&router.config));
+    router.insert(route_4);
 
     let route_5: Rule = serde_json::from_str(r#"{"id":"string-lowercase-digits-allowPercentEncodedChars-rule","markers":[{"name":"marker","regex":"([\\p{Ll}0-9]|%[0-9A-Z]{2})+?"}],"rank":0,"source":{"path":"/string-lowercase-digits-allowPercentEncodedChars/from/@marker"},"status_code":302,"target":"/string-lowercase-digits-allowPercentEncodedChars/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_5.into_route(&router.config));
+    router.insert(route_5);
 
     let route_6: Rule = serde_json::from_str(r#"{"id":"string-lowercase-rule","markers":[{"name":"marker","regex":"([\\p{Ll}])+?"}],"rank":0,"source":{"path":"/string-lowercase/from/@marker"},"status_code":302,"target":"/string-lowercase/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_6.into_route(&router.config));
+    router.insert(route_6);
 
     let route_7: Rule = serde_json::from_str(r#"{"id":"string-lowercase-specificCharacters-emoji-rule","markers":[{"name":"marker","regex":"([\\p{Ll}]|\\-|🤘)+?"}],"rank":0,"source":{"path":"/string-lowercase-specificCharacters-emoji/from/@marker"},"status_code":302,"target":"/string-lowercase-specificCharacters-emoji/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_7.into_route(&router.config));
+    router.insert(route_7);
 
     let route_8: Rule = serde_json::from_str(r#"{"id":"string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}0-9]|\\-|\\.|\\(|\\)|%[0-9A-Z]{2})+?"}],"rank":0,"source":{"path":"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/from/@marker"},"status_code":302,"target":"/string-lowercase-uppercase-digits-allowPercentEncodedChars-specificCharacters/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_8.into_route(&router.config));
+    router.insert(route_8);
 
     let route_9: Rule = serde_json::from_str(r#"{"id":"string-lowercase-uppercase-digits-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}0-9])+?"}],"rank":0,"source":{"path":"/string-lowercase-uppercase-digits/from/@marker"},"status_code":302,"target":"/string-lowercase-uppercase-digits/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_9.into_route(&router.config));
+    router.insert(route_9);
 
     let route_10: Rule = serde_json::from_str(r#"{"id":"string-rule","markers":[{"name":"marker","regex":""}],"rank":0,"source":{"path":"/string/from/@marker"},"status_code":302,"target":"/string/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_10.into_route(&router.config));
+    router.insert(route_10);
 
     let route_11: Rule = serde_json::from_str(r#"{"id":"string-specificCharacters-other-rule","markers":[{"name":"marker","regex":"(a|\\-|z)+?"}],"rank":0,"source":{"path":"/string-specificCharacters-other/from/@marker"},"status_code":302,"target":"/string-specificCharacters-other/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_11.into_route(&router.config));
+    router.insert(route_11);
 
     let route_12: Rule = serde_json::from_str(r#"{"id":"string-specificCharacters-rule","markers":[{"name":"marker","regex":"(\\.|\\-|\\+|_|/|=)+?"}],"rank":0,"source":{"path":"/string-specificCharacters/from/@marker"},"status_code":302,"target":"/string-specificCharacters/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_12.into_route(&router.config));
+    router.insert(route_12);
 
     let route_13: Rule = serde_json::from_str(r#"{"id":"string-starting-rule","markers":[{"name":"marker","regex":"JOHN\\-SNOW([\\p{Ll}]|\\-)+?"}],"rank":0,"source":{"path":"/string-starting/from/@marker"},"status_code":302,"target":"/string-starting/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_13.into_route(&router.config));
+    router.insert(route_13);
 
     let route_14: Rule = serde_json::from_str(r#"{"id":"string-starting-shit-rule","markers":[{"name":"marker","regex":"\\(\\[A\\-Z\\]\\)\\+([\\p{Ll}]|\\-)+?"}],"rank":0,"source":{"path":"/string-starting-shit/from/@marker"},"status_code":302,"target":"/string-starting-shit/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_14.into_route(&router.config));
+    router.insert(route_14);
 
     let route_15: Rule = serde_json::from_str(r#"{"id":"string-uppercase-rule","markers":[{"name":"marker","regex":"([\\p{Lu}\\p{Lt}])+?"}],"rank":0,"source":{"path":"/string-uppercase/from/@marker"},"status_code":302,"target":"/string-uppercase/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_15.into_route(&router.config));
+    router.insert(route_15);
 
     router
 }
@@ -6505,7 +6505,7 @@ fn setup_marker_type_uuid() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"uuid-rule","markers":[{"name":"marker","regex":"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"}],"rank":0,"source":{"path":"/uuid/from/@marker"},"status_code":302,"target":"/uuid/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -6576,7 +6576,7 @@ fn setup_marketing_parameters() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -6731,7 +6731,7 @@ fn setup_marketing_parameters_notarget() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -6886,7 +6886,7 @@ fn setup_marketing_parameters_with_catch_all() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule","markers":[{"name":"params","regex":"(\\?.*)?$"}],"rank":0,"source":{"path":"/us/en/story/276298-christmas-2020/@params"},"status_code":301,"target":"/us/en/story/275996-women-gifts/@params"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7009,7 +7009,7 @@ fn setup_no_marketing_parameterst() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7128,10 +7128,10 @@ fn setup_rule_any_host_match() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-with-host","rank":20,"source":{"host":"example.com","path":"/foo"},"status_code":302,"target":"/bar-example"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-without-host","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar-no-example"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -7198,10 +7198,10 @@ fn setup_rule_any_host_no_match() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-with-host","rank":20,"source":{"host":"example.com","path":"/foo"},"status_code":302,"target":"/bar-example"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-without-host","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar-no-example"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -7268,7 +7268,7 @@ fn setup_rule_date_trigger_after() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-after","rank":0,"source":{"datetime":[["2020-01-01T00:00:00+00:00",null]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7367,7 +7367,7 @@ fn setup_rule_date_trigger_before() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-before","rank":0,"source":{"datetime":[[null,"2020-01-01T00:00:00+00:00"]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7478,7 +7478,7 @@ fn setup_rule_date_trigger_between() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-between","rank":0,"source":{"datetime":[["2020-01-01T00:00:00+00:00","2020-01-15T00:00:00+00:00"]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7589,7 +7589,7 @@ fn setup_rule_date_trigger_equals() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-equals","rank":0,"source":{"datetime":[["2020-01-01T00:00:00+00:00","2020-01-01T23:59:59+00:00"]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7658,7 +7658,7 @@ fn setup_rule_date_trigger_multiple() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-multiple","rank":0,"source":{"datetime":[[null,"2023-03-01T15:07:00+00:00"],["2023-03-31T00:12:00+00:00",null]],"path":"/foo","time":[["15:20:30",null]],"weekdays":["Sunday"]},"status_code":410}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7771,7 +7771,7 @@ fn setup_rule_date_trigger_not_between() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-not-between","rank":0,"source":{"datetime":[[null,"2020-01-01T00:00:00+00:00"],["2020-01-15T00:00:00+00:00",null]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7888,7 +7888,7 @@ fn setup_rule_date_trigger_not_equals() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-not-equals","rank":0,"source":{"datetime":[[null,"2020-01-01T00:00:00+00:00"],["2020-01-02T00:00:00+00:00",null]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -7963,7 +7963,7 @@ fn setup_rule_date_trigger_weekdays() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-date-trigger-weekdays","rank":0,"source":{"path":"/foo","weekdays":["Sunday","Monday"]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8058,7 +8058,7 @@ fn setup_rule_datetime_trigger_after() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-datetime-trigger-after","rank":0,"source":{"datetime":[["2020-01-01T00:00:00+00:00",null]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8157,7 +8157,7 @@ fn setup_rule_datetime_trigger_before() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-datetime-trigger-before","rank":0,"source":{"datetime":[[null,"2020-01-01T00:00:00+00:00"]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8268,7 +8268,7 @@ fn setup_rule_datetime_trigger_between() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-datetime-trigger-between","rank":0,"source":{"datetime":[["2020-01-01T00:00:00+00:00","2020-01-15T00:00:00+00:00"]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8379,7 +8379,7 @@ fn setup_rule_datetime_trigger_not_between() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-datetime-trigger-not-between","rank":0,"source":{"datetime":[[null,"2020-01-01T00:00:00+00:00"],["2020-01-15T00:00:00+00:00",null]],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8496,7 +8496,7 @@ fn setup_rule_header_regex() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-multiple-headers","markers":[{"name":"marker","regex":"^(ES|FR|IT)$"}],"rank":0,"source":{"headers":[{"name":"X-GeoIP","type":"match_regex","value":"@marker"}],"path":"/test"},"status_code":302,"target":"/es"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8569,7 +8569,7 @@ fn setup_rule_host_port() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-with-host-port","rank":0,"source":{"host":"example.org:8080","path":"/foo"},"status_code":302,"target":"http://example.org:8081/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8640,10 +8640,10 @@ fn setup_rule_ip_trigger() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-in-range","rank":0,"source":{"ips":[{"in_range":"192.168.0.0/24"},{"in_range":"172.12.0.0/24"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-not-in-range","rank":0,"source":{"ips":[{"not_in_range":"10.0.0.0/24"}],"path":"/foo2"},"status_code":302,"target":"/bar2"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -8752,7 +8752,7 @@ fn setup_rule_ip_trigger_equals() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"in_range":"192.168.0.1"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8801,7 +8801,7 @@ fn setup_rule_ip_trigger_greater_than() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"in_range":"192.169.0.0/16"},{"in_range":"192.170.0.0/15"},{"in_range":"192.172.0.0/14"},{"in_range":"192.176.0.0/12"},{"in_range":"192.192.0.0/10"},{"in_range":"193.0.0.0/8"},{"in_range":"194.0.0.0/7"},{"in_range":"196.0.0.0/6"},{"in_range":"200.0.0.0/5"},{"in_range":"208.0.0.0/4"},{"in_range":"224.0.0.0/3"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8872,7 +8872,7 @@ fn setup_rule_ip_trigger_greater_than_or_equals() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"in_range":"192.168.255.255/32"},{"in_range":"192.169.0.0/16"},{"in_range":"192.170.0.0/15"},{"in_range":"192.172.0.0/14"},{"in_range":"192.176.0.0/12"},{"in_range":"192.192.0.0/10"},{"in_range":"193.0.0.0/8"},{"in_range":"194.0.0.0/7"},{"in_range":"196.0.0.0/6"},{"in_range":"200.0.0.0/5"},{"in_range":"208.0.0.0/4"},{"in_range":"224.0.0.0/3"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8943,7 +8943,7 @@ fn setup_rule_ip_trigger_in_range() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"in_range":"192.168.0.0/24"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -8992,7 +8992,7 @@ fn setup_rule_ip_trigger_less_than() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"in_range":"0.0.0.0/1"},{"in_range":"128.0.0.0/2"},{"in_range":"192.0.0.0/9"},{"in_range":"192.128.0.0/11"},{"in_range":"192.160.0.0/13"},{"in_range":"192.168.0.0/32"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9063,7 +9063,7 @@ fn setup_rule_ip_trigger_less_than_or_equals() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"in_range":"0.0.0.0/1"},{"in_range":"128.0.0.0/2"},{"in_range":"192.0.0.0/9"},{"in_range":"192.128.0.0/11"},{"in_range":"192.160.0.0/13"},{"in_range":"192.168.0.0/31"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9134,7 +9134,7 @@ fn setup_rule_ip_trigger_not_equals() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"not_in_range":"192.168.0.1"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9183,7 +9183,7 @@ fn setup_rule_ip_trigger_not_in_range() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-equals","rank":0,"source":{"ips":[{"not_in_range":"192.168.0.0/24"}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9232,10 +9232,10 @@ fn setup_rule_methods_trigger() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-methods","rank":0,"source":{"exclude_methods":true,"methods":["GET","POST"],"path":"/exclude-methods"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-include-methods","rank":0,"source":{"methods":["GET","POST"],"path":"/include-methods"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -9334,7 +9334,7 @@ fn setup_rule_multiple_headers() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-multiple-headers","rank":0,"source":{"headers":[{"name":"X-Foo","type":"is_defined","value":null},{"name":"X-Bar","type":"is_defined","value":null}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9425,10 +9425,10 @@ fn setup_rule_query_with_pipe() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"0_host-path-query-pipe-urlencoded","rank":0,"source":{"host":"example.org","path":"/query-pipe","query":"foo=bar%7Cbaz"},"status_code":301,"target":"/target-urlencoded"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"1_host-path-query-pipe","rank":0,"source":{"host":"example.org","path":"/query-pipe","query":"foo=bar|baz"},"status_code":301,"target":"/target"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -9495,7 +9495,7 @@ fn setup_rule_query_with_pipe_2() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"host-path-query-pipe","rank":0,"source":{"host":"example.org","path":"/query-pipe","query":"foo=bar|baz"},"status_code":301,"target":"/target"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9562,7 +9562,7 @@ fn setup_rule_query_with_plus() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"host-path-query-double-quotes","rank":0,"source":{"host":"example.org","path":"/query-plus","query":"foo=bar+baz"},"status_code":301,"target":"/target"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9673,7 +9673,7 @@ fn setup_rule_query_with_plus_2() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"host-path-query-double-quotes","markers":[{"name":"marker","regex":".+?bar.+?"}],"rank":0,"source":{"path":"/query-plus","query":"@marker"},"status_code":301,"target":"/target?@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9712,7 +9712,7 @@ fn setup_rule_querystring() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"host-path-query-double-quotes","rank":0,"source":{"host":"example.org","path":"/host-path-query","query":"foo&bar=yolo"},"status_code":301,"target":"/target"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -9779,10 +9779,10 @@ fn setup_rule_response_status_codes_trigger() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-exclude-status-codes","rank":0,"source":{"exclude_response_status_codes":true,"path":"/exclude-status-codes","response_status_codes":[200,201]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-include-status-codes","rank":0,"source":{"path":"/include-status-codes","response_status_codes":[200,201]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -9893,10 +9893,10 @@ fn setup_rule_sampling() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-sampled-0","rank":0,"source":{"path":"/foo","sampling":50},"status_code":302,"target":"/foo2"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-sampled-100","rank":0,"source":{"path":"/bar","sampling":50},"status_code":302,"target":"/bar2"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -9951,10 +9951,10 @@ fn setup_rule_skipped_query_parameters() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-1","rank":0,"source":{"path":"/source"},"status_code":301,"target":"/target"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-2","rank":0,"source":{"path":"/source","query":"toto=tata"},"status_code":301,"target":"/target?tutu=titi"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -10077,7 +10077,7 @@ fn setup_rule_time_trigger_after() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-time-trigger-after","rank":0,"source":{"path":"/foo","time":[["15:20:00",null]]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -10172,7 +10172,7 @@ fn setup_rule_time_trigger_before() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-time-trigger-before","rank":0,"source":{"path":"/foo","time":[[null,"15:20:00"]]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -10267,7 +10267,7 @@ fn setup_rule_time_trigger_between() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-time-trigger-between","rank":0,"source":{"path":"/foo","time":[["14:30:00","15:00:00"]]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -10362,7 +10362,7 @@ fn setup_rule_time_trigger_not_between() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-time-trigger-not-between","rank":0,"source":{"path":"/foo","time":[[null,"14:30:00"],["15:00:00",null]]},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -10457,13 +10457,13 @@ fn setup_rule_with_header() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-header-marker","markers":[{"name":"marker","regex":"(?:f.+?)"}],"rank":0,"source":{"headers":[{"name":"X-Test-Marker","type":"match_regex","value":"@marker"}],"path":"/test"},"status_code":302,"target":"/baz/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-header-not-existing","rank":0,"source":{"headers":[{"name":"X-Test","type":"is_not_defined","value":null},{"name":"X-Test-Marker","type":"is_not_defined","value":null}],"path":"/test"},"status_code":302,"target":"/bor"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"rule-header-static","rank":0,"source":{"headers":[{"name":"X-Test","type":"contains","value":"foo"}],"path":"/test"},"status_code":302,"target":"/baz"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     router
 }
@@ -10607,10 +10607,10 @@ fn setup_rule_with_method() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-method-post","rank":0,"source":{"methods":["POST"],"path":"/foo"},"status_code":302,"target":"/baz"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-multiple-methods","rank":0,"source":{"methods":["PUT","POST"],"path":"/bar"},"status_code":302,"target":"/bor"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -10737,7 +10737,7 @@ fn setup_rule_with_quotes() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"host-path-query-double-quotes","rank":0,"source":{"host":"example.org","path":"/host-path-query-double-quotes","query":"gender.nl-NL=Dames%22,%22Heren%22,%22Kinderens"},"status_code":301,"target":"/target?gender=Dames&gender=Heren&gender=Kinderen"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -10776,16 +10776,16 @@ fn setup_rule_with_response_status_codes() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-404","rank":0,"source":{"path":"/foo","response_status_codes":[404]},"status_code":302,"target":"/baz"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-404-402","rank":0,"source":{"path":"/bar","response_status_codes":[400,402]},"status_code":302,"target":"/bor"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     let route_3: Rule = serde_json::from_str(r#"{"id":"rule-A-404","rank":10,"source":{"path":"/something","response_status_codes":[404]},"status_code":302,"target":"/A-target"}"#).expect("cannot deserialize");
-    router.insert(route_3.into_route(&router.config));
+    router.insert(route_3);
 
     let route_4: Rule = serde_json::from_str(r#"{"id":"rule-B","rank":100,"source":{"path":"/something"},"status_code":302,"target":"/B-target"}"#).expect("cannot deserialize");
-    router.insert(route_4.into_route(&router.config));
+    router.insert(route_4);
 
     router
 }
@@ -11002,10 +11002,10 @@ fn setup_rule_with_slash() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-with-slash","rank":0,"source":{"path":"/foo/"},"status_code":302,"target":"/bar/"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"rule-without-slash","rank":0,"source":{"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -11072,10 +11072,10 @@ fn setup_rule_with_space() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"exact","rank":1,"source":{"path":"/seksuele opvoeding"},"status_code":302,"target":"/exact"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     let route_2: Rule = serde_json::from_str(r#"{"id":"query-space","rank":1,"source":{"path":"/seksuele opvoeding","query":"query=with space"},"status_code":302,"target":"/query-space"}"#).expect("cannot deserialize");
-    router.insert(route_2.into_route(&router.config));
+    router.insert(route_2);
 
     router
 }
@@ -11226,7 +11226,7 @@ fn setup_variable_marker() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?"}],"rank":0,"source":{"path":"/camelize/from/@marker"},"status_code":302,"target":"/camelize/target/@var_marker_1","variables":[{"name":"var_marker_1","transformers":[{"options":null,"type":"camelize"}],"type":{"marker":"marker"}}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11349,7 +11349,7 @@ fn setup_variable_marker_legacy() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?"}],"rank":0,"source":{"path":"/camelize/from/@marker"},"status_code":302,"target":"/camelize/@marker/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11388,7 +11388,7 @@ fn setup_variable_marker_legacy_1() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?"}],"rank":0,"source":{"host":"","path":"/camelize/from/@marker","query":""},"status_code":302,"target":"/camelize/@marker/target/@marker"}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11427,7 +11427,7 @@ fn setup_variable_marker_order() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?"}],"rank":0,"source":{"path":"/camelize/from/@marker"},"status_code":302,"target":"/camelize/@var/@var2/target/@var3","variables":[{"name":"var3","type":"request_host"},{"name":"var2","type":"request_scheme"},{"name":"var","type":{"marker":"marker"}}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11466,7 +11466,7 @@ fn setup_variable_marker_transformer() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":{"from":"0","to":"5"},"type":"slice"}]}],"rank":0,"source":{"path":"/camelize/from/@marker"},"status_code":302,"target":"/camelize/target/@var_marker_1","variables":[{"name":"var_marker_1","transformers":[{"options":null,"type":"uppercase"}],"type":{"marker":"marker"}}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11505,7 +11505,7 @@ fn setup_variable_request_header() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","rank":0,"source":{"path":"/variable/request-header"},"status_code":302,"target":"/target/request-header/@var1","variables":[{"name":"var1","type":{"request_header":{"default":"Foo","name":"X-Request-Header"}}}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11573,7 +11573,7 @@ fn setup_variable_request_host() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","rank":0,"source":{"path":"/variable/request-header"},"status_code":302,"target":"/target/request-header/@var1","variables":[{"name":"var1","type":"request_host"}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11612,7 +11612,7 @@ fn setup_variable_request_method() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","rank":0,"source":{"path":"/variable/request-header"},"status_code":302,"target":"/target/request-header/@var1","variables":[{"name":"var1","type":"request_method"}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11679,7 +11679,7 @@ fn setup_variable_request_path() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","rank":0,"source":{"path":"/variable/request-header"},"status_code":302,"target":"/target/request-header@var1","variables":[{"name":"var1","type":"request_path"}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
@@ -11718,7 +11718,7 @@ fn setup_variable_request_scheme() -> Router<Rule> {
     let mut router = Router::<Rule>::from_config(config);
 
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","rank":0,"source":{"path":"/variable/request-header"},"status_code":302,"target":"/target/request-header/@var1","variables":[{"name":"var1","type":"request_scheme"}]}"#).expect("cannot deserialize");
-    router.insert(route_1.into_route(&router.config));
+    router.insert(route_1);
 
     router
 }
