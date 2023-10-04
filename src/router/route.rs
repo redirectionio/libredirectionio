@@ -5,6 +5,7 @@ use super::route_weekday::RouteWeekday;
 use super::RouteHeader;
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
+use crate::router::RouterConfig;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;
@@ -164,4 +165,8 @@ where
     fn cmp(&self, other: &Self) -> Ordering {
         self.handler.cmp(&other.handler)
     }
+}
+
+pub trait IntoRoute<T> {
+    fn into_route(self, config: &RouterConfig) -> Route<T>;
 }

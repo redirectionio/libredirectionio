@@ -3,11 +3,12 @@ use super::node::Node;
 use super::prefix::common_prefix;
 use super::regex::LazyRegex;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Leaf<V> {
     pub(crate) values: HashMap<String, V>,
-    pub(crate) regex: LazyRegex,
+    pub(crate) regex: Arc<LazyRegex>,
 }
 
 impl<V> Clone for Leaf<V>
@@ -29,7 +30,7 @@ impl<V> Leaf<V> {
 
         Leaf {
             values,
-            regex: LazyRegex::new_leaf(regex, ignore_case),
+            regex: Arc::new(LazyRegex::new_leaf(regex, ignore_case)),
         }
     }
 
@@ -47,11 +48,11 @@ impl<V> Leaf<V> {
 
         let leaf = Item::Leaf(Leaf {
             values: leaf_values,
-            regex: LazyRegex::new_leaf(regex, self.regex.ignore_case),
+            regex: Arc::new(LazyRegex::new_leaf(regex, self.regex.ignore_case)),
         });
 
         Item::Node(Node {
-            regex: LazyRegex::new_node(prefix, self.regex.ignore_case),
+            regex: Arc::new(LazyRegex::new_node(prefix, self.regex.ignore_case)),
             children: vec![Item::Leaf(self), leaf],
         })
     }
@@ -129,7 +130,7 @@ impl<V> Leaf<V> {
             return left;
         }
 
-        self.regex.compile();
+        self.regex = Arc::new(self.regex.compile());
 
         if self.regex.compiled.is_some() {
             return left - 1;

@@ -1,9 +1,11 @@
 use crate::action::{Action, UnitTrace};
+use crate::api::rules_message::RuleChangeSet;
 use crate::api::{Example, Rule};
 use crate::http::Header;
 use crate::http::Request;
 use crate::router::{Router, RouterConfig, Trace};
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 use url::Url;
 
 const REDIRECTION_CODES: [u16; 4] = [301, 302, 307, 308];
@@ -18,6 +20,15 @@ pub struct ImpactInput {
     pub rule: Rule,
     pub action: String,
     pub rules: TmpRules,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct ImpactProjectInput {
+    pub max_hops: u8,
+    pub with_redirection_loop: bool,
+    pub rule: Rule,
+    pub action: String,
+    pub change_set: RuleChangeSet,
 }
 
 // FIXME: find a way to avoid creating this structure.
@@ -92,6 +103,28 @@ impl Impact {
 }
 
 impl ImpactOutput {
+    pub fn from_impact_project(impact_input: ImpactProjectInput, existing_router: Arc<Router<Rule>>) -> ImpactOutput {
+        let mut impact_router = impact_input.change_set.update_existing_router(existing_router.clone());
+        let mut trace_unique_router = Router::<Rule>::from_arc_config(existing_router.config.clone());
+
+        impact_router.remove(impact_input.rule.id.as_str());
+
+        if impact_input.action == "add" || impact_input.action == "update" {
+            impact_router.insert(impact_input.rule.clone());
+            trace_unique_router.insert(impact_input.rule.clone());
+        }
+
+        let impacts = ImpactOutput::compute_impacts(
+            &impact_router,
+            &trace_unique_router,
+            impact_input.rule.examples,
+            impact_input.with_redirection_loop,
+            impact_input.max_hops,
+        );
+
+        ImpactOutput { impacts }
+    }
+
     pub fn create_result(impact_input: ImpactInput) -> ImpactOutput {
         let mut router = Router::<Rule>::from_config(impact_input.router_config.clone());
         let mut trace_unique_router = Router::<Rule>::from_config(impact_input.router_config.clone());
@@ -104,23 +137,40 @@ impl ImpactOutput {
             if rule.id == impact_input.rule.id {
                 continue;
             }
-            router.insert(rule.clone().into_route(&impact_input.router_config));
+            router.insert(rule.clone());
         }
 
         if impact_input.action == "add" || impact_input.action == "update" {
-            router.insert(impact_input.rule.clone().into_route(&impact_input.router_config));
-            trace_unique_router.insert(impact_input.rule.clone().into_route(&impact_input.router_config));
+            router.insert(impact_input.rule.clone());
+            trace_unique_router.insert(impact_input.rule.clone());
         }
 
-        let impacts = ImpactOutput::compute_impacts(&router, &trace_unique_router, &impact_input);
+        let impacts = ImpactOutput::compute_impacts(
+            &router,
+            &trace_unique_router,
+            impact_input.rule.examples,
+            impact_input.with_redirection_loop,
+            impact_input.max_hops,
+        );
 
         ImpactOutput { impacts }
     }
 
-    fn compute_impacts(router: &Router<Rule>, trace_unique_router: &Router<Rule>, impact_input: &ImpactInput) -> Vec<Impact> {
+    fn compute_impacts(
+        router: &Router<Rule>,
+        trace_unique_router: &Router<Rule>,
+        examples: Option<Vec<Example>>,
+        with_redirection_loop: bool,
+        max_hops: u8,
+    ) -> Vec<Impact> {
         let mut impacts = Vec::new();
-        for example in impact_input.rule.examples.as_ref().unwrap().iter() {
-            let request = match Request::from_example(&router.config, example) {
+
+        if examples.is_none() {
+            return impacts;
+        }
+
+        for example in examples.unwrap() {
+            let request = match Request::from_example(&router.config, &example) {
                 Ok(request) => request,
                 Err(e) => {
                     impacts.push(Impact::new_with_error(
@@ -163,8 +213,8 @@ impl ImpactOutput {
 
             unit_trace.squash_with_target_unit_traces();
 
-            let redirection_loop = if impact_input.with_redirection_loop {
-                Some(ImpactOutput::compute_redirection_loop(router, impact_input, example))
+            let redirection_loop = if with_redirection_loop {
+                Some(ImpactOutput::compute_redirection_loop(router, max_hops, &example))
             } else {
                 None
             };
@@ -187,7 +237,7 @@ impl ImpactOutput {
         impacts
     }
 
-    fn compute_redirection_loop(router: &Router<Rule>, impact_input: &ImpactInput, example: &Example) -> RedirectionLoop {
+    fn compute_redirection_loop(router: &Router<Rule>, max_hops: u8, example: &Example) -> RedirectionLoop {
         let mut current_url = example.url.clone();
         let mut current_method = example.method.clone().unwrap_or(String::from("GET"));
         let mut error = None;
@@ -198,7 +248,7 @@ impl ImpactOutput {
             method: current_method.clone(),
         }];
 
-        'outer: for i in 1..=impact_input.max_hops {
+        'outer: for i in 1..=max_hops {
             let new_example = example.with_url(current_url.clone()).with_method(Some(current_method.clone()));
 
             let request = Request::from_example(&router.config, &new_example).unwrap();
@@ -260,7 +310,7 @@ impl ImpactOutput {
                 method: current_method.clone(),
             });
 
-            if i >= impact_input.max_hops {
+            if i >= max_hops {
                 error = Some(RedirectionError::TooManyHops);
                 break;
             }

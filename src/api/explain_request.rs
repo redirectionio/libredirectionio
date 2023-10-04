@@ -3,8 +3,10 @@ use crate::{
     http::{Header, Request},
     router::{Router, RouterConfig, Trace},
 };
+use std::sync::Arc;
 
 use super::{Example, Rule};
+use crate::api::rules_message::RuleChangeSet;
 use serde::{Deserialize, Serialize};
 
 // Input
@@ -21,6 +23,12 @@ pub struct ExplainRequestInput {
 pub struct TmpRules {
     #[serde(rename = "hydra:member")]
     pub rules: Vec<Rule>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct ExplainRequestProjectInput {
+    pub example: Example,
+    pub change_set: RuleChangeSet,
 }
 
 // Output
@@ -50,17 +58,30 @@ pub struct ExplainRequestOutputError {
 // Implementation
 
 impl ExplainRequestOutput {
-    pub fn create_result(explain_request_input: ExplainRequestInput) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
+    pub fn create_result_from_project(
+        explain_request_input: ExplainRequestProjectInput,
+        existing_router: Arc<Router<Rule>>,
+    ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
+        let explain_request_router = explain_request_input.change_set.update_existing_router(existing_router.clone());
+
+        Self::create_result(&explain_request_router, &explain_request_input.example)
+    }
+
+    pub fn create_result_without_project(
+        explain_request_input: ExplainRequestInput,
+    ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
         let router_config = explain_request_input.router_config;
         let mut router = Router::<Rule>::from_config(router_config.clone());
 
         for rule in explain_request_input.rules.rules.iter() {
-            router.insert(rule.clone().into_route(&router_config));
+            router.insert(rule.clone());
         }
 
-        let example = &explain_request_input.example;
+        Self::create_result(&router, &explain_request_input.example)
+    }
 
-        let request = match Request::from_example(&router_config, example) {
+    fn create_result(router: &Router<Rule>, example: &Example) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
+        let request = match Request::from_example(&router.config, example) {
             Ok(request) => request,
             Err(e) => {
                 return Err(ExplainRequestOutputError {

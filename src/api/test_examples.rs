@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use crate::{
     action::{Action, UnitTrace},
@@ -7,6 +8,7 @@ use crate::{
 };
 
 use super::{Example, Rule};
+use crate::api::rules_message::RuleChangeSet;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 
@@ -16,6 +18,11 @@ use serde::{Deserialize, Serialize};
 pub struct TestExamplesInput {
     pub router_config: RouterConfig,
     pub rules: TmpRules,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct TestExamplesProjectInput {
+    pub change_set: RuleChangeSet,
 }
 
 // FIXME: find a way to avoid creating this structure.
@@ -65,11 +72,92 @@ pub struct ErroredExample {
 // Implementation
 
 impl TestExamplesOutput {
+    pub fn from_project(test_examples_input: TestExamplesProjectInput, existing_router: Arc<Router<Rule>>) -> TestExamplesOutput {
+        let test_example_router = test_examples_input.change_set.update_existing_router(existing_router.clone());
+        let mut results = TestExamplesOutput::default();
+
+        for (id, route) in test_example_router.routes() {
+            let examples = &route.handler().examples;
+
+            if examples.is_none() {
+                continue;
+            }
+
+            for example in examples.as_ref().unwrap().iter() {
+                if example.unit_ids_applied.is_none() {
+                    continue;
+                }
+
+                let request = match Request::from_example(&test_example_router.config, example) {
+                    Ok(request) => request,
+                    Err(e) => {
+                        results.add_errored_example(route.handler(), example.clone(), e.to_string());
+                        continue;
+                    }
+                };
+                let mut unit_trace = UnitTrace::default();
+
+                let routes = test_example_router.match_request(&request);
+                let mut action = Action::from_routes_rule(routes, &request, Some(&mut unit_trace));
+
+                let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
+                let (final_status_code, backend_status_code) = if action_status_code != 0 {
+                    (action_status_code, action_status_code)
+                } else {
+                    // We call the backend and get a response code
+                    let backend_status_code = example.response_status_code.unwrap_or(200);
+                    let final_status_code = action.get_status_code(backend_status_code, Some(&mut unit_trace));
+                    (final_status_code, backend_status_code)
+                };
+
+                action.filter_headers(Vec::new(), backend_status_code, false, Some(&mut unit_trace));
+
+                if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[]) {
+                    let body = "<!DOCTYPE html>
+<html>
+    <head>
+    </head>
+    <body>
+    </body>
+</html>";
+
+                    body_filter.filter(body.into(), Some(&mut unit_trace));
+                    body_filter.end(Some(&mut unit_trace));
+                }
+
+                action.should_log_request(true, final_status_code, Some(&mut unit_trace));
+
+                unit_trace.squash_with_target_unit_traces();
+
+                let unit_ids_not_applied_anymore = unit_trace.diff(example.unit_ids_applied.clone().unwrap());
+
+                // If it should match but not unit are applied anymore
+                // If it should match but the rule is not applied
+                // If it should not matche but the rule is applied
+                if example.must_match && (!unit_ids_not_applied_anymore.is_empty() || !unit_trace.rule_ids_contains(id.as_str()))
+                    || !example.must_match && unit_trace.rule_ids_contains(id.as_str())
+                {
+                    results.add_failed_example(
+                        route.handler(),
+                        example.clone(),
+                        unit_trace.get_rule_ids_applied(),
+                        unit_trace.get_unit_ids_applied(),
+                        unit_ids_not_applied_anymore,
+                    );
+                }
+
+                results.increment_example_count();
+            }
+        }
+
+        results
+    }
+
     pub fn create_result(test_examples_input: TestExamplesInput) -> TestExamplesOutput {
         let mut router = Router::<Rule>::from_config(test_examples_input.router_config.clone());
 
         for rule in test_examples_input.rules.rules.iter() {
-            router.insert(rule.clone().into_route(&test_examples_input.router_config));
+            router.insert(rule.clone());
         }
 
         router.cache(10000);

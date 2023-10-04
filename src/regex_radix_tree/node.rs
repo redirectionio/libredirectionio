@@ -2,10 +2,11 @@ use super::item::Item;
 use super::leaf::Leaf;
 use super::prefix::{common_prefix_char_size, get_prefix_with_char_size};
 use super::regex::LazyRegex;
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Node<V> {
-    pub(crate) regex: LazyRegex,
+    pub(crate) regex: Arc<LazyRegex>,
     pub(crate) children: Vec<Item<V>>,
 }
 
@@ -33,7 +34,7 @@ impl<V> Node<V> {
             let left = Item::Leaf(Leaf::new(regex, id, item, self.regex.ignore_case));
 
             return Item::Node(Node {
-                regex: LazyRegex::new_node(prefix, self.regex.ignore_case),
+                regex: Arc::new(LazyRegex::new_node(prefix, self.regex.ignore_case)),
                 children: vec![left, Item::Node(self)],
             });
         }
@@ -174,7 +175,7 @@ impl<V> Node<V> {
     pub fn cache(&mut self, mut left: u64, cache_level: u64, current_level: u64) -> u64 {
         // Already cached
         if cache_level == current_level && self.regex.compiled.is_none() {
-            self.regex.compile();
+            self.regex = Arc::new(self.regex.compile());
 
             if self.regex.compiled.is_some() {
                 left -= 1;

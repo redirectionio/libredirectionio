@@ -1,6 +1,6 @@
 use regex::{Regex, RegexBuilder};
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct LazyRegex {
     pub(crate) original: String,
     pub(crate) regex: String,
@@ -58,8 +58,14 @@ impl LazyRegex {
         }
     }
 
-    pub fn compile(&mut self) -> bool {
-        self.compiled = self.create_regex();
-        self.compiled.is_some()
+    pub fn compile(&self) -> Self {
+        let compiled = self.create_regex();
+
+        LazyRegex {
+            regex: self.regex.clone(),
+            original: self.original.clone(),
+            compiled,
+            ignore_case: self.ignore_case,
+        }
     }
 }

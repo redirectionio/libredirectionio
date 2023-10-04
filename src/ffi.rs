@@ -36,7 +36,7 @@ pub unsafe extern "C" fn redirectionio_router_create(
         let message = Box::from_raw(_message);
 
         for rule in message.rules {
-            router.insert(rule.into_route(&router.config));
+            router.insert(rule);
         }
     }
 
@@ -50,7 +50,7 @@ pub unsafe extern "C" fn redirectionio_router_route_add(_route: *mut Route<Rule>
     let route = Box::from_raw(_route);
     let router = &mut *_router;
 
-    router.insert(*route);
+    router.insert_route(*route);
 }
 
 #[no_mangle]

@@ -11,7 +11,7 @@ mod trace;
 use crate::http::Request;
 pub use config::RouterConfig;
 pub use request_matcher::{DateTimeMatcher, HostMatcher, IpMatcher, MethodMatcher, PathAndQueryMatcher, SchemeMatcher};
-pub use route::Route;
+pub use route::{IntoRoute, Route};
 pub use route_datetime::RouteDateTime;
 pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use route_ip::RouteIp;
@@ -20,12 +20,14 @@ pub use route_weekday::RouteWeekday;
 pub use trace::{RouteTrace, Trace};
 
 use core::cmp::Reverse;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct Router<T> {
     matcher: SchemeMatcher<T>,
     pub config: Arc<RouterConfig>,
+    pub routes: HashMap<String, Arc<Route<T>>>,
 }
 
 impl<T> Default for Router<T> {
@@ -35,29 +37,43 @@ impl<T> Default for Router<T> {
         Router {
             matcher: SchemeMatcher::new(config.clone()),
             config,
+            routes: HashMap::new(),
         }
     }
 }
 
-impl<T> Router<T>
-where
-    T: Clone,
-{
+impl<T> Router<T> {
     pub fn from_config(config: RouterConfig) -> Self {
-        let config_arc = Arc::new(config);
+        Self::from_arc_config(Arc::new(config))
+    }
 
+    pub fn from_arc_config(config: Arc<RouterConfig>) -> Self {
         Self {
-            matcher: SchemeMatcher::new(config_arc.clone()),
-            config: config_arc,
+            matcher: SchemeMatcher::new(config.clone()),
+            config,
+            routes: HashMap::new(),
         }
     }
 
-    pub fn insert(&mut self, route: Route<T>) {
-        self.matcher.insert(Arc::new(route));
+    pub fn insert_route(&mut self, route: Route<T>) {
+        let arc_route = Arc::new(route);
+
+        self.matcher.insert(arc_route.clone());
+        self.routes.insert(arc_route.id().to_string(), arc_route);
+    }
+
+    pub fn get_route_by_id(&self, id: &str) -> Option<Arc<Route<T>>> {
+        self.routes.get(id).cloned()
     }
 
     pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {
-        self.matcher.remove(id)
+        if self.routes.contains_key(id) {
+            self.routes.remove(id);
+
+            self.matcher.remove(id)
+        } else {
+            None
+        }
     }
 
     pub fn rebuild_request(&self, request: &Request) -> Request {
@@ -69,11 +85,15 @@ where
     }
 
     pub fn len(&self) -> usize {
-        self.matcher.len()
+        self.routes.len()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.matcher.is_empty()
+        self.routes.is_empty()
+    }
+
+    pub fn routes(&self) -> &HashMap<String, Arc<Route<T>>> {
+        &self.routes
     }
 
     pub fn trace_request(&self, request: &Request) -> Vec<Trace<T>> {
@@ -122,6 +142,32 @@ where
 
             level += 1;
             prev_cache_limit = next_cache_limit;
+        }
+    }
+}
+
+impl<T> Router<T>
+where
+    T: IntoRoute<T>,
+{
+    pub fn insert(&mut self, item: T) {
+        self.insert_route(item.into_route(self.config.as_ref()));
+    }
+
+    pub fn apply_change_set(&mut self, added: Vec<T>, updated: Vec<T>, removed: Vec<String>) {
+        for id in removed {
+            self.remove(id.as_str());
+        }
+
+        for item in updated {
+            let route = item.into_route(self.config.as_ref());
+
+            self.remove(route.id());
+            self.insert_route(route);
+        }
+
+        for item in added {
+            self.insert(item);
         }
     }
 }
