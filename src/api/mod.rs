@@ -39,7 +39,7 @@ pub use marker::Marker;
 #[cfg(feature = "router")]
 pub use rule::Rule;
 #[cfg(feature = "router")]
-pub use rules_message::RulesMessage;
+pub use rules_message::{RuleChangeSet, RulesMessage};
 pub use source::Source;
 #[cfg(feature = "router")]
 pub use test_examples::{TestExamplesInput, TestExamplesOutput, TestExamplesProjectInput};
