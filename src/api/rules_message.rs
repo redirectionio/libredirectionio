@@ -1,6 +1,7 @@
 use crate::api::Rule;
 use crate::router::Router;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::sync::Arc;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -11,9 +12,9 @@ pub struct RulesMessage {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct RuleChangeSet {
-    pub deleted: Vec<String>,
     pub added: Vec<Rule>,
     pub updated: Vec<Rule>,
+    pub deleted: HashSet<String>,
 }
 
 impl RuleChangeSet {

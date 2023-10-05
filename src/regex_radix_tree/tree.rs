@@ -43,6 +43,16 @@ impl<V> RegexTreeMap<V> {
         removed
     }
 
+    pub fn retain<F>(&mut self, f: &F)
+    where
+        F: Fn(&str, &mut V) -> bool,
+    {
+        let mut root = Item::Empty(false);
+        std::mem::swap(&mut self.root, &mut root);
+        let root = root.retain(f);
+        self.root = root;
+    }
+
     pub fn len(&self) -> usize {
         self.root.len()
     }
@@ -112,6 +122,13 @@ impl<V> UniqueRegexTreeMap<V> {
 
     pub fn remove(&mut self, regex: &str) -> Option<V> {
         self.tree.remove(regex)
+    }
+
+    pub fn retain<F>(&mut self, f: &F)
+    where
+        F: Fn(&str, &mut V) -> bool,
+    {
+        self.tree.retain(f)
     }
 
     pub fn len(&self) -> usize {

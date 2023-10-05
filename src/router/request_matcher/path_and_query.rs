@@ -3,7 +3,7 @@ use super::super::{Route, RouterConfig, Trace};
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
 use crate::regex_radix_tree::{RegexTreeMap, Trace as TreeTrace};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -40,6 +40,18 @@ impl<T> PathAndQueryMatcher<T> {
                 self.regex_tree_rule.insert(path.regex.as_str(), route.id(), route.clone());
             }
         }
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) -> bool {
+        self.static_rules.retain(|_, matcher| {
+            matcher.retain(|id, _| !ids.contains(id));
+
+            !matcher.is_empty()
+        });
+
+        self.regex_tree_rule.retain(&|id, _| !ids.contains(id));
+
+        self.static_rules.is_empty() && self.regex_tree_rule.is_empty()
     }
 
     pub fn remove(&mut self, id: &str) -> Option<Arc<Route<T>>> {

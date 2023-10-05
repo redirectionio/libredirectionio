@@ -5,8 +5,8 @@ use super::super::{Route, RouteHeaderKind, Trace};
 use crate::http::Request;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::collections::{BTreeMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -115,6 +115,18 @@ impl<T> HeaderMatcher<T> {
         }
 
         removed
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) -> bool {
+        self.any_header.batch_remove(ids);
+
+        self.condition_groups.retain(|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.any_header.is_empty() && self.condition_groups.is_empty()
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {

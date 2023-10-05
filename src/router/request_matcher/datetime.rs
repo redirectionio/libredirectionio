@@ -6,8 +6,8 @@ use super::super::trace::{TraceInfo, TraceInfoDateTimeCondition};
 use super::super::{Route, RouterConfig, Trace};
 use crate::http::Request;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use std::collections::BTreeSet;
+use std::collections::{BTreeMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -104,6 +104,18 @@ impl<T> DateTimeMatcher<T> {
         }
 
         removed
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) -> bool {
+        self.any_datetime.batch_remove(ids);
+
+        self.condition_groups.retain(|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.any_datetime.is_empty() && self.condition_groups.is_empty()
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {

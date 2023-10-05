@@ -3,7 +3,7 @@ use super::super::{IpMatcher, Route, RouterConfig, Trace};
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
 use crate::regex_radix_tree::{Trace as TreeTrace, UniqueRegexTreeMap};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -89,6 +89,24 @@ impl<T> HostMatcher<T> {
         }
 
         removed
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) -> bool {
+        self.any_host.batch_remove(ids);
+
+        self.static_hosts.retain(|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.regex_tree_rule.retain(&|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.any_host.is_empty() && self.static_hosts.is_empty() && self.regex_tree_rule.is_empty()
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {

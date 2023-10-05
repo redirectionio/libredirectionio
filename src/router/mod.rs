@@ -20,7 +20,7 @@ pub use route_weekday::RouteWeekday;
 pub use trace::{RouteTrace, Trace};
 
 use core::cmp::Reverse;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -74,6 +74,11 @@ impl<T> Router<T> {
         } else {
             None
         }
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) {
+        self.routes.retain(|id, _| !ids.contains(id));
+        self.matcher.batch_remove(ids);
     }
 
     pub fn rebuild_request(&self, request: &Request) -> Request {
@@ -154,16 +159,17 @@ where
         self.insert_route(item.into_route(self.config.as_ref()));
     }
 
-    pub fn apply_change_set(&mut self, added: Vec<T>, updated: Vec<T>, removed: Vec<String>) {
-        for id in removed {
-            self.remove(id.as_str());
-        }
+    pub fn apply_change_set(&mut self, added: Vec<T>, updated: Vec<T>, mut removed: HashSet<String>) {
+        let updated_route = updated
+            .into_iter()
+            .map(|item| item.into_route(self.config.as_ref()))
+            .collect::<Vec<Route<T>>>();
 
-        for item in updated {
-            let route = item.into_route(self.config.as_ref());
+        removed.extend(updated_route.iter().map(|item| item.id().to_string()));
+        self.batch_remove(&removed);
 
-            self.remove(route.id());
-            self.insert_route(route);
+        for item in updated_route {
+            self.insert_route(item);
         }
 
         for item in added {

@@ -2,7 +2,7 @@ use super::super::route_ip::RouteIp;
 use super::super::trace::TraceInfo;
 use super::super::{MethodMatcher, Route, RouterConfig, Trace};
 use crate::http::Request;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -65,6 +65,18 @@ impl<T> IpMatcher<T> {
         }
 
         removed
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) -> bool {
+        self.no_matcher.batch_remove(ids);
+
+        self.matchers.retain(|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.no_matcher.is_empty() && self.matchers.is_empty()
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {

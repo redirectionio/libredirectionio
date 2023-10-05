@@ -2,7 +2,7 @@ use super::super::request_matcher::HeaderMatcher;
 use super::super::trace::TraceInfo;
 use super::super::{Route, RouterConfig, Trace};
 use crate::http::Request;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -86,6 +86,24 @@ impl<T> MethodMatcher<T> {
         }
 
         removed
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) -> bool {
+        self.any_method.batch_remove(ids);
+
+        self.methods.retain(|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.exclude_methods.retain(|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.any_method.is_empty() && self.methods.is_empty() && self.exclude_methods.is_empty()
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {

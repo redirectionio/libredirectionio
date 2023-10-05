@@ -140,6 +140,33 @@ impl<V> Node<V> {
         (Item::Node(self), removed)
     }
 
+    pub fn retain<F>(mut self, f: &F) -> Item<V>
+    where
+        F: Fn(&str, &mut V) -> bool,
+    {
+        let mut children = Vec::new();
+
+        for child in self.children {
+            let child = child.retain(f);
+
+            if !child.is_empty() {
+                children.push(child);
+            }
+        }
+
+        if children.is_empty() {
+            return Item::Empty(self.regex.ignore_case);
+        }
+
+        if children.len() == 1 {
+            return children.pop().unwrap();
+        }
+
+        self.children = children;
+
+        Item::Node(self)
+    }
+
     /// Length of node
     pub fn len(&self) -> usize {
         let mut count = 0;

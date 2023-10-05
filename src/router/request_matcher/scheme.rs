@@ -1,7 +1,7 @@
 use super::super::trace::TraceInfo;
 use super::super::{HostMatcher, Route, RouterConfig, Trace};
 use crate::http::Request;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -63,6 +63,18 @@ impl<T> SchemeMatcher<T> {
         }
 
         removed
+    }
+
+    pub fn batch_remove(&mut self, ids: &HashSet<String>) -> bool {
+        self.any_scheme.batch_remove(ids);
+
+        self.schemes.retain(|_, matcher| {
+            matcher.batch_remove(ids);
+
+            !matcher.is_empty()
+        });
+
+        self.any_scheme.is_empty() && self.schemes.is_empty()
     }
 
     pub fn match_request(&self, request: &Request) -> Vec<Arc<Route<T>>> {

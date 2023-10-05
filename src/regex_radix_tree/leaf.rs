@@ -99,6 +99,18 @@ impl<V> Leaf<V> {
             }
         }
     }
+    pub fn retain<F>(mut self, f: &F) -> Item<V>
+    where
+        F: Fn(&str, &mut V) -> bool,
+    {
+        self.values.retain(|k, v| f(k, v));
+
+        if self.values.is_empty() {
+            Item::Empty(self.regex.ignore_case)
+        } else {
+            Item::Leaf(self)
+        }
+    }
 
     /// Length of node
     pub fn len(&self) -> usize {
