@@ -18,7 +18,7 @@ mod generated_tests {
         let json_in = std::fs::read_to_string(format!("tests/test_examples/{}.in.json", name)).unwrap();
         let test_examples_input: TestExamplesInput = json_decode(&json_in).unwrap();
 
-        let test_examples = TestExamplesOutput::create_result(test_examples_input);
+        let test_examples = TestExamplesOutput::create_result_without_project(test_examples_input);
 
         let json_out_expected = std::fs::read_to_string(format!("tests/test_examples/{}.out.json", name)).unwrap();
         let json_out = json_encode(&test_examples).unwrap();
