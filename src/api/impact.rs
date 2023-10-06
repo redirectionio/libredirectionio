@@ -101,20 +101,15 @@ impl ImpactOutput {
 
         impact_router.remove(impact_input.rule.id.as_str());
 
-        if impact_input.action == "add" || impact_input.action == "update" {
-            impact_router.insert(impact_input.rule.clone());
-            trace_unique_router.insert(impact_input.rule.clone());
-        }
-
-        let impacts = ImpactOutput::compute_impacts(
-            &impact_router,
-            &trace_unique_router,
-            impact_input.rule.examples,
+        ImpactOutput::compute_impacts(
+            &mut impact_router,
+            &mut trace_unique_router,
+            impact_input.rule.examples.clone(),
             impact_input.with_redirection_loop,
             impact_input.max_hops,
-        );
-
-        ImpactOutput { impacts }
+            impact_input.action.as_str(),
+            impact_input.rule,
+        )
     }
 
     pub fn create_result(impact_input: ImpactInput) -> ImpactOutput {
@@ -132,33 +127,35 @@ impl ImpactOutput {
             router.insert(rule.clone());
         }
 
-        if impact_input.action == "add" || impact_input.action == "update" {
-            router.insert(impact_input.rule.clone());
-            trace_unique_router.insert(impact_input.rule.clone());
-        }
-
-        let impacts = ImpactOutput::compute_impacts(
-            &router,
-            &trace_unique_router,
-            impact_input.rule.examples,
+        ImpactOutput::compute_impacts(
+            &mut router,
+            &mut trace_unique_router,
+            impact_input.rule.examples.clone(),
             impact_input.with_redirection_loop,
             impact_input.max_hops,
-        );
-
-        ImpactOutput { impacts }
+            impact_input.action.as_str(),
+            impact_input.rule,
+        )
     }
 
     fn compute_impacts(
-        router: &Router<Rule>,
-        trace_unique_router: &Router<Rule>,
+        router: &mut Router<Rule>,
+        trace_unique_router: &mut Router<Rule>,
         examples: Option<Vec<Example>>,
         with_redirection_loop: bool,
         max_hops: u8,
-    ) -> Vec<Impact> {
+        action: &str,
+        rule: Rule,
+    ) -> ImpactOutput {
+        if action == "add" || action == "update" {
+            router.insert(rule.clone());
+            trace_unique_router.insert(rule);
+        }
+
         let mut impacts = Vec::new();
 
         if examples.is_none() {
-            return impacts;
+            return ImpactOutput { impacts };
         }
 
         for example in examples.unwrap() {
@@ -226,7 +223,8 @@ impl ImpactOutput {
                 should_log_request,
             });
         }
-        impacts
+
+        ImpactOutput { impacts }
     }
 
     fn compute_redirection_loop(router: &Router<Rule>, max_hops: u8, example: &Example) -> RedirectionLoop {
