@@ -17,22 +17,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Debug, Clone)]
 pub struct TestExamplesInput {
     pub router_config: RouterConfig,
-    pub rules: TmpRules,
+    pub rules: Vec<Rule>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct TestExamplesProjectInput {
     pub change_set: RuleChangeSet,
 }
-
-// FIXME: find a way to avoid creating this structure.
-// It would be more convenient to inline the structure
-#[derive(Deserialize, Debug, Clone)]
-pub struct TmpRules {
-    #[serde(rename = "hydra:member")]
-    pub rules: Vec<Rule>,
-}
-// Output
 
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct TestExamplesOutput {
@@ -156,7 +147,7 @@ impl TestExamplesOutput {
     pub fn create_result(test_examples_input: TestExamplesInput) -> TestExamplesOutput {
         let mut router = Router::<Rule>::from_config(test_examples_input.router_config.clone());
 
-        for rule in test_examples_input.rules.rules.iter() {
+        for rule in test_examples_input.rules.iter() {
             router.insert(rule.clone());
         }
 
@@ -164,7 +155,7 @@ impl TestExamplesOutput {
 
         let mut results = TestExamplesOutput::default();
 
-        for rule in test_examples_input.rules.rules.iter() {
+        for rule in test_examples_input.rules.iter() {
             if rule.examples.is_none() {
                 continue;
             }

@@ -19,7 +19,7 @@ pub struct ImpactInput {
     pub with_redirection_loop: bool,
     pub rule: Rule,
     pub action: String,
-    pub rules: TmpRules,
+    pub rules: Vec<Rule>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -29,14 +29,6 @@ pub struct ImpactProjectInput {
     pub rule: Rule,
     pub action: String,
     pub change_set: RuleChangeSet,
-}
-
-// FIXME: find a way to avoid creating this structure.
-// It would be more convenient to inline the structure
-#[derive(Deserialize, Debug, Clone)]
-pub struct TmpRules {
-    #[serde(rename = "hydra:member")]
-    pub rules: Vec<Rule>,
 }
 
 // Output
@@ -129,7 +121,7 @@ impl ImpactOutput {
         let mut router = Router::<Rule>::from_config(impact_input.router_config.clone());
         let mut trace_unique_router = Router::<Rule>::from_config(impact_input.router_config.clone());
 
-        for rule in impact_input.rules.rules.iter() {
+        for rule in impact_input.rules.iter() {
             // Even for a "add" action, we remove a potential previous version
             // of the rule. This occurs when adding a rule (still in draft) and
             // then editing it (still in add / draft). But we want the very last

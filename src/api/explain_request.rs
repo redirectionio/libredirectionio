@@ -15,13 +15,6 @@ use serde::{Deserialize, Serialize};
 pub struct ExplainRequestInput {
     pub router_config: RouterConfig,
     pub example: Example,
-    pub rules: TmpRules,
-}
-// FIXME: find a way to avoid creating this structure.
-// It would be more convenient to inline the structure
-#[derive(Deserialize, Debug, Clone)]
-pub struct TmpRules {
-    #[serde(rename = "hydra:member")]
     pub rules: Vec<Rule>,
 }
 
@@ -72,7 +65,7 @@ impl ExplainRequestOutput {
     ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
         let mut router = Router::<Rule>::from_config(explain_request_input.router_config);
 
-        for rule in explain_request_input.rules.rules.iter() {
+        for rule in explain_request_input.rules.iter() {
             router.insert(rule.clone());
         }
 
