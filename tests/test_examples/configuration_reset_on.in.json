@@ -14,81 +14,76 @@
         "pass_marketing_query_params_to_target": true,
         "always_match_any_host": true
     },
-    "rules": {
-        "hydra:member": [
-            {
-                "source": {
-                    "host": "",
-                    "path": "\/goo",
-                    "query": "",
-                    "scheme": "",
-                    "sampling": null,
-                    "methods": [],
-                    "headers": [],
-                    "response_status_codes": []
-                },
-                "id": "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
-                "rank": 32766,
-                "markers": [],
-                "body_filters": [],
-                "header_filters": [],
-                "log_override": true,
-                "configuration_log_unit_id": "53f9a13c-732a-4ee4-a379-3a27e95c2046",
-                "configuration_reset_unit_id": "1d5c840c-2d6c-4c96-822f-808a1dc0a794",
-                "reset": true,
-                "examples": [
-                    {
-                        "url": "\/goo",
-                        "must_match": true,
-                        "headers": [],
-                        "response_status_code": null,
-                        "method": null,
-                        "ip_address": null,
-                        "unit_ids_applied": ["53f9a13c-732a-4ee4-a379-3a27e95c2046", "1d5c840c-2d6c-4c96-822f-808a1dc0a794"]
-                    }
-                ]
+    "rules": [
+        {
+            "source": {
+                "host": "",
+                "path": "\/goo",
+                "query": "",
+                "scheme": "",
+                "sampling": null,
+                "methods": [],
+                "headers": [],
+                "response_status_codes": []
             },
-            {
-                "source": {
-                    "host": null,
-                    "path": "\/@marker",
-                    "query": null,
-                    "scheme": null,
-                    "sampling": null,
-                    "methods": [],
+            "id": "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
+            "rank": 32766,
+            "markers": [],
+            "body_filters": [],
+            "header_filters": [],
+            "log_override": true,
+            "configuration_log_unit_id": "53f9a13c-732a-4ee4-a379-3a27e95c2046",
+            "configuration_reset_unit_id": "1d5c840c-2d6c-4c96-822f-808a1dc0a794",
+            "reset": true,
+            "examples": [
+                {
+                    "url": "\/goo",
+                    "must_match": true,
                     "headers": [],
-                    "response_status_codes": []
-                },
-                "id": "56c402fd-c854-46c6-b89d-a874818b717b",
-                "rank": 32763,
-                "markers": [
-                    {
-                        "name": "marker",
-                        "regex": ".*",
-                        "transformers": []
-                    }
-                ],
-                "body_filters": [],
-                "header_filters": [],
-                "log_override": true,
-                "configuration_log_unit_id": "c73e8447-08b5-490f-bd46-0a137e16b749",
-                "configuration_reset_unit_id": "ee15e733-ad61-4640-973f-732dcc68f5d5",
-                "reset": true,
-                "examples": [
-                    {
-                        "url": "\/anything",
-                        "method": null,
-                        "headers": [],
-                        "response_status_code": null,
-                        "ip_address": null,
-                        "must_match": true,
-                        "unit_ids_applied": ["c73e8447-08b5-490f-bd46-0a137e16b749", "ee15e733-ad61-4640-973f-732dcc68f5d5"]
-                    }
-                ]
-            }
-        ],
-        "hydra:totalItems": 2,
-        "page": 1,
-        "lastPage": 1
-    }
+                    "response_status_code": null,
+                    "method": null,
+                    "ip_address": null,
+                    "unit_ids_applied": ["53f9a13c-732a-4ee4-a379-3a27e95c2046", "1d5c840c-2d6c-4c96-822f-808a1dc0a794"]
+                }
+            ]
+        },
+        {
+            "source": {
+                "host": null,
+                "path": "\/@marker",
+                "query": null,
+                "scheme": null,
+                "sampling": null,
+                "methods": [],
+                "headers": [],
+                "response_status_codes": []
+            },
+            "id": "56c402fd-c854-46c6-b89d-a874818b717b",
+            "rank": 32763,
+            "markers": [
+                {
+                    "name": "marker",
+                    "regex": ".*",
+                    "transformers": []
+                }
+            ],
+            "body_filters": [],
+            "header_filters": [],
+            "log_override": true,
+            "configuration_log_unit_id": "c73e8447-08b5-490f-bd46-0a137e16b749",
+            "configuration_reset_unit_id": "ee15e733-ad61-4640-973f-732dcc68f5d5",
+            "reset": true,
+            "examples": [
+                {
+                    "url": "\/anything",
+                    "method": null,
+                    "headers": [],
+                    "response_status_code": null,
+                    "ip_address": null,
+                    "must_match": true,
+                    "unit_ids_applied": ["c73e8447-08b5-490f-bd46-0a137e16b749", "ee15e733-ad61-4640-973f-732dcc68f5d5"]
+                }
+            ]
+        }
+    ]
 }

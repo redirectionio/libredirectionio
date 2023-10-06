@@ -14,80 +14,78 @@
         "pass_marketing_query_params_to_target": true,
         "always_match_any_host": false
     },
-    "rules": {
-        "hydra:member": [
-            {
-                "source": {
-                    "host": "",
-                    "path": "/",
-                    "query": "",
-                    "scheme": "",
-                    "sampling": null,
-                    "methods": [],
-                    "headers": [],
-                    "response_status_codes": [],
-                    "ips": []
-                },
-                "id": "A",
-                "rank": 3,
-                "markers": [],
-                "body_filters": [],
-                "header_filters": [
-                    {
-                        "action": "add",
-                        "header": "location",
-                        "target_hash": "header::location",
-                        "value": "toto",
-                        "id": "A:1"
-                    }
-                ],
-                "target": "",
-                "redirect_code": null,
-                "redirect_unit_id": null,
-                "examples": [
-                    {
-                        "id": "example:A:1",
-                        "url": "/",
-                        "must_match": true,
-                        "headers": [],
-                        "response_status_code": 200,
-                        "method": "GET",
-                        "unit_ids_applied": [
-                            "A:1"
-                        ]
-                    }
-                ]
+    "rules": [
+        {
+            "source": {
+                "host": "",
+                "path": "/",
+                "query": "",
+                "scheme": "",
+                "sampling": null,
+                "methods": [],
+                "headers": [],
+                "response_status_codes": [],
+                "ips": []
             },
-            {
-                "source": {
-                    "host": "",
-                    "path": "/",
-                    "query": "",
-                    "scheme": "",
-                    "sampling": null,
-                    "methods": [],
+            "id": "A",
+            "rank": 3,
+            "markers": [],
+            "body_filters": [],
+            "header_filters": [
+                {
+                    "action": "add",
+                    "header": "location",
+                    "target_hash": "header::location",
+                    "value": "toto",
+                    "id": "A:1"
+                }
+            ],
+            "target": "",
+            "redirect_code": null,
+            "redirect_unit_id": null,
+            "examples": [
+                {
+                    "id": "example:A:1",
+                    "url": "/",
+                    "must_match": true,
                     "headers": [],
-                    "response_status_codes": [],
-                    "ips": []
-                },
-                "id": "B",
-                "rank": 2,
-                "markers": [],
-                "body_filters": [],
-                "header_filters": [
-                    {
-                        "action": "override",
-                        "header": "location",
-                        "target_hash": "header::location",
-                        "value": "NEW",
-                        "id": "B:1"
-                    }
-                ],
-                "target": "",
-                "redirect_code": null,
-                "redirect_unit_id": null,
-                "examples": []
-            }
-        ]
-    }
+                    "response_status_code": 200,
+                    "method": "GET",
+                    "unit_ids_applied": [
+                        "A:1"
+                    ]
+                }
+            ]
+        },
+        {
+            "source": {
+                "host": "",
+                "path": "/",
+                "query": "",
+                "scheme": "",
+                "sampling": null,
+                "methods": [],
+                "headers": [],
+                "response_status_codes": [],
+                "ips": []
+            },
+            "id": "B",
+            "rank": 2,
+            "markers": [],
+            "body_filters": [],
+            "header_filters": [
+                {
+                    "action": "override",
+                    "header": "location",
+                    "target_hash": "header::location",
+                    "value": "NEW",
+                    "id": "B:1"
+                }
+            ],
+            "target": "",
+            "redirect_code": null,
+            "redirect_unit_id": null,
+            "examples": []
+        }
+    ]
 }

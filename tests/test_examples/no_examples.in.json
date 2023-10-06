@@ -14,37 +14,35 @@
         "pass_marketing_query_params_to_target": true,
         "always_match_any_host": false
     },
-    "rules": {
-        "hydra:member": [
-            {
-                "source": {
-                    "host": "",
-                    "path": "/",
-                    "query": "",
-                    "scheme": "",
-                    "sampling": null,
-                    "methods": [],
-                    "headers": [],
-                    "response_status_codes": [],
-                    "ips": []
-                },
-                "id": "9d8a5ba4-1d76-41e0-820b-891d45484152",
-                "rank": 32765,
-                "markers": [],
-                "body_filters": [],
-                "header_filters": [
-                    {
-                        "action": "remove",
-                        "header": "location",
-                        "value": "",
-                        "id": null
-                    }
-                ],
-                "target": "",
-                "redirect_code": 410,
-                "redirect_unit_id": "38032bcb-2580-4243-a14f-3e26477e878e",
-                "examples": []
-            }
-        ]
-    }
+    "rules":  [
+        {
+            "source": {
+                "host": "",
+                "path": "/",
+                "query": "",
+                "scheme": "",
+                "sampling": null,
+                "methods": [],
+                "headers": [],
+                "response_status_codes": [],
+                "ips": []
+            },
+            "id": "9d8a5ba4-1d76-41e0-820b-891d45484152",
+            "rank": 32765,
+            "markers": [],
+            "body_filters": [],
+            "header_filters": [
+                {
+                    "action": "remove",
+                    "header": "location",
+                    "value": "",
+                    "id": null
+                }
+            ],
+            "target": "",
+            "redirect_code": 410,
+            "redirect_unit_id": "38032bcb-2580-4243-a14f-3e26477e878e",
+            "examples": []
+        }
+    ]
 }

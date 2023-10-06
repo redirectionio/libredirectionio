@@ -14,8 +14,7 @@
         "pass_marketing_query_params_to_target": true,
         "always_match_any_host": true
     },
-    "rules": {
-        "hydra:member": [
+    "rules": [
             {
                 "source": {
                     "host": "",
@@ -48,47 +47,45 @@
                     }
                 ]
             },
-            {
-                "source": {
-                    "host": null,
-                    "path": "\/@marker",
-                    "query": null,
-                    "scheme": null,
-                    "sampling": null,
-                    "methods": [],
+        {
+            "source": {
+                "host": null,
+                "path": "\/@marker",
+                "query": null,
+                "scheme": null,
+                "sampling": null,
+                "methods": [],
+                "headers": [],
+                "response_status_codes": []
+            },
+            "id": "56c402fd-c854-46c6-b89d-a874818b717b",
+            "rank": 32763,
+            "markers": [
+                {
+                    "name": "marker",
+                    "regex": ".*",
+                    "transformers": []
+                }
+            ],
+            "body_filters": [],
+            "header_filters": [],
+            "log_override": false,
+            "configuration_log_unit_id": "c73e8447-08b5-490f-bd46-0a137e16b749",
+            "configuration_reset_unit_id": "ee15e733-ad61-4640-973f-732dcc68f5d5",
+            "reset": false,
+            "examples": [
+                {
+                    "url": "\/anything",
+                    "method": null,
                     "headers": [],
-                    "response_status_codes": []
-                },
-                "id": "56c402fd-c854-46c6-b89d-a874818b717b",
-                "rank": 32763,
-                "markers": [
-                    {
-                        "name": "marker",
-                        "regex": ".*",
-                        "transformers": []
-                    }
-                ],
-                "body_filters": [],
-                "header_filters": [],
-                "log_override": false,
-                "configuration_log_unit_id": "c73e8447-08b5-490f-bd46-0a137e16b749",
-                "configuration_reset_unit_id": "ee15e733-ad61-4640-973f-732dcc68f5d5",
-                "reset": false,
-                "examples": [
-                    {
-                        "url": "\/anything",
-                        "method": null,
-                        "headers": [],
-                        "response_status_code": null,
-                        "ip_address": null,
-                        "must_match": true,
-                        "unit_ids_applied": ["c73e8447-08b5-490f-bd46-0a137e16b749"]
-                    }
-                ]
-            }
-        ],
-        "hydra:totalItems": 2,
-        "page": 1,
-        "lastPage": 1
-    }
+                    "response_status_code": null,
+                    "ip_address": null,
+                    "must_match": true,
+                    "unit_ids_applied": [
+                        "c73e8447-08b5-490f-bd46-0a137e16b749"
+                    ]
+                }
+            ]
+        }
+    ]
 }
