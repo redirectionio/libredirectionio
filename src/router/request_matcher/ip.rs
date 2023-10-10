@@ -1,7 +1,11 @@
 use super::super::route_ip::RouteIp;
 use super::super::trace::TraceInfo;
 use super::super::{MethodMatcher, Route, RouterConfig, Trace};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
@@ -145,5 +149,26 @@ impl<T> IpMatcher<T> {
 
     pub fn is_empty(&self) -> bool {
         self.count == 0
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for IpMatcher<V> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("ip_matcher_{}", id);
+        *id += 1;
+        graph.add_node(Node::new(&node_name));
+
+        if let Some(key) = self.no_matcher.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "any ip"));
+        }
+
+        for (host, matcher) in &self.matchers {
+            if let Some(key) = matcher.graph(id, graph) {
+                graph.add_edge(Edge::new(&node_name, &key, host.to_string().as_str()));
+            }
+        }
+
+        Some(node_name)
     }
 }

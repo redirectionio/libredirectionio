@@ -4,7 +4,11 @@ use super::super::route_time::RouteTime;
 use super::super::route_weekday::RouteWeekday;
 use super::super::trace::{TraceInfo, TraceInfoDateTimeCondition};
 use super::super::{Route, RouterConfig, Trace};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use std::collections::{BTreeMap, HashSet};
@@ -208,13 +212,13 @@ impl<T> DateTimeMatcher<T> {
     }
 
     pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
-        let mut new_limit = limit;
+        let mut new_limit = self.any_datetime.cache(limit, level);
 
         for matcher in self.condition_groups.values_mut() {
             new_limit = matcher.cache(new_limit, level);
         }
 
-        self.any_datetime.cache(new_limit, level)
+        new_limit
     }
 
     pub fn len(&self) -> usize {
@@ -253,5 +257,27 @@ impl DateTimeCondition {
         } else {
             false
         }
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for DateTimeMatcher<V> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("datetime_matcher_{}", id);
+        *id += 1;
+
+        graph.add_node(Node::new(node_name.as_str()).label("datetime matcher"));
+
+        if let Some(key) = self.any_datetime.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "any date time"));
+        }
+
+        for (conditions, matcher) in &self.condition_groups {
+            if let Some(key) = matcher.graph(id, graph) {
+                graph.add_edge(Edge::new(&node_name, &key, format!("date time group {:?}", conditions).as_str()));
+            }
+        }
+
+        Some(node_name)
     }
 }

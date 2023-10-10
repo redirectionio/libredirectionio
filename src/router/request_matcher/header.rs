@@ -2,7 +2,11 @@ use super::super::request_matcher::DateTimeMatcher;
 use super::super::trace::{TraceInfo, TraceInfoHeaderCondition};
 use super::super::RouterConfig;
 use super::super::{Route, RouteHeaderKind, Trace};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -221,13 +225,13 @@ impl<T> HeaderMatcher<T> {
     }
 
     pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
-        let mut new_limit = limit;
+        let mut new_limit = self.any_header.cache(limit, level);
 
         for matcher in self.condition_groups.values_mut() {
             new_limit = matcher.cache(new_limit, level);
         }
 
-        self.any_header.cache(new_limit, level)
+        new_limit
     }
 
     pub fn len(&self) -> usize {
@@ -332,5 +336,26 @@ impl ValueCondition {
             ValueCondition::StartsWith(str) => format!("starts with {str}"),
             ValueCondition::MatchRegex(str) => format!("match regex {str}"),
         }
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for HeaderMatcher<V> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("header_matcher_{}", id);
+        *id += 1;
+        graph.add_node(Node::new(&node_name).label("header matcher"));
+
+        if let Some(key) = self.any_header.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "any header"));
+        }
+
+        for (conditions, matcher) in &self.condition_groups {
+            if let Some(key) = matcher.graph(id, graph) {
+                graph.add_edge(Edge::new(&node_name, &key, format!("header group {:?}", conditions).as_str()));
+            }
+        }
+
+        Some(node_name)
     }
 }

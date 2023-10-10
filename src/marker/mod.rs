@@ -1,9 +1,10 @@
 mod transformer;
 
-use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::{Arc, RwLock};
 
+use crate::regex_radix_tree::LazyRegex;
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -12,18 +13,20 @@ pub struct Marker {
     regex: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub enum StaticOrDynamic {
     Static(String),
     Dynamic(MarkerString),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct MarkerString {
     pub regex: String,
     pub capture: String,
     pub ignore_case: bool,
     markers: HashMap<String, String>,
+    #[serde(skip)]
+    regex_capture: Arc<RwLock<LazyRegex>>,
 }
 
 impl Marker {
@@ -64,6 +67,7 @@ impl MarkerString {
 
         Some(MarkerString {
             regex,
+            regex_capture: Arc::new(RwLock::new(LazyRegex::new_leaf(capture.as_str(), ignore_case))),
             capture,
             markers: marker_map,
             ignore_case,
@@ -72,19 +76,21 @@ impl MarkerString {
 
     pub fn capture(&self, str: &str) -> HashMap<String, String> {
         let mut parameters = HashMap::new();
-        let regex = ["^", self.capture.as_str(), "$"].join("");
 
-        let regex_captures = match RegexBuilder::new(regex.as_str()).case_insensitive(self.ignore_case).build() {
+        let regex = match self.regex_capture.read() {
+            Ok(regex) => match regex.regex() {
+                Some(regex) => regex,
+                None => return parameters,
+            },
             Err(_) => return parameters,
-            Ok(regex) => regex,
         };
 
-        let capture = match regex_captures.captures(str) {
+        let capture = match regex.captures(str) {
             None => return parameters,
             Some(capture) => capture,
         };
 
-        for named_group in regex_captures.capture_names() {
+        for named_group in regex.capture_names() {
             let name = match named_group {
                 None => continue,
                 Some(group) => group,
@@ -99,6 +105,17 @@ impl MarkerString {
         }
 
         parameters
+    }
+
+    pub fn compile(&self) -> bool {
+        match self.regex_capture.write() {
+            Ok(mut regex) => {
+                *regex = regex.compile();
+
+                true
+            }
+            Err(_) => false,
+        }
     }
 }
 
@@ -119,7 +136,7 @@ impl StaticOrDynamic {
     }
 
     pub fn capture(&self, str: &str) -> HashMap<String, String> {
-        match &self {
+        match self {
             StaticOrDynamic::Static(_) => HashMap::new(),
             StaticOrDynamic::Dynamic(marker_string) => marker_string.capture(str),
         }
@@ -131,5 +148,12 @@ impl StaticOrDynamic {
         }
 
         str
+    }
+
+    pub fn compile(&self) -> bool {
+        match self {
+            StaticOrDynamic::Static(_) => false,
+            StaticOrDynamic::Dynamic(marker_string) => marker_string.compile(),
+        }
     }
 }

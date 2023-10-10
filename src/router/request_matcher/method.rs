@@ -1,7 +1,11 @@
 use super::super::request_matcher::HeaderMatcher;
 use super::super::trace::TraceInfo;
 use super::super::{Route, RouterConfig, Trace};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
@@ -208,6 +212,10 @@ impl<T> MethodMatcher<T> {
             new_limit = matcher.cache(new_limit, level);
         }
 
+        for matcher in self.exclude_methods.values_mut() {
+            new_limit = matcher.cache(new_limit, level);
+        }
+
         new_limit
     }
 
@@ -217,5 +225,26 @@ impl<T> MethodMatcher<T> {
 
     pub fn is_empty(&self) -> bool {
         self.count == 0
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for MethodMatcher<V> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("method_matcher_{}", id);
+        *id += 1;
+        graph.add_node(Node::new(&node_name));
+
+        if let Some(key) = self.any_method.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "any method"));
+        }
+
+        for (method, matcher) in &self.methods {
+            if let Some(key) = matcher.graph(id, graph) {
+                graph.add_edge(Edge::new(&node_name, &key, method));
+            }
+        }
+
+        Some(node_name)
     }
 }

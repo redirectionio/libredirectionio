@@ -1,10 +1,11 @@
 use regex::{Regex, RegexBuilder};
+use std::sync::Arc;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LazyRegex {
     pub(crate) original: String,
     pub(crate) regex: String,
-    pub(crate) compiled: Option<Regex>,
+    pub(crate) compiled: Option<Arc<Regex>>,
     pub(crate) ignore_case: bool,
 }
 
@@ -47,9 +48,16 @@ impl LazyRegex {
         }
     }
 
-    pub fn create_regex(&self) -> Option<Regex> {
+    pub fn regex(&self) -> Option<Arc<Regex>> {
+        match &self.compiled {
+            Some(regex) => Some(regex.clone()),
+            None => self.create_regex(),
+        }
+    }
+
+    pub fn create_regex(&self) -> Option<Arc<Regex>> {
         match RegexBuilder::new(self.regex.as_str()).case_insensitive(self.ignore_case).build() {
-            Ok(regex) => Some(regex),
+            Ok(regex) => Some(Arc::new(regex)),
             Err(e) => {
                 tracing::error!("cannot create regex: {:?}", e);
 

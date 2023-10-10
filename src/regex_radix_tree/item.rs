@@ -1,5 +1,10 @@
 use super::leaf::Leaf;
 use super::node::Node;
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+use crate::regex_radix_tree::iter::{ItemIter, ItemIterMut};
+#[cfg(feature = "dot")]
+use dot_graph::Graph;
 
 #[derive(Debug)]
 pub enum Item<V> {
@@ -87,6 +92,14 @@ impl<V> Item<V> {
         }
     }
 
+    pub fn cached_len(&self) -> usize {
+        match self {
+            Item::Empty(_) => 0,
+            Item::Node(node) => node.cached_len(),
+            Item::Leaf(leaf) => leaf.cached_len(),
+        }
+    }
+
     pub fn is_empty(&self) -> bool {
         match self {
             Item::Empty(_) => true,
@@ -100,6 +113,22 @@ impl<V> Item<V> {
             Item::Empty(_) => "",
             Item::Node(node) => node.regex(),
             Item::Leaf(leaf) => leaf.regex(),
+        }
+    }
+
+    pub fn iter(&self) -> ItemIter<'_, V> {
+        ItemIter {
+            children: std::slice::from_ref(self),
+            parent: None,
+            values: None,
+        }
+    }
+
+    pub fn iter_mut(&mut self) -> ItemIterMut<'_, V> {
+        ItemIterMut {
+            children: std::slice::from_mut(self),
+            parent: None,
+            values: None,
         }
     }
 
@@ -133,6 +162,20 @@ impl<V> Item<V> {
                     left
                 }
             }
+        }
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for Item<V>
+where
+    V: DotBuilder,
+{
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        match self {
+            Item::Empty(_) => None,
+            Item::Node(node) => node.graph(id, graph),
+            Item::Leaf(leaf) => leaf.graph(id, graph),
         }
     }
 }

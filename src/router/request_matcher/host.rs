@@ -1,8 +1,12 @@
 use super::super::trace::TraceInfo;
 use super::super::{IpMatcher, Route, RouterConfig, Trace};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
 use crate::regex_radix_tree::{Trace as TreeTrace, UniqueRegexTreeMap};
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
@@ -69,18 +73,16 @@ impl<T> HostMatcher<T> {
             return removed;
         }
 
-        // @TODO iterate in regex tree
-        // if self.regex_tree_rule.remove(id) {
-        //     self.count -= 1;
-        //
-        //     return true;
-        // }
-
         self.static_hosts.retain(|_, matcher| {
             if let Some(value) = matcher.remove(id) {
                 removed = Some(value);
             }
 
+            !matcher.is_empty()
+        });
+
+        self.regex_tree_rule.retain(&|_, matcher| {
+            matcher.remove(id);
             !matcher.is_empty()
         });
 
@@ -196,6 +198,10 @@ impl<T> HostMatcher<T> {
             new_limit = matcher.cache(new_limit, level);
         }
 
+        for matcher in self.regex_tree_rule.iter_mut() {
+            new_limit = matcher.cache(new_limit, level);
+        }
+
         self.any_host.cache(new_limit, level)
     }
 
@@ -231,4 +237,29 @@ fn tree_trace_to_trace<T>(haystack: &str, tree_trace: TreeTrace<IpMatcher<T>>, r
             against: tree_trace.regex,
         },
     )
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for HostMatcher<V> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("host_matcher_{}", id);
+        *id += 1;
+        graph.add_node(Node::new(&node_name));
+
+        if let Some(key) = self.any_host.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "any host"));
+        }
+
+        for (host, matcher) in &self.static_hosts {
+            if let Some(key) = matcher.graph(id, graph) {
+                graph.add_edge(Edge::new(&node_name, &key, host));
+            }
+        }
+
+        if let Some(key) = self.regex_tree_rule.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "regex host"));
+        }
+
+        Some(node_name)
+    }
 }

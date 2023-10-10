@@ -1,24 +1,27 @@
 #[macro_use]
 extern crate criterion;
+
 use criterion::{BatchSize, BenchmarkId, Criterion};
+use flate2::read::GzDecoder;
 use redirectionio::api::{Rule, RulesMessage};
 use redirectionio::router::{Router, RouterConfig};
-use std::fs::read_to_string;
+use std::fs::File;
 
 fn create_rules(filename: String) -> RulesMessage {
-    let content = read_to_string(filename).expect("Cannot open file");
-    let rules: RulesMessage = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
+    let content_gzip = File::open(filename.clone()).expect("Cannot open file");
+    let rules: RulesMessage = serde_json::from_reader(GzDecoder::new(content_gzip)).expect("Cannot deserialize");
 
     rules
 }
 
 fn build_router_bench(c: &mut Criterion) {
     let files = vec![
-        "../bench-files/large-rules-1k.json".to_string(),
-        "../bench-files/large-rules-10k.json".to_string(),
-        "../bench-files/large-rules-50k.json".to_string(),
-        "../bench-files/large-rules-150k.json".to_string(),
-        "../bench-files/large-rules-200k.json".to_string(),
+        "../bench-files/large-rules-1k.json.gz".to_string(),
+        "../bench-files/large-rules-10k.json.gz".to_string(),
+        "../bench-files/large-rules-50k.json.gz".to_string(),
+        "../bench-files/large-rules-150k.json.gz".to_string(),
+        "../bench-files/large-rules-200k.json.gz".to_string(),
+        "../bench-files/large-rules-210k.json.gz".to_string(),
     ];
 
     let mut group = c.benchmark_group("router_builder");
@@ -31,10 +34,15 @@ fn build_router_bench(c: &mut Criterion) {
                 |rules| {
                     let config = RouterConfig::default();
                     let mut router = Router::<Rule>::from_config(config.clone());
+                    let rules_len = rules.rules.len();
 
                     for rule in rules.rules {
-                        router.insert(rule.into_route(&config));
+                        router.insert(rule);
                     }
+
+                    router.cache(10_000);
+
+                    assert_eq!(router.len(), rules_len);
                 },
                 BatchSize::NumIterations(1),
             );

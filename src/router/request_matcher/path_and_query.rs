@@ -1,8 +1,12 @@
 use super::super::trace::TraceInfo;
 use super::super::{Route, RouterConfig, Trace};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
 use crate::regex_radix_tree::{RegexTreeMap, Trace as TreeTrace};
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
@@ -186,4 +190,23 @@ fn tree_trace_to_trace<T>(haystack: &str, tree_trace: TreeTrace<Arc<Route<T>>>) 
             against: tree_trace.regex,
         },
     )
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for PathAndQueryMatcher<V> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("path_matcher_{}", id);
+        *id += 1;
+        graph.add_node(Node::new(&node_name).label("path matcher"));
+
+        if let Some(key) = self.regex_tree_rule.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "regex tree"));
+        }
+
+        let static_node_name = format!("static_matcher_{}", id);
+        graph.add_node(Node::new(static_node_name.as_str()));
+        graph.add_edge(Edge::new(&node_name, &static_node_name, "static rules"));
+
+        Some(node_name)
+    }
 }

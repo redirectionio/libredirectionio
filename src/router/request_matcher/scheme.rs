@@ -4,6 +4,11 @@ use crate::http::Request;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
+
 #[derive(Debug, Clone)]
 pub struct SchemeMatcher<T> {
     schemes: HashMap<String, HostMatcher<T>>,
@@ -156,5 +161,27 @@ impl<T> SchemeMatcher<T> {
 
     pub fn is_empty(&self) -> bool {
         self.count == 0
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for SchemeMatcher<V> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("scheme_matcher_{}", id);
+        *id += 1;
+
+        graph.add_node(Node::new(&node_name).label("scheme matcher"));
+
+        if let Some(key) = self.any_scheme.graph(id, graph) {
+            graph.add_edge(Edge::new(&node_name, &key, "any scheme"));
+        }
+
+        for (scheme, matcher) in &self.schemes {
+            if let Some(key) = matcher.graph(id, graph) {
+                graph.add_edge(Edge::new(&node_name, &key, scheme));
+            }
+        }
+
+        Some(node_name)
     }
 }

@@ -2,6 +2,10 @@ use super::item::Item;
 use super::leaf::Leaf;
 use super::prefix::{common_prefix_char_size, get_prefix_with_char_size};
 use super::regex::LazyRegex;
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node as GraphNode};
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -178,6 +182,21 @@ impl<V> Node<V> {
         count
     }
 
+    /// Length of node
+    pub fn cached_len(&self) -> usize {
+        let mut count = 0;
+
+        if self.regex.compiled.is_some() {
+            count += 1;
+        }
+
+        for child in &self.children {
+            count += child.cached_len();
+        }
+
+        count
+    }
+
     pub fn is_empty(&self) -> bool {
         for child in &self.children {
             if !child.is_empty() {
@@ -214,5 +233,34 @@ impl<V> Node<V> {
         }
 
         left
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for Node<V>
+where
+    V: DotBuilder,
+{
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("node_regex_{}", id);
+        *id += 1;
+
+        let mut node = GraphNode::new(&node_name).label(self.regex.original.as_str());
+
+        if self.regex.compiled.is_some() {
+            node = node.color(Some("green"));
+        } else {
+            node = node.color(Some("red"));
+        }
+
+        graph.add_node(node);
+
+        for child in &self.children {
+            if let Some(child) = child.graph(id, graph) {
+                graph.add_edge(Edge::new(&node_name, &child, self.regex()));
+            }
+        }
+
+        Some(node_name)
     }
 }

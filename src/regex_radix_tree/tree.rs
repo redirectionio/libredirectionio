@@ -1,5 +1,10 @@
 use super::item::Item;
 use super::trace::Trace;
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+use crate::regex_radix_tree::iter::{ItemIter, ItemIterMut};
+#[cfg(feature = "dot")]
+use dot_graph::Graph;
 
 #[derive(Debug)]
 pub struct RegexTreeMap<V> {
@@ -56,6 +61,11 @@ impl<V> RegexTreeMap<V> {
     pub fn len(&self) -> usize {
         self.root.len()
     }
+
+    pub fn cached_len(&self) -> usize {
+        self.root.cached_len()
+    }
+
     pub fn is_empty(&self) -> bool {
         self.root.is_empty()
     }
@@ -74,11 +84,12 @@ impl<V> RegexTreeMap<V> {
 
     pub fn cache(&mut self, limit: u64, level: Option<u64>) -> u64 {
         let mut left = limit;
-        let mut cache_level = 0;
 
         if let Some(level) = level {
             return self.root.cache(left, level, 0);
         }
+
+        let mut cache_level = 0;
 
         while left > 0 {
             let new_left = self.root.cache(left, cache_level, 0);
@@ -97,6 +108,24 @@ impl<V> RegexTreeMap<V> {
 
     pub fn trace(&self, haystack: &str) -> Trace<V> {
         self.root.trace(haystack)
+    }
+
+    pub fn iter(&self) -> ItemIter<'_, V> {
+        self.root.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> ItemIterMut<'_, V> {
+        self.root.iter_mut()
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for RegexTreeMap<V>
+where
+    V: DotBuilder,
+{
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        self.root.graph(id, graph)
     }
 }
 
@@ -157,6 +186,24 @@ impl<V> UniqueRegexTreeMap<V> {
 
     pub fn trace(&self, haystack: &str) -> Trace<V> {
         self.tree.trace(haystack)
+    }
+
+    pub fn iter(&self) -> ItemIter<'_, V> {
+        self.tree.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> ItemIterMut<'_, V> {
+        self.tree.iter_mut()
+    }
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for UniqueRegexTreeMap<V>
+where
+    V: DotBuilder,
+{
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        self.tree.graph(id, graph)
     }
 }
 

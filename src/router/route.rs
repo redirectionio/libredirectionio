@@ -3,15 +3,21 @@ use super::route_ip::RouteIp;
 use super::route_time::RouteTime;
 use super::route_weekday::RouteWeekday;
 use super::RouteHeader;
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
 use crate::marker::StaticOrDynamic;
 use crate::router::RouterConfig;
-use serde::{Deserialize, Serialize};
+#[cfg(feature = "dot")]
+use dot_graph::{Graph, Node as GraphNode};
+use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt::Debug;
+#[cfg(feature = "dot")]
+use std::sync::Arc;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Route<T> {
     handler: T,
     scheme: Option<String>,
@@ -136,6 +142,22 @@ impl<T> Route<T> {
 
         parameters
     }
+
+    pub fn compile(&self) -> u8 {
+        let mut compiled = 0;
+
+        if self.path_and_query.compile() {
+            compiled += 1;
+        }
+
+        if let Some(host) = &self.host {
+            if host.compile() {
+                compiled += 1;
+            }
+        }
+
+        compiled
+    }
 }
 
 impl<T> PartialEq for Route<T>
@@ -169,4 +191,16 @@ where
 
 pub trait IntoRoute<T> {
     fn into_route(self, config: &RouterConfig) -> Route<T>;
+}
+
+#[cfg(feature = "dot")]
+impl<V> DotBuilder for Arc<Route<V>> {
+    fn graph(&self, id: &mut u32, graph: &mut Graph) -> Option<String> {
+        let node_name = format!("route_{}", id);
+        *id += 1;
+
+        graph.add_node(GraphNode::new(node_name.as_str()).label(self.id.as_str()));
+
+        Some(node_name)
+    }
 }

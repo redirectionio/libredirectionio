@@ -21,6 +21,8 @@ pub mod router;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod callback_log;
+#[cfg(feature = "dot")]
+mod dot;
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi;
 #[cfg(not(target_arch = "wasm32"))]

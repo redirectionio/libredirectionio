@@ -8,8 +8,13 @@ mod route_time;
 mod route_weekday;
 mod trace;
 
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
 use crate::http::Request;
 pub use config::RouterConfig;
+use core::cmp::Reverse;
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Kind, Node};
 pub use request_matcher::{DateTimeMatcher, HostMatcher, IpMatcher, MethodMatcher, PathAndQueryMatcher, SchemeMatcher};
 pub use route::{IntoRoute, Route};
 pub use route_datetime::RouteDateTime;
@@ -17,11 +22,9 @@ pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use route_ip::RouteIp;
 pub use route_time::RouteTime;
 pub use route_weekday::RouteWeekday;
-pub use trace::{RouteTrace, Trace};
-
-use core::cmp::Reverse;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
+pub use trace::{RouteTrace, Trace};
 
 #[derive(Debug, Clone)]
 pub struct Router<T> {
@@ -135,19 +138,48 @@ impl<T> Router<T> {
     }
 
     pub fn cache(&mut self, limit: u64) {
-        let mut prev_cache_limit = limit;
+        let mut prev_cache_limit = limit as i64;
         let mut level = 0;
+        let mut retry = 0;
 
         while prev_cache_limit > 0 {
-            let next_cache_limit = self.matcher.cache(prev_cache_limit, level);
+            let next_cache_limit = self.matcher.cache(prev_cache_limit as u64, level) as i64;
 
-            if next_cache_limit == prev_cache_limit && level > 5 {
-                break;
+            if next_cache_limit == prev_cache_limit {
+                retry += 1;
+
+                if retry > 5 {
+                    break;
+                }
             }
 
             level += 1;
             prev_cache_limit = next_cache_limit;
         }
+
+        if prev_cache_limit > 0 {
+            for route in self.routes.values() {
+                prev_cache_limit -= route.compile() as i64;
+
+                if prev_cache_limit <= 0 {
+                    break;
+                }
+            }
+        }
+    }
+
+    #[cfg(feature = "dot")]
+    pub fn graph(&self) -> Graph {
+        let mut graph = Graph::new("router", Kind::Digraph);
+        graph.add_node(Node::new("router"));
+
+        let mut id = 0;
+
+        if let Some(key) = self.matcher.graph(&mut id, &mut graph) {
+            graph.add_edge(Edge::new("router", &key, ""));
+        }
+
+        graph
     }
 }
 

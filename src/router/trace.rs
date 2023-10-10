@@ -1,16 +1,16 @@
 use super::request_matcher::{DateTimeCondition, HeaderValueCondition};
 use super::route::Route;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::sync::Arc;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct RouteTrace<T> {
     traces: Vec<Trace<T>>,
     routes: Vec<Arc<Route<T>>>,
     final_route: Option<Arc<Route<T>>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Trace<T> {
     pub(crate) matched: bool,
     pub(crate) executed: bool,
@@ -20,7 +20,7 @@ pub struct Trace<T> {
     pub(crate) children: Vec<Trace<T>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type")]
 pub enum TraceInfo<T> {
@@ -38,7 +38,7 @@ pub enum TraceInfo<T> {
     Storage { routes: Vec<Arc<Route<T>>> },
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct TraceInfoHeaderCondition {
     pub result: Option<bool>,
     pub name: String,
@@ -46,7 +46,7 @@ pub struct TraceInfoHeaderCondition {
     pub cached: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct TraceInfoDateTimeCondition {
     pub result: Option<bool>,
     pub condition: DateTimeCondition,

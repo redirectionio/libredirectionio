@@ -13,21 +13,21 @@ pub struct StatusCodeUpdate {
 }
 
 impl StatusCodeUpdate {
-    pub fn get_status_code(&self, response_status_code: u16) -> (u16, Option<String>) {
+    pub fn get_status_code(&self, response_status_code: u16) -> (u16, Option<&String>) {
         if response_status_code == 0 && self.on_response_status_codes.is_empty() {
-            return (self.status_code, self.rule_id.clone());
+            return (self.status_code, self.rule_id.as_ref());
         }
 
         if self.exclude_response_status_codes && !self.on_response_status_codes.contains(&response_status_code) {
-            return (self.status_code, self.rule_id.clone());
+            return (self.status_code, self.rule_id.as_ref());
         }
 
         if !self.exclude_response_status_codes && self.on_response_status_codes.iter().any(|v| *v == response_status_code) {
-            return (self.status_code, self.rule_id.clone());
+            return (self.status_code, self.rule_id.as_ref());
         }
 
         if response_status_code != 0 {
-            return (self.fallback_status_code, self.fallback_rule_id.clone());
+            return (self.fallback_status_code, self.fallback_rule_id.as_ref());
         }
 
         (0, None)

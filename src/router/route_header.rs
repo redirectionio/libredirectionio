@@ -1,8 +1,8 @@
 use crate::marker::MarkerString;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub enum RouteHeaderKind {
     IsDefined,
     IsNotDefined,
@@ -15,7 +15,7 @@ pub enum RouteHeaderKind {
     MatchRegex(MarkerString),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct RouteHeader {
     pub kind: RouteHeaderKind,
     pub name: String,

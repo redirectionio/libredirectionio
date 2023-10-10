@@ -1,19 +1,20 @@
 #[macro_use]
 extern crate criterion;
 use criterion::{BenchmarkId, Criterion};
+use flate2::read::GzDecoder;
 use redirectionio::action::{Action, UnitTrace};
 use redirectionio::api::{Rule, RulesMessage};
 use redirectionio::http::Request;
 use redirectionio::router::{Router, RouterConfig};
-use std::fs::read_to_string;
+use std::fs::File;
 
 fn create_router(filename: String, config: &RouterConfig) -> Router<Rule> {
-    let content = read_to_string(filename).expect("Cannot open file");
-    let rules: RulesMessage = serde_json::from_str(content.as_str()).expect("Cannot deserialize");
-    let mut router = Router::<Rule>::default();
+    let content_gzip = File::open(filename.clone()).expect("Cannot open file");
+    let rules: RulesMessage = serde_json::from_reader(GzDecoder::new(content_gzip)).expect("Cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config.clone());
 
     for rule in rules.rules {
-        router.insert(rule.into_route(config))
+        router.insert(rule)
     }
 
     router
@@ -21,11 +22,12 @@ fn create_router(filename: String, config: &RouterConfig) -> Router<Rule> {
 
 fn no_match_bench(c: &mut Criterion) {
     let files = vec![
-        "../bench-files/large-rules-1k.json".to_string(),
-        "../bench-files/large-rules-10k.json".to_string(),
-        "../bench-files/large-rules-50k.json".to_string(),
-        "../bench-files/large-rules-150k.json".to_string(),
-        "../bench-files/large-rules-200k.json".to_string(),
+        "../bench-files/large-rules-1k.json.gz".to_string(),
+        "../bench-files/large-rules-10k.json.gz".to_string(),
+        "../bench-files/large-rules-50k.json.gz".to_string(),
+        "../bench-files/large-rules-150k.json.gz".to_string(),
+        "../bench-files/large-rules-200k.json.gz".to_string(),
+        "../bench-files/large-rules-210k.json.gz".to_string(),
     ];
 
     let mut group = c.benchmark_group("no_match");
@@ -48,11 +50,12 @@ fn no_match_bench(c: &mut Criterion) {
 
 fn no_match_cache_bench(c: &mut Criterion) {
     let files = vec![
-        "../bench-files/large-rules-1k.json".to_string(),
-        "../bench-files/large-rules-10k.json".to_string(),
-        "../bench-files/large-rules-50k.json".to_string(),
-        "../bench-files/large-rules-150k.json".to_string(),
-        "../bench-files/large-rules-200k.json".to_string(),
+        "../bench-files/large-rules-1k.json.gz".to_string(),
+        "../bench-files/large-rules-10k.json.gz".to_string(),
+        "../bench-files/large-rules-50k.json.gz".to_string(),
+        "../bench-files/large-rules-150k.json.gz".to_string(),
+        "../bench-files/large-rules-200k.json.gz".to_string(),
+        "../bench-files/large-rules-210k.json.gz".to_string(),
     ];
 
     let mut group = c.benchmark_group("no_match_cache");
@@ -77,7 +80,7 @@ fn no_match_cache_bench(c: &mut Criterion) {
 
 fn match_rule_in_200k(c: &mut Criterion) {
     let config = RouterConfig::default();
-    let mut router = create_router("../bench-files/large-rules-200k.json".to_string(), &config);
+    let mut router = create_router("../bench-files/large-rules-200k.json.gz".to_string(), &config);
     let request = Request::from_config(
         &config,
         "/sites/default/files/image-gallery/lowtideonuseppaimage000000edited_0.jpg".to_string(),
@@ -104,7 +107,7 @@ fn match_rule_in_200k(c: &mut Criterion) {
 
 fn build_action_rule_in_200k(c: &mut Criterion) {
     let config = RouterConfig::default();
-    let mut router = create_router("../bench-files/large-rules-200k.json".to_string(), &config);
+    let mut router = create_router("../bench-files/large-rules-200k.json.gz".to_string(), &config);
     let request = Request::from_config(
         &config,
         "/sites/default/files/image-gallery/lowtideonuseppaimage000000edited_0.jpg".to_string(),
@@ -156,7 +159,7 @@ fn build_action_rule_in_200k(c: &mut Criterion) {
 
 fn impact(c: &mut Criterion) {
     let config = RouterConfig::default();
-    let mut router = create_router("../bench-files/large-rules-200k.json".to_string(), &config);
+    let mut router = create_router("../bench-files/large-rules-200k.json.gz".to_string(), &config);
     let request = Request::from_config(
         &config,
         "/sites/default/files/image-gallery/lowtideonuseppaimage000000edited_0.jpg".to_string(),
