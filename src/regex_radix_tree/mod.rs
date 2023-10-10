@@ -7,6 +7,6 @@ mod regex;
 mod trace;
 mod tree;
 
-pub use regex::LazyRegex;
+pub use self::regex::LazyRegex;
 pub use trace::Trace;
 pub use tree::{RegexTreeMap, UniqueRegexTreeMap};
