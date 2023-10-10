@@ -175,10 +175,6 @@ impl Default for Action {
 
 impl Action {
     pub fn get_applied_rule_ids(&self) -> &LinkedHashSet<String> {
-        if self.rules_applied.is_empty() {
-            return &self.rule_ids;
-        }
-
         &self.rules_applied
     }
 
