@@ -79,10 +79,11 @@ impl UnitTrace {
     }
 
     pub fn squash_with_target_unit_traces(&mut self) {
-        for unit_ids in self.with_target_unit_trace.unit_ids_applied_by_key.values() {
+        let unit_ids = std::mem::take(&mut self.with_target_unit_trace);
+
+        for (_, unit_ids) in unit_ids.unit_ids_applied_by_key {
             for unit_id in unit_ids {
-                self.unit_ids_applied.insert(unit_id.clone());
-                self.unit_ids_seen.insert(unit_id.clone());
+                self.add_unit_id(unit_id)
             }
         }
 
