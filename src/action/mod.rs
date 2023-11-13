@@ -131,10 +131,7 @@ pub struct WithTargetUnitTrace {
 
 impl WithTargetUnitTrace {
     fn add_unit_id(&mut self, target: &str, unit_id: &str) {
-        let unit_ids = self
-            .unit_ids_applied_by_key
-            .entry(target.to_string())
-            .or_insert_with(LinkedHashSet::new);
+        let unit_ids = self.unit_ids_applied_by_key.entry(target.to_string()).or_default();
         unit_ids.insert(unit_id.to_string());
     }
 

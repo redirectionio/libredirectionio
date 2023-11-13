@@ -241,7 +241,15 @@ impl ImpactOutput {
         'outer: for i in 1..=max_hops {
             let new_example = example.with_url(current_url.clone()).with_method(Some(current_method.clone()));
 
-            let request = Request::from_example(&router.config, &new_example).unwrap();
+            let request = match Request::from_example(&router.config, &new_example) {
+                Ok(request) => request,
+                Err(err) => {
+                    log::warn!("cannot create request from new target: {:?} : {}", new_example, err);
+
+                    break;
+                }
+            };
+
             let routes = router.match_request(&request);
             let mut action = Action::from_routes_rule(routes, &request, None);
 
