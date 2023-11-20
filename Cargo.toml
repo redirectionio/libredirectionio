@@ -35,7 +35,7 @@ cidr = { version = "0.2.2", features = ["serde"] }
 dot_graph = { version = "0.2.3", optional = true }
 flate2 = { version = "1.0.28", optional = true }
 heck = "0.4.1"
-http = "0.2.9"
+http = "0.2.11"
 lazy_static = "1.4.0"
 linked_hash_set = "0.1.4"
 log = "0.4.20"
