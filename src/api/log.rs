@@ -7,10 +7,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 pub struct Log {
     code: u16,
     to: String,
-    time: u64,
+    time: u128,
     proxy: String,
     ips: Option<Vec<String>>,
     from: FromLog,
+    duration: Option<u128>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -46,7 +47,7 @@ impl Log {
     pub fn from_legacy(legacy: LegacyLog, proxy: String) -> Self {
         let now = match SystemTime::now().duration_since(UNIX_EPOCH) {
             Err(_) => 0,
-            Ok(time) => time.as_millis() as u64,
+            Ok(time) => time.as_millis(),
         };
 
         Log {
@@ -65,6 +66,7 @@ impl Log {
                 user_agent: legacy.user_agent,
                 content_type: None,
             },
+            duration: None,
         }
     }
 
@@ -75,7 +77,7 @@ impl Log {
         response_headers: &[Header],
         action: Option<&Action>,
         proxy: &str,
-        time: u64,
+        request_start_time: u128,
         client_ip: &str,
         trusted_proxies: Option<&TrustedProxies>,
     ) -> Log {
@@ -84,6 +86,10 @@ impl Log {
         let mut referer = None;
         let mut content_type = None;
         let mut ips = Vec::new();
+        let duration = match SystemTime::now().duration_since(UNIX_EPOCH) {
+            Err(_) => None,
+            Ok(time) => time.as_millis().checked_sub(request_start_time),
+        };
 
         match client_ip.parse::<Addr>() {
             Ok(addr) => ips.push(addr.addr),
@@ -157,9 +163,10 @@ impl Log {
             code,
             from,
             proxy: proxy.to_string(),
-            time,
+            time: request_start_time,
             ips: Some(untrusted_ips.iter().map(|ip| ip.to_string()).collect()),
             to: location.unwrap_or_default(),
+            duration,
         }
     }
 }
