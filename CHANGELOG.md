@@ -1,3 +1,9 @@
+## 2.10.0 - 06-02-2024
+
+ * Updated dependencies
+ * Fix request time in log
+ * Add backend duration to log
+
 ## 2.9.0 - 02-10-2023
 
  * Updated dependencies
