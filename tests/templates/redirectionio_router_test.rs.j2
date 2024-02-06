@@ -3,7 +3,8 @@ extern crate redirectionio;
 #[rustfmt::skip]
 mod generated_tests {
 
-use redirectionio::router::{Router, RouterConfig, Trace};
+use redirectionio::router::{Router, Trace};
+use redirectionio::RouterConfig;
 use redirectionio::api::Rule;
 use redirectionio::http::{Request, Header, PathAndQueryWithSkipped};
 use redirectionio::action::Action;
