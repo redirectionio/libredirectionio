@@ -38,7 +38,7 @@ impl<'a, V> Iterator for ItemIter<'a, V> {
 
     fn next(&mut self) -> Option<Self::Item> {
         match &mut self.values {
-            None => match self.children.get(0) {
+            None => match self.children.first() {
                 None => match self.parent.take() {
                     Some(parent) => {
                         // continue with the parent node

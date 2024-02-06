@@ -27,3 +27,5 @@ mod dot;
 mod ffi_helpers;
 mod regex;
 mod router_config;
+
+pub use router_config::RouterConfig;
