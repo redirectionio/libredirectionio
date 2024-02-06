@@ -6,7 +6,7 @@ use crate::api::Example;
 use crate::http::sanitize_url;
 use crate::http::{Addr, TrustedProxies};
 #[cfg(feature = "router")]
-use crate::router::RouterConfig;
+use crate::router_config::RouterConfig;
 use chrono::{DateTime, Utc};
 #[cfg(feature = "router")]
 use http::Error;

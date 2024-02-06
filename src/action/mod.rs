@@ -25,6 +25,7 @@ pub use status_code_update::StatusCodeUpdate;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter::FromIterator;
+#[cfg(feature = "router")]
 use std::sync::Arc;
 #[cfg(feature = "router")]
 pub use trace::TraceAction;

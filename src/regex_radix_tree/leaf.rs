@@ -1,9 +1,9 @@
 use super::item::Item;
 use super::node::Node;
 use super::prefix::common_prefix;
-use super::regex::LazyRegex;
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
+use crate::regex::LazyRegex;
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Node as GraphNode};
 use std::collections::HashMap;

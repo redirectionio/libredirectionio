@@ -1,6 +1,6 @@
 use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
 use crate::http::{Header, PathAndQueryWithSkipped, Request, TrustedProxies};
-use crate::router::RouterConfig;
+use crate::router_config::RouterConfig;
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::os::raw::c_char;
 use std::ptr::null;

@@ -5,7 +5,8 @@ use crate::action::{Action, UnitTrace};
 use crate::api::rules_message::RuleChangeSet;
 use crate::api::{Example, Rule};
 use crate::http::Request;
-use crate::router::{Router, RouterConfig};
+use crate::router::Router;
+use crate::router_config::RouterConfig;
 use serde::{Deserialize, Serialize};
 
 // Input

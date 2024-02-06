@@ -1,4 +1,4 @@
-use ::regex::{Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]

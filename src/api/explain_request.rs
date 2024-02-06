@@ -1,7 +1,8 @@
 use crate::{
     action::{Action, UnitTrace},
     http::{Header, Request},
-    router::{Router, RouterConfig, Trace},
+    router::{Router, Trace},
+    router_config::RouterConfig,
 };
 use std::sync::Arc;
 

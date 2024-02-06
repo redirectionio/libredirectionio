@@ -1,7 +1,8 @@
 use crate::api::{BodyFilter, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Source, Variable};
 use crate::http::Request;
 use crate::marker::{Marker as RouteMarker, MarkerString, StaticOrDynamic, Transform};
-use crate::router::{IntoRoute, Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday, RouterConfig};
+use crate::router::{IntoRoute, Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday};
+use crate::router_config::RouterConfig;
 use cidr::AnyIpCidr;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};

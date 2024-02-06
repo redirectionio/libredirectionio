@@ -1,16 +1,11 @@
-#[cfg(feature = "router")]
-use crate::router::RouterConfig;
-#[cfg(feature = "router")]
+use crate::router_config::RouterConfig;
 use http::uri::PathAndQuery;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
-#[cfg(feature = "router")]
 use std::collections::BTreeMap;
-#[cfg(feature = "router")]
 use url::form_urlencoded::parse as parse_query;
 
 const URL_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
-#[cfg(feature = "router")]
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>').add(b'+');
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash)]
@@ -37,7 +32,6 @@ impl PathAndQueryWithSkipped {
         }
     }
 
-    #[cfg(feature = "router")]
     pub fn from_config(config: &RouterConfig, path_and_query_str: &str) -> Self {
         let url = sanitize_url(path_and_query_str);
 

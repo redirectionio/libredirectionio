@@ -1,9 +1,9 @@
 use super::item::Item;
 use super::leaf::Leaf;
 use super::prefix::{common_prefix_char_size, get_prefix_with_char_size};
-use super::regex::LazyRegex;
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
+use crate::regex::LazyRegex;
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Node as GraphNode};
 use std::sync::Arc;

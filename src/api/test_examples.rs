@@ -4,7 +4,8 @@ use std::sync::Arc;
 use crate::{
     action::{Action, UnitTrace},
     http::Request,
-    router::{Router, RouterConfig},
+    router::Router,
+    router_config::RouterConfig,
 };
 
 use super::{Example, Rule};

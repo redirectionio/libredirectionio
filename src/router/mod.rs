@@ -1,4 +1,3 @@
-mod config;
 pub mod request_matcher;
 mod route;
 mod route_datetime;
@@ -11,7 +10,7 @@ mod trace;
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
 use crate::http::Request;
-pub use config::RouterConfig;
+use crate::router_config::RouterConfig;
 use core::cmp::Reverse;
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Kind, Node};
