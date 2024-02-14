@@ -882,10 +882,9 @@ fn test_action_custom_body_1() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"Content-Type"#);
+    let value = header_map.get_all(r#"Content-Type"#).iter().find(|x| x.as_str() == r#"application/json"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"application/json"#);
 
 }
 
@@ -926,10 +925,9 @@ fn test_action_custom_body_2() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"Content-Type"#);
+    let value = header_map.get_all(r#"Content-Type"#).iter().find(|x| x.as_str() == r#"text/javascript"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"text/javascript"#);
 
 }
 
@@ -1048,10 +1046,13 @@ fn test_action_filter_header_add_1() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"X-Foo"#);
+    let value = header_map.get_all(r#"X-Foo"#).iter().find(|x| x.as_str() == r#"foo1"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"foo1"#);
+
+    let value = header_map.get_all(r#"X-Foo"#).iter().find(|x| x.as_str() == r#"foo2"#);
+
+    assert!(value.is_some());
 
 }
 
@@ -1080,10 +1081,87 @@ fn test_action_filter_header_add_2() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"X-Foo"#);
+    let value = header_map.get_all(r#"X-Foo"#).iter().find(|x| x.as_str() == r#"foo2"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"foo2"#);
+
+}
+
+fn setup_action_filter_header_default() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"default","header":"X-Foo","value":"foo2"}],"id":"action-header-default","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    router
+}
+
+
+#[test]
+fn test_action_filter_header_default_1() {
+    let router = setup_action_filter_header_default();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-Foo"#.to_string(),
+        value: r#"foo1"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-Foo"#).iter().find(|x| x.as_str() == r#"foo1"#);
+
+    assert!(value.is_some());
+
+}
+
+#[test]
+fn test_action_filter_header_default_2() {
+    let router = setup_action_filter_header_default();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let response_headers = Vec::new();
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-foo"#).iter().find(|x| x.as_str() == r#"foo2"#);
+
+    assert!(value.is_some());
 
 }
 
@@ -1128,10 +1206,9 @@ fn test_action_filter_header_override_1() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"X-Foo"#);
+    let value = header_map.get_all(r#"X-Foo"#).iter().find(|x| x.as_str() == r#"foo2"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"foo2"#);
 
     let value = header_map.get(r#"X-Bar"#);
 
@@ -1159,22 +1236,168 @@ fn test_action_filter_header_override_2() {
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let response_headers = Vec::new();
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-foo"#).iter().find(|x| x.as_str() == r#"foo2"#);
+
+    assert!(value.is_some());
+
+    let value = header_map.get(r#"X-Bar"#);
+
+    assert!(value.is_none());
+
+}
+
+fn setup_action_filter_header_remove() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"remove","header":"X-Foo","value":""}],"id":"action-header-remove","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    router
+}
+
+
+#[test]
+fn test_action_filter_header_remove_1() {
+    let router = setup_action_filter_header_remove();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
     let mut response_headers = Vec::new();
 
     response_headers.push(Header {
-        name: r#"X-foo"#.to_string(),
+        name: r#"X-Foo"#.to_string(),
         value: r#"foo1"#.to_string(),
+    });
+
+    response_headers.push(Header {
+        name: r#"X-Bar"#.to_string(),
+        value: r#"bar"#.to_string(),
     });
 
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"X-foo"#);
+    let value = header_map.get_all(r#"X-Bar"#).iter().find(|x| x.as_str() == r#"bar"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"foo2"#);
 
-    let value = header_map.get(r#"X-Bar"#);
+    let value = header_map.get(r#"X-Foo"#);
+
+    assert!(value.is_none());
+
+}
+
+fn setup_action_filter_header_replace() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"replace","header":"X-Foo","value":"foo2"}],"id":"action-header-replace","rank":2,"source":{"path":"/foo"}}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    router
+}
+
+
+#[test]
+fn test_action_filter_header_replace_1() {
+    let router = setup_action_filter_header_replace();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-Foo"#.to_string(),
+        value: r#"foo1"#.to_string(),
+    });
+
+    response_headers.push(Header {
+        name: r#"X-Bar"#.to_string(),
+        value: r#"bar"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-Foo"#).iter().find(|x| x.as_str() == r#"foo2"#);
+
+    assert!(value.is_some());
+
+    let value = header_map.get_all(r#"X-Bar"#).iter().find(|x| x.as_str() == r#"bar"#);
+
+    assert!(value.is_some());
+
+}
+
+#[test]
+fn test_action_filter_header_replace_2() {
+    let router = setup_action_filter_header_replace();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-Bar"#.to_string(),
+        value: r#"bar"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-Bar"#).iter().find(|x| x.as_str() == r#"bar"#);
+
+    assert!(value.is_some());
+
+    let value = header_map.get(r#"X-Foo"#);
 
     assert!(value.is_none());
 
@@ -1223,10 +1446,9 @@ fn test_action_reset_1() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"X-Bar"#);
+    let value = header_map.get_all(r#"X-Bar"#).iter().find(|x| x.as_str() == r#"bar"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"bar"#);
 
     let value = header_map.get(r#"X-Foo"#);
 
@@ -3104,10 +3326,9 @@ fn test_action_stop_1() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"X-Foo"#);
+    let value = header_map.get_all(r#"X-Foo"#).iter().find(|x| x.as_str() == r#"foo"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"foo"#);
 
     let value = header_map.get(r#"X-Bar"#);
 
@@ -3755,10 +3976,9 @@ fn test_marker_in_header_filter_1() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 
-    let value = header_map.get(r#"X-Test"#);
+    let value = header_map.get_all(r#"X-Test"#).iter().find(|x| x.as_str() == r#"source"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"source"#);
 
 }
 

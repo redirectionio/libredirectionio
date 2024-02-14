@@ -90,10 +90,9 @@ fn test_{{ name }}_{{ loop.index }}() {
     let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
     let header_map = Header::create_header_map(filtered_headers);
 {% for header in test.should_filter_header.expected_headers %}
-    let value = header_map.get(r#"{{ header.name }}"#);
+    let value = header_map.get_all(r#"{{ header.name }}"#).iter().find(|x| x.as_str() == r#"{{ header.value }}"#);
 
     assert!(value.is_some());
-    assert_eq!(value.unwrap(), r#"{{ header.value }}"#);
 {% endfor -%}
 {% for header_name in test.should_filter_header.not_expected_headers %}
     let value = header_map.get(r#"{{ header_name }}"#);
