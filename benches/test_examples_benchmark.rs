@@ -34,6 +34,7 @@ fn test_examples_bench(c: &mut Criterion) {
                 TestExamplesOutput::from_project(
                     TestExamplesProjectInput {
                         change_set: RuleChangeSet::default(),
+                        max_hops: 5,
                     },
                     arc_router.clone(),
                 );

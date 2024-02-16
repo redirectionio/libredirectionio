@@ -87,5 +87,6 @@
             "redirect_unit_id": null,
             "examples": []
         }
-    ]
+    ],
+    "max_hops": 5
 }

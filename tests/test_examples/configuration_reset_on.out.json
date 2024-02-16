@@ -70,7 +70,8 @@
           ],
           "unit_ids_not_applied_anymore": [
             "53f9a13c-732a-4ee4-a379-3a27e95c2046"
-          ]
+          ],
+          "redirection_loop": null
         }
       ]
     }

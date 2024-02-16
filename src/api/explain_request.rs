@@ -7,6 +7,7 @@ use crate::{
 use std::sync::Arc;
 
 use super::{Example, Rule};
+use crate::api::redirection_loop::RedirectionLoop;
 use crate::api::rules_message::RuleChangeSet;
 use serde::{Deserialize, Serialize};
 
@@ -17,12 +18,14 @@ pub struct ExplainRequestInput {
     pub router_config: RouterConfig,
     pub example: Example,
     pub rules: Vec<Rule>,
+    pub max_hops: u8,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ExplainRequestProjectInput {
     pub example: Example,
     pub change_set: RuleChangeSet,
+    pub max_hops: u8,
 }
 
 // Output
@@ -34,6 +37,7 @@ pub struct ExplainRequestOutput {
     backend_status_code: u16,
     response: Response,
     match_traces: Vec<Trace<Rule>>,
+    redirection_loop: Option<RedirectionLoop>,
     should_log_request: bool,
 }
 
@@ -58,7 +62,11 @@ impl ExplainRequestOutput {
     ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
         let explain_request_router = explain_request_input.change_set.update_existing_router(existing_router);
 
-        Self::create_result(&explain_request_router, &explain_request_input.example)
+        Self::create_result(
+            &explain_request_router,
+            &explain_request_input.example,
+            explain_request_input.max_hops,
+        )
     }
 
     pub fn create_result_without_project(
@@ -70,10 +78,10 @@ impl ExplainRequestOutput {
             router.insert(rule.clone());
         }
 
-        Self::create_result(&router, &explain_request_input.example)
+        Self::create_result(&router, &explain_request_input.example, explain_request_input.max_hops)
     }
 
-    fn create_result(router: &Router<Rule>, example: &Example) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
+    fn create_result(router: &Router<Rule>, example: &Example, max_hops: u8) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
         let request = match Request::from_example(&router.config, example) {
             Ok(request) => request,
             Err(e) => {
@@ -113,6 +121,8 @@ impl ExplainRequestOutput {
 
         unit_trace.squash_with_target_unit_traces();
 
+        let redirection_loop = Some(RedirectionLoop::from_example(router, max_hops, example));
+
         Ok(ExplainRequestOutput {
             example: example.to_owned(),
             unit_trace,
@@ -123,6 +133,7 @@ impl ExplainRequestOutput {
                 body: body.to_string(),
             },
             match_traces: router.trace_request(&request),
+            redirection_loop,
             should_log_request,
         })
     }

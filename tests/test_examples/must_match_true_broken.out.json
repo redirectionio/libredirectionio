@@ -64,7 +64,8 @@
           },
           "rule_ids_applied": [],
           "unit_ids_applied": [],
-          "unit_ids_not_applied_anymore": []
+          "unit_ids_not_applied_anymore": [],
+          "redirection_loop": null
         }
       ]
     }

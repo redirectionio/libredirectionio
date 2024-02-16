@@ -75,7 +75,8 @@
           ],
           "unit_ids_not_applied_anymore": [
             "A:1"
-          ]
+          ],
+          "redirection_loop": null
         }
       ]
     }

@@ -72,7 +72,8 @@
           "unit_ids_applied": [
             "38032bcb-2580-4243-a14f-3e26477e878e"
           ],
-          "unit_ids_not_applied_anymore": []
+          "unit_ids_not_applied_anymore": [],
+          "redirection_loop": null
         }
       ]
     }

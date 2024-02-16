@@ -9,6 +9,7 @@ use crate::{
 };
 
 use super::{Example, Rule};
+use crate::api::redirection_loop::RedirectionLoop;
 use crate::api::rules_message::RuleChangeSet;
 use crate::router::Route;
 use linked_hash_set::LinkedHashSet;
@@ -20,11 +21,13 @@ use serde::{Deserialize, Serialize};
 pub struct TestExamplesInput {
     pub router_config: RouterConfig,
     pub rules: Vec<Rule>,
+    pub max_hops: u8,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct TestExamplesProjectInput {
     pub change_set: RuleChangeSet,
+    pub max_hops: u8,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -48,6 +51,7 @@ pub struct FailedExample {
     rule_ids_applied: LinkedHashSet<String>,
     unit_ids_applied: LinkedHashSet<String>,
     unit_ids_not_applied_anymore: LinkedHashSet<String>,
+    redirection_loop: Option<RedirectionLoop>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -62,13 +66,11 @@ pub struct ErroredExample {
     error: String,
 }
 
-// Implementation
-
 impl TestExamplesOutput {
     pub fn from_project(test_examples_input: TestExamplesProjectInput, existing_router: Arc<Router<Rule>>) -> TestExamplesOutput {
         let test_example_router = test_examples_input.change_set.update_existing_router(existing_router);
 
-        Self::create_result(&test_example_router)
+        Self::create_result(&test_example_router, test_examples_input.max_hops)
     }
 
     pub fn create_result_without_project(test_examples_input: TestExamplesInput) -> TestExamplesOutput {
@@ -78,10 +80,10 @@ impl TestExamplesOutput {
             router.insert(rule.clone());
         }
 
-        Self::create_result(&router)
+        Self::create_result(&router, test_examples_input.max_hops)
     }
 
-    fn create_result(router: &Router<Rule>) -> TestExamplesOutput {
+    fn create_result(router: &Router<Rule>, max_hops: u8) -> TestExamplesOutput {
         let mut results = TestExamplesOutput::default();
 
         for (id, route) in router.routes() {
@@ -92,14 +94,21 @@ impl TestExamplesOutput {
             }
 
             for example in examples.as_ref().unwrap().iter() {
-                Self::test_example(router, example, &mut results, id.as_str(), route.clone());
+                Self::test_example(router, example, &mut results, id.as_str(), route.clone(), max_hops);
             }
         }
 
         results
     }
 
-    pub fn test_example(router: &Router<Rule>, example: &Example, results: &mut TestExamplesOutput, id: &str, route: Arc<Route<Rule>>) {
+    pub fn test_example(
+        router: &Router<Rule>,
+        example: &Example,
+        results: &mut TestExamplesOutput,
+        id: &str,
+        route: Arc<Route<Rule>>,
+        max_hops: u8,
+    ) {
         if example.unit_ids_applied.is_none() {
             return;
         }
@@ -150,7 +159,7 @@ impl TestExamplesOutput {
 
         // If it should match but not unit are applied anymore
         // If it should match but the rule is not applied
-        // If it should not matche but the rule is applied
+        // If it should not match but the rule is applied
         if example.must_match && (!unit_ids_not_applied_anymore.is_empty() || !unit_trace.rule_ids_contains(id))
             || !example.must_match && unit_trace.rule_ids_contains(id)
         {
@@ -160,7 +169,21 @@ impl TestExamplesOutput {
                 unit_trace.get_rule_ids_applied(),
                 unit_trace.get_unit_ids_applied(),
                 unit_ids_not_applied_anymore,
+                None,
             );
+        } else {
+            let redirection_loop = RedirectionLoop::from_example(router, max_hops, example);
+
+            if redirection_loop.has_error() {
+                results.add_failed_example(
+                    route.handler(),
+                    example.clone(),
+                    unit_trace.get_rule_ids_applied(),
+                    unit_trace.get_unit_ids_applied(),
+                    unit_ids_not_applied_anymore,
+                    Some(redirection_loop),
+                );
+            }
         }
 
         results.increment_example_count();
@@ -173,6 +196,7 @@ impl TestExamplesOutput {
         rule_ids_applied: LinkedHashSet<String>,
         unit_ids_applied: LinkedHashSet<String>,
         unit_ids_not_applied_anymore: LinkedHashSet<String>,
+        redirection_loop: Option<RedirectionLoop>,
     ) {
         self.failure_count += 1;
         if self.first_ten_failures.len() <= 10 {
@@ -181,6 +205,7 @@ impl TestExamplesOutput {
                 rule_ids_applied,
                 unit_ids_applied,
                 unit_ids_not_applied_anymore,
+                redirection_loop,
             };
 
             let failed_rule = self

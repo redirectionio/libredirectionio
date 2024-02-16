@@ -12,6 +12,7 @@ mod impact;
 mod ip;
 mod log;
 mod marker;
+mod redirection_loop;
 #[cfg(feature = "router")]
 mod rule;
 #[cfg(feature = "router")]

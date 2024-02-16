@@ -44,5 +44,6 @@
             "redirect_unit_id": "38032bcb-2580-4243-a14f-3e26477e878e",
             "examples": []
         }
-    ]
+    ],
+    "max_hops": 5
 }

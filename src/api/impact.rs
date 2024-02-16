@@ -1,4 +1,5 @@
 use crate::action::{Action, UnitTrace};
+use crate::api::redirection_loop::RedirectionLoop;
 use crate::api::rules_message::RuleChangeSet;
 use crate::api::{Example, Rule};
 use crate::http::Header;
@@ -7,9 +8,6 @@ use crate::router::{Router, Trace};
 use crate::router_config::RouterConfig;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use url::Url;
-
-const REDIRECTION_CODES: [u16; 4] = [301, 302, 307, 308];
 
 // Input
 
@@ -56,26 +54,6 @@ pub struct Response {
     pub status_code: u16,
     pub headers: Vec<Header>,
     pub body: String,
-}
-
-#[derive(Serialize, Debug, Clone)]
-pub struct RedirectionLoop {
-    hops: Vec<RedirectionHop>,
-    error: Option<RedirectionError>,
-}
-
-#[derive(Serialize, Debug, Clone, Default)]
-pub struct RedirectionHop {
-    pub url: String,
-    pub status_code: u16,
-    pub method: String,
-}
-
-#[derive(Serialize, Debug, Clone)]
-enum RedirectionError {
-    AtLeastOneHop,
-    TooManyHops,
-    Loop,
 }
 
 // Implementation
@@ -204,7 +182,7 @@ impl ImpactOutput {
             unit_trace.squash_with_target_unit_traces();
 
             let redirection_loop = if with_redirection_loop {
-                Some(ImpactOutput::compute_redirection_loop(router, max_hops, &example))
+                Some(RedirectionLoop::from_example(router, max_hops, &example))
             } else {
                 None
             };
@@ -227,108 +205,4 @@ impl ImpactOutput {
 
         ImpactOutput { impacts }
     }
-
-    fn compute_redirection_loop(router: &Router<Rule>, max_hops: u8, example: &Example) -> RedirectionLoop {
-        let mut current_url = example.url.clone();
-        let mut current_method = example.method.clone().unwrap_or(String::from("GET"));
-        let mut error = None;
-
-        let mut hops = vec![RedirectionHop {
-            url: current_url.clone(),
-            status_code: 0,
-            method: current_method.clone(),
-        }];
-
-        'outer: for i in 1..=max_hops {
-            let new_example = example.with_url(current_url.clone()).with_method(Some(current_method.clone()));
-
-            let request = match Request::from_example(&router.config, &new_example) {
-                Ok(request) => request,
-                Err(err) => {
-                    log::warn!("cannot create request from new target: {:?} : {}", new_example, err);
-
-                    break;
-                }
-            };
-
-            let routes = router.match_request(&request);
-            let mut action = Action::from_routes_rule(routes, &request, None);
-
-            let action_status_code = action.get_status_code(0, None);
-            let (final_status_code, backend_status_code) = if action_status_code != 0 {
-                (action_status_code, action_status_code)
-            } else {
-                // We call the backend and get a response code
-                let backend_status_code = new_example.response_status_code.unwrap_or(200);
-                let final_status_code = action.get_status_code(backend_status_code, None);
-                (final_status_code, backend_status_code)
-            };
-
-            if !REDIRECTION_CODES.contains(&final_status_code) {
-                break;
-            }
-
-            let headers = action.filter_headers(Vec::new(), backend_status_code, false, None);
-
-            let mut found = false;
-            for header in headers.iter() {
-                if header.name.to_lowercase() == "location" {
-                    current_url = join_url(current_url.as_str(), header.value.as_str());
-                    found = true;
-                    break;
-                }
-            }
-
-            if !found {
-                break;
-            }
-
-            if i > 1 {
-                error = Some(RedirectionError::AtLeastOneHop);
-            }
-
-            if [301, 302].contains(&final_status_code) {
-                current_method = String::from("GET");
-            }
-
-            for hop in hops.iter() {
-                if hop.url == current_url && hop.method == current_method {
-                    hops.push(RedirectionHop {
-                        url: current_url,
-                        status_code: final_status_code,
-                        method: current_method,
-                    });
-                    error = Some(RedirectionError::Loop);
-                    break 'outer;
-                }
-            }
-
-            hops.push(RedirectionHop {
-                url: current_url.clone(),
-                status_code: final_status_code,
-                method: current_method.clone(),
-            });
-
-            if i >= max_hops {
-                error = Some(RedirectionError::TooManyHops);
-                break;
-            }
-        }
-
-        RedirectionLoop { hops, error }
-    }
-}
-
-fn join_url(base: &str, path: &str) -> String {
-    let base = match Url::parse(base) {
-        Ok(url) => url,
-        Err(_) => return path.to_string(),
-    };
-
-    let url = match base.join(path) {
-        Ok(url) => url,
-        Err(_) => return path.to_string(),
-    };
-
-    url.to_string()
 }
