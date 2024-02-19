@@ -8,9 +8,16 @@ pub struct TrustedProxies(Vec<AnyIpCidr>);
 impl TrustedProxies {
     pub fn new_local() -> Self {
         Self(vec![
+            // IPV4 Loopback
+            AnyIpCidr::from_str("127.0.0.0/8").unwrap(),
+            // IPV4 Private Networks
             AnyIpCidr::from_str("10.0.0.0/8").unwrap(),
             AnyIpCidr::from_str("172.16.0.0/12").unwrap(),
             AnyIpCidr::from_str("192.168.0.0/16").unwrap(),
+            // IPV6 Loopback
+            AnyIpCidr::from_str("::1/128").unwrap(),
+            // IPV6 Private network
+            AnyIpCidr::from_str("fd00::/8").unwrap(),
         ])
     }
 
