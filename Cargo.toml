@@ -18,7 +18,7 @@ glob = "^0.3.1"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9.31"
+serde_yaml = "0.9.32"
 tera = "1.19.1"
 
 [features]
