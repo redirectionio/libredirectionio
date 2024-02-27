@@ -1,7 +1,6 @@
 use crate::action::Action;
 use crate::http::{Addr, Header, Request, TrustedProxies};
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {
@@ -45,10 +44,7 @@ pub struct LegacyLog {
 
 impl Log {
     pub fn from_legacy(legacy: LegacyLog, proxy: String) -> Self {
-        let now = match SystemTime::now().duration_since(UNIX_EPOCH) {
-            Err(_) => 0,
-            Ok(time) => time.as_millis(),
-        };
+        let now = chrono::Utc::now().timestamp() as u128;
 
         Log {
             code: legacy.status_code,
@@ -86,10 +82,8 @@ impl Log {
         let mut referer = None;
         let mut content_type = None;
         let mut ips = Vec::new();
-        let duration = match SystemTime::now().duration_since(UNIX_EPOCH) {
-            Err(_) => None,
-            Ok(time) => time.as_millis().checked_sub(request_start_time),
-        };
+        let now = chrono::Utc::now().timestamp() as u128;
+        let duration = now.checked_sub(request_start_time);
 
         match client_ip.parse::<Addr>() {
             Ok(addr) => ips.push(addr.addr),
