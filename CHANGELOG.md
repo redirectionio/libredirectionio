@@ -1,3 +1,13 @@
+## 2.11.0 - 27-02-2024
+
+* Fix wasm integration by removing call to `SystemTime::now` which is not available in wasm
+* Fix default local network for trusted proxies
+* Add default header action
+
+## 2.10.1 - 06-02-2024
+
+* Fix building without specific features
+
 ## 2.10.0 - 06-02-2024
 
  * Updated dependencies
