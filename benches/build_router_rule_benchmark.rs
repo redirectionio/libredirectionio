@@ -4,7 +4,8 @@ extern crate criterion;
 use criterion::{BatchSize, BenchmarkId, Criterion};
 use flate2::read::GzDecoder;
 use redirectionio::api::{Rule, RulesMessage};
-use redirectionio::router::{Router, RouterConfig};
+use redirectionio::router::Router;
+use redirectionio::RouterConfig;
 use std::fs::File;
 
 fn create_rules(filename: String) -> RulesMessage {
