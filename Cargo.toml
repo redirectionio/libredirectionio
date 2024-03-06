@@ -13,7 +13,7 @@ name = "redirectionio"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-cbindgen="0.26.0"
+cbindgen = "0.26.0"
 glob = "^0.3.1"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
@@ -37,7 +37,7 @@ flate2 = { version = "1.0.28", optional = true }
 heck = "0.4.1"
 http = "0.2.11"
 lazy_static = "1.4.0"
-linked_hash_set = "0.1.4"
+linked_hash_set = { version = "0.1.4", features = ["serde"] }
 log = "0.4.21"
 percent-encoding = "2.3.1"
 rand = "0.8.5"
@@ -75,5 +75,5 @@ harness = false
 [dependencies.web-sys]
 version = "0.3"
 features = [
-  "console",
+    "console",
 ]
