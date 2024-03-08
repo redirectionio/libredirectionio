@@ -7,7 +7,8 @@ use criterion::{BenchmarkId, Criterion};
 use redirectionio::action::Action;
 use redirectionio::api::Rule;
 use redirectionio::http::{Header, Request};
-use redirectionio::router::{IntoRoute, RouterConfig};
+use redirectionio::router::IntoRoute;
+use redirectionio::RouterConfig;
 use std::io::Write;
 use std::sync::Arc;
 
