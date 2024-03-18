@@ -18,7 +18,7 @@ glob = "^0.3.1"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9.32"
+serde_yaml = "0.9.33"
 tera = "1.19.1"
 
 [features]
@@ -28,13 +28,13 @@ router = []
 dot = ["dep:dot_graph"]
 
 [dependencies]
-brotli = { version = "3.4.0", optional = true }
+brotli = { version = "3.5.0", optional = true }
 cfg-if = "1.0.0"
 chrono = { version = "0.4.35", features = ["serde"] }
 cidr = { version = "0.2.2", features = ["serde"] }
 dot_graph = { version = "0.2.3", optional = true }
 flate2 = { version = "1.0.28", optional = true }
-heck = "0.4.1"
+heck = "0.5.0"
 http = "0.2.12"
 lazy_static = "1.4.0"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
