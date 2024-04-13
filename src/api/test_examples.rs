@@ -174,7 +174,7 @@ impl TestExamplesOutput {
         } else {
             let redirection_loop = RedirectionLoop::from_example(router, max_hops, example);
 
-            if redirection_loop.has_error_too_many_hops() || redirection_loop.has_error_loop(){
+            if redirection_loop.has_error_too_many_hops() || redirection_loop.has_error_loop() {
                 results.add_failed_example(
                     route.handler(),
                     example.clone(),
