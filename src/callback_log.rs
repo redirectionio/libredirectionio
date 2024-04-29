@@ -36,11 +36,6 @@ impl log::Log for CallbackLogger {
     fn flush(&self) {}
 }
 
-static mut LOGGER: CallbackLogger = CallbackLogger {
-    callback: None,
-    data: None,
-};
-
 static INIT: Once = Once::new();
 
 #[no_mangle]
@@ -50,11 +45,13 @@ pub extern "C" fn redirectionio_log_init_stderr() {
 
 #[no_mangle]
 pub unsafe extern "C" fn redirectionio_log_init_with_callback(callback: redirectionio_log_callback, data: &'static c_void) {
-    LOGGER.callback = Some(callback);
-    LOGGER.data = Some(data);
+    let logger = CallbackLogger {
+        callback: Some(callback),
+        data: Some(data),
+    };
 
     INIT.call_once(|| {
-        log::set_logger(&LOGGER)
+        log::set_boxed_logger(Box::new(logger))
             .map(|()| log::set_max_level(log::LevelFilter::Trace))
             .expect("cannot set logger");
     });
