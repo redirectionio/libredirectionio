@@ -17,8 +17,8 @@ cbindgen = "0.26.0"
 glob = "^0.3.1"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9.33"
+serde = { version = "1.0.199", features = ["derive"] }
+serde_yaml = "0.9.34"
 tera = "1.19.1"
 
 [features]
@@ -30,10 +30,10 @@ dot = ["dep:dot_graph"]
 [dependencies]
 brotli = { version = "3.5.0", optional = true }
 cfg-if = "1.0.0"
-chrono = { version = "0.4.35", features = ["serde"] }
+chrono = { version = "0.4.38", features = ["serde"] }
 cidr = { version = "0.2.2", features = ["serde"] }
 dot_graph = { version = "0.2.3", optional = true }
-flate2 = { version = "1.0.28", optional = true }
+flate2 = { version = "1.0.29", optional = true }
 heck = "0.5.0"
 http = "0.2.12"
 lazy_static = "1.4.0"
@@ -41,17 +41,17 @@ linked_hash_set = { version = "0.1.4", features = ["serde"] }
 log = "0.4.21"
 percent-encoding = "2.3.1"
 rand = "0.8.5"
-regex = "1.10.3"
+regex = "1.10.4"
 scraper = "0.19.0"
-serde = { version = "1.0", features = ["derive", "rc"] }
-serde_json = "1.0.114"
+serde = { version = "1.0.199", features = ["derive", "rc"] }
+serde_json = "1.0.116"
 stderrlog = "0.6.0"
 tracing = "0.1.40"
 url = "2.5.0"
 
 [dev-dependencies]
 pprof = { version = "0.13", features = ["flamegraph"] }
-criterion = { version = "0.5", default-features = false }
+criterion = { version = "0.5.1", default-features = false }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = { version = "0.1.7" }
@@ -73,7 +73,7 @@ name = "test_examples_benchmark"
 harness = false
 
 [dependencies.web-sys]
-version = "0.3"
+version = "0.3.69"
 features = [
     "console",
 ]
