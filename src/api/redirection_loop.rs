@@ -28,8 +28,8 @@ enum RedirectionError {
 }
 
 impl RedirectionLoop {
-    pub fn from_example(router: &Router<Rule>, max_hops: u8, example: &Example) -> RedirectionLoop {
-        Self::compute(router, max_hops, example)
+    pub fn from_example(router: &Router<Rule>, max_hops: u8, example: &Example, project_domains: Vec<String>) -> RedirectionLoop {
+        Self::compute(router, max_hops, example, project_domains)
     }
     pub fn has_error(&self) -> bool {
         self.error.is_some()
@@ -40,7 +40,7 @@ impl RedirectionLoop {
     pub fn has_error_loop(&self) -> bool {
         self.error.is_some() && matches!(self.error, Some(RedirectionError::Loop))
     }
-    fn compute(router: &Router<Rule>, max_hops: u8, example: &Example) -> RedirectionLoop {
+    fn compute(router: &Router<Rule>, max_hops: u8, example: &Example, project_domains: Vec<String>) -> RedirectionLoop {
         let mut current_url = example.url.clone();
         let mut current_method = example.method.clone().unwrap_or(String::from("GET"));
         let mut error = None;
@@ -96,6 +96,17 @@ impl RedirectionLoop {
             }
 
             if i > 1 {
+                let url = match Url::parse(&current_url) {
+                    Ok(url) => url,
+                    Err(_) => break,
+                };
+
+                if !project_domains.is_empty() && !project_domains.contains(&url.host_str().unwrap().to_string()) {
+                    // The current url target a domain that is not registered in the project.
+                    // So we consider there is no redirection loop here.
+                    break;
+                }
+
                 error = Some(RedirectionError::AtLeastOneHop);
             }
 

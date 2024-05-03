@@ -19,6 +19,7 @@ pub struct ExplainRequestInput {
     pub example: Example,
     pub rules: Vec<Rule>,
     pub max_hops: u8,
+    pub project_domains: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -26,6 +27,7 @@ pub struct ExplainRequestProjectInput {
     pub example: Example,
     pub change_set: RuleChangeSet,
     pub max_hops: u8,
+    pub project_domains: Vec<String>,
 }
 
 // Output
@@ -66,6 +68,7 @@ impl ExplainRequestOutput {
             &explain_request_router,
             &explain_request_input.example,
             explain_request_input.max_hops,
+            explain_request_input.project_domains,
         )
     }
 
@@ -78,10 +81,20 @@ impl ExplainRequestOutput {
             router.insert(rule.clone());
         }
 
-        Self::create_result(&router, &explain_request_input.example, explain_request_input.max_hops)
+        Self::create_result(
+            &router,
+            &explain_request_input.example,
+            explain_request_input.max_hops,
+            explain_request_input.project_domains,
+        )
     }
 
-    fn create_result(router: &Router<Rule>, example: &Example, max_hops: u8) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
+    fn create_result(
+        router: &Router<Rule>,
+        example: &Example,
+        max_hops: u8,
+        project_domains: Vec<String>,
+    ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
         let request = match Request::from_example(&router.config, example) {
             Ok(request) => request,
             Err(e) => {
@@ -121,7 +134,7 @@ impl ExplainRequestOutput {
 
         unit_trace.squash_with_target_unit_traces();
 
-        let redirection_loop = Some(RedirectionLoop::from_example(router, max_hops, example));
+        let redirection_loop = Some(RedirectionLoop::from_example(router, max_hops, example, project_domains));
 
         Ok(ExplainRequestOutput {
             example: example.to_owned(),
