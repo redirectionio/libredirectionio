@@ -19,6 +19,7 @@ pub struct ExplainRequestInput {
     pub example: Example,
     pub rules: Vec<Rule>,
     pub max_hops: u8,
+    #[serde(default)]
     pub project_domains: Vec<String>,
 }
 
@@ -27,6 +28,7 @@ pub struct ExplainRequestProjectInput {
     pub example: Example,
     pub change_set: RuleChangeSet,
     pub max_hops: u8,
+    #[serde(default)]
     pub project_domains: Vec<String>,
 }
 

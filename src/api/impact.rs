@@ -16,6 +16,7 @@ pub struct ImpactInput {
     pub router_config: RouterConfig,
     pub max_hops: u8,
     pub with_redirection_loop: bool,
+    #[serde(default)]
     pub domains: Vec<String>,
     pub rule: Rule,
     pub action: String,
@@ -26,6 +27,7 @@ pub struct ImpactInput {
 pub struct ImpactProjectInput {
     pub max_hops: u8,
     pub with_redirection_loop: bool,
+    #[serde(default)]
     pub domains: Vec<String>,
     pub rule: Rule,
     pub action: String,

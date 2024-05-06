@@ -22,6 +22,7 @@ pub struct TestExamplesInput {
     pub router_config: RouterConfig,
     pub rules: Vec<Rule>,
     pub max_hops: u8,
+    #[serde(default)]
     pub project_domains: Vec<String>,
 }
 
@@ -29,6 +30,7 @@ pub struct TestExamplesInput {
 pub struct TestExamplesProjectInput {
     pub change_set: RuleChangeSet,
     pub max_hops: u8,
+    #[serde(default)]
     pub project_domains: Vec<String>,
 }
 
