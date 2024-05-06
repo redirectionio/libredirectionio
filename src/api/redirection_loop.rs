@@ -96,16 +96,16 @@ impl RedirectionLoop {
             }
 
             if i > 1 {
-                let url = match Url::parse(&current_url) {
-                    Ok(url) => url,
-                    Err(_) => break,
+                match Url::parse(&current_url) {
+                    Ok(url) => {
+                        if !project_domains.is_empty() && !project_domains.contains(&url.host_str().unwrap().to_string()) {
+                            // The current url target a domain that is not registered in the project.
+                            // So we consider there is no redirection loop here.
+                            break;
+                        }
+                    },
+                    Err(_) => {}
                 };
-
-                if !project_domains.is_empty() && !project_domains.contains(&url.host_str().unwrap().to_string()) {
-                    // The current url target a domain that is not registered in the project.
-                    // So we consider there is no redirection loop here.
-                    break;
-                }
 
                 error = Some(RedirectionError::AtLeastOneHop);
             }
