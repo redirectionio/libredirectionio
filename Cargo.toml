@@ -17,7 +17,7 @@ cbindgen = "0.26.0"
 glob = "^0.3.1"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
-serde = { version = "1.0.199", features = ["derive"] }
+serde = { version = "1.0.200", features = ["derive"] }
 serde_yaml = "0.9.34"
 tera = "1.19.1"
 
@@ -33,7 +33,7 @@ cfg-if = "1.0.0"
 chrono = { version = "0.4.38", features = ["serde"] }
 cidr = { version = "0.2.2", features = ["serde"] }
 dot_graph = { version = "0.2.3", optional = true }
-flate2 = { version = "1.0.29", optional = true }
+flate2 = { version = "1.0.30", optional = true }
 heck = "0.5.0"
 http = "0.2.12"
 lazy_static = "1.4.0"
@@ -43,7 +43,7 @@ percent-encoding = "2.3.1"
 rand = "0.8.5"
 regex = "1.10.4"
 scraper = "0.19.0"
-serde = { version = "1.0.199", features = ["derive", "rc"] }
+serde = { version = "1.0.200", features = ["derive", "rc"] }
 serde_json = "1.0.116"
 stderrlog = "0.6.0"
 tracing = "0.1.40"
