@@ -123,6 +123,7 @@ impl ImpactOutput {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn compute_impacts(
         router: &mut Router<Rule>,
         trace_unique_router: &mut Router<Rule>,
