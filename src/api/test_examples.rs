@@ -72,7 +72,11 @@ impl TestExamplesOutput {
     pub fn from_project(test_examples_input: TestExamplesProjectInput, existing_router: Arc<Router<Rule>>) -> TestExamplesOutput {
         let test_example_router = test_examples_input.change_set.update_existing_router(existing_router);
 
-        Self::create_result(&test_example_router, test_examples_input.max_hops, test_examples_input.project_domains)
+        Self::create_result(
+            &test_example_router,
+            test_examples_input.max_hops,
+            test_examples_input.project_domains,
+        )
     }
 
     pub fn create_result_without_project(test_examples_input: TestExamplesInput) -> TestExamplesOutput {
