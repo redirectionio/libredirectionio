@@ -10,6 +10,7 @@ pub struct LazyRegex {
 }
 
 impl LazyRegex {
+    #[cfg(feature = "router")]
     pub fn new_node(regex: String, ignore_case: bool) -> LazyRegex {
         LazyRegex {
             regex: if regex.is_empty() {
@@ -32,6 +33,7 @@ impl LazyRegex {
         }
     }
 
+    #[cfg(feature = "router")]
     pub fn is_match(&self, value: &str) -> bool {
         match &self.compiled {
             Some(regex) => regex.is_match(value),

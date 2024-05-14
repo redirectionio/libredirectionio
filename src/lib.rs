@@ -3,11 +3,6 @@ This crate provides a library for matching, handling and logging http requests w
 rule format.
 */
 
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate log;
-
 pub mod action;
 pub mod api;
 pub mod filter;
@@ -27,5 +22,7 @@ mod dot;
 mod ffi_helpers;
 mod regex;
 mod router_config;
+#[cfg(target_arch = "wasm32")]
+mod wasm_api;
 
 pub use router_config::RouterConfig;

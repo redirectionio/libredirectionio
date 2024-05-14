@@ -69,7 +69,7 @@ impl Rule {
         let rule_result = json_decode(rule_str);
 
         if rule_result.is_err() {
-            error!("Unable to create rule from string {}: {}", rule_str, rule_result.err().unwrap());
+            log::error!("Unable to create rule from string {}: {}", rule_str, rule_result.err().unwrap());
 
             return None;
         }

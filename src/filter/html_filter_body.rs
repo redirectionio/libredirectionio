@@ -2,6 +2,7 @@ use crate::action::UnitTrace;
 use crate::filter::error::Result;
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::html;
+use lazy_static::lazy_static;
 use std::collections::HashSet;
 
 #[derive(Debug)]

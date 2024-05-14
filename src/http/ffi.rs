@@ -65,7 +65,7 @@ pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char
 
     let request = match json_decode(request_str) {
         Err(err) => {
-            error!("cannot deserialize request {} for string {}", err, request_str);
+            log::error!("cannot deserialize request {} for string {}", err, request_str);
 
             return null();
         }
@@ -199,7 +199,7 @@ pub unsafe extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> 
 
     match url.parse::<Request>() {
         Err(err) => {
-            error!("cannot create request for url {}: {}", url, err);
+            log::error!("cannot create request for url {}: {}", url, err);
 
             null()
         }
