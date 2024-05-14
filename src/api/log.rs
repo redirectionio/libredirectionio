@@ -82,7 +82,7 @@ impl Log {
         let mut referer = None;
         let mut content_type = None;
         let mut ips = Vec::new();
-        let now = chrono::Utc::now().timestamp() as u128;
+        let now = chrono::Utc::now().timestamp_millis() as u128;
         let duration = now.checked_sub(request_start_time);
 
         match client_ip.parse::<Addr>() {
