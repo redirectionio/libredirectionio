@@ -22,12 +22,16 @@ pub struct TestExamplesInput {
     pub router_config: RouterConfig,
     pub rules: Vec<Rule>,
     pub max_hops: u8,
+    #[serde(default)]
+    pub project_domains: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct TestExamplesProjectInput {
     pub change_set: RuleChangeSet,
     pub max_hops: u8,
+    #[serde(default)]
+    pub project_domains: Vec<String>,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -70,7 +74,11 @@ impl TestExamplesOutput {
     pub fn from_project(test_examples_input: TestExamplesProjectInput, existing_router: Arc<Router<Rule>>) -> TestExamplesOutput {
         let test_example_router = test_examples_input.change_set.update_existing_router(existing_router);
 
-        Self::create_result(&test_example_router, test_examples_input.max_hops)
+        Self::create_result(
+            &test_example_router,
+            test_examples_input.max_hops,
+            test_examples_input.project_domains,
+        )
     }
 
     pub fn create_result_without_project(test_examples_input: TestExamplesInput) -> TestExamplesOutput {
@@ -80,10 +88,10 @@ impl TestExamplesOutput {
             router.insert(rule.clone());
         }
 
-        Self::create_result(&router, test_examples_input.max_hops)
+        Self::create_result(&router, test_examples_input.max_hops, test_examples_input.project_domains)
     }
 
-    fn create_result(router: &Router<Rule>, max_hops: u8) -> TestExamplesOutput {
+    fn create_result(router: &Router<Rule>, max_hops: u8, project_domains: Vec<String>) -> TestExamplesOutput {
         let mut results = TestExamplesOutput::default();
 
         for (id, route) in router.routes() {
@@ -94,7 +102,15 @@ impl TestExamplesOutput {
             }
 
             for example in examples.as_ref().unwrap().iter() {
-                Self::test_example(router, example, &mut results, id.as_str(), route.clone(), max_hops);
+                Self::test_example(
+                    router,
+                    example,
+                    &mut results,
+                    id.as_str(),
+                    route.clone(),
+                    max_hops,
+                    project_domains.clone(),
+                );
             }
         }
 
@@ -108,6 +124,7 @@ impl TestExamplesOutput {
         id: &str,
         route: Arc<Route<Rule>>,
         max_hops: u8,
+        project_domains: Vec<String>,
     ) {
         if example.unit_ids_applied.is_none() {
             return;
@@ -172,7 +189,7 @@ impl TestExamplesOutput {
                 None,
             );
         } else {
-            let redirection_loop = RedirectionLoop::from_example(router, max_hops, example);
+            let redirection_loop = RedirectionLoop::from_example(router, max_hops, example, project_domains);
 
             if redirection_loop.has_error_too_many_hops() || redirection_loop.has_error_loop() {
                 results.add_failed_example(

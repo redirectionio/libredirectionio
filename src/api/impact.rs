@@ -16,6 +16,8 @@ pub struct ImpactInput {
     pub router_config: RouterConfig,
     pub max_hops: u8,
     pub with_redirection_loop: bool,
+    #[serde(default)]
+    pub domains: Vec<String>,
     pub rule: Rule,
     pub action: String,
     pub rules: Vec<Rule>,
@@ -25,6 +27,8 @@ pub struct ImpactInput {
 pub struct ImpactProjectInput {
     pub max_hops: u8,
     pub with_redirection_loop: bool,
+    #[serde(default)]
+    pub domains: Vec<String>,
     pub rule: Rule,
     pub action: String,
     pub change_set: RuleChangeSet,
@@ -88,6 +92,7 @@ impl ImpactOutput {
             impact_input.max_hops,
             impact_input.action.as_str(),
             impact_input.rule,
+            impact_input.domains,
         )
     }
 
@@ -114,9 +119,11 @@ impl ImpactOutput {
             impact_input.max_hops,
             impact_input.action.as_str(),
             impact_input.rule,
+            impact_input.domains,
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn compute_impacts(
         router: &mut Router<Rule>,
         trace_unique_router: &mut Router<Rule>,
@@ -125,6 +132,7 @@ impl ImpactOutput {
         max_hops: u8,
         action: &str,
         rule: Rule,
+        project_domains: Vec<String>,
     ) -> ImpactOutput {
         if action == "add" || action == "update" {
             router.insert(rule.clone());
@@ -182,7 +190,7 @@ impl ImpactOutput {
             unit_trace.squash_with_target_unit_traces();
 
             let redirection_loop = if with_redirection_loop {
-                Some(RedirectionLoop::from_example(router, max_hops, &example))
+                Some(RedirectionLoop::from_example(router, max_hops, &example, project_domains.clone()))
             } else {
                 None
             };
