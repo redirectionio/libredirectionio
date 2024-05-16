@@ -1,0 +1,24 @@
+{
+    "name": "@redirection.io/redirectionio",
+    "collaborators": [
+        "Joel Wurtz <jwurtz@redirection.io>"
+    ],
+    "description": "Redirection IO Library to handle matching rule, redirect and filtering headers and body.",
+    "version": "2.11.8",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/redirectionio/libredirectionio"
+    },
+    "files": [
+        "wasm/redirectionio.d.ts",
+        "wasm/redirectionio.js",
+        "wasm/redirectionio_bg.js",
+        "wasm/redirectionio_bg.wasm",
+        "wasm/redirectionio_bg.wasm.d.ts",
+        "redirectionio.js",
+        "redirectionio.d.ts"
+    ],
+    "module": "redirectionio.js",
+    "types": "redirectionio.d.ts"
+}

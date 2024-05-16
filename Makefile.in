@@ -36,6 +36,9 @@ install: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a redirectionio
 	mkdir -p $(DESTDIR)@libdir@/pkgconfig/
 	install -c -m 644 libredirectionio.pc $(DESTDIR)@libdir@/pkgconfig/
 
+build-wasm:
+	wasm-pack build --scope redirection.io --no-default-features --out-dir pkg/wasm --no-pack --release
+
 .PHONY:	clean
 clean:
 	rm -f redirectionio.h
