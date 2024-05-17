@@ -1,6 +1,7 @@
 ## 2.11.1 - 17-05-2024
 
 * Fix request time in proxy log to work with millisecond precision
+* Export this library as a javascript module with webassembly
 
 ## 2.11.0 - 27-02-2024
 
