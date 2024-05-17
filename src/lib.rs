@@ -22,6 +22,7 @@ mod dot;
 mod ffi_helpers;
 mod regex;
 mod router_config;
+#[cfg(feature = "wasmbind")]
 #[cfg(target_arch = "wasm32")]
 mod wasm_api;
 

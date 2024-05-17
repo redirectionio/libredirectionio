@@ -1,3 +1,7 @@
+## 2.11.2 - 17-05-2024
+
+* Add wasmbindgen feature to not expose the library as a javascript module when used as a dependency by default
+
 ## 2.11.1 - 17-05-2024
 
 * Fix request time in proxy log to work with millisecond precision

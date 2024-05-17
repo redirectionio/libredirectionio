@@ -26,6 +26,7 @@ default = ["compress", "router"]
 compress = ["dep:brotli", "dep:flate2"]
 router = []
 dot = ["dep:dot_graph"]
+wasmbind = []
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 chrono = { version = "0.4.19", features = ["serde", "wasmbind"] }
