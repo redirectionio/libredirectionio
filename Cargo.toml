@@ -17,7 +17,7 @@ cbindgen = "0.26.0"
 glob = "^0.3.1"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
-serde = { version = "1.0.201", features = ["derive"] }
+serde = { version = "1.0.202", features = ["derive"] }
 serde_yaml = "0.9.34"
 tera = "1.19.1"
 
@@ -29,13 +29,13 @@ dot = ["dep:dot_graph"]
 wasmbind = []
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-chrono = { version = "0.4.19", features = ["serde", "wasmbind"] }
-futures-util = { version = "0.3.21", default-features = false }
-getrandom = { version = "0.2.8", features = ["js"] }
+chrono = { version = "0.4.38", features = ["serde", "wasmbind"] }
+futures-util = { version = "0.3.30", default-features = false }
+getrandom = { version = "0.2.15", features = ["js"] }
 log = "0.4.21"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.70"
-wasm-bindgen = "0.2.84"
+serde = { version = "1.0.202", features = ["derive"] }
+serde_json = "1.0.117"
+wasm-bindgen = "0.2.92"
 wasm-logger = "0.2.0"
 
 [dependencies]
@@ -54,7 +54,7 @@ percent-encoding = "2.3.1"
 rand = "0.8.5"
 regex = "1.10.4"
 scraper = "0.19.0"
-serde = { version = "1.0.201", features = ["derive", "rc"] }
+serde = { version = "1.0.202", features = ["derive", "rc"] }
 serde_json = "1.0.117"
 stderrlog = "0.6.0"
 tracing = "0.1.40"
