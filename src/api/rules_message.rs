@@ -10,7 +10,7 @@ pub struct RulesMessage {
     pub rules: Vec<Rule>,
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct RuleChangeSet {
     pub added: Vec<Rule>,
     pub updated: Vec<Rule>,
