@@ -19,7 +19,7 @@ libtool = "0.1.1"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 serde = { version = "1.0.203", features = ["derive"] }
 serde_yaml = "0.9.34"
-tera = "1.19.1"
+tera = "1.20.0"
 
 [features]
 default = ["compress", "router"]
