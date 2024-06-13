@@ -64,10 +64,14 @@ impl ExplainRequestOutput {
         explain_request_input: ExplainRequestProjectInput,
         existing_router: Arc<Router<Rule>>,
     ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
-        let explain_request_router = explain_request_input.change_set.update_existing_router(existing_router);
+        let explain_request_router = if explain_request_input.change_set.is_empty() {
+            existing_router
+        } else {
+            Arc::new(explain_request_input.change_set.update_existing_router(existing_router))
+        };
 
         Self::create_result(
-            &explain_request_router,
+            explain_request_router,
             &explain_request_input.example,
             explain_request_input.max_hops,
             explain_request_input.project_domains,
@@ -84,7 +88,7 @@ impl ExplainRequestOutput {
         }
 
         Self::create_result(
-            &router,
+            Arc::new(router),
             &explain_request_input.example,
             explain_request_input.max_hops,
             explain_request_input.project_domains,
@@ -92,7 +96,7 @@ impl ExplainRequestOutput {
     }
 
     fn create_result(
-        router: &Router<Rule>,
+        router: Arc<Router<Rule>>,
         example: &Example,
         max_hops: u8,
         project_domains: Vec<String>,
@@ -136,7 +140,7 @@ impl ExplainRequestOutput {
 
         unit_trace.squash_with_target_unit_traces();
 
-        let redirection_loop = Some(RedirectionLoop::from_example(router, max_hops, example, project_domains));
+        let redirection_loop = Some(RedirectionLoop::from_example(router.as_ref(), max_hops, example, project_domains));
 
         Ok(ExplainRequestOutput {
             example: example.to_owned(),

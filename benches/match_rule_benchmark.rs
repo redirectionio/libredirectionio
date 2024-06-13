@@ -67,7 +67,7 @@ fn no_match_cache_bench(c: &mut Criterion) {
         let mut router = create_router(filename.clone(), &config);
         let request = Request::from_config(&config, "/no-match".to_string(), None, None, None, None, None);
 
-        router.cache(1000);
+        router.cache(None);
 
         group.bench_with_input(BenchmarkId::from_parameter(filename.clone()), &filename, |b, _f| {
             b.iter(|| {
@@ -92,7 +92,7 @@ fn match_rule_in_200k(c: &mut Criterion) {
         None,
     );
 
-    router.cache(10000);
+    router.cache(None);
 
     let mut group = c.benchmark_group("match_rule_in_200k");
     group.sample_size(10);
@@ -119,7 +119,7 @@ fn build_action_rule_in_200k(c: &mut Criterion) {
         None,
     );
 
-    router.cache(1000);
+    router.cache(None);
 
     let mut group = c.benchmark_group("build_action_rule_in_200k");
     group.sample_size(10);
@@ -171,7 +171,7 @@ fn impact(c: &mut Criterion) {
         None,
     );
 
-    router.cache(1000);
+    router.cache(None);
 
     let mut unit_trace = UnitTrace::default();
 

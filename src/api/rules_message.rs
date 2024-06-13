@@ -25,4 +25,8 @@ impl RuleChangeSet {
 
         new_router
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.added.is_empty() && self.updated.is_empty() && self.deleted.is_empty()
+    }
 }

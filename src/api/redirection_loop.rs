@@ -34,12 +34,15 @@ impl RedirectionLoop {
     pub fn has_error(&self) -> bool {
         self.error.is_some()
     }
+
     pub fn has_error_too_many_hops(&self) -> bool {
         self.error.is_some() && matches!(self.error, Some(RedirectionError::TooManyHops))
     }
+
     pub fn has_error_loop(&self) -> bool {
         self.error.is_some() && matches!(self.error, Some(RedirectionError::Loop))
     }
+
     fn compute(router: &Router<Rule>, max_hops: u8, example: &Example, project_domains: Vec<String>) -> RedirectionLoop {
         let mut current_url = example.url.clone();
         let mut current_method = example.method.clone().unwrap_or(String::from("GET"));

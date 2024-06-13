@@ -72,7 +72,11 @@ pub struct ErroredExample {
 
 impl TestExamplesOutput {
     pub fn from_project(test_examples_input: TestExamplesProjectInput, existing_router: Arc<Router<Rule>>) -> TestExamplesOutput {
-        let test_example_router = test_examples_input.change_set.update_existing_router(existing_router);
+        let test_example_router = if test_examples_input.change_set.is_empty() {
+            existing_router
+        } else {
+            Arc::new(test_examples_input.change_set.update_existing_router(existing_router))
+        };
 
         Self::create_result(
             &test_example_router,
@@ -93,6 +97,7 @@ impl TestExamplesOutput {
 
     fn create_result(router: &Router<Rule>, max_hops: u8, project_domains: Vec<String>) -> TestExamplesOutput {
         let mut results = TestExamplesOutput::default();
+        let mut max = 10;
 
         for (id, route) in router.routes() {
             let examples = &route.handler().examples;
@@ -100,6 +105,12 @@ impl TestExamplesOutput {
             if examples.is_none() {
                 continue;
             }
+
+            if max == 0 {
+                break;
+            }
+
+            max -= 1;
 
             for example in examples.as_ref().unwrap().iter() {
                 Self::test_example(

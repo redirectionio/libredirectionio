@@ -52,7 +52,7 @@ impl UnitIdsOutput {
             router.insert(rule.clone());
         }
 
-        router.cache(10000);
+        router.cache(None);
 
         Self::create_result(&router)
     }

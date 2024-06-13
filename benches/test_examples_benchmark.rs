@@ -25,7 +25,7 @@ fn test_examples_bench(c: &mut Criterion) {
             router.insert(rule)
         }
 
-        router.cache(10_000);
+        router.cache(None);
 
         let arc_router = std::sync::Arc::new(router);
 
@@ -35,6 +35,7 @@ fn test_examples_bench(c: &mut Criterion) {
                     TestExamplesProjectInput {
                         change_set: RuleChangeSet::default(),
                         max_hops: 5,
+                        project_domains: vec![],
                     },
                     arc_router.clone(),
                 );

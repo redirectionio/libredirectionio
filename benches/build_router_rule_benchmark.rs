@@ -17,6 +17,7 @@ fn create_rules(filename: String) -> RulesMessage {
 
 fn build_router_bench(c: &mut Criterion) {
     let files = vec![
+        "../bench-files/heavy-memory-rules.json.gz".to_string(),
         "../bench-files/large-rules-1k.json.gz".to_string(),
         "../bench-files/large-rules-10k.json.gz".to_string(),
         "../bench-files/large-rules-50k.json.gz".to_string(),
@@ -41,7 +42,7 @@ fn build_router_bench(c: &mut Criterion) {
                         router.insert(rule);
                     }
 
-                    router.cache(10_000);
+                    router.cache(None);
 
                     assert_eq!(router.len(), rules_len);
                 },
