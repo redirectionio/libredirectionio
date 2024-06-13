@@ -21,7 +21,7 @@ pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use route_ip::RouteIp;
 pub use route_time::RouteTime;
 pub use route_weekday::RouteWeekday;
-use std::cmp::max;
+use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 pub use trace::{RouteTrace, Trace};
@@ -140,7 +140,7 @@ impl<T> Router<T> {
     pub fn cache(&mut self, limit: Option<u64>) {
         let mut prev_cache_limit = match limit {
             Some(limit) => limit as i64,
-            None => max(self.routes.len() / 10, 100) as i64,
+            None => min(max(self.routes.len() / 10, 100), 10_000) as i64,
         };
 
         let mut level = 0;
