@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::hash::Hash;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouterConfig {
@@ -17,6 +18,23 @@ pub struct RouterConfig {
     pub pass_marketing_query_params_to_target: bool,
     #[serde(default = "default_as_false")]
     pub always_match_any_host: bool,
+}
+
+impl Hash for RouterConfig {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.ignore_host_case.hash(state);
+        self.ignore_header_case.hash(state);
+        self.ignore_path_and_query_case.hash(state);
+        self.ignore_marketing_query_params.hash(state);
+        self.pass_marketing_query_params_to_target.hash(state);
+        self.always_match_any_host.hash(state);
+
+        // order hash set to make sure it's always the same
+        let mut marketing_query_params: Vec<String> = self.marketing_query_params.iter().cloned().collect();
+        marketing_query_params.sort();
+
+        marketing_query_params.hash(state);
+    }
 }
 
 fn default_as_false() -> bool {
