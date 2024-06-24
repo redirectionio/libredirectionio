@@ -47,7 +47,7 @@ dot_graph = { version = "0.2.3", optional = true }
 flate2 = { version = "1.0.30", optional = true }
 heck = "0.5.0"
 http = "0.2.12"
-lazy_static = "1.4.0"
+lazy_static = "1.5.0"
 linked_hash_set = { version = "0.1.4", features = ["serde"] }
 log = "0.4.21"
 percent-encoding = "2.3.1"
@@ -58,7 +58,7 @@ serde = { version = "1.0.203", features = ["derive", "rc"] }
 serde_json = "1.0.117"
 stderrlog = "0.6.0"
 tracing = "0.1.40"
-url = "2.5.1"
+url = "2.5.2"
 
 [dev-dependencies]
 pprof = { version = "0.13", features = ["flamegraph"] }
