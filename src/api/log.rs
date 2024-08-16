@@ -87,9 +87,7 @@ impl Log {
 
         match client_ip.parse::<Addr>() {
             Ok(addr) => ips.push(addr.addr),
-            Err(()) => {
-                log::warn!("cannot parse ip address {}, skipping", client_ip);
-            }
+            Err(()) => {}
         }
 
         for header in &request.headers {
