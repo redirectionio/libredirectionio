@@ -85,9 +85,8 @@ impl Log {
         let now = chrono::Utc::now().timestamp_millis() as u128;
         let duration = now.checked_sub(request_start_time);
 
-        match client_ip.parse::<Addr>() {
-            Ok(addr) => ips.push(addr.addr),
-            Err(()) => {}
+        if let Ok(addr) = client_ip.parse::<Addr>() {
+            ips.push(addr.addr);
         }
 
         for header in &request.headers {
