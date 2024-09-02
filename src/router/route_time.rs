@@ -1,5 +1,6 @@
 use chrono::{DateTime, NaiveTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RouteTime {
@@ -51,9 +52,9 @@ impl RouteTime {
     }
 }
 
-impl ToString for RouteTime {
-    fn to_string(&self) -> String {
-        match self.start {
+impl Display for RouteTime {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self.start {
             None => match self.end {
                 None => "always".to_string(),
                 Some(end) => format!("before({})", end.format("%H:%M:%S")),
@@ -62,6 +63,7 @@ impl ToString for RouteTime {
                 None => format!("after({})", start.format("%H:%M:%S")),
                 Some(end) => format!("in({}, {})", start.format("%H:%M:%S"), end.format("%H:%M:%S")),
             },
-        }
+        };
+        write!(f, "{}", str)
     }
 }

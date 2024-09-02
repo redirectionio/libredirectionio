@@ -1,5 +1,6 @@
 use cidr::AnyIpCidr;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
 use std::net::IpAddr;
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
@@ -17,11 +18,12 @@ impl RouteIp {
     }
 }
 
-impl ToString for RouteIp {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for RouteIp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
             Self::InRange(in_range) => format!("in({in_range})"),
             Self::NotInRange(not_in_range) => format!("not_in({not_in_range})"),
-        }
+        };
+        write!(f, "{}", str)
     }
 }

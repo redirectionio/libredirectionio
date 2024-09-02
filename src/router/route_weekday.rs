@@ -60,8 +60,8 @@ impl RouteWeekday {
     }
 }
 
-impl ToString for RouteWeekday {
-    fn to_string(&self) -> String {
-        format!("in({})", self.weekdays)
+impl Display for RouteWeekday {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "in({})", self.weekdays)
     }
 }

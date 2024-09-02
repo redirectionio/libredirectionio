@@ -3,6 +3,7 @@ mod error;
 use crate::html::TokenType::{CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken, TextToken};
 pub use error::HtmlParseError;
 use error::Result;
+use std::fmt::Display;
 use std::string::ToString;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -87,9 +88,9 @@ impl Token {
     }
 }
 
-impl ToString for Token {
-    fn to_string(&self) -> String {
-        match self.token_type {
+impl Display for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self.token_type {
             ErrorToken => "".to_string(),
             TextToken => self.data.as_ref().unwrap().clone(),
             StartTagToken => ["<", self.tag_string().as_str(), ">"].join(""),
@@ -98,7 +99,8 @@ impl ToString for Token {
             CommentToken => ["<!--", self.data.as_ref().unwrap().as_str(), "-->"].join(""),
             DoctypeToken => ["<!DOCTYPE ", self.data.as_ref().unwrap().as_str(), ">"].join(""),
             _ => "invalid".to_string(),
-        }
+        };
+        write!(f, "{}", str)
     }
 }
 
@@ -128,7 +130,7 @@ impl Tokenizer {
 
             match context_tag.as_str() {
                 "iframe" | "noembed" | "noframes" | "noscript" | "plaintext" | "script" | "style" | "title" | "textarea" | "xmp" => {
-                    tokenizer.raw_tag = context_tag.clone();
+                    tokenizer.raw_tag.clone_from(&context_tag);
                 }
                 _ => {}
             }
