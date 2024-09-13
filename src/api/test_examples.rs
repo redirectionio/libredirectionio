@@ -97,7 +97,6 @@ impl TestExamplesOutput {
 
     fn create_result(router: &Router<Rule>, max_hops: u8, project_domains: Vec<String>) -> TestExamplesOutput {
         let mut results = TestExamplesOutput::default();
-        let mut max = 10;
 
         for (id, route) in router.routes() {
             let examples = &route.handler().examples;
@@ -105,12 +104,6 @@ impl TestExamplesOutput {
             if examples.is_none() {
                 continue;
             }
-
-            if max == 0 {
-                break;
-            }
-
-            max -= 1;
 
             for example in examples.as_ref().unwrap().iter() {
                 Self::test_example(
