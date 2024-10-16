@@ -165,7 +165,7 @@ impl FilterBodyActionItem {
                     HtmlBodyVisitor::new(html_body_filter).map(|visitor| Self::Html(HtmlFilterBodyAction::new(visitor)))
                 }
                 _ => {
-                    log::error!(
+                    log::warn!(
                         "html filtering is only supported for text/html content type, {} received",
                         content_type.unwrap_or_default()
                     );

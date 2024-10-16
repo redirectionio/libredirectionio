@@ -200,7 +200,7 @@ impl BodyFilter {
 
 #[wasm_bindgen()]
 pub fn init_log() {
-    wasm_logger::init(wasm_logger::Config::default());
+    wasm_logger::init(wasm_logger::Config::new(log::Level::Error));
 }
 
 #[wasm_bindgen()]
