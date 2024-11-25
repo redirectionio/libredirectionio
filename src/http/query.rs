@@ -1,6 +1,5 @@
-use std::collections::BTreeMap;
-
 use http::uri::PathAndQuery;
+use linked_hash_map::LinkedHashMap;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
 use url::form_urlencoded::parse as parse_query;
@@ -77,9 +76,15 @@ impl PathAndQueryWithSkipped {
             if config.ignore_all_query_parameters {
                 skipped_query_params = query.to_string();
             } else {
-                let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes()).into_owned().collect();
+                let hash_query: LinkedHashMap<String, String> = parse_query(query.as_bytes()).into_owned().collect();
+                let mut keys = hash_query.keys().cloned().collect::<Vec<String>>();
 
-                for (key, value) in &hash_query {
+                if config.ignore_query_param_order {
+                    keys.sort();
+                }
+
+                for key in &keys {
+                    let value = hash_query.get(key).unwrap();
                     let mut query_param = "".to_string();
 
                     query_param.push_str(&utf8_percent_encode(key, QUERY_ENCODE_SET).to_string());

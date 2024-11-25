@@ -41,10 +41,16 @@ struct RouterConfig {
     pub pass_marketing_query_params_to_target: bool,
     #[serde(default = "default_as_false")]
     pub always_match_any_host: bool,
+    #[serde(default = "default_as_true")]
+    pub ignore_query_param_order: bool,
 }
 
 fn default_as_false() -> bool {
     false
+}
+
+fn default_as_true() -> bool {
+    true
 }
 
 fn default_marketing_parameters() -> LinkedHashSet<String> {
@@ -78,6 +84,7 @@ impl Default for RouterConfig {
             marketing_query_params: parameters,
             pass_marketing_query_params_to_target: true,
             always_match_any_host: false,
+            ignore_query_param_order: true,
         }
     }
 }

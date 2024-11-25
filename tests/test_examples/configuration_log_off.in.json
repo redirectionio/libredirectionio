@@ -12,7 +12,8 @@
             "utm_term"
         ],
         "pass_marketing_query_params_to_target": true,
-        "always_match_any_host": true
+        "always_match_any_host": true,
+        "ignore_query_param_order": true
     },
     "rules": [
             {

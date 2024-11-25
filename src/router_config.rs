@@ -20,6 +20,8 @@ pub struct RouterConfig {
     pub pass_marketing_query_params_to_target: bool,
     #[serde(default = "default_as_false")]
     pub always_match_any_host: bool,
+    #[serde(default)]
+    pub ignore_query_param_order: bool,
 }
 
 impl Hash for RouterConfig {
@@ -31,6 +33,7 @@ impl Hash for RouterConfig {
         self.ignore_marketing_query_params.hash(state);
         self.pass_marketing_query_params_to_target.hash(state);
         self.always_match_any_host.hash(state);
+        self.ignore_query_param_order.hash(state);
 
         // order hash set to make sure it's always the same
         let mut marketing_query_params: Vec<String> = self.marketing_query_params.iter().cloned().collect();
@@ -75,6 +78,7 @@ impl Default for RouterConfig {
             marketing_query_params: parameters,
             pass_marketing_query_params_to_target: true,
             always_match_any_host: true,
+            ignore_query_param_order: true,
         }
     }
 }

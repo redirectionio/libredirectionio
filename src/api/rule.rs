@@ -207,11 +207,17 @@ impl Rule {
         None
     }
 
-    fn path_and_query(&self, ignore_case: bool, ignore_query_parameters: bool) -> StaticOrDynamic {
+    fn path_and_query(&self, ignore_case: bool, ignore_query_parameters: bool, ignore_query_param_order: bool) -> StaticOrDynamic {
         let markers = self.markers();
 
         let query = match self.source.query.clone() {
-            Some(source_query) if !ignore_query_parameters => Request::build_sorted_query(source_query.as_str()),
+            Some(source_query) if !ignore_query_parameters => {
+                if ignore_query_param_order {
+                    Request::build_sorted_query(source_query.as_str())
+                } else {
+                    Some(source_query)
+                }
+            }
             _ => None,
         };
 
@@ -296,7 +302,11 @@ impl IntoRoute<Rule> for Rule {
             self.source.exclude_methods,
             self.source.scheme.clone(),
             self.host(config.ignore_host_case),
-            self.path_and_query(config.ignore_path_and_query_case, config.ignore_all_query_parameters),
+            self.path_and_query(
+                config.ignore_path_and_query_case,
+                config.ignore_all_query_parameters,
+                config.ignore_query_param_order,
+            ),
             self.headers(config.ignore_header_case),
             self.route_ips(),
             self.route_datetimes(),
