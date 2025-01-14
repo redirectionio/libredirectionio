@@ -1,5 +1,5 @@
 use crate::action::Action;
-use crate::http::{Addr, Header, Request, TrustedProxies};
+use crate::http::{Addr, Header, Request};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -75,7 +75,6 @@ impl Log {
         proxy: &str,
         request_start_time: u128,
         client_ip: &str,
-        trusted_proxies: Option<&TrustedProxies>,
     ) -> Log {
         let mut location = None;
         let mut user_agent = None;
@@ -124,11 +123,6 @@ impl Log {
             }
         }
 
-        let untrusted_ips = match trusted_proxies {
-            Some(trusted_proxies) => trusted_proxies.remove_trusted_ips(ips),
-            None => ips,
-        };
-
         for header in response_headers {
             if header.name.to_lowercase() == "location" {
                 location = Some(header.value.clone())
@@ -155,7 +149,7 @@ impl Log {
             from,
             proxy: proxy.to_string(),
             time: request_start_time,
-            ips: Some(untrusted_ips.iter().map(|ip| ip.to_string()).collect()),
+            ips: Some(ips.iter().map(|ip| ip.to_string()).collect()),
             to: location.unwrap_or_default(),
             duration,
         }

@@ -10,7 +10,7 @@ pub unsafe fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
     match CStr::from_ptr(ptr).to_str() {
         Err(error) => {
             log::error!(
-                "Unable to create string for '{}': {}",
+                "unable to create string for '{}': {}",
                 String::from_utf8_lossy(CStr::from_ptr(ptr).to_bytes()),
                 error,
             );
@@ -24,7 +24,7 @@ pub unsafe fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
 pub unsafe fn string_to_c_char(str: String) -> *const c_char {
     let string = match CString::new(str.as_str()) {
         Err(error) => {
-            log::error!("Cannot create c string {}: {}", str, error,);
+            log::error!("cannot create c string {}: {}", str, error,);
 
             return null();
         }

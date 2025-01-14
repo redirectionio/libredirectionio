@@ -1,12 +1,13 @@
 use crate::action::Action as RedirectionioAction;
 use crate::api::Log;
 use crate::filter::FilterBodyAction;
-use crate::http::{Header, PathAndQueryWithSkipped, Request as RedirectionioRequest, TrustedProxies};
+use crate::http::{Addr, Header, PathAndQueryWithSkipped, Request as RedirectionioRequest};
 use crate::RouterConfig;
 use chrono::Utc;
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
+use trusted_proxies::{Config, Trusted};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen()]
@@ -55,7 +56,18 @@ impl Request {
     }
 
     pub fn set_remote_ip(&mut self, remote_addr_str: String) {
-        self.request.set_remote_ip(remote_addr_str, &TrustedProxies::default());
+        let config = Config::default();
+
+        let remote_addr = match remote_addr_str.parse::<Addr>() {
+            Err(_) => {
+                return;
+            }
+            Ok(addr) => addr,
+        };
+
+        let trusted = Trusted::from(remote_addr.addr, &self.request, &config);
+
+        self.request.set_remote_ip(trusted.ip());
     }
 
     pub fn add_header(&mut self, name: String, value: String) {
@@ -221,7 +233,6 @@ pub fn create_log_in_json(
         proxy.as_str(),
         time.into(),
         client_ip.as_str(),
-        None,
     );
 
     match json_encode(&log) {

@@ -4,7 +4,6 @@ use super::query::PathAndQueryWithSkipped;
 use crate::api::Example;
 #[cfg(feature = "router")]
 use crate::http::sanitize_url;
-use crate::http::{Addr, TrustedProxies};
 #[cfg(feature = "router")]
 use crate::router_config::RouterConfig;
 use chrono::{DateTime, Utc};
@@ -13,8 +12,9 @@ use http::Error;
 use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use std::net::{IpAddr, ToSocketAddrs};
+use std::net::IpAddr;
 use std::str::FromStr;
+use trusted_proxies::RequestInformation;
 use url::form_urlencoded::parse as parse_query;
 
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
@@ -234,64 +234,8 @@ impl Request {
         false
     }
 
-    pub fn set_remote_ip(&mut self, remote_addr_str: String, trusted_proxies: &TrustedProxies) {
-        let remote_ip = match remote_addr_str.parse::<Addr>() {
-            Ok(ip) => ip.addr,
-            Err(()) => match remote_addr_str.to_socket_addrs() {
-                Err(err) => {
-                    log::error!("cannot parse ip address {}, skipping: {}", remote_addr_str, err);
-
-                    return;
-                }
-                Ok(mut addrs) => match addrs.next() {
-                    Some(addr) => addr.ip(),
-                    None => {
-                        log::error!("no ip address, or incorrect ip for {}, skipping", remote_addr_str);
-
-                        return;
-                    }
-                },
-            },
-        };
-
-        if trusted_proxies.is_empty() {
-            self.remote_addr = Some(remote_ip);
-
-            return;
-        }
-
-        let mut ips = vec![remote_ip];
-
-        for (name, val) in self
-            .header_values("forwarded")
-            .iter()
-            .flat_map(|val| val.split(';'))
-            .flat_map(|val| val.split(','))
-            .flat_map(|pair| {
-                let mut items = pair.trim().splitn(2, '=');
-                Some((items.next()?, items.next()?))
-            })
-        {
-            if name.trim().to_lowercase().as_str() == "for" {
-                let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
-
-                if let Ok(ip) = ip.parse::<Addr>() {
-                    ips.push(ip.addr);
-                }
-            }
-        }
-
-        for val in self.header_values("x-forwarded-for").iter().flat_map(|val| val.split(',')) {
-            let ip = val.trim().trim_start_matches('"').trim_end_matches('"').to_string();
-
-            if let Ok(ip) = ip.parse::<Addr>() {
-                ips.push(ip.addr);
-            }
-        }
-
-        let untrusted_ips = trusted_proxies.remove_trusted_ips(ips);
-
-        self.remote_addr = untrusted_ips.first().cloned().or(Some(remote_ip));
+    pub fn set_remote_ip(&mut self, remote_ip: IpAddr) {
+        self.remote_addr = Some(remote_ip);
     }
 
     pub fn header_values(&self, name: &str) -> Vec<&str> {
@@ -347,5 +291,61 @@ impl Request {
         }
 
         Some(query_string)
+    }
+}
+
+impl RequestInformation for Request {
+    fn is_host_header_allowed(&self) -> bool {
+        true
+    }
+
+    fn host_header(&self) -> Option<&str> {
+        self.headers
+            .iter()
+            .find(|header| header.name.to_lowercase() == "host")
+            .map(|header| header.value.as_str())
+    }
+
+    fn authority(&self) -> Option<&str> {
+        self.host()
+    }
+
+    fn forwarded(&self) -> impl DoubleEndedIterator<Item = &str> {
+        self.headers
+            .iter()
+            .filter(|header| header.name.to_lowercase() == "forwarded")
+            .map(|header| header.value.as_str())
+    }
+
+    fn x_forwarded_for(&self) -> impl DoubleEndedIterator<Item = &str> {
+        self.headers
+            .iter()
+            .filter(|header| header.name.to_lowercase() == "x-forwarded-for")
+            .map(|header| header.value.as_str())
+    }
+
+    fn x_forwarded_host(&self) -> impl DoubleEndedIterator<Item = &str> {
+        self.headers
+            .iter()
+            .filter(|header| header.name.to_lowercase() == "x-forwarded-host")
+            .map(|header| header.value.as_str())
+    }
+
+    fn x_forwarded_proto(&self) -> impl DoubleEndedIterator<Item = &str> {
+        self.headers
+            .iter()
+            .filter(|header| header.name.to_lowercase() == "x-forwarded-proto")
+            .map(|header| header.value.as_str())
+    }
+
+    fn x_forwarded_by(&self) -> impl DoubleEndedIterator<Item = &str> {
+        self.headers
+            .iter()
+            .filter(|header| header.name.to_lowercase() == "x-forwarded-by")
+            .map(|header| header.value.as_str())
+    }
+
+    fn default_scheme(&self) -> Option<&str> {
+        self.scheme()
     }
 }
