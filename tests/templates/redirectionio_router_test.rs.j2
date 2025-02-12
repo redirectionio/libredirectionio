@@ -1,3 +1,6 @@
+#![allow(unknown_lints)]
+#![allow(clippy::all)]
+
 extern crate redirectionio;
 
 #[rustfmt::skip]

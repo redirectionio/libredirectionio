@@ -109,9 +109,6 @@ impl<V> Node<V> {
         self.regex.original.as_str()
     }
 
-    /// Traces when finding a value
-    // fn trace(&self, haystack: &str) -> Trace<V> {}
-
     /// Remove an item on this tree
     ///
     /// This method returns true if there is no more data so it can be cleaned up

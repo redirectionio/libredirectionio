@@ -1,21 +1,13 @@
 use chrono::{DateTime, Datelike, Utc, Weekday};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter, Result};
+use std::fmt::Display;
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Weekdays(pub Vec<Weekday>);
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RouteWeekday {
     pub weekdays: Weekdays,
-}
-
-impl Display for Weekdays {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        self.0
-            .iter()
-            .fold(Ok(()), |result, weekday| result.and_then(|_| writeln!(f, "{weekday}")))
-    }
 }
 
 impl Ord for Weekdays {
@@ -62,6 +54,6 @@ impl RouteWeekday {
 
 impl Display for RouteWeekday {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "in({})", self.weekdays)
+        write!(f, "in({:?})", self.weekdays)
     }
 }
