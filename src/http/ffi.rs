@@ -14,6 +14,9 @@ pub struct HeaderMap {
     next: *mut HeaderMap,
 }
 
+#[repr(C)]
+pub struct TrustedProxies(*mut ());
+
 /// # Safety
 pub unsafe fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
     let mut current: *const HeaderMap = null();
@@ -127,7 +130,7 @@ pub unsafe extern "C" fn redirectionio_request_create(
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_char) -> *const Config {
+pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_char) -> *const TrustedProxies {
     let mut trusted_proxies = Config::default();
 
     if let Some(proxies_str) = c_char_to_str(_proxies_str) {
@@ -142,12 +145,12 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *con
         }
     }
 
-    Box::into_raw(Box::new(trusted_proxies))
+    Box::into_raw(Box::new(TrustedProxies(Box::into_raw(Box::new(trusted_proxies)) as *mut ())))
 }
 
 #[no_mangle]
 /// # Safety
-pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut Config, _proxy_str: *const c_char) {
+pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut TrustedProxies, _proxy_str: *const c_char) {
     if _trusted_proxies.is_null() {
         return;
     }
@@ -158,8 +161,9 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxie
     };
 
     let trusted_proxies = &mut *_trusted_proxies;
+    let config = &mut *(trusted_proxies.0 as *mut Config);
 
-    if let Err(e) = trusted_proxies.add_trusted_ip(proxy_str.as_str()) {
+    if let Err(e) = config.add_trusted_ip(proxy_str.as_str()) {
         log::warn!("cannot parse trusted proxy {}: {}", proxy_str, e);
     }
 }
@@ -169,7 +173,7 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxie
 pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
     _request: *mut Request,
     _remote_addr_str: *const c_char,
-    _trusted_proxies: *const Config,
+    _trusted_proxies: *const TrustedProxies,
 ) {
     if _request.is_null() {
         return;
@@ -192,7 +196,9 @@ pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
     let config = if _trusted_proxies.is_null() {
         &Config::default()
     } else {
-        &*_trusted_proxies
+        let trusted_proxies = &*_trusted_proxies;
+
+        &*(trusted_proxies.0 as *mut Config)
     };
 
     let trusted = Trusted::from(remote_addr.addr, request, config);
