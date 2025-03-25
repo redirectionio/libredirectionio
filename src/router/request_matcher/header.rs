@@ -1,6 +1,6 @@
+use super::super::RouterConfig;
 use super::super::request_matcher::DateTimeMatcher;
 use super::super::trace::{TraceInfo, TraceInfoHeaderCondition};
-use super::super::RouterConfig;
 use super::super::{Route, RouteHeaderKind, Trace};
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;

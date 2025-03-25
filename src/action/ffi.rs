@@ -107,7 +107,7 @@ pub extern "C" fn redirectionio_action_body_filter_create(
     let action = unsafe { &mut *_action };
     let headers = header_map_to_http_headers(response_header_map);
 
-    match action.create_filter_body(response_status_code, (&headers).as_ref()) {
+    match action.create_filter_body(response_status_code, headers.as_ref()) {
         None => null(),
         Some(filter_body) => Box::into_raw(Box::new(filter_body)),
     }

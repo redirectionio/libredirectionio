@@ -1,11 +1,11 @@
 use crate::action::UnitTrace;
 use crate::api::{BodyFilter, TextAction};
+use crate::filter::HtmlFilterBodyAction;
 #[cfg(feature = "compress")]
-use crate::filter::encoding::{get_encoding_filters, DecodeFilterBody, EncodeFilterBody};
+use crate::filter::encoding::{DecodeFilterBody, EncodeFilterBody, get_encoding_filters};
 use crate::filter::error::Result;
 use crate::filter::html_body_action::HtmlBodyVisitor;
 use crate::filter::text_filter_body::{TextFilterAction, TextFilterBodyAction};
-use crate::filter::HtmlFilterBodyAction;
 use crate::http::Header;
 
 #[derive(Debug)]
@@ -212,8 +212,8 @@ impl FilterBodyActionItem {
 mod tests {
     use super::*;
     use crate::api::HTMLBodyFilter;
-    use flate2::write::{GzDecoder, GzEncoder, ZlibDecoder, ZlibEncoder};
     use flate2::Compression;
+    use flate2::write::{GzDecoder, GzEncoder, ZlibDecoder, ZlibEncoder};
     use std::io::prelude::*;
 
     #[test]

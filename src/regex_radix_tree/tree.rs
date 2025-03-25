@@ -387,8 +387,10 @@ mod tests {
         );
 
         assert!(!tree.find("/string-lowercase/from/coucou").is_empty());
-        assert!(!tree
-            .find("/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘")
-            .is_empty());
+        assert!(
+            !tree
+                .find("/string-lowercase-specificCharacters-emoji/from/you-rock-dude-🤘")
+                .is_empty()
+        );
     }
 }

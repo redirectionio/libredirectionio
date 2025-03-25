@@ -5,7 +5,7 @@ repository = "https://github.com/redirectionio/libredirectionio"
 license = "MIT"
 version = "2.11.2"
 authors = ["Joel Wurtz <jwurtz@redirection.io>"]
-edition = "2021"
+edition = "2024"
 build = "src/build.rs"
 
 [lib]

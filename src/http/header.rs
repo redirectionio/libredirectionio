@@ -1,5 +1,5 @@
-use http::header::HeaderName;
 use http::HeaderMap;
+use http::header::HeaderName;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash)]

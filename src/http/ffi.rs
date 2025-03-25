@@ -78,7 +78,9 @@ pub extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *c
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
+/// # Safety
+/// This function must be called with a valid pointer to Request or null pointer
+pub unsafe extern "C" fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
     if _request.is_null() {
         return null();
     }
@@ -144,7 +146,9 @@ pub extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_ch
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut TrustedProxies, _proxy_str: *const c_char) {
+/// # Safety
+/// This function must be called with a valid pointer to TrustedProxies or null pointer
+pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut TrustedProxies, _proxy_str: *const c_char) {
     if _trusted_proxies.is_null() {
         return;
     }
@@ -166,7 +170,11 @@ pub extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn redirectionio_request_set_remote_addr(
+/// # Safety
+///
+/// This function must be called with a valid pointer to Request or null pointer
+/// and a valid pointer to TrustedProxies or null pointer
+pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
     _request: *mut Request,
     _remote_addr_str: *const c_char,
     _trusted_proxies: *const TrustedProxies,
@@ -221,7 +229,10 @@ pub extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> *const 
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn redirectionio_request_drop(_request: *mut Request) {
+/// # Safety
+///
+/// This function must be called with a valid pointer to Request or null pointer
+pub unsafe extern "C" fn redirectionio_request_drop(_request: *mut Request) {
     if _request.is_null() {
         return;
     }

@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
 use std::collections::HashMap;
 use std::env;
-use std::fs::{read_dir, read_to_string, DirEntry};
+use std::fs::{DirEntry, read_dir, read_to_string};
 use std::path::Path;
 use tera::{Context, Tera};
 #[derive(Serialize, Deserialize, Debug, Clone)]

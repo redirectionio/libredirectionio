@@ -1,6 +1,6 @@
 use crate::router_config::RouterConfig;
 use http::uri::PathAndQuery;
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use url::form_urlencoded::parse as parse_query;
@@ -139,11 +139,15 @@ mod tests {
 
     #[test]
     fn test_url_1() {
-        test_url("/npoplayer.html?tx_eonpo_npoplayer%5Bmid%5D=WO_EO_16582885&tx_eonpo_npoplayer%5Bhash%5D=45a69ca57ac8eee5025d45f06f9910f85fd9a0db814c590fg560293d<549880f&tx_eonpo_npoplayer%5Boverlay%5D=https%3A%2F%2Fblauwbloed.eo.nl%2Ffileadmin%2Fbestanden-2016%2Fuser_upload%2F2021-07%2FKoninklijk_gezin_fotosessie_zomer_2021.jpg&tx_eonpo_npoplayer%5Bhasadconsent%5D=0&tx_eonpo_npoplayer%5Breferralurl%5D=https%3A%2F%2Fblauwbloed.eo.nl%2Fartikel%2F2021%2F07%2Fkijk-de-eerste-foto-van-de-fotosessie-van-de-oranjes&tx_eonpo_npoplayer%5BsterSiteId%5D=blauwbloed&tx_eonpo_npoplayer%5BsterIdentifier%5D=blauwbloed-ios-smartphone&tx_eonpo_npoplayer%5BatinternetSiteId%5D=25&tx_eonpo_npoplayer%5BatinternetUserId%5D=287dbe14-d677-4b9b-8eeb-ecb389349db1&tx_eonpo_npoplayer%5BatinternetUserIdCookieDuration%5D=394");
+        test_url(
+            "/npoplayer.html?tx_eonpo_npoplayer%5Bmid%5D=WO_EO_16582885&tx_eonpo_npoplayer%5Bhash%5D=45a69ca57ac8eee5025d45f06f9910f85fd9a0db814c590fg560293d<549880f&tx_eonpo_npoplayer%5Boverlay%5D=https%3A%2F%2Fblauwbloed.eo.nl%2Ffileadmin%2Fbestanden-2016%2Fuser_upload%2F2021-07%2FKoninklijk_gezin_fotosessie_zomer_2021.jpg&tx_eonpo_npoplayer%5Bhasadconsent%5D=0&tx_eonpo_npoplayer%5Breferralurl%5D=https%3A%2F%2Fblauwbloed.eo.nl%2Fartikel%2F2021%2F07%2Fkijk-de-eerste-foto-van-de-fotosessie-van-de-oranjes&tx_eonpo_npoplayer%5BsterSiteId%5D=blauwbloed&tx_eonpo_npoplayer%5BsterIdentifier%5D=blauwbloed-ios-smartphone&tx_eonpo_npoplayer%5BatinternetSiteId%5D=25&tx_eonpo_npoplayer%5BatinternetUserId%5D=287dbe14-d677-4b9b-8eeb-ecb389349db1&tx_eonpo_npoplayer%5BatinternetUserIdCookieDuration%5D=394",
+        );
     }
 
     #[test]
     fn test_url_2() {
-        test_url("/fileadmin/bestanden-2016/_processed_/5/5/csm_Echte_vriendschap_Vanaf_de_eerste_dag_van_hun_studie_zijn_Inge_en_Julia_vrjendinnep_2_8260<c0281.jtg");
+        test_url(
+            "/fileadmin/bestanden-2016/_processed_/5/5/csm_Echte_vriendschap_Vanaf_de_eerste_dag_van_hun_studie_zijn_Inge_en_Julia_vrjendinnep_2_8260<c0281.jtg",
+        );
     }
 }

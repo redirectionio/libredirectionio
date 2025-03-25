@@ -9,7 +9,7 @@ use crate::router_config::RouterConfig;
 use chrono::{DateTime, Utc};
 #[cfg(feature = "router")]
 use http::Error;
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::net::IpAddr;
@@ -254,11 +254,7 @@ impl Request {
     pub fn header_value(&self, name: &str) -> Option<String> {
         let values = self.header_values(name);
 
-        if values.is_empty() {
-            None
-        } else {
-            Some(values.join(","))
-        }
+        if values.is_empty() { None } else { Some(values.join(",")) }
     }
 
     pub fn path_and_query(&self) -> String {

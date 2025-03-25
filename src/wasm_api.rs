@@ -1,8 +1,8 @@
+use crate::RouterConfig;
 use crate::action::Action as RedirectionioAction;
 use crate::api::Log;
 use crate::filter::FilterBodyAction;
 use crate::http::{Addr, Header, PathAndQueryWithSkipped, Request as RedirectionioRequest};
-use crate::RouterConfig;
 use chrono::Utc;
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use std::collections::hash_map::DefaultHasher;

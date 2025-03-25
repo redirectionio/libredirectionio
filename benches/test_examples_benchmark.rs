@@ -2,9 +2,9 @@
 extern crate criterion;
 use criterion::{BenchmarkId, Criterion};
 use flate2::read::GzDecoder;
+use redirectionio::RouterConfig;
 use redirectionio::api::{Rule, RuleChangeSet, RulesMessage, TestExamplesOutput, TestExamplesProjectInput};
 use redirectionio::router::Router;
-use redirectionio::RouterConfig;
 use std::fs::File;
 
 mod perf;

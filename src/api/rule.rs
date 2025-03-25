@@ -4,7 +4,7 @@ use crate::marker::{Marker as RouteMarker, MarkerString, StaticOrDynamic, Transf
 use crate::router::{IntoRoute, Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday};
 use crate::router_config::RouterConfig;
 use cidr::AnyIpCidr;
-use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
 use std::cmp::Ordering;
@@ -147,11 +147,7 @@ impl Rule {
                     }
                 }
 
-                if route_ips.is_empty() {
-                    None
-                } else {
-                    Some(route_ips)
-                }
+                if route_ips.is_empty() { None } else { Some(route_ips) }
             }
         }
     }
@@ -166,11 +162,7 @@ impl Rule {
             }
         }
 
-        if route_datetimes.is_empty() {
-            None
-        } else {
-            Some(route_datetimes)
-        }
+        if route_datetimes.is_empty() { None } else { Some(route_datetimes) }
     }
 
     fn route_times(&self) -> Option<Vec<RouteTime>> {
@@ -183,11 +175,7 @@ impl Rule {
             }
         }
 
-        if route_times.is_empty() {
-            None
-        } else {
-            Some(route_times)
-        }
+        if route_times.is_empty() { None } else { Some(route_times) }
     }
 
     fn route_weekdays(&self) -> Option<RouteWeekday> {

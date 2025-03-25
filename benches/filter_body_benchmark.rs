@@ -4,11 +4,11 @@ extern crate criterion;
 mod perf;
 
 use criterion::{BenchmarkId, Criterion};
+use redirectionio::RouterConfig;
 use redirectionio::action::Action;
 use redirectionio::api::Rule;
 use redirectionio::http::{Header, Request};
 use redirectionio::router::IntoRoute;
-use redirectionio::RouterConfig;
 use std::io::Write;
 use std::sync::Arc;
 

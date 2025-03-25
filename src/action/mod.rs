@@ -570,11 +570,7 @@ impl Action {
 
         let body_filter = FilterBodyAction::new(filters, headers);
 
-        if body_filter.is_empty() {
-            None
-        } else {
-            Some(body_filter)
-        }
+        if body_filter.is_empty() { None } else { Some(body_filter) }
     }
 
     pub fn should_log_request(&mut self, allow_log_config: bool, response_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> bool {

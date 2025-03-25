@@ -2,11 +2,11 @@
 extern crate criterion;
 use criterion::{BenchmarkId, Criterion};
 use flate2::read::GzDecoder;
+use redirectionio::RouterConfig;
 use redirectionio::action::{Action, UnitTrace};
 use redirectionio::api::{Rule, RulesMessage};
 use redirectionio::http::Request;
 use redirectionio::router::Router;
-use redirectionio::RouterConfig;
 use std::fs::File;
 
 fn create_router(filename: String, config: &RouterConfig) -> Router<Rule> {
