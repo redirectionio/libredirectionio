@@ -17,8 +17,7 @@ pub struct HeaderMap {
 #[repr(C)]
 pub struct TrustedProxies(*mut ());
 
-/// # Safety
-pub unsafe fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
+pub fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
     let mut current: *const HeaderMap = null();
 
     for header in &headers {
@@ -32,13 +31,13 @@ pub unsafe fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderM
     current
 }
 
-/// # Safety
-pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<Header> {
+pub fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<Header> {
     let mut headers = Vec::new();
     let mut current = header_map;
 
     while !current.is_null() {
-        let header = &*current;
+        // Safety: current is a valid pointer to a HeaderMap
+        let header = unsafe { &*current };
         current = header.next;
 
         let name = match c_char_to_str(header.name) {
@@ -59,9 +58,8 @@ pub unsafe fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<He
     headers
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *const Request {
     let request_str = match c_char_to_str(str) {
         None => return null(),
         Some(str) => str,
@@ -79,14 +77,13 @@ pub unsafe extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char
     Box::into_raw(Box::new(request))
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_request_json_serialize(_request: *const Request) -> *const c_char {
     if _request.is_null() {
         return null();
     }
 
-    let request = &*_request;
+    let request = unsafe { &*_request };
     let request_serialized = match json_encode(request) {
         Err(_) => return null(),
         Ok(request_serialized) => request_serialized,
@@ -95,9 +92,8 @@ pub unsafe extern "C" fn redirectionio_request_json_serialize(_request: *const R
     string_to_c_char(request_serialized)
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_request_create(
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_request_create(
     _uri: *const c_char,
     _host: *const c_char,
     _scheme: *const c_char,
@@ -128,9 +124,8 @@ pub unsafe extern "C" fn redirectionio_request_create(
     Box::into_raw(Box::new(request))
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_char) -> *const TrustedProxies {
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_char) -> *const TrustedProxies {
     let mut trusted_proxies = Config::default();
 
     if let Some(proxies_str) = c_char_to_str(_proxies_str) {
@@ -148,9 +143,8 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *con
     Box::into_raw(Box::new(TrustedProxies(Box::into_raw(Box::new(trusted_proxies)) as *mut ())))
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut TrustedProxies, _proxy_str: *const c_char) {
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxies: *mut TrustedProxies, _proxy_str: *const c_char) {
     if _trusted_proxies.is_null() {
         return;
     }
@@ -160,17 +154,19 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxie
         Some(s) => s,
     };
 
-    let trusted_proxies = &mut *_trusted_proxies;
-    let config = &mut *(trusted_proxies.0 as *mut Config);
+    // Safety: _trusted_proxies is a valid pointer to a TrustedProxies
+    let trusted_proxies = unsafe { &mut *_trusted_proxies };
+    // Safety: trusted_proxies.0 is a valid pointer to a Config
+    // It should be created once and never be freed, so it's safe to dereference it as it will never be freed
+    let config = unsafe { &mut *(trusted_proxies.0 as *mut Config) };
 
     if let Err(e) = config.add_trusted_ip(proxy_str.as_str()) {
         log::warn!("cannot parse trusted proxy {}: {}", proxy_str, e);
     }
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_request_set_remote_addr(
     _request: *mut Request,
     _remote_addr_str: *const c_char,
     _trusted_proxies: *const TrustedProxies,
@@ -179,7 +175,8 @@ pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
         return;
     }
 
-    let request = &mut *_request;
+    // Safety: _request is a valid pointer to a Request
+    let request = unsafe { &mut *_request };
 
     let remote_addr_str = match c_char_to_str(_remote_addr_str).map(|str| str.to_string()) {
         None => return,
@@ -196,9 +193,12 @@ pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
     let config = if _trusted_proxies.is_null() {
         &Config::default()
     } else {
-        let trusted_proxies = &*_trusted_proxies;
+        // Safety: _trusted_proxies is a valid pointer to a TrustedProxies
+        let trusted_proxies = unsafe { &*_trusted_proxies };
 
-        &*(trusted_proxies.0 as *mut Config)
+        // SAFETY: trusted_proxies.0 is a valid pointer to a Config
+        // It should be created once and never be freed, so it's safe to dereference it as it will never be freed
+        unsafe { &*(trusted_proxies.0 as *mut Config) }
     };
 
     let trusted = Trusted::from(remote_addr.addr, request, config);
@@ -206,9 +206,8 @@ pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
     request.set_remote_ip(trusted.ip());
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> *const Request {
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> *const Request {
     let url = c_char_to_str(_url).unwrap_or("/");
 
     match url.parse::<Request>() {
@@ -221,12 +220,12 @@ pub unsafe extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> 
     }
 }
 
-#[no_mangle]
-/// # Safety
-pub unsafe extern "C" fn redirectionio_request_drop(_request: *mut Request) {
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_request_drop(_request: *mut Request) {
     if _request.is_null() {
         return;
     }
 
-    drop(Box::from_raw(_request));
+    // Safety: _request is a valid pointer to a Request
+    drop(unsafe { Box::from_raw(_request) });
 }

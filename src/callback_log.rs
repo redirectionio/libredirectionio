@@ -27,7 +27,7 @@ impl log::Log for CallbackLogger {
 
         if self.enabled(record.metadata()) {
             let log_str = format!("{} - {}", record.level(), record.args());
-            let cstr = unsafe { string_to_c_char(log_str) };
+            let cstr = string_to_c_char(log_str);
 
             (self.callback.unwrap())(cstr, self.data.unwrap(), record.level() as i16);
         }
@@ -38,12 +38,12 @@ impl log::Log for CallbackLogger {
 
 static INIT: Once = Once::new();
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn redirectionio_log_init_stderr() {
     stderrlog::new().init().unwrap();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn redirectionio_log_init_with_callback(callback: redirectionio_log_callback, data: &'static c_void) {
     let logger = CallbackLogger {
         callback: Some(callback),
