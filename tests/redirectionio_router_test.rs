@@ -834,6 +834,76 @@ fn test_06_emojis_1() {
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
+fn setup_07_internationalized_domain_name() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"idn-form--host-with-path","rank":0,"source":{"host":"example.xn--fiqs8s","path":"/foo"},"status_code":301,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"non-idn-form-host-with-path","rank":0,"source":{"host":"example.xn--fiqs8s","path":"/foo2"},"status_code":301,"target":"/bar2"}"#).expect("cannot deserialize");
+    router.insert(route_2);
+
+    router
+}
+
+
+#[test]
+fn test_07_internationalized_domain_name_1() {
+    let router = setup_07_internationalized_domain_name();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),Some(r#"example.xn--fiqs8s"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 301);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+#[test]
+fn test_07_internationalized_domain_name_2() {
+    let router = setup_07_internationalized_domain_name();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo2"#), r#"/foo2"#.to_string(),Some(r#"example.xn--fiqs8s"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 301);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar2"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
 fn setup_action_custom_body() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
