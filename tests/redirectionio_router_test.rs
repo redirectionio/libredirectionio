@@ -838,10 +838,10 @@ fn setup_07_internationalized_domain_name() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);
 
-    let route_1: Rule = serde_json::from_str(r#"{"id":"idn-form--host-with-path","rank":0,"source":{"host":"example.xn--fiqs8s","path":"/foo"},"status_code":301,"target":"/bar"}"#).expect("cannot deserialize");
+    let route_1: Rule = serde_json::from_str(r#"{"id":"ascii-form-host-with-path","rank":0,"source":{"host":"example.xn--fiqs8s","path":"/foo2"},"status_code":301,"target":"/bar2"}"#).expect("cannot deserialize");
     router.insert(route_1);
 
-    let route_2: Rule = serde_json::from_str(r#"{"id":"non-idn-form-host-with-path","rank":0,"source":{"host":"example.xn--fiqs8s","path":"/foo2"},"status_code":301,"target":"/bar2"}"#).expect("cannot deserialize");
+    let route_2: Rule = serde_json::from_str(r#"{"id":"idn-form--host-with-path","rank":0,"source":{"host":"example.xn--fiqs8s","path":"/foo"},"status_code":301,"target":"/bar"}"#).expect("cannot deserialize");
     router.insert(route_2);
 
     router
@@ -4123,6 +4123,120 @@ fn test_marker_in_host_3() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"https://www.test.io"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+fn setup_marker_in_host_multiple_case_and_idn() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"marker-mutliple-case-in-host-rule","markers":[{"name":"marker","regex":"JOHN\\-SNOW([\\p{Ll}]|\\-)+?"},{"name":"Marker","regex":"(com|net|org)"}],"rank":0,"source":{"host":"@marker.test.@Marker","path":"/yolo"},"status_code":302,"target":"https://@Marker.test.@marker.io/hello"}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"marker-mutliple-case-in-host-rule-with-idn","markers":[{"name":"marker","regex":"JOHN\\-SNOW([\\p{Ll}]|\\-)+?"},{"name":"Marker","regex":"(com|net|org)"}],"rank":0,"source":{"host":"@marker.xn--tes-x68da.@Marker","path":"/yolo-中国"},"status_code":302,"target":"https://@Marker.test.中.@marker.io/国"}"#).expect("cannot deserialize");
+    router.insert(route_2);
+
+    router
+}
+
+
+#[test]
+fn test_marker_in_host_multiple_case_and_idn_1() {
+    let router = setup_marker_in_host_multiple_case_and_idn();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/yolo"#), r#"/yolo"#.to_string(),Some(r#"JOHN-SNOW-a.test.org"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"https://org.test.JOHN-SNOW-a.io/hello"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+#[test]
+fn test_marker_in_host_multiple_case_and_idn_2() {
+    let router = setup_marker_in_host_multiple_case_and_idn();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/yolo-中国"#), r#"/yolo-中国"#.to_string(),Some(r#"com.xn--tes-x68da.org"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_marker_in_host_multiple_case_and_idn_3() {
+    let router = setup_marker_in_host_multiple_case_and_idn();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/yolo-中国"#), r#"/yolo-中国"#.to_string(),Some(r#"JOHN-SNOW-a.xn--tes-x68da.org"#.to_string()),Some(r#"http"#.to_string()),None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"https://org.test.中.JOHN-SNOW-a.io/国"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+#[test]
+fn test_marker_in_host_multiple_case_and_idn_4() {
+    let router = setup_marker_in_host_multiple_case_and_idn();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/yolo-中国"#), r#"/yolo-中国"#.to_string(),Some(r#"JOHN-SNOW-b.xn--tes-x68da.net"#.to_string()),Some(r#"https"#.to_string()),None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"https://net.test.中.JOHN-SNOW-b.io/国"#);
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
