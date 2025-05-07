@@ -1,11 +1,14 @@
 mod transformer;
 
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
+
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
+pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 
 use crate::regex::LazyRegex;
-pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Marker {

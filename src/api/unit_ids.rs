@@ -1,13 +1,13 @@
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
-use crate::action::{Action, UnitTrace};
-use crate::api::rules_message::RuleChangeSet;
-use crate::api::{Example, Rule};
-use crate::http::Request;
-use crate::router::Router;
-use crate::router_config::RouterConfig;
 use serde::{Deserialize, Serialize};
+
+use crate::{
+    action::UnitTrace,
+    api::{Example, Rule, rules_message::RuleChangeSet},
+    router::Router,
+    router_config::RouterConfig,
+};
 
 // Input
 
@@ -71,44 +71,13 @@ impl UnitIdsOutput {
             let mut examples_output = Vec::new();
 
             for example in examples.as_ref().unwrap() {
-                let request = match Request::from_example(&router.config, example) {
-                    Ok(request) => request,
+                let unit_trace = match UnitTrace::from_example(router, example) {
+                    Ok(unit_trace) => unit_trace,
                     Err(_) => {
                         examples_output.push(example.clone());
                         continue;
                     }
                 };
-
-                let mut unit_trace = UnitTrace::default();
-
-                let routes = router.match_request(&request);
-                let mut action = Action::from_routes_rule(routes, &request, Some(&mut unit_trace));
-
-                let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
-                let (_, backend_status_code) = if action_status_code != 0 {
-                    (action_status_code, action_status_code)
-                } else {
-                    // We call the backend and get a response code
-                    let backend_status_code = example.response_status_code.unwrap_or(200);
-                    let final_status_code = action.get_status_code(backend_status_code, Some(&mut unit_trace));
-                    (final_status_code, backend_status_code)
-                };
-
-                action.filter_headers(Vec::new(), backend_status_code, false, Some(&mut unit_trace));
-
-                let body = "<!DOCTYPE html>
-<html>
-    <head>
-    </head>
-    <body>
-    </body>
-</html>";
-                if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[]) {
-                    body_filter.filter(body.into(), Some(&mut unit_trace));
-                    body_filter.end(Some(&mut unit_trace));
-                }
-
-                unit_trace.squash_with_target_unit_traces();
 
                 let mut final_example = example.clone();
                 final_example.unit_ids_applied = Some(unit_trace.get_unit_ids_applied().into_iter().collect());

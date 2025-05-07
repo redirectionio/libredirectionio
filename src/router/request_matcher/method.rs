@@ -1,13 +1,15 @@
-use super::super::request_matcher::HeaderMatcher;
-use super::super::trace::TraceInfo;
-use super::super::{Route, RouterConfig, Trace};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
+
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
+
+use super::super::{Route, RouterConfig, Trace, request_matcher::HeaderMatcher, trace::TraceInfo};
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
 use crate::http::Request;
-#[cfg(feature = "dot")]
-use dot_graph::{Edge, Graph, Node};
-use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct MethodMatcher<T> {

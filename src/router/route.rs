@@ -1,21 +1,15 @@
-use super::RouteHeader;
-use super::route_datetime::RouteDateTime;
-use super::route_ip::RouteIp;
-use super::route_time::RouteTime;
-use super::route_weekday::RouteWeekday;
 #[cfg(feature = "dot")]
-use crate::dot::DotBuilder;
-use crate::http::Request;
-use crate::marker::StaticOrDynamic;
-use crate::router::RouterConfig;
+use std::sync::Arc;
+use std::{cmp::Ordering, collections::HashMap, fmt::Debug};
+
 #[cfg(feature = "dot")]
 use dot_graph::{Graph, Node as GraphNode};
 use serde::Serialize;
-use std::cmp::Ordering;
-use std::collections::HashMap;
-use std::fmt::Debug;
+
+use super::{RouteHeader, route_datetime::RouteDateTime, route_ip::RouteIp, route_time::RouteTime, route_weekday::RouteWeekday};
 #[cfg(feature = "dot")]
-use std::sync::Arc;
+use crate::dot::DotBuilder;
+use crate::{http::Request, marker::StaticOrDynamic, router::RouterConfig};
 
 #[derive(Serialize, Debug, Clone)]
 pub struct Route<T> {

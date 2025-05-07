@@ -26,7 +26,6 @@ mod transformer;
 mod unit_ids;
 mod variable;
 
-pub use self::log::{LegacyLog, Log};
 pub use body_filter::{BodyFilter, HTMLBodyFilter, TextAction, TextBodyFilter};
 pub use date_time::DateTimeConstraint;
 pub use examples::Example;
@@ -49,3 +48,5 @@ pub use transformer::Transformer;
 #[cfg(feature = "router")]
 pub use unit_ids::{UnitIdsInput, UnitIdsOutput, UnitIdsProjectInput};
 pub use variable::{Variable, VariableKind};
+
+pub use self::log::{LegacyLog, Log};

@@ -1,14 +1,19 @@
-use super::super::trace::TraceInfo;
-use super::super::{Route, RouterConfig, Trace};
-#[cfg(feature = "dot")]
-use crate::dot::DotBuilder;
-use crate::http::Request;
-use crate::marker::StaticOrDynamic;
-use crate::regex_radix_tree::{RegexTreeMap, Trace as TreeTrace};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
+
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Node};
-use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
+
+use super::super::{Route, RouterConfig, Trace, trace::TraceInfo};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+use crate::{
+    http::Request,
+    marker::StaticOrDynamic,
+    regex_radix_tree::{RegexTreeMap, Trace as TreeTrace},
+};
 
 #[derive(Debug, Clone)]
 pub struct PathAndQueryMatcher<T> {

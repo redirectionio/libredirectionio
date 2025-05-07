@@ -1,13 +1,15 @@
-use super::super::route_ip::RouteIp;
-use super::super::trace::TraceInfo;
-use super::super::{MethodMatcher, Route, RouterConfig, Trace};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
+
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node};
+
+use super::super::{MethodMatcher, Route, RouterConfig, Trace, route_ip::RouteIp, trace::TraceInfo};
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
 use crate::http::Request;
-#[cfg(feature = "dot")]
-use dot_graph::{Edge, Graph, Node};
-use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct IpMatcher<T> {

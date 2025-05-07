@@ -1,8 +1,6 @@
-use crate::action::Action;
-use crate::api::Rule;
-use crate::http::Request;
-use crate::router::Trace;
 use serde::{Deserialize, Serialize};
+
+use crate::{action::Action, api::Rule, http::Request, router::Trace};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TraceAction {

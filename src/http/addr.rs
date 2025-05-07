@@ -1,5 +1,7 @@
-use std::net::{IpAddr, SocketAddr};
-use std::str::FromStr;
+use std::{
+    net::{IpAddr, SocketAddr},
+    str::FromStr,
+};
 
 pub struct Addr {
     pub addr: IpAddr,

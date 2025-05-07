@@ -1,8 +1,5 @@
-use super::super::html_filter_body::VOID_ELEMENTS;
-use super::evaluate;
-use crate::action::UnitTrace;
-use crate::filter::error::Result;
-use crate::html;
+use super::{super::html_filter_body::VOID_ELEMENTS, evaluate};
+use crate::{action::UnitTrace, filter::error::Result, html};
 
 #[derive(Debug)]
 pub struct BodyAppend {

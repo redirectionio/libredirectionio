@@ -1,14 +1,17 @@
-use crate::api::{BodyFilter, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Source, Variable};
-use crate::http::Request;
-use crate::marker::{Marker as RouteMarker, MarkerString, StaticOrDynamic, Transform};
-use crate::router::{IntoRoute, Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday};
-use crate::router_config::RouterConfig;
+use std::{cmp::Ordering, collections::HashMap};
+
 use cidr::AnyIpCidr;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
-use std::cmp::Ordering;
-use std::collections::HashMap;
+
+use crate::{
+    api::{BodyFilter, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Source, Variable},
+    http::Request,
+    marker::{Marker as RouteMarker, MarkerString, StaticOrDynamic, Transform},
+    router::{IntoRoute, Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday},
+    router_config::RouterConfig,
+};
 
 const SIMPLE_ENCODE_SET: &AsciiSet = CONTROLS;
 const URL_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');

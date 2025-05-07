@@ -1,5 +1,6 @@
-use crate::marker::Transform;
 use heck::ToSnakeCase;
+
+use crate::marker::Transform;
 
 #[derive(Default)]
 pub struct Underscorize;

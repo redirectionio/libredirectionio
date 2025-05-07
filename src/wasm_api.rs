@@ -1,14 +1,20 @@
-use crate::RouterConfig;
-use crate::action::Action as RedirectionioAction;
-use crate::api::Log;
-use crate::filter::FilterBodyAction;
-use crate::http::{Addr, Header, PathAndQueryWithSkipped, Request as RedirectionioRequest};
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+};
+
 use chrono::Utc;
 use serde_json::{from_str as json_decode, to_string as json_encode};
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 use trusted_proxies::{Config, Trusted};
 use wasm_bindgen::prelude::*;
+
+use crate::{
+    RouterConfig,
+    action::Action as RedirectionioAction,
+    api::Log,
+    filter::FilterBodyAction,
+    http::{Addr, Header, PathAndQueryWithSkipped, Request as RedirectionioRequest},
+};
 
 #[wasm_bindgen()]
 pub struct Request {

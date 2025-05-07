@@ -1,7 +1,7 @@
+use std::{cmp::Ordering, fmt::Display};
+
 use chrono::{DateTime, Datelike, Utc, Weekday};
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::fmt::Display;
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Weekdays(pub Vec<Weekday>);

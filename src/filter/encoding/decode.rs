@@ -1,9 +1,12 @@
-use crate::filter::encoding::SupportedEncoding;
-use crate::filter::error::Result;
+use std::{
+    fmt::{Debug, Formatter},
+    io::Write,
+};
+
 use brotli::DecompressorWriter;
 use flate2::write::{GzDecoder, ZlibDecoder};
-use std::fmt::{Debug, Formatter};
-use std::io::Write;
+
+use crate::filter::{encoding::SupportedEncoding, error::Result};
 
 pub enum DecodeFilterBody {
     Gzip(GzDecoder<Vec<u8>>),

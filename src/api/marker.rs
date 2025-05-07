@@ -1,6 +1,6 @@
-use crate::api::Transformer;
-use crate::marker::Transform;
 use serde::{Deserialize, Serialize};
+
+use crate::{api::Transformer, marker::Transform};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Marker {

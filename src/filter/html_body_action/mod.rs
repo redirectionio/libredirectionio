@@ -4,13 +4,16 @@ pub mod body_append;
 pub mod body_prepend;
 pub mod body_replace;
 
-use crate::action::UnitTrace;
-use crate::api::HTMLBodyFilter;
-use crate::filter::error::Result;
-use crate::filter::html_body_action::body_append::BodyAppend;
-use crate::filter::html_body_action::body_prepend::BodyPrepend;
-use crate::filter::html_body_action::body_replace::BodyReplace;
 use std::fmt::Debug;
+
+use crate::{
+    action::UnitTrace,
+    api::HTMLBodyFilter,
+    filter::{
+        error::Result,
+        html_body_action::{body_append::BodyAppend, body_prepend::BodyPrepend, body_replace::BodyReplace},
+    },
+};
 
 #[derive(Debug)]
 pub enum HtmlBodyVisitor {

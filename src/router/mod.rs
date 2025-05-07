@@ -7,11 +7,12 @@ mod route_time;
 mod route_weekday;
 mod trace;
 
-#[cfg(feature = "dot")]
-use crate::dot::DotBuilder;
-use crate::http::Request;
-use crate::router_config::RouterConfig;
 use core::cmp::Reverse;
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
+
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Kind, Node};
 pub use request_matcher::{DateTimeMatcher, HostMatcher, IpMatcher, MethodMatcher, PathAndQueryMatcher, SchemeMatcher};
@@ -21,9 +22,11 @@ pub use route_header::{RouteHeader, RouteHeaderKind};
 pub use route_ip::RouteIp;
 pub use route_time::RouteTime;
 pub use route_weekday::RouteWeekday;
-use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
 pub use trace::{RouteTrace, Trace};
+
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+use crate::{http::Request, router_config::RouterConfig};
 
 #[derive(Debug, Clone)]
 pub struct Router<T> {

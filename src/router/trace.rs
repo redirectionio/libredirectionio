@@ -1,7 +1,11 @@
-use super::request_matcher::{DateTimeCondition, HeaderValueCondition};
-use super::route::Route;
-use serde::Serialize;
 use std::sync::Arc;
+
+use serde::Serialize;
+
+use super::{
+    request_matcher::{DateTimeCondition, HeaderValueCondition},
+    route::Route,
+};
 
 #[derive(Serialize, Debug, Clone)]
 pub struct RouteTrace<T> {

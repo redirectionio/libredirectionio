@@ -1,12 +1,16 @@
-use crate::action::UnitTrace;
-use crate::api::{BodyFilter, TextAction};
-use crate::filter::HtmlFilterBodyAction;
 #[cfg(feature = "compress")]
 use crate::filter::encoding::{DecodeFilterBody, EncodeFilterBody, get_encoding_filters};
-use crate::filter::error::Result;
-use crate::filter::html_body_action::HtmlBodyVisitor;
-use crate::filter::text_filter_body::{TextFilterAction, TextFilterBodyAction};
-use crate::http::Header;
+use crate::{
+    action::UnitTrace,
+    api::{BodyFilter, TextAction},
+    filter::{
+        HtmlFilterBodyAction,
+        error::Result,
+        html_body_action::HtmlBodyVisitor,
+        text_filter_body::{TextFilterAction, TextFilterBodyAction},
+    },
+    http::Header,
+};
 
 #[derive(Debug)]
 pub struct FilterBodyAction {
@@ -210,11 +214,15 @@ impl FilterBodyActionItem {
 
 #[cfg(test)]
 mod tests {
+    use std::io::prelude::*;
+
+    use flate2::{
+        Compression,
+        write::{GzDecoder, GzEncoder, ZlibDecoder, ZlibEncoder},
+    };
+
     use super::*;
     use crate::api::HTMLBodyFilter;
-    use flate2::Compression;
-    use flate2::write::{GzDecoder, GzEncoder, ZlibDecoder, ZlibEncoder};
-    use std::io::prelude::*;
 
     #[test]
     pub fn test_filter_gzip() {

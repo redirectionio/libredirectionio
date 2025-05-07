@@ -1,7 +1,4 @@
-use crate::action::UnitTrace;
-use crate::api::HeaderFilter;
-use crate::filter::header_action;
-use crate::http::Header;
+use crate::{action::UnitTrace, api::HeaderFilter, filter::header_action, http::Header};
 
 pub struct FilterHeaderAction {
     actions: Vec<Box<dyn header_action::HeaderAction>>,

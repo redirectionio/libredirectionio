@@ -1,5 +1,6 @@
-use crate::regex_radix_tree::item::Item;
 use std::collections::hash_map::{Values, ValuesMut};
+
+use crate::regex_radix_tree::item::Item;
 
 pub struct ItemIter<'a, V> {
     pub(crate) children: &'a [Item<V>],

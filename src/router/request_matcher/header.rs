@@ -1,17 +1,21 @@
-use super::super::RouterConfig;
-use super::super::request_matcher::DateTimeMatcher;
-use super::super::trace::{TraceInfo, TraceInfoHeaderCondition};
-use super::super::{Route, RouteHeaderKind, Trace};
-#[cfg(feature = "dot")]
-use crate::dot::DotBuilder;
-use crate::http::Request;
+use std::{
+    collections::{BTreeMap, BTreeSet, HashSet},
+    sync::Arc,
+};
+
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Node};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
-use std::collections::{BTreeMap, HashSet};
-use std::sync::Arc;
+
+use super::super::{
+    Route, RouteHeaderKind, RouterConfig, Trace,
+    request_matcher::DateTimeMatcher,
+    trace::{TraceInfo, TraceInfoHeaderCondition},
+};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+use crate::http::Request;
 
 #[derive(Debug, Clone)]
 pub struct HeaderMatcher<T> {

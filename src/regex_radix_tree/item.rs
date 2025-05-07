@@ -1,10 +1,10 @@
-use super::leaf::Leaf;
-use super::node::Node;
+#[cfg(feature = "dot")]
+use dot_graph::Graph;
+
+use super::{leaf::Leaf, node::Node};
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
 use crate::regex_radix_tree::iter::{ItemIter, ItemIterMut};
-#[cfg(feature = "dot")]
-use dot_graph::Graph;
 
 #[derive(Debug)]
 pub enum Item<V> {

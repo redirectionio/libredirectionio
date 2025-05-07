@@ -1,7 +1,11 @@
-use crate::ffi_helpers::string_to_c_char;
+use std::{
+    os::raw::{c_char, c_short, c_void},
+    sync::Once,
+};
+
 use log::{Metadata, Record};
-use std::os::raw::{c_char, c_short, c_void};
-use std::sync::Once;
+
+use crate::ffi_helpers::string_to_c_char;
 
 #[allow(non_camel_case_types)]
 pub type redirectionio_log_callback = extern "C" fn(*const c_char, *const c_void, c_short);

@@ -1,13 +1,12 @@
-use super::item::Item;
-use super::node::Node;
-use super::prefix::common_prefix;
+use std::{collections::HashMap, sync::Arc};
+
+#[cfg(feature = "dot")]
+use dot_graph::{Edge, Graph, Node as GraphNode};
+
+use super::{item::Item, node::Node, prefix::common_prefix};
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
 use crate::regex::LazyRegex;
-#[cfg(feature = "dot")]
-use dot_graph::{Edge, Graph, Node as GraphNode};
-use std::collections::HashMap;
-use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct Leaf<V> {

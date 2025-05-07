@@ -1,5 +1,6 @@
-use crate::api::{DateTimeConstraint, Header, IpConstraint};
 use serde::{Deserialize, Serialize};
+
+use crate::api::{DateTimeConstraint, Header, IpConstraint};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Source {

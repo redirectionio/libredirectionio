@@ -1,7 +1,8 @@
-use crate::marker::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
+use std::{collections::HashMap, str::FromStr};
+
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::str::FromStr;
+
+use crate::marker::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Transformer {

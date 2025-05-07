@@ -1,18 +1,23 @@
-use super::super::request_matcher::PathAndQueryMatcher;
-use super::super::route_datetime::RouteDateTime;
-use super::super::route_time::RouteTime;
-use super::super::route_weekday::RouteWeekday;
-use super::super::trace::{TraceInfo, TraceInfoDateTimeCondition};
-use super::super::{Route, RouterConfig, Trace};
-#[cfg(feature = "dot")]
-use crate::dot::DotBuilder;
-use crate::http::Request;
+use std::{
+    collections::{BTreeMap, BTreeSet, HashSet},
+    sync::Arc,
+};
+
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Node};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeSet;
-use std::collections::{BTreeMap, HashSet};
-use std::sync::Arc;
+
+use super::super::{
+    Route, RouterConfig, Trace,
+    request_matcher::PathAndQueryMatcher,
+    route_datetime::RouteDateTime,
+    route_time::RouteTime,
+    route_weekday::RouteWeekday,
+    trace::{TraceInfo, TraceInfoDateTimeCondition},
+};
+#[cfg(feature = "dot")]
+use crate::dot::DotBuilder;
+use crate::http::Request;
 
 #[derive(Debug, Clone)]
 pub struct DateTimeMatcher<T> {

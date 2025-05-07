@@ -1,6 +1,5 @@
 use super::evaluate;
-use crate::filter::error::Result;
-use crate::{action::UnitTrace, html};
+use crate::{action::UnitTrace, filter::error::Result, html};
 
 #[derive(Debug)]
 pub struct BodyPrepend {

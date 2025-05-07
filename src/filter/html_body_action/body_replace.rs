@@ -1,6 +1,5 @@
-use crate::action::UnitTrace;
-
 use super::evaluate;
+use crate::action::UnitTrace;
 
 #[derive(Debug)]
 pub struct BodyReplace {

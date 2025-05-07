@@ -3,14 +3,16 @@ extern crate criterion;
 
 mod perf;
 
+use std::{io::Write, sync::Arc};
+
 use criterion::{BenchmarkId, Criterion};
-use redirectionio::RouterConfig;
-use redirectionio::action::Action;
-use redirectionio::api::Rule;
-use redirectionio::http::{Header, Request};
-use redirectionio::router::IntoRoute;
-use std::io::Write;
-use std::sync::Arc;
+use redirectionio::{
+    RouterConfig,
+    action::Action,
+    api::Rule,
+    http::{Header, Request},
+    router::IntoRoute,
+};
 
 pub const STATIC_SMALL_BODY: &str = r##"<html><body><p>hello world</p></body></html>"##;
 

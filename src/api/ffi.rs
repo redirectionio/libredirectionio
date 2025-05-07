@@ -1,11 +1,19 @@
-use crate::action::Action;
-use crate::api::Log;
-use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
-use crate::http::Request;
-use crate::http::ffi::{HeaderMap, header_map_to_http_headers};
+use std::{
+    os::raw::{c_char, c_ushort},
+    ptr::null,
+};
+
 use serde_json::to_string as json_encode;
-use std::os::raw::{c_char, c_ushort};
-use std::ptr::null;
+
+use crate::{
+    action::Action,
+    api::Log,
+    ffi_helpers::{c_char_to_str, string_to_c_char},
+    http::{
+        Request,
+        ffi::{HeaderMap, header_map_to_http_headers},
+    },
+};
 
 #[unsafe(no_mangle)]
 pub extern "C" fn redirectionio_api_get_rule_api_version() -> *const c_char {

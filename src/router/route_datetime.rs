@@ -1,6 +1,7 @@
+use std::fmt::Display;
+
 use chrono::{DateTime, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq, Ord, PartialOrd)]
 pub struct RouteDateTime {

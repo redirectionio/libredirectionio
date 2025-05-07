@@ -1,9 +1,8 @@
 use serde::Serialize;
 use url::Url;
 
-use crate::{action::Action, http::Request, router::Router};
-
 use super::{Example, Rule};
+use crate::{action::Action, http::Request, router::Router};
 
 const REDIRECTION_CODES: [u16; 4] = [301, 302, 307, 308];
 

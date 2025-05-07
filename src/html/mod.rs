@@ -1,10 +1,11 @@
 mod error;
 
-use crate::html::TokenType::{CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken, TextToken};
+use std::{fmt::Display, string::ToString};
+
 pub use error::HtmlParseError;
 use error::Result;
-use std::fmt::Display;
-use std::string::ToString;
+
+use crate::html::TokenType::{CommentToken, DoctypeToken, EndTagToken, ErrorToken, SelfClosingTagToken, StartTagToken, TextToken};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TokenType {

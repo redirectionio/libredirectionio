@@ -1,6 +1,6 @@
+use std::{collections::HashSet, hash::Hash};
+
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
-use std::hash::Hash;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RouterConfig {

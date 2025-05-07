@@ -1,6 +1,4 @@
-use crate::action::UnitTrace;
-use crate::filter::header_action::HeaderAction;
-use crate::http::Header;
+use crate::{action::UnitTrace, filter::header_action::HeaderAction, http::Header};
 
 #[derive(Debug)]
 pub struct HeaderOverrideAction {

@@ -1,9 +1,11 @@
-use crate::router_config::RouterConfig;
+use std::collections::BTreeMap;
+
 use http::uri::PathAndQuery;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 use url::form_urlencoded::parse as parse_query;
+
+use crate::router_config::RouterConfig;
 
 const URL_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>').add(b'+');
@@ -127,8 +129,9 @@ impl PathAndQueryWithSkipped {
 
 #[cfg(test)]
 mod tests {
-    use crate::http::query::sanitize_url;
     use http::uri::PathAndQuery;
+
+    use crate::http::query::sanitize_url;
 
     fn test_url(path: &str) {
         let sanitized = sanitize_url(path);

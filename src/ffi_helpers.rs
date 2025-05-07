@@ -1,6 +1,8 @@
-use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
-use std::ptr::null;
+use std::{
+    ffi::{CStr, CString},
+    os::raw::c_char,
+    ptr::null,
+};
 
 pub fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
     if ptr.is_null() {

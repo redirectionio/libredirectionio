@@ -1,5 +1,6 @@
-use regex::{Regex, RegexBuilder};
 use std::sync::Arc;
+
+use regex::{Regex, RegexBuilder};
 
 #[derive(Debug, Clone)]
 pub struct LazyRegex {

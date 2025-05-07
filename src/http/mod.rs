@@ -8,6 +8,5 @@ pub mod ffi;
 
 pub use addr::Addr;
 pub use header::Header;
-pub use query::PathAndQueryWithSkipped;
-pub use query::sanitize_url;
+pub use query::{PathAndQueryWithSkipped, sanitize_url};
 pub use request::Request;

@@ -1,8 +1,8 @@
-use crate::api::Rule;
-use crate::router::Router;
+use std::{collections::HashSet, sync::Arc};
+
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
-use std::sync::Arc;
+
+use crate::{api::Rule, router::Router};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct RulesMessage {

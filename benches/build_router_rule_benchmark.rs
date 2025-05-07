@@ -1,12 +1,15 @@
 #[macro_use]
 extern crate criterion;
 
+use std::fs::File;
+
 use criterion::{BatchSize, BenchmarkId, Criterion};
 use flate2::read::GzDecoder;
-use redirectionio::RouterConfig;
-use redirectionio::api::{Rule, RulesMessage};
-use redirectionio::router::Router;
-use std::fs::File;
+use redirectionio::{
+    RouterConfig,
+    api::{Rule, RulesMessage},
+    router::Router,
+};
 
 fn create_rules(filename: String) -> RulesMessage {
     let content_gzip = File::open(filename.clone()).expect("Cannot open file");

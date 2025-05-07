@@ -1,21 +1,20 @@
-use super::header::Header;
-use super::query::PathAndQueryWithSkipped;
+use std::{collections::BTreeMap, net::IpAddr, str::FromStr};
+
+use chrono::{DateTime, Utc};
+#[cfg(feature = "router")]
+use http::Error;
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
+use serde::{Deserialize, Serialize};
+use trusted_proxies::RequestInformation;
+use url::form_urlencoded::parse as parse_query;
+
+use super::{header::Header, query::PathAndQueryWithSkipped};
 #[cfg(feature = "router")]
 use crate::api::Example;
 #[cfg(feature = "router")]
 use crate::http::sanitize_url;
 #[cfg(feature = "router")]
 use crate::router_config::RouterConfig;
-use chrono::{DateTime, Utc};
-#[cfg(feature = "router")]
-use http::Error;
-use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
-use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
-use std::net::IpAddr;
-use std::str::FromStr;
-use trusted_proxies::RequestInformation;
-use url::form_urlencoded::parse as parse_query;
 
 const QUERY_ENCODE_SET: &AsciiSet = &CONTROLS.add(b' ').add(b'"').add(b'#').add(b'<').add(b'>');
 

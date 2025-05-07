@@ -1,7 +1,7 @@
+use std::{fmt::Display, net::IpAddr};
+
 use cidr::AnyIpCidr;
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
-use std::net::IpAddr;
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize, Eq, PartialEq)]
 pub enum RouteIp {

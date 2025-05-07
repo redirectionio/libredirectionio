@@ -1,10 +1,13 @@
-use crate::action::Action;
-use crate::ffi_helpers::{c_char_to_str, string_to_c_char};
-use crate::filter::{Buffer, FilterBodyAction};
-use crate::http::ffi::{HeaderMap, header_map_to_http_headers, http_headers_to_header_map};
+use std::{os::raw::c_char, ptr::null};
+
 use serde_json::{from_str as json_decode, to_string as json_encode};
-use std::os::raw::c_char;
-use std::ptr::null;
+
+use crate::{
+    action::Action,
+    ffi_helpers::{c_char_to_str, string_to_c_char},
+    filter::{Buffer, FilterBodyAction},
+    http::ffi::{HeaderMap, header_map_to_http_headers, http_headers_to_header_map},
+};
 
 /// Deserialize a string to an action
 ///

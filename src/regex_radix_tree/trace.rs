@@ -1,6 +1,4 @@
-use super::item::Item;
-use super::leaf::Leaf;
-use super::node::Node;
+use super::{item::Item, leaf::Leaf, node::Node};
 
 #[derive(Debug, Clone)]
 pub struct Trace<'a, V> {

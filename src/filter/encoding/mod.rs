@@ -18,9 +18,10 @@ impl SupportedEncoding {
     }
 }
 
+use std::collections::HashSet;
+
 pub use decode::DecodeFilterBody;
 pub use encode::EncodeFilterBody;
-use std::collections::HashSet;
 
 pub fn get_encoding_filters(encoding: &str) -> Option<(DecodeFilterBody, EncodeFilterBody)> {
     let supported_encoding = match encoding {

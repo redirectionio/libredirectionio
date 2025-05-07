@@ -1,7 +1,8 @@
-use crate::api::Transformer;
-use crate::http::Request;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+use crate::{api::Transformer, http::Request};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]

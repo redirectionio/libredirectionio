@@ -1,10 +1,10 @@
-use super::item::Item;
-use super::trace::Trace;
+#[cfg(feature = "dot")]
+use dot_graph::Graph;
+
+use super::{item::Item, trace::Trace};
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
 use crate::regex_radix_tree::iter::{ItemIter, ItemIterMut};
-#[cfg(feature = "dot")]
-use dot_graph::Graph;
 
 #[derive(Debug)]
 pub struct RegexTreeMap<V> {
