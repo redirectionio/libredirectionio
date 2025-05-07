@@ -2,9 +2,9 @@ use serde::Serialize;
 
 use crate::{
     action::{Action, UnitTrace},
-    api::{Example, Rule},
+    api::{Example, RedirectionLoop, Rule},
     http::{Header, Request},
-    router::Router,
+    router::{Router, Trace},
 };
 
 #[derive(Serialize, Debug, Clone)]
@@ -14,6 +14,9 @@ pub struct ExampleRun {
     pub(crate) backend_status_code: u16,
     pub(crate) response: RunResponse,
     pub(crate) should_log_request: bool,
+    pub(crate) redirection_loop: Option<RedirectionLoop>,
+    #[cfg(feature = "router")]
+    pub(crate) match_traces: Vec<Trace<Rule>>,
 }
 
 #[derive(Serialize, Debug, Clone)]
@@ -24,6 +27,7 @@ pub struct RunResponse {
 }
 
 impl ExampleRun {
+    #[cfg(feature = "router")]
     pub fn new(router: &Router<Rule>, example: &Example) -> Result<Self, http::Error> {
         let request = Request::from_example(&router.config, example)?;
         let routes = router.match_request(&request);
@@ -74,6 +78,16 @@ impl ExampleRun {
                 body: body.to_string(),
             },
             should_log_request,
+            redirection_loop: None,
+            match_traces: vec![],
         })
+    }
+
+    pub fn with_redirection_loop(&mut self, router: &Router<Rule>, max_hops: u8, example: &Example, project_domains: Vec<String>) {
+        self.redirection_loop = Some(RedirectionLoop::from_example(router, max_hops, example, project_domains));
+    }
+
+    pub fn with_match_traces(&mut self, router: &Router<Rule>) {
+        self.match_traces = router.trace_request(&self.request);
     }
 }

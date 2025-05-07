@@ -146,7 +146,7 @@ impl ImpactOutput {
         }
 
         for example in examples.unwrap() {
-            let run = match ExampleRun::new(router, &example) {
+            let mut run = match ExampleRun::new(router, &example) {
                 Ok(r) => r,
                 Err(e) => {
                     impacts.push(Impact::new_with_error(
@@ -158,11 +158,11 @@ impl ImpactOutput {
                 }
             };
 
-            let redirection_loop = if with_redirection_loop {
-                Some(RedirectionLoop::from_example(router, max_hops, &example, project_domains.clone()))
-            } else {
-                None
-            };
+            if with_redirection_loop {
+                run.with_redirection_loop(router, max_hops, &example, project_domains.clone());
+            }
+
+            run.with_match_traces(trace_unique_router);
 
             impacts.push(Impact {
                 example,
@@ -173,9 +173,9 @@ impl ImpactOutput {
                     headers: run.response.headers,
                     body: run.response.body,
                 },
-                match_traces: trace_unique_router.trace_request(&run.request),
+                match_traces: run.match_traces,
                 error: None,
-                redirection_loop,
+                redirection_loop: run.redirection_loop,
                 should_log_request: run.should_log_request,
             });
         }
