@@ -35,15 +35,8 @@ impl Transformer {
                 "slice" => match self.options.as_ref() {
                     None => None,
                     Some(options) => {
-                        if !options.contains_key("from") || !options.contains_key("to") {
-                            return None;
-                        }
-
-                        let from = usize::from_str(options.get("from").unwrap()).unwrap_or(0);
-                        let to = match usize::from_str(options.get("to").unwrap()) {
-                            Err(_) => None,
-                            Ok(value) => Some(value),
-                        };
+                        let from = options.get("from").map(|f| usize::from_str(f)).and_then(|r| r.ok()).unwrap_or(0);
+                        let to = options.get("to").map(|f| usize::from_str(f)).and_then(|r| r.ok());
 
                         Some(Box::new(Slice::new(from, to)))
                     }
