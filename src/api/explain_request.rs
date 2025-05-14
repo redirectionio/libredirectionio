@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{Example, Rule};
 use crate::{
-    action::{ExampleRun, UnitTrace},
+    action::{RunExample, UnitTrace},
     api::{redirection_loop::RedirectionLoop, rules_message::RuleChangeSet},
     http::Header,
     router::{Router, Trace},
@@ -100,7 +100,7 @@ impl ExplainRequestOutput {
         max_hops: u8,
         project_domains: Vec<String>,
     ) -> Result<ExplainRequestOutput, ExplainRequestOutputError> {
-        let run = ExampleRun::new(router.as_ref(), example).map_err(|e| ExplainRequestOutputError {
+        let run = RunExample::new(router.as_ref(), example).map_err(|e| ExplainRequestOutputError {
             message: format!("invalid example: {e}"),
         })?;
 

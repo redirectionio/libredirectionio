@@ -12,7 +12,7 @@ use std::sync::Arc;
 use std::{fmt::Debug, iter::FromIterator};
 
 use linked_hash_set::LinkedHashSet;
-pub use run::ExampleRun;
+pub use run::RunExample;
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;
 #[cfg(feature = "router")]

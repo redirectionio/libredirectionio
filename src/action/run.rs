@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[derive(Serialize, Debug, Clone)]
-pub struct ExampleRun {
+pub struct RunExample {
     pub(crate) request: Request,
     pub(crate) unit_trace: UnitTrace,
     pub(crate) backend_status_code: u16,
@@ -26,7 +26,7 @@ pub struct RunResponse {
     pub(crate) body: String,
 }
 
-impl ExampleRun {
+impl RunExample {
     #[cfg(feature = "router")]
     pub fn new(router: &Router<Rule>, example: &Example) -> Result<Self, http::Error> {
         let request = Request::from_example(&router.config, example)?;
@@ -68,7 +68,7 @@ impl ExampleRun {
 
         unit_trace.squash_with_target_unit_traces();
 
-        Ok(ExampleRun {
+        Ok(RunExample {
             request,
             unit_trace,
             backend_status_code,

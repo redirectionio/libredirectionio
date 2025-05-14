@@ -3,7 +3,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    action::{ExampleRun, UnitTrace},
+    action::{RunExample, UnitTrace},
     api::{Example, Rule, redirection_loop::RedirectionLoop, rules_message::RuleChangeSet},
     http::Header,
     router::{Router, Trace},
@@ -146,7 +146,7 @@ impl ImpactOutput {
         }
 
         for example in examples.unwrap() {
-            let mut run = match ExampleRun::new(router, &example) {
+            let mut run = match RunExample::new(router, &example) {
                 Ok(r) => r,
                 Err(e) => {
                     impacts.push(Impact::new_with_error(

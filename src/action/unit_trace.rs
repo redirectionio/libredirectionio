@@ -4,7 +4,7 @@ use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    action::run::ExampleRun,
+    action::run::RunExample,
     api::{Example, Rule},
     router::Router,
 };
@@ -39,7 +39,7 @@ pub struct UnitTrace {
 impl UnitTrace {
     #[cfg(feature = "router")]
     pub fn from_example(router: &Router<Rule>, example: &Example) -> Result<Self, http::Error> {
-        let run = ExampleRun::new(router, example)?;
+        let run = RunExample::new(router, example)?;
 
         Ok(run.unit_trace)
     }
