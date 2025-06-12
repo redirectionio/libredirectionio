@@ -2,7 +2,7 @@ use std::{collections::HashSet, hash::Hash};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct RouterConfig {
     #[serde(default = "default_as_false")]
     pub ignore_host_case: bool,

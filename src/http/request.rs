@@ -123,7 +123,7 @@ impl Request {
 
         if let Some(headers) = &example.headers {
             for header in headers {
-                request.add_header(header.name.clone(), header.value.clone(), false);
+                request.add_header(header.name.clone(), header.value.clone(), router_config.ignore_header_case);
             }
         }
 
