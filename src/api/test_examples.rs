@@ -30,7 +30,7 @@ pub struct TestExamplesProjectInput {
     pub project_domains: Vec<String>,
 }
 
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct TestExamplesOutput {
     pub example_count: u32,
     pub failure_count: u32,
@@ -39,13 +39,13 @@ pub struct TestExamplesOutput {
     pub first_ten_errors: HashMap<String, ErroredRule>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct FailedRule {
     pub rule: Rule,
     pub failed_examples: Vec<FailedExample>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct FailedExample {
     example: Example,
     rule_ids_applied: LinkedHashSet<String>,
@@ -54,13 +54,13 @@ pub struct FailedExample {
     redirection_loop: Option<RedirectionLoop>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct ErroredRule {
     pub rule: Rule,
     pub errored_examples: Vec<ErroredExample>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct ErroredExample {
     example: Example,
     error: String,

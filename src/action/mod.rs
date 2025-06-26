@@ -9,7 +9,7 @@ mod unit_trace;
 
 #[cfg(feature = "router")]
 use std::sync::Arc;
-use std::{fmt::Debug, iter::FromIterator};
+use std::{cell::RefCell, fmt::Debug, iter::FromIterator, rc::Rc};
 
 use linked_hash_set::LinkedHashSet;
 pub use run::RunExample;
@@ -98,7 +98,7 @@ impl Action {
         let variables = route.handler().variables(&markers_captured, request);
         let rule = route.handler();
 
-        let target = rule.target.as_ref().map(|t| {
+        rule.target.as_ref().map(|t| {
             let mut value = StaticOrDynamic::replace(t.clone(), &variables);
 
             if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
@@ -112,9 +112,7 @@ impl Action {
             }
 
             value
-        });
-
-        target
+        })
     }
 
     #[cfg(feature = "router")]
@@ -334,7 +332,7 @@ impl Action {
     }
 
     #[cfg(feature = "router")]
-    pub fn from_routes_rule(mut routes: Vec<Arc<Route<Rule>>>, request: &Request, mut unit_trace: Option<&mut UnitTrace>) -> Action {
+    pub fn from_routes_rule(mut routes: Vec<Arc<Route<Rule>>>, request: &Request, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Action {
         let mut action = Action::default();
         routes.sort();
 
@@ -343,8 +341,8 @@ impl Action {
 
             if let Some(action_rule) = action_rule_opt {
                 if reset {
-                    if let (Some(trace), Some(unit_id)) = (unit_trace.as_deref_mut(), &configuration_unit_id) {
-                        trace.add_unit_id_with_target("configuration::reset", unit_id.as_str());
+                    if let (Some(trace), Some(unit_id)) = (&unit_trace, &configuration_unit_id) {
+                        trace.borrow_mut().add_unit_id_with_target("configuration::reset", unit_id.as_str());
                     }
                     action = action_rule;
                 } else {
@@ -352,8 +350,8 @@ impl Action {
                 }
 
                 if stop {
-                    if let (Some(trace), Some(unit_id)) = (unit_trace.as_deref_mut(), &configuration_unit_id) {
-                        trace.add_unit_id_with_target("configuration::stop", unit_id.as_str());
+                    if let (Some(trace), Some(unit_id)) = (&unit_trace, &configuration_unit_id) {
+                        trace.borrow_mut().add_unit_id_with_target("configuration::stop", unit_id.as_str());
                     }
                     return action;
                 }
@@ -367,9 +365,9 @@ impl Action {
         &mut self,
         response_status_code: u16,
         fallback_status_code: u16,
-        unit_trace: &mut UnitTrace,
+        unit_trace: Rc<RefCell<UnitTrace>>,
     ) -> (u16, u16) {
-        let action_status_code = self.get_status_code(response_status_code, Some(unit_trace));
+        let action_status_code = self.get_status_code(response_status_code, Some(unit_trace.clone()));
         if response_status_code == 0 && action_status_code == 0 {
             let final_status_code = self.get_status_code(fallback_status_code, Some(unit_trace));
             (final_status_code, fallback_status_code)
@@ -378,7 +376,7 @@ impl Action {
         }
     }
 
-    pub fn get_status_code(&mut self, response_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> u16 {
+    pub fn get_status_code(&mut self, response_status_code: u16, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> u16 {
         match self.status_code_update.as_ref() {
             None => 0,
             Some(status_code_update) => {
@@ -386,10 +384,10 @@ impl Action {
 
                 if let Some(rule_id) = rule_applied {
                     if let Some(trace) = unit_trace {
-                        trace.rule_ids_applied.insert(rule_id.to_string());
+                        trace.borrow_mut().rule_ids_applied.insert(rule_id.to_string());
 
                         if let (Some(target_hash), Some(unit_id)) = (&status_code_update.target_hash, &status_code_update.unit_id) {
-                            trace.add_unit_id_with_target(target_hash.as_str(), unit_id.as_str());
+                            trace.borrow_mut().add_unit_id_with_target(target_hash.as_str(), unit_id.as_str());
                         }
                     }
 
@@ -406,7 +404,7 @@ impl Action {
         headers: Vec<Header>,
         response_status_code: u16,
         add_rule_ids_header: bool,
-        mut unit_trace: Option<&mut UnitTrace>,
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
     ) -> Vec<Header> {
         let mut filters = Vec::new();
 
@@ -446,11 +444,11 @@ impl Action {
 
         let mut new_headers = match FilterHeaderAction::new(filters) {
             None => headers,
-            Some(filter_action) => filter_action.filter(headers, unit_trace.as_deref_mut()),
+            Some(filter_action) => filter_action.filter(headers, unit_trace.clone()),
         };
 
         if let Some(trace) = unit_trace {
-            trace.rule_ids_applied.extend(self.get_applied_rule_ids().clone());
+            trace.borrow_mut().rule_ids_applied.extend(self.get_applied_rule_ids().clone());
         }
 
         if add_rule_ids_header {
@@ -463,7 +461,12 @@ impl Action {
         new_headers
     }
 
-    pub fn create_filter_body(&mut self, response_status_code: u16, headers: &[Header]) -> Option<FilterBodyAction> {
+    pub fn create_filter_body(
+        &mut self,
+        response_status_code: u16,
+        headers: &[Header],
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+    ) -> Option<FilterBodyAction> {
         let mut filters = Vec::new();
         for filter in self.body_filters.as_slice() {
             if !filter.on_response_status_codes.is_empty() {
@@ -483,12 +486,17 @@ impl Action {
             filters.push(filter.filter.clone());
         }
 
-        let body_filter = FilterBodyAction::new(filters, headers);
+        let body_filter = FilterBodyAction::new(filters, headers, unit_trace);
 
         if body_filter.is_empty() { None } else { Some(body_filter) }
     }
 
-    pub fn should_log_request(&mut self, allow_log_config: bool, response_status_code: u16, unit_trace: Option<&mut UnitTrace>) -> bool {
+    pub fn should_log_request(
+        &mut self,
+        allow_log_config: bool,
+        response_status_code: u16,
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+    ) -> bool {
         match self.log_override.as_ref() {
             None => allow_log_config,
             Some(log_override) => {
@@ -496,7 +504,7 @@ impl Action {
 
                 if handled {
                     if let (Some(trace), Some(unit_id)) = (unit_trace, &log_override.unit_id) {
-                        trace.add_unit_id_with_target("configuration::log", unit_id);
+                        trace.borrow_mut().add_unit_id_with_target("configuration::log", unit_id);
                     }
                 }
 

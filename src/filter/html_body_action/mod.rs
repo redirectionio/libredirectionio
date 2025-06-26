@@ -1,18 +1,15 @@
-extern crate scraper;
-
 pub mod body_append;
 pub mod body_prepend;
 pub mod body_replace;
 
-use std::fmt::Debug;
+use std::{borrow::Cow, cell::RefCell, fmt::Debug, rc::Rc};
+
+use lol_html::{ElementContentHandlers, Settings};
 
 use crate::{
     action::UnitTrace,
     api::HTMLBodyFilter,
-    filter::{
-        error::Result,
-        html_body_action::{body_append::BodyAppend, body_prepend::BodyPrepend, body_replace::BodyReplace},
-    },
+    filter::html_body_action::{body_append::BodyAppend, body_prepend::BodyPrepend, body_replace::BodyReplace},
 };
 
 #[derive(Debug)]
@@ -23,7 +20,7 @@ pub enum HtmlBodyVisitor {
 }
 
 impl HtmlBodyVisitor {
-    pub fn new(filter: HTMLBodyFilter) -> Option<HtmlBodyVisitor> {
+    pub fn new(filter: HTMLBodyFilter, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Option<HtmlBodyVisitor> {
         if filter.element_tree.is_empty() {
             return None;
         }
@@ -36,6 +33,7 @@ impl HtmlBodyVisitor {
                 filter.inner_value.unwrap_or(filter.value),
                 filter.id,
                 filter.target_hash,
+                unit_trace,
             ))),
             "prepend_child" => Some(HtmlBodyVisitor::Prepend(BodyPrepend::new(
                 filter.element_tree,
@@ -44,6 +42,7 @@ impl HtmlBodyVisitor {
                 filter.inner_value.unwrap_or(filter.value),
                 filter.id,
                 filter.target_hash,
+                unit_trace,
             ))),
             "replace" => Some(HtmlBodyVisitor::Replace(BodyReplace::new(
                 filter.element_tree,
@@ -52,48 +51,33 @@ impl HtmlBodyVisitor {
                 filter.inner_value.unwrap_or(filter.value),
                 filter.id,
                 filter.target_hash,
+                unit_trace,
             ))),
             _ => None,
         }
     }
 
-    pub fn enter(&mut self, data: String, unit_trace: Option<&mut UnitTrace>) -> (Option<String>, Option<String>, bool, String) {
+    pub fn into_handlers(self, settings: &mut Settings) {
         match self {
-            Self::Append(append) => append.enter(data),
-            Self::Prepend(prepend) => prepend.enter(data, unit_trace),
-            Self::Replace(replace) => replace.enter(data),
+            HtmlBodyVisitor::Append(append) => append.into_handlers(settings),
+            HtmlBodyVisitor::Prepend(prepend) => {
+                let Ok(selector) = prepend.css_selector().parse() else {
+                    return;
+                };
+
+                settings
+                    .element_content_handlers
+                    .push((Cow::Owned(selector), ElementContentHandlers::default().element(prepend)));
+            }
+            HtmlBodyVisitor::Replace(replace) => {
+                let Ok(selector) = replace.css_selector().parse() else {
+                    return;
+                };
+
+                settings
+                    .element_content_handlers
+                    .push((Cow::Owned(selector), ElementContentHandlers::default().element(replace)));
+            }
         }
     }
-
-    pub fn leave(&mut self, data: String, unit_trace: Option<&mut UnitTrace>) -> Result<(Option<String>, Option<String>, String)> {
-        Ok(match self {
-            Self::Append(append) => append.leave(data, unit_trace)?,
-            Self::Prepend(prepend) => prepend.leave(data, unit_trace)?,
-            Self::Replace(replace) => replace.leave(data, unit_trace),
-        })
-    }
-
-    pub fn first(&self) -> String {
-        match self {
-            Self::Append(append) => append.first(),
-            Self::Prepend(prepend) => prepend.first(),
-            Self::Replace(replace) => replace.first(),
-        }
-    }
-}
-
-pub fn evaluate(data: &str, expression: &str) -> bool {
-    let selector = match scraper::Selector::parse(expression) {
-        Ok(selector) => selector,
-        Err(err) => {
-            log::error!("cannot parse selector {}: {:?}", expression, err);
-
-            return false;
-        }
-    };
-
-    let document = scraper::Html::parse_fragment(data);
-    let mut select = document.select(&selector);
-
-    select.next().is_some()
 }

@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use super::{Example, Rule};
@@ -6,20 +6,20 @@ use crate::{action::Action, http::Request, router::Router};
 
 const REDIRECTION_CODES: [u16; 4] = [301, 302, 307, 308];
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct RedirectionLoop {
     hops: Vec<RedirectionHop>,
     error: Option<RedirectionError>,
 }
 
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct RedirectionHop {
     pub url: String,
     pub status_code: u16,
     pub method: String,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 enum RedirectionError {
     AtLeastOneHop,
     TooManyHops,

@@ -21,7 +21,7 @@ impl LogOverride {
             return (Some(self.log_override), self.rule_id.clone(), true);
         }
 
-        if !self.exclude_response_status_codes && self.on_response_status_codes.iter().any(|v| *v == response_status_code) {
+        if !self.exclude_response_status_codes && self.on_response_status_codes.contains(&response_status_code) {
             return (Some(self.log_override), self.rule_id.clone(), true);
         }
 

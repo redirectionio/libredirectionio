@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::action::UnitTrace;
 
 #[derive(Debug)]
@@ -25,14 +27,14 @@ impl TextFilterBodyAction {
         }
     }
 
-    pub fn filter(&mut self, data: Vec<u8>, unit_trace: Option<&mut UnitTrace>) -> Vec<u8> {
+    pub fn filter(&mut self, data: Vec<u8>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Vec<u8> {
         match self.action {
             TextFilterAction::Replace => {
                 if let Some(trace) = unit_trace {
                     if let Some(id) = self.id.clone() {
                         // We always use "body" as target since it's not
                         // possible to change the value in the UI
-                        trace.override_unit_id_with_target("text", id.as_str());
+                        trace.borrow_mut().override_unit_id_with_target("text", id.as_str());
                     }
                 }
 
@@ -48,7 +50,7 @@ impl TextFilterBodyAction {
                     if let Some(id) = self.id.clone() {
                         // We always use "body" as target since it's not
                         // possible to change the value in the UI
-                        trace.add_unit_id_with_target("text", id.as_str());
+                        trace.borrow_mut().add_unit_id_with_target("text", id.as_str());
                     }
                 }
 
@@ -59,7 +61,7 @@ impl TextFilterBodyAction {
                     if let Some(id) = self.id.clone() {
                         // We always use "body" as target since it's not
                         // possible to change the value in the UI
-                        trace.add_unit_id_with_target("text", id.as_str());
+                        trace.borrow_mut().add_unit_id_with_target("text", id.as_str());
                     }
                 }
 
@@ -76,12 +78,7 @@ impl TextFilterBodyAction {
         }
     }
 
-    pub fn end(&mut self) -> Vec<u8> {
-        if self.executed {
-            Vec::new()
-        } else {
-            self.executed = true;
-            self.content.clone()
-        }
+    pub fn end(self) -> Vec<u8> {
+        if self.executed { Vec::new() } else { self.content.clone() }
     }
 }

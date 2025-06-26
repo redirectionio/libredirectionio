@@ -73,28 +73,17 @@ impl EncodeFilterBody {
         }
     }
 
-    pub fn end(&mut self) -> Result<Vec<u8>> {
+    pub fn end(self) -> Result<Vec<u8>> {
         match self {
-            Self::Deflate(d) => {
-                let mut encoder = ZlibEncoder::new(Vec::new(), flate2::Compression::default());
-                std::mem::swap(d, &mut encoder);
-
+            Self::Deflate(mut encoder) => {
                 encoder.try_finish()?;
                 Ok(encoder.finish()?)
             }
-            Self::Gzip(d) => {
-                let mut encoder = GzEncoder::new(Vec::new(), flate2::Compression::default());
-                std::mem::swap(d, &mut encoder);
-
+            Self::Gzip(mut encoder) => {
                 encoder.try_finish()?;
                 Ok(encoder.finish()?)
             }
-            Self::Brotli(d) => {
-                let mut compressor = CompressorWriter::new(Vec::new(), 4096, 11, 22);
-                std::mem::swap(&mut compressor, d);
-
-                Ok(compressor.into_inner())
-            }
+            Self::Brotli(encoder) => Ok(encoder.into_inner()),
         }
     }
 }

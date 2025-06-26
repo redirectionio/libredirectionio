@@ -1,16 +1,39 @@
-use super::evaluate;
+use std::{cell::RefCell, rc::Rc};
+
+use lol_html::{ElementHandler, html_content::ContentType, send::IntoHandler};
+
 use crate::action::UnitTrace;
 
 #[derive(Debug)]
 pub struct BodyReplace {
     element_tree: Vec<String>,
-    position: usize,
     css_selector: Option<String>,
     content: String,
     inner_content: String,
-    is_buffering: bool,
     id: Option<String>,
     target_hash: Option<String>,
+    unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+}
+
+impl<'h> IntoHandler<ElementHandler<'h>> for BodyReplace {
+    fn into_handler(self) -> ElementHandler<'h> {
+        Box::new(move |element| {
+            element.replace(self.content.as_str(), ContentType::Html);
+
+            if let (Some(unit_trace), Some(id)) = (self.unit_trace.clone(), &self.id) {
+                unit_trace.borrow_mut().add_value_computed_by_unit(id, &self.inner_content);
+                if let Some(target_hash) = &self.target_hash {
+                    unit_trace
+                        .borrow_mut()
+                        .override_unit_id_with_target(target_hash.as_str(), id.as_str());
+                } else {
+                    unit_trace.borrow_mut().add_unit_id(id.clone());
+                }
+            }
+
+            Ok(())
+        })
+    }
 }
 
 impl BodyReplace {
@@ -21,87 +44,36 @@ impl BodyReplace {
         inner_content: String,
         id: Option<String>,
         target_hash: Option<String>,
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
     ) -> BodyReplace {
         BodyReplace {
             element_tree,
             css_selector,
-            position: 0,
             content,
             inner_content,
-            is_buffering: false,
             id,
             target_hash,
+            unit_trace,
         }
     }
 }
 
 impl BodyReplace {
-    pub fn enter(&mut self, data: String) -> (Option<String>, Option<String>, bool, String) {
-        let next_leave = Some(self.element_tree[self.position].clone());
-        let mut next_enter = None;
+    pub fn css_selector(&self) -> String {
+        let mut element_tree = self.element_tree.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
 
-        if self.position + 1 < self.element_tree.len() {
-            self.position += 1;
-            next_enter = Some(self.element_tree[self.position].clone());
-
-            return (next_enter, next_leave, false, data);
-        }
-
-        if self.position + 1 >= self.element_tree.len() {
-            self.is_buffering = true;
-
-            return (next_enter, next_leave, true, data);
-        }
-
-        (next_enter, next_leave, false, data)
-    }
-
-    pub fn leave(&mut self, data: String, unit_trace: Option<&mut UnitTrace>) -> (Option<String>, Option<String>, String) {
-        let next_enter = Some(self.element_tree[self.position].clone());
-
-        let next_leave = if self.position as i32 > 0 && !self.is_buffering {
-            self.position -= 1;
-            Some(self.element_tree[self.position].clone())
-        } else {
-            None
-        };
-
-        if self.is_buffering {
-            self.is_buffering = false;
-
-            if self.css_selector.is_none() || self.css_selector.as_ref().unwrap().is_empty() {
-                if let Some(trace) = unit_trace {
-                    if let Some(id) = self.id.clone() {
-                        trace.add_value_computed_by_unit(&id, &self.inner_content);
-                        if let Some(target_hash) = self.target_hash.clone() {
-                            trace.override_unit_id_with_target(target_hash.as_str(), id.as_str());
-                        } else {
-                            trace.add_unit_id(id);
-                        }
+        if let Some(css_selector) = &self.css_selector {
+            if !css_selector.is_empty() {
+                if let Some(last) = element_tree.last() {
+                    if css_selector.starts_with(last) {
+                        element_tree.remove(element_tree.len() - 1);
                     }
                 }
-                return (next_enter, next_leave, self.content.clone());
-            }
 
-            if evaluate(data.as_str(), self.css_selector.as_ref().unwrap().as_str()) {
-                if let Some(trace) = unit_trace {
-                    if let Some(id) = self.id.clone() {
-                        trace.add_value_computed_by_unit(&id, &self.inner_content);
-                        if let Some(target_hash) = self.target_hash.clone() {
-                            trace.override_unit_id_with_target(target_hash.as_str(), id.as_str());
-                        } else {
-                            trace.add_unit_id(id);
-                        }
-                    }
-                }
-                return (next_enter, next_leave, self.content.clone());
+                return format!("{} > {}", element_tree.join(" > "), css_selector);
             }
         }
 
-        (next_enter, next_leave, data)
-    }
-
-    pub fn first(&self) -> String {
-        self.element_tree[0].clone()
+        element_tree.join(" > ")
     }
 }

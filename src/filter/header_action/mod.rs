@@ -4,12 +4,12 @@ pub mod header_override;
 pub mod header_remove;
 pub mod header_replace;
 
-use std::fmt::Debug;
+use std::{cell::RefCell, fmt::Debug, rc::Rc};
 
 use crate::{action::UnitTrace, api::HeaderFilter, http::Header};
 
 pub trait HeaderAction: Debug + Send {
-    fn filter(&self, headers: Vec<Header>, unit_trace: Option<&mut UnitTrace>) -> Vec<Header>;
+    fn filter(&self, headers: Vec<Header>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Vec<Header>;
 }
 
 pub fn create_header_action(header_filter: &HeaderFilter) -> Option<Box<dyn HeaderAction>> {

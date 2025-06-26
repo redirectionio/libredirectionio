@@ -22,7 +22,7 @@ impl StatusCodeUpdate {
             return (self.status_code, self.rule_id.as_ref());
         }
 
-        if !self.exclude_response_status_codes && self.on_response_status_codes.iter().any(|v| *v == response_status_code) {
+        if !self.exclude_response_status_codes && self.on_response_status_codes.contains(&response_status_code) {
             return (self.status_code, self.rule_id.as_ref());
         }
 

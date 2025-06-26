@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::{action::UnitTrace, api::HeaderFilter, filter::header_action, http::Header};
 
 pub struct FilterHeaderAction {
@@ -25,9 +27,9 @@ impl FilterHeaderAction {
         Some(FilterHeaderAction { actions })
     }
 
-    pub fn filter(&self, mut headers: Vec<Header>, mut unit_trace: Option<&mut UnitTrace>) -> Vec<Header> {
+    pub fn filter(&self, mut headers: Vec<Header>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Vec<Header> {
         for filter in &self.actions {
-            headers = filter.filter(headers, unit_trace.as_deref_mut());
+            headers = filter.filter(headers, unit_trace.clone());
         }
 
         headers

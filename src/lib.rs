@@ -6,7 +6,6 @@ rule format.
 pub mod action;
 pub mod api;
 pub mod filter;
-pub mod html;
 pub mod http;
 pub mod marker;
 #[cfg(feature = "router")]

@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::{action::UnitTrace, filter::header_action::HeaderAction, http::Header};
 
 #[derive(Debug)]
@@ -10,7 +12,7 @@ pub struct HeaderRemoveAction {
 }
 
 impl HeaderAction for HeaderRemoveAction {
-    fn filter(&self, headers: Vec<Header>, unit_trace: Option<&mut UnitTrace>) -> Vec<Header> {
+    fn filter(&self, headers: Vec<Header>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Vec<Header> {
         let mut new_headers = Vec::new();
 
         for header in headers {
@@ -20,10 +22,10 @@ impl HeaderAction for HeaderRemoveAction {
         }
 
         if let (Some(trace), Some(id)) = (unit_trace, &self.id) {
-            trace.add_value_computed_by_unit(id, "");
+            trace.borrow_mut().add_value_computed_by_unit(id, "");
 
             if let Some(target_hash) = &self.target_hash {
-                trace.override_unit_id_with_target(target_hash, id);
+                trace.borrow_mut().override_unit_id_with_target(target_hash, id);
             }
         }
 

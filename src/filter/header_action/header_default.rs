@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::{action::UnitTrace, filter::header_action::HeaderAction, http::Header};
 
 #[derive(Debug)]
@@ -12,7 +14,7 @@ pub struct HeaderDefaultAction {
 
 // Set a header if not present
 impl HeaderAction for HeaderDefaultAction {
-    fn filter(&self, mut headers: Vec<Header>, unit_trace: Option<&mut UnitTrace>) -> Vec<Header> {
+    fn filter(&self, mut headers: Vec<Header>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Vec<Header> {
         let mut found = false;
 
         for header in &headers {
@@ -29,10 +31,10 @@ impl HeaderAction for HeaderDefaultAction {
             });
 
             if let (Some(trace), Some(id)) = (unit_trace, &self.id) {
-                trace.add_value_computed_by_unit(id, &self.value);
+                trace.borrow_mut().add_value_computed_by_unit(id, &self.value);
 
                 if let Some(target_hash) = &self.target_hash {
-                    trace.add_unit_id_with_target(target_hash, id);
+                    trace.borrow_mut().add_unit_id_with_target(target_hash, id);
                 }
             }
         }

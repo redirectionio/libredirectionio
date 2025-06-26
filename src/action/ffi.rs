@@ -110,7 +110,7 @@ pub extern "C" fn redirectionio_action_body_filter_create(
     let action = unsafe { &mut *_action };
     let headers = header_map_to_http_headers(response_header_map);
 
-    match action.create_filter_body(response_status_code, headers.as_ref()) {
+    match action.create_filter_body(response_status_code, headers.as_ref(), None) {
         None => null(),
         Some(filter_body) => Box::into_raw(Box::new(filter_body)),
     }
@@ -138,9 +138,8 @@ pub extern "C" fn redirectionio_action_body_filter_close(_filter: *mut FilterBod
     }
 
     // SAFETY: _filter is a valid pointer to a FilterBodyAction
-    let mut filter = unsafe { Box::from_raw(_filter) };
+    let filter = unsafe { Box::from_raw(_filter) };
     let end_body = filter.end(None);
-    drop(filter);
 
     Buffer::from_vec(end_body)
 }

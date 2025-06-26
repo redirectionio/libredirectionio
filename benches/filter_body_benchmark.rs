@@ -73,7 +73,7 @@ fn filter_body_inject_html_append(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_append_small"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[], None) {
                 body.filter(STATIC_SMALL_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -84,7 +84,7 @@ fn filter_body_inject_html_append(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_append_big"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[], None) {
                 body.filter(STATIC_BIG_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -131,7 +131,7 @@ fn filter_body_inject_html_prepend(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_prepend_small"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[], None) {
                 body.filter(STATIC_SMALL_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -143,7 +143,7 @@ fn filter_body_inject_html_prepend(c: &mut Criterion) {
     group.bench_function(BenchmarkId::from_parameter("filter_body_inject_html_prepend_big"), |b| {
         b.iter(|| {
             let mut cloned_action = action.clone();
-            if let Some(mut body) = cloned_action.create_filter_body(200, &[]) {
+            if let Some(mut body) = cloned_action.create_filter_body(200, &[], None) {
                 body.filter(STATIC_BIG_BODY.as_bytes().to_vec(), None);
                 body.end(None);
             } else {
@@ -206,6 +206,7 @@ fn filter_body_inject_html_append_gzip(c: &mut Criterion) {
                     name: "Content-Encoding".to_string(),
                     value: "gzip".to_string(),
                 }],
+                None,
             ) {
                 body.filter(gzip_small_body.clone(), None);
                 body.end(None);
@@ -223,6 +224,7 @@ fn filter_body_inject_html_append_gzip(c: &mut Criterion) {
                     name: "Content-Encoding".to_string(),
                     value: "gzip".to_string(),
                 }],
+                None,
             ) {
                 body.filter(gzip_big_body.clone(), None);
                 body.end(None);

@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate criterion;
-use std::fs::File;
+
+use std::{cell::RefCell, fs::File, rc::Rc};
 
 use criterion::{BenchmarkId, Criterion};
 use flate2::read::GzDecoder;
@@ -151,7 +152,7 @@ fn build_action_rule_in_200k(c: &mut Criterion) {
     </body>
 </html>";
 
-            if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[]) {
+            if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[], None) {
                 body_filter.filter(body.into(), None);
                 body_filter.end(None);
             }
@@ -176,8 +177,6 @@ fn impact(c: &mut Criterion) {
 
     router.cache(None);
 
-    let mut unit_trace = UnitTrace::default();
-
     let mut group = c.benchmark_group("impact");
     group.sample_size(10);
 
@@ -185,17 +184,18 @@ fn impact(c: &mut Criterion) {
         b.iter(|| {
             let rules = router.match_request(&request);
             let mut action = Action::from_routes_rule(rules.clone(), &request, None);
+            let unit_trace = Some(Rc::new(RefCell::new(UnitTrace::default())));
 
-            let action_status_code = action.get_status_code(0, Some(&mut unit_trace));
+            let action_status_code = action.get_status_code(0, unit_trace.clone());
             let (_, backend_status_code) = if action_status_code != 0 {
                 (action_status_code, action_status_code)
             } else {
                 // We call the backend and get a response code
-                let final_status_code = action.get_status_code(200, Some(&mut unit_trace));
+                let final_status_code = action.get_status_code(200, unit_trace.clone());
                 (final_status_code, 200)
             };
 
-            action.filter_headers(Vec::new(), backend_status_code, false, Some(&mut unit_trace));
+            action.filter_headers(Vec::new(), backend_status_code, false, unit_trace.clone());
 
             let body = "<!DOCTYPE html>
 <html>
@@ -205,11 +205,12 @@ fn impact(c: &mut Criterion) {
     </body>
 </html>";
 
-            if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[]) {
-                body_filter.filter(body.into(), Some(&mut unit_trace));
-                body_filter.end(Some(&mut unit_trace));
+            if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[], unit_trace.clone()) {
+                body_filter.filter(body.into(), unit_trace.clone());
+                body_filter.end(unit_trace.clone());
             }
 
+            let mut unit_trace = unit_trace.unwrap().take();
             unit_trace.squash_with_target_unit_traces();
         });
     });

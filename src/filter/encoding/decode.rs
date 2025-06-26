@@ -73,31 +73,20 @@ impl DecodeFilterBody {
         }
     }
 
-    pub fn end(&mut self) -> Result<Vec<u8>> {
+    pub fn end(self) -> Result<Vec<u8>> {
         match self {
-            Self::Deflate(d) => {
-                let mut decoder = ZlibDecoder::new(Vec::new());
-                std::mem::swap(d, &mut decoder);
-
-                decoder.try_finish()?;
-                Ok(decoder.finish()?)
+            Self::Deflate(mut d) => {
+                d.try_finish()?;
+                Ok(d.finish()?)
             }
-            Self::Gzip(d) => {
-                let mut decoder = GzDecoder::new(Vec::new());
-                std::mem::swap(d, &mut decoder);
-
-                decoder.try_finish()?;
-                Ok(decoder.finish()?)
+            Self::Gzip(mut d) => {
+                d.try_finish()?;
+                Ok(d.finish()?)
             }
-            Self::Brotli(d) => {
-                let mut decompressor = DecompressorWriter::new(Vec::new(), 4096);
-                std::mem::swap(&mut decompressor, d);
-
-                match decompressor.into_inner() {
-                    Ok(buffer) => Ok(buffer),
-                    Err(buffer) => Ok(buffer),
-                }
-            }
+            Self::Brotli(d) => match d.into_inner() {
+                Ok(buffer) => Ok(buffer),
+                Err(buffer) => Ok(buffer),
+            },
         }
     }
 }
