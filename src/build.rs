@@ -211,6 +211,7 @@ pub struct Variable {
 pub enum IpConstraint {
     InRange(String),
     NotInRange(String),
+    NotOneOf(Vec<String>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

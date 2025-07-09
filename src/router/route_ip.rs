@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub enum RouteIp {
     InRange(AnyIpCidr),
     NotInRange(AnyIpCidr),
+    NotOneOf(Vec<IpAddr>),
 }
 
 impl RouteIp {
@@ -14,6 +15,7 @@ impl RouteIp {
         match self {
             Self::InRange(in_range) => in_range.contains(ip),
             Self::NotInRange(not_in_range) => !not_in_range.contains(ip),
+            Self::NotOneOf(disallowed_ips) => !disallowed_ips.contains(ip),
         }
     }
 }
@@ -23,6 +25,10 @@ impl Display for RouteIp {
         let str = match self {
             Self::InRange(in_range) => format!("in({in_range})"),
             Self::NotInRange(not_in_range) => format!("not_in({not_in_range})"),
+            Self::NotOneOf(list) => {
+                let ips = list.iter().map(ToString::to_string).collect::<Vec<_>>().join(", ");
+                format!("not_one_of([{ips}])")
+            }
         };
         write!(f, "{str}")
     }

@@ -9635,6 +9635,71 @@ fn test_rule_ip_trigger_not_in_range_2() {
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
+fn setup_rule_ip_trigger_not_one_of() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"rule-ip-trigger-not-one-of","rank":0,"source":{"ips":[{"not_one_of":["192.168.1.1","203.0.113.42"]}],"path":"/foo"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    router
+}
+
+
+#[test]
+fn test_rule_ip_trigger_not_one_of_1() {
+    let router = setup_rule_ip_trigger_not_one_of();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,r#"192.168.1.1"#.to_string().parse().ok(),None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_ip_trigger_not_one_of_2() {
+    let router = setup_rule_ip_trigger_not_one_of();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,r#"203.0.113.42"#.to_string().parse().ok(),None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), false);
+    assert_eq!(!routes_traces.is_empty(), false);
+
+}
+
+#[test]
+fn test_rule_ip_trigger_not_one_of_3() {
+    let router = setup_rule_ip_trigger_not_one_of();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo"#), r#"/foo"#.to_string(),None,None,None,r#"10.0.0.1"#.to_string().parse().ok(),None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
 fn setup_rule_methods_trigger() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);

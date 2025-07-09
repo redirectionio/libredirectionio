@@ -5,4 +5,5 @@ use serde::{Deserialize, Serialize};
 pub enum IpConstraint {
     InRange(String),
     NotInRange(String),
+    NotOneOf(Vec<String>),
 }
