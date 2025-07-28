@@ -18,7 +18,7 @@ impl RouteTime {
             Some(time) => match time.parse::<NaiveTime>() {
                 Ok(dt) => route_start = Some(dt),
                 Err(err) => {
-                    log::error!("cannot parse time {}: {}", time, err);
+                    log::error!("cannot parse time {time}: {err}");
                 }
             },
         }
@@ -27,7 +27,7 @@ impl RouteTime {
             Some(time) => match time.parse::<NaiveTime>() {
                 Ok(dt) => route_end = Some(dt),
                 Err(err) => {
-                    log::error!("cannot parse time {}: {}", time, err);
+                    log::error!("cannot parse time {time}: {err}");
                 }
             },
         }
@@ -65,6 +65,6 @@ impl Display for RouteTime {
                 Some(end) => format!("in({}, {})", start.format("%H:%M:%S"), end.format("%H:%M:%S")),
             },
         };
-        write!(f, "{}", str)
+        write!(f, "{str}")
     }
 }

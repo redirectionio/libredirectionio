@@ -59,7 +59,7 @@ impl RedirectionLoop {
             let request = match Request::from_example(&router.config, &new_example) {
                 Ok(request) => request,
                 Err(err) => {
-                    log::warn!("cannot create request from new target: {:?} : {}", new_example, err);
+                    log::warn!("cannot create request from new target: {new_example:?} : {err}");
 
                     break;
                 }

@@ -138,13 +138,13 @@ impl Rule {
                         IpConstraint::InRange(range) => match range.parse::<AnyIpCidr>() {
                             Ok(cidr) => route_ips.push(RouteIp::InRange(cidr)),
                             Err(err) => {
-                                log::error!("cannot parse cidr {}: {}", range, err);
+                                log::error!("cannot parse cidr {range}: {err}");
                             }
                         },
                         IpConstraint::NotInRange(range) => match range.parse::<AnyIpCidr>() {
                             Ok(cidr) => route_ips.push(RouteIp::NotInRange(cidr)),
                             Err(err) => {
-                                log::error!("cannot parse cidr {}: {}", range, err);
+                                log::error!("cannot parse cidr {range}: {err}");
                             }
                         },
                     }
@@ -258,7 +258,7 @@ impl Rule {
                             },
                         },
                         unknown => {
-                            log::error!("unsupported header constraint type {}", unknown);
+                            log::error!("unsupported header constraint type {unknown}");
 
                             continue;
                         }

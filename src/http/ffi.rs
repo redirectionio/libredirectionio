@@ -70,7 +70,7 @@ pub extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *c
 
     let request = match json_decode(request_str) {
         Err(err) => {
-            log::error!("cannot deserialize request {} for string {}", err, request_str);
+            log::error!("cannot deserialize request {err} for string {request_str}");
 
             return null();
         }
@@ -139,7 +139,7 @@ pub extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_ch
 
             if !proxy_norm.is_empty() {
                 if let Err(e) = trusted_proxies.add_trusted_ip(proxy_norm.as_str()) {
-                    log::warn!("cannot parse trusted proxy {}: {}", proxy_norm, e);
+                    log::warn!("cannot parse trusted proxy {proxy_norm}: {e}");
                 }
             }
         }
@@ -168,7 +168,7 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxie
     let config = unsafe { &mut *(trusted_proxies.0 as *mut Config) };
 
     if let Err(e) = config.add_trusted_ip(proxy_str.as_str()) {
-        log::warn!("cannot parse trusted proxy {}: {}", proxy_str, e);
+        log::warn!("cannot parse trusted proxy {proxy_str}: {e}");
     }
 }
 
@@ -223,7 +223,7 @@ pub extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> *const 
 
     match url.parse::<Request>() {
         Err(err) => {
-            log::error!("cannot create request for url {}: {}", url, err);
+            log::error!("cannot create request for url {url}: {err}");
 
             null()
         }

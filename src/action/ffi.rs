@@ -21,7 +21,7 @@ pub extern "C" fn redirectionio_action_json_deserialize(str: *mut c_char) -> *co
 
     let action = match json_decode(action_str) {
         Err(error) => {
-            log::error!("Unable to deserialize \"{}\" to action: {}", action_str, error,);
+            log::error!("Unable to deserialize \"{action_str}\" to action: {error}");
 
             return null();
         }
@@ -44,7 +44,7 @@ pub extern "C" fn redirectionio_action_json_serialize(_action: *mut Action) -> *
     let action = unsafe { &*_action };
     let action_serialized = match json_encode(action) {
         Err(error) => {
-            log::error!("Unable to serialize to action: {}", error,);
+            log::error!("Unable to serialize to action: {error}");
 
             return null();
         }

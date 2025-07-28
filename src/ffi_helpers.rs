@@ -29,7 +29,7 @@ pub fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
 pub fn string_to_c_char(str: String) -> *const c_char {
     let string = match CString::new(str.as_str()) {
         Err(error) => {
-            log::error!("cannot create c string {}: {}", str, error,);
+            log::error!("cannot create c string {str}: {error}");
 
             return null();
         }

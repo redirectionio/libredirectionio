@@ -53,11 +53,7 @@ impl PathAndQueryWithSkipped {
         let path_and_query: PathAndQuery = match url.parse() {
             Ok(p) => p,
             Err(err) => {
-                log::error!(
-                    "cannot parse url '{}', cancel ignoring marketing query params: {}",
-                    path_and_query_str,
-                    err
-                );
+                log::error!("cannot parse url '{path_and_query_str}', cancel ignoring marketing query params: {err}");
 
                 return Self {
                     path_and_query_matching: Some(if config.ignore_path_and_query_case {

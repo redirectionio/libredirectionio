@@ -33,7 +33,7 @@ impl RouteWeekday {
             match weekday.parse::<Weekday>() {
                 Ok(wd) => route_weekdays.push(wd),
                 Err(err) => {
-                    log::error!("cannot parse weekday {}: {}", weekday, err);
+                    log::error!("cannot parse weekday {weekday}: {err}");
                 }
             }
         }

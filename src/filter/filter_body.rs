@@ -74,10 +74,7 @@ impl FilterBodyAction {
                     Self { chain, in_error: false }
                 }
                 None => {
-                    log::error!(
-                        "redirectionio does not support content-encoding {}, filtering will be disable for this request",
-                        encoding
-                    );
+                    log::error!("redirectionio does not support content-encoding {encoding}, filtering will be disable for this request");
 
                     Self {
                         chain: Vec::new(),
@@ -101,7 +98,7 @@ impl FilterBodyAction {
         match self.do_filter(data.clone(), unit_trace) {
             Ok(filtered) => filtered,
             Err(err) => {
-                log::error!("error while filtering: {:?}", err);
+                log::error!("error while filtering: {err:?}");
                 self.in_error = true;
 
                 data
@@ -129,7 +126,7 @@ impl FilterBodyAction {
         match self.do_end(unit_trace) {
             Ok(end) => end,
             Err(err) => {
-                log::error!("error while ending filtering: {}", err);
+                log::error!("error while ending filtering: {err}");
 
                 Vec::new()
             }

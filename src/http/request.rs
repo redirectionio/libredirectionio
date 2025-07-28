@@ -194,7 +194,7 @@ impl Request {
             Some(created_at) => match created_at.parse::<DateTime<Utc>>() {
                 Ok(dt) => self.created_at = Some(dt),
                 Err(err) => {
-                    log::error!("cannot parse datetime {}: {}", created_at, err);
+                    log::error!("cannot parse datetime {created_at}: {err}");
                 }
             },
         };
