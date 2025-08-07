@@ -228,6 +228,9 @@ impl Action {
                             id: text_body_filter.id.clone(),
                             target_hash: text_body_filter.target_hash.clone(),
                         }),
+                        BodyFilter::Other(_) => {
+                            continue;
+                        }
                     },
                     on_response_status_codes: on_response_status_codes.clone(),
                     exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),

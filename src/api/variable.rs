@@ -8,13 +8,18 @@ use crate::{api::Transformer, http::Request};
 #[serde(rename_all = "snake_case")]
 pub enum VariableKind {
     Marker(String),
-    RequestHeader { name: String, default: Option<String> },
+    RequestHeader {
+        name: String,
+        default: Option<String>,
+    },
     RequestHost,
     RequestMethod,
     RequestPath,
     RequestRemoteAddress,
     RequestScheme,
     RequestTime,
+    #[serde(untagged)]
+    Other(serde_json::Value),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -41,6 +46,7 @@ impl Variable {
             VariableKind::RequestScheme => request.scheme.clone(),
             VariableKind::RequestTime => request.created_at.map(|d| d.to_rfc2822()),
             VariableKind::Marker(marker_name) => markers_captured.get(marker_name.as_str()).cloned(),
+            VariableKind::Other(_) => None,
         }
         .unwrap_or_default();
 

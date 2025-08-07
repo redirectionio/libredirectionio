@@ -27,6 +27,8 @@ pub enum TextAction {
     Prepend,
     #[serde(rename = "replace_text")]
     Replace,
+    #[serde(untagged)]
+    Other(serde_json::Value),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -34,4 +36,6 @@ pub enum TextAction {
 pub enum BodyFilter {
     Text(TextBodyFilter),
     HTML(HTMLBodyFilter),
+    #[serde(untagged)]
+    Other(serde_json::Value),
 }

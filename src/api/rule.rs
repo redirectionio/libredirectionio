@@ -1,5 +1,4 @@
-use std::net::IpAddr;
-use std::{cmp::Ordering, collections::HashMap};
+use std::{cmp::Ordering, collections::HashMap, net::IpAddr};
 
 use cidr::AnyIpCidr;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
@@ -153,13 +152,16 @@ impl Rule {
                             for ip_str in list {
                                 match ip_str.parse::<IpAddr>() {
                                     Ok(ip) => ips.push(ip),
-                                    Err(err) => log::error!("cannot parse ip {}: {}", ip_str, err),
+                                    Err(err) => log::error!("cannot parse ip {ip_str}: {err}"),
                                 }
                             }
 
                             if !ips.is_empty() {
                                 route_ips.push(RouteIp::NotOneOf(ips));
                             }
+                        }
+                        _ => {
+                            continue;
                         }
                     }
                 }

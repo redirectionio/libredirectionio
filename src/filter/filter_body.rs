@@ -183,9 +183,20 @@ impl FilterBodyActionItem {
                     TextAction::Append => TextFilterAction::Append,
                     TextAction::Prepend => TextFilterAction::Prepend,
                     TextAction::Replace => TextFilterAction::Replace,
+                    _ => {
+                        log::warn!(
+                            "unsupported text body filter action: {:?}, you may need to update your agent or module",
+                            text_body_filter.action
+                        );
+                        return None;
+                    }
                 },
                 text_body_filter.content,
             ))),
+            BodyFilter::Other(_) => {
+                log::warn!("unsupported body filter: {filter:?}, you may need to update your agent or module");
+                None
+            }
         }
     }
 

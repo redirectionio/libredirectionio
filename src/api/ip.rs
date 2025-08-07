@@ -6,4 +6,6 @@ pub enum IpConstraint {
     InRange(String),
     NotInRange(String),
     NotOneOf(Vec<String>),
+    #[serde(untagged)]
+    Other(serde_json::Value),
 }
