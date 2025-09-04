@@ -10,7 +10,7 @@ use lol_html::{
     html_content::{ContentType, Element},
 };
 
-use crate::action::UnitTrace;
+use crate::{action::UnitTrace, filter::html_body_action::body_capture::CaptureRegistry};
 
 #[derive(Debug)]
 pub struct BodyAppend {
@@ -21,9 +21,11 @@ pub struct BodyAppend {
     id: Option<String>,
     target_hash: Option<String>,
     unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+    variables: Arc<CaptureRegistry>,
 }
 
 impl BodyAppend {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         element_tree: Vec<String>,
         css_selector: Option<String>,
@@ -32,6 +34,7 @@ impl BodyAppend {
         id: Option<String>,
         target_hash: Option<String>,
         unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+        variables: Arc<CaptureRegistry>,
     ) -> BodyAppend {
         BodyAppend {
             element_tree,
@@ -41,6 +44,7 @@ impl BodyAppend {
             id,
             target_hash,
             unit_trace,
+            variables,
         }
     }
 }
@@ -89,10 +93,13 @@ impl BodyAppend {
             settings.element_content_handlers.push((
                 Cow::Owned(base_css_selector),
                 ElementContentHandlers::default().element(move |element: &mut Element| {
-                    element.append(self.content.as_str(), ContentType::Html);
+                    let content = self.variables.replace(self.content.clone());
+                    element.append(content.as_str(), ContentType::Html);
 
                     if let (Some(unit_trace), Some(id)) = (self.unit_trace.clone(), &self.id) {
-                        unit_trace.borrow_mut().add_value_computed_by_unit(id, &self.inner_content);
+                        let inner_content = self.variables.replace(self.inner_content.clone());
+
+                        unit_trace.borrow_mut().add_value_computed_by_unit(id, &inner_content);
                         if let Some(target_hash) = &self.target_hash {
                             unit_trace
                                 .borrow_mut()

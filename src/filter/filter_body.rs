@@ -1,14 +1,17 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 #[cfg(feature = "compress")]
 use crate::filter::encoding::{DecodeFilterBody, EncodeFilterBody, get_encoding_filters};
 use crate::{
     action::UnitTrace,
-    api::{BodyFilter, TextAction},
+    api::{BodyFilter, TextAction, VariableValue},
     filter::{
         HtmlFilterBodyAction,
         error::Result,
-        html_body_action::HtmlBodyVisitor,
+        html_body_action::{
+            HtmlBodyVisitor,
+            body_capture::{BodyCapture, CaptureRegistry},
+        },
         text_filter_body::{TextFilterAction, TextFilterBodyAction},
     },
     http::Header,
@@ -31,7 +34,12 @@ pub enum FilterBodyActionItem {
 }
 
 impl FilterBodyAction {
-    pub fn new(filters: Vec<BodyFilter>, headers: &[Header], unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Self {
+    pub fn new(
+        filters: Vec<BodyFilter>,
+        headers: &[Header],
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+        variables: Vec<(String, VariableValue)>,
+    ) -> Self {
         let mut chain = Vec::new();
         let mut content_type = None;
         #[cfg(feature = "compress")]
@@ -48,10 +56,24 @@ impl FilterBodyAction {
             }
         }
 
+        let capture_registry = CaptureRegistry::from_variables(variables);
+        let need_body_capture = capture_registry.need_body_capture();
+        let variables = Arc::new(capture_registry);
+
         for filter in filters {
-            if let Some(item) = FilterBodyActionItem::new(filter, content_type.clone(), unit_trace.clone()) {
+            if let Some(item) = FilterBodyActionItem::new(filter, content_type.clone(), unit_trace.clone(), variables.clone()) {
                 chain.push(item);
             }
+        }
+
+        // if need body capture and content is html
+        if need_body_capture && content_type.as_deref().is_none_or(|ct| ct.contains("text/html")) {
+            chain.insert(
+                0,
+                FilterBodyActionItem::Html(Box::new(HtmlFilterBodyAction::new(HtmlBodyVisitor::Capture(BodyCapture(
+                    variables.clone(),
+                ))))),
+            )
         }
 
         #[cfg(not(feature = "compress"))]
@@ -155,17 +177,22 @@ impl FilterBodyAction {
 }
 
 impl FilterBodyActionItem {
-    pub fn new(filter: BodyFilter, content_type: Option<String>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Option<Self> {
+    pub fn new(
+        filter: BodyFilter,
+        content_type: Option<String>,
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+        variables: Arc<CaptureRegistry>,
+    ) -> Option<Self> {
         match filter {
             BodyFilter::HTML(html_body_filter) => match content_type {
                 Some(content_type) if content_type.contains("text/html") => {
                     // @TODO Support charset
-                    HtmlBodyVisitor::new(html_body_filter, unit_trace)
+                    HtmlBodyVisitor::new(html_body_filter, unit_trace, variables.clone())
                         .map(|visitor| Self::Html(Box::new(HtmlFilterBodyAction::new(visitor))))
                 }
                 None => {
                     // Assume HTML if no content type
-                    HtmlBodyVisitor::new(html_body_filter, unit_trace)
+                    HtmlBodyVisitor::new(html_body_filter, unit_trace, variables)
                         .map(|visitor| Self::Html(Box::new(HtmlFilterBodyAction::new(visitor))))
                 }
                 _ => {
@@ -265,6 +292,7 @@ mod tests {
             })],
             &headers,
             None,
+            Vec::new(),
         );
 
         let size = compressed_input.len();
@@ -319,6 +347,7 @@ mod tests {
             })],
             &headers,
             None,
+            Vec::new(),
         );
 
         let size = compressed_input.len();
@@ -373,6 +402,7 @@ mod tests {
             })],
             &headers,
             None,
+            Vec::new(),
         );
 
         let size = compressed_input.len();
@@ -399,7 +429,7 @@ mod tests {
 
     #[test]
     pub fn test_filter() {
-        let mut filter = FilterBodyAction::new(Vec::new(), &[], None);
+        let mut filter = FilterBodyAction::new(Vec::new(), &[], None, Vec::new());
 
         let before_filter = "Test".to_string().into_bytes();
         let filtered = filter.filter(before_filter.clone(), None);
@@ -411,7 +441,7 @@ mod tests {
 
     #[test]
     pub fn test_buffer_on_error() {
-        let mut filter = FilterBodyAction::new(Vec::new(), &[], None);
+        let mut filter = FilterBodyAction::new(Vec::new(), &[], None, Vec::new());
 
         let mut filtered = filter.filter("<div>Text </".to_string().into_bytes(), None);
         filtered.extend(filter.end(None));
@@ -444,6 +474,7 @@ mod tests {
             ],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter(
@@ -483,6 +514,7 @@ mod tests {
             ],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter("<html><head><meta></head></html>".to_string().into_bytes(), None);
@@ -508,6 +540,7 @@ mod tests {
             })],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter(
@@ -538,6 +571,7 @@ mod tests {
             })],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.to_string().into_bytes(), None);

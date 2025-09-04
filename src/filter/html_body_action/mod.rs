@@ -1,15 +1,21 @@
 pub mod body_append;
+pub mod body_capture;
 pub mod body_prepend;
 pub mod body_replace;
 
-use std::{borrow::Cow, cell::RefCell, fmt::Debug, rc::Rc};
+use std::{borrow::Cow, cell::RefCell, fmt::Debug, rc::Rc, sync::Arc};
 
 use lol_html::{ElementContentHandlers, Settings};
 
 use crate::{
     action::UnitTrace,
     api::HTMLBodyFilter,
-    filter::html_body_action::{body_append::BodyAppend, body_prepend::BodyPrepend, body_replace::BodyReplace},
+    filter::html_body_action::{
+        body_append::BodyAppend,
+        body_capture::{BodyCapture, CaptureRegistry},
+        body_prepend::BodyPrepend,
+        body_replace::BodyReplace,
+    },
 };
 
 #[derive(Debug)]
@@ -17,10 +23,15 @@ pub enum HtmlBodyVisitor {
     Append(BodyAppend),
     Prepend(BodyPrepend),
     Replace(BodyReplace),
+    Capture(BodyCapture),
 }
 
 impl HtmlBodyVisitor {
-    pub fn new(filter: HTMLBodyFilter, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Option<HtmlBodyVisitor> {
+    pub fn new(
+        filter: HTMLBodyFilter,
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+        variables: Arc<CaptureRegistry>,
+    ) -> Option<HtmlBodyVisitor> {
         if filter.element_tree.is_empty() {
             return None;
         }
@@ -34,6 +45,7 @@ impl HtmlBodyVisitor {
                 filter.id,
                 filter.target_hash,
                 unit_trace,
+                variables.clone(),
             ))),
             "prepend_child" => Some(HtmlBodyVisitor::Prepend(BodyPrepend::new(
                 filter.element_tree,
@@ -43,6 +55,7 @@ impl HtmlBodyVisitor {
                 filter.id,
                 filter.target_hash,
                 unit_trace,
+                variables.clone(),
             ))),
             "replace" => Some(HtmlBodyVisitor::Replace(BodyReplace::new(
                 filter.element_tree,
@@ -52,6 +65,7 @@ impl HtmlBodyVisitor {
                 filter.id,
                 filter.target_hash,
                 unit_trace,
+                variables.clone(),
             ))),
             _ => None,
         }
@@ -77,6 +91,9 @@ impl HtmlBodyVisitor {
                 settings
                     .element_content_handlers
                     .push((Cow::Owned(selector), ElementContentHandlers::default().element(replace)));
+            }
+            HtmlBodyVisitor::Capture(capture) => {
+                capture.into_handlers(settings);
             }
         }
     }

@@ -194,6 +194,7 @@ pub enum VariableKind {
     RequestRemoteAddress,
     RequestScheme,
     RequestTime,
+    HtmlBody { selector: String, default: Option<String> },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
