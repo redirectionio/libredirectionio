@@ -154,8 +154,8 @@ impl Action {
         let mut header_filters = Vec::new();
         let mut body_filters = Vec::new();
 
-        if let Some(target) = &rule.target {
-            if !target.is_empty() {
+        if let Some(target) = &rule.target
+            && !target.is_empty() {
                 let mut value = StaticOrDynamic::replace(target.clone(), &variables);
 
                 if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
@@ -184,7 +184,6 @@ impl Action {
                     rule_id: Some(rule.id.clone()),
                 })
             }
-        }
 
         if let Some(rule_header_filters) = rule.header_filters.as_ref() {
             for filter in rule_header_filters {
@@ -505,11 +504,10 @@ impl Action {
             Some(log_override) => {
                 let (allow_log, rule_applied_id, handled) = log_override.get_log_override(response_status_code);
 
-                if handled {
-                    if let (Some(trace), Some(unit_id)) = (unit_trace, &log_override.unit_id) {
+                if handled
+                    && let (Some(trace), Some(unit_id)) = (unit_trace, &log_override.unit_id) {
                         trace.borrow_mut().add_unit_id_with_target("configuration::log", unit_id);
                     }
-                }
 
                 if let Some(rule_id) = rule_applied_id {
                     self.rules_applied.insert(rule_id);

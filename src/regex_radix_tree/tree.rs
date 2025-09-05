@@ -106,7 +106,7 @@ impl<V> RegexTreeMap<V> {
         left
     }
 
-    pub fn trace(&self, haystack: &str) -> Trace<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<'_, V> {
         self.root.trace(haystack)
     }
 
@@ -184,7 +184,7 @@ impl<V> UniqueRegexTreeMap<V> {
         self.tree.cache(limit, level)
     }
 
-    pub fn trace(&self, haystack: &str) -> Trace<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<'_, V> {
         self.tree.trace(haystack)
     }
 

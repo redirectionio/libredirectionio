@@ -337,7 +337,7 @@ impl ValueCondition {
     }
 
     pub fn cache(&mut self, limit: u64) -> u64 {
-        if limit <= 0 {
+        if limit == 0 {
             return 0;
         }
 

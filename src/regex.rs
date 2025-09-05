@@ -36,7 +36,7 @@ impl Ord for LazyRegex {
 
 impl PartialOrd for LazyRegex {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.original.cmp(&other.original))
+        Some(self.cmp(other))
     }
 }
 

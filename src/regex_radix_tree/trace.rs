@@ -10,7 +10,7 @@ pub struct Trace<'a, V> {
 }
 
 impl<V> Leaf<V> {
-    pub fn trace(&self, haystack: &str) -> Trace<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<'_, V> {
         let matched = self.regex.is_match(haystack);
 
         Trace {
@@ -23,7 +23,7 @@ impl<V> Leaf<V> {
     }
 }
 impl<V> Node<V> {
-    pub fn trace(&self, haystack: &str) -> Trace<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<'_, V> {
         let mut children = Vec::new();
         let matched = self.regex.is_match(haystack);
 
@@ -44,7 +44,7 @@ impl<V> Node<V> {
 }
 
 impl<V> Item<V> {
-    pub fn trace(&self, haystack: &str) -> Trace<V> {
+    pub fn trace(&self, haystack: &str) -> Trace<'_, V> {
         match self {
             Item::Empty(_) => Trace {
                 regex: "".to_string(),
