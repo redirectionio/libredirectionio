@@ -5,8 +5,7 @@ use std::{
 
 #[cfg(feature = "dot")]
 use dot_graph::{Edge, Graph, Node};
-use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use super::super::{
     Route, RouteHeaderKind, RouterConfig, Trace,
@@ -15,7 +14,7 @@ use super::super::{
 };
 #[cfg(feature = "dot")]
 use crate::dot::DotBuilder;
-use crate::http::Request;
+use crate::{http::Request, regex::LazyRegex};
 
 #[derive(Debug, Clone)]
 pub struct HeaderMatcher<T> {
@@ -26,7 +25,7 @@ pub struct HeaderMatcher<T> {
     config: Arc<RouterConfig>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Serialize, Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "type", content = "value")]
 pub enum ValueCondition {
@@ -38,7 +37,7 @@ pub enum ValueCondition {
     DoesNotContain(String),
     EndsWith(String),
     StartsWith(String),
-    MatchRegex(String),
+    MatchRegex(LazyRegex),
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
@@ -79,7 +78,9 @@ impl<T> HeaderMatcher<T> {
                 RouteHeaderKind::DoesNotContain(str) => ValueCondition::DoesNotContain(str.clone()),
                 RouteHeaderKind::EndsWith(str) => ValueCondition::EndsWith(str.clone()),
                 RouteHeaderKind::StartsWith(str) => ValueCondition::StartsWith(str.clone()),
-                RouteHeaderKind::MatchRegex(marker) => ValueCondition::MatchRegex(marker.regex.clone()),
+                RouteHeaderKind::MatchRegex(marker) => {
+                    ValueCondition::MatchRegex(LazyRegex::new(marker.regex.clone(), self.config.ignore_header_case))
+                }
             };
 
             let header_condition = HeaderCondition {
@@ -230,9 +231,19 @@ impl<T> HeaderMatcher<T> {
 
     pub fn cache(&mut self, limit: u64, level: u64) -> u64 {
         let mut new_limit = self.any_header.cache(limit, level);
+        let old_conditions = std::mem::take(&mut self.condition_groups);
 
-        for matcher in self.condition_groups.values_mut() {
+        for (key, mut matcher) in old_conditions {
+            let mut condition_list = BTreeSet::new();
+
+            for mut condition in key {
+                new_limit = condition.condition.cache(new_limit);
+                condition_list.insert(condition);
+            }
+
             new_limit = matcher.cache(new_limit, level);
+
+            self.condition_groups.insert(condition_list, matcher);
         }
 
         new_limit
@@ -312,19 +323,39 @@ impl ValueCondition {
 
                 result
             }
-            ValueCondition::MatchRegex(regex_string) => match Regex::new(regex_string.as_str()) {
-                Err(_) => false,
-                Ok(regex) => {
-                    let values = request.header_values(name);
-                    let mut result = false;
+            ValueCondition::MatchRegex(regex) => {
+                let values = request.header_values(name);
+                let mut result = false;
 
-                    for header_value in values {
-                        result = result || regex.is_match(header_value);
-                    }
-
-                    result
+                for header_value in values {
+                    result = result || regex.is_match(header_value);
                 }
-            },
+
+                result
+            }
+        }
+    }
+
+    pub fn cache(&mut self, limit: u64) -> u64 {
+        if limit <= 0 {
+            return 0;
+        }
+
+        match self {
+            ValueCondition::MatchRegex(regex_string) => {
+                if regex_string.compiled.is_none() {
+                    if let Some(compiled) = regex_string.create_regex() {
+                        regex_string.compiled = Some(compiled);
+
+                        limit - 1
+                    } else {
+                        limit
+                    }
+                } else {
+                    limit
+                }
+            }
+            _ => limit,
         }
     }
 

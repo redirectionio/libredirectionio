@@ -1,6 +1,7 @@
-use std::sync::Arc;
+use std::{fmt::Display, hash::Hash, sync::Arc};
 
 use regex::{Regex, RegexBuilder};
+use serde::Serialize;
 
 #[derive(Debug, Clone)]
 pub struct LazyRegex {
@@ -10,7 +11,59 @@ pub struct LazyRegex {
     pub(crate) ignore_case: bool,
 }
 
+impl Serialize for LazyRegex {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.original.as_str())
+    }
+}
+
+impl Eq for LazyRegex {}
+
+impl PartialEq for LazyRegex {
+    fn eq(&self, other: &Self) -> bool {
+        self.original == other.original && self.ignore_case == other.ignore_case
+    }
+}
+
+impl Ord for LazyRegex {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.original.cmp(&other.original)
+    }
+}
+
+impl PartialOrd for LazyRegex {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.original.cmp(&other.original))
+    }
+}
+
+impl Hash for LazyRegex {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.original.hash(state);
+        self.ignore_case.hash(state);
+    }
+}
+
+impl Display for LazyRegex {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.original)
+    }
+}
+
 impl LazyRegex {
+    #[cfg(feature = "router")]
+    pub fn new(regex: String, ignore_case: bool) -> LazyRegex {
+        LazyRegex {
+            regex: regex.clone(),
+            original: regex,
+            compiled: None,
+            ignore_case,
+        }
+    }
+
     #[cfg(feature = "router")]
     pub fn new_node(regex: String, ignore_case: bool) -> LazyRegex {
         LazyRegex {
