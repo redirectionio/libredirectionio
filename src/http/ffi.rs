@@ -138,9 +138,10 @@ pub extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_ch
             let proxy_norm = proxy.trim().to_string();
 
             if !proxy_norm.is_empty()
-                && let Err(e) = trusted_proxies.add_trusted_ip(proxy_norm.as_str()) {
-                    log::warn!("cannot parse trusted proxy {proxy_norm}: {e}");
-                }
+                && let Err(e) = trusted_proxies.add_trusted_ip(proxy_norm.as_str())
+            {
+                log::warn!("cannot parse trusted proxy {proxy_norm}: {e}");
+            }
         }
     }
 

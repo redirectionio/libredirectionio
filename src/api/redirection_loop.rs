@@ -126,11 +126,13 @@ impl RedirectionLoop {
             // If the url cannot be parsed, let's treat it as a relative Url.
             // Otherwise, we check if the corresponding domain is registered in the project.
             if let Ok(url) = Url::parse(&current_url)
-                && !project_domains.is_empty() && !project_domains.contains(&url.host_str().unwrap().to_string()) {
-                    // The current url target a domain that is not registered in the project.
-                    // So we consider there is no redirection loop here.
-                    break;
-                }
+                && !project_domains.is_empty()
+                && !project_domains.contains(&url.host_str().unwrap().to_string())
+            {
+                // The current url target a domain that is not registered in the project.
+                // So we consider there is no redirection loop here.
+                break;
+            }
 
             if i >= max_hops {
                 error = Some(RedirectionError::TooManyHops);

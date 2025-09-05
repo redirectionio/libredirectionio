@@ -155,35 +155,36 @@ impl Action {
         let mut body_filters = Vec::new();
 
         if let Some(target) = &rule.target
-            && !target.is_empty() {
-                let mut value = StaticOrDynamic::replace(target.clone(), &variables);
+            && !target.is_empty()
+        {
+            let mut value = StaticOrDynamic::replace(target.clone(), &variables);
 
-                if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
-                    if value.contains('?') {
-                        value.push('&');
-                    } else {
-                        value.push('?');
-                    }
-
-                    value.push_str(skipped_query_params.as_str());
+            if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
+                if value.contains('?') {
+                    value.push('&');
+                } else {
+                    value.push('?');
                 }
 
-                header_filters.push(HeaderFilterAction {
-                    filter: HeaderFilter {
-                        action: "override".to_string(),
-                        value,
-                        header: "Location".to_string(),
-                        id: rule.redirect_unit_id.clone(),
-                        target_hash: rule.target_hash.clone(),
-                    },
-                    on_response_status_codes: match rule.source.response_status_codes.as_ref() {
-                        None => Vec::new(),
-                        Some(on_response) => on_response.clone(),
-                    },
-                    exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
-                    rule_id: Some(rule.id.clone()),
-                })
+                value.push_str(skipped_query_params.as_str());
             }
+
+            header_filters.push(HeaderFilterAction {
+                filter: HeaderFilter {
+                    action: "override".to_string(),
+                    value,
+                    header: "Location".to_string(),
+                    id: rule.redirect_unit_id.clone(),
+                    target_hash: rule.target_hash.clone(),
+                },
+                on_response_status_codes: match rule.source.response_status_codes.as_ref() {
+                    None => Vec::new(),
+                    Some(on_response) => on_response.clone(),
+                },
+                exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
+                rule_id: Some(rule.id.clone()),
+            })
+        }
 
         if let Some(rule_header_filters) = rule.header_filters.as_ref() {
             for filter in rule_header_filters {
@@ -504,10 +505,9 @@ impl Action {
             Some(log_override) => {
                 let (allow_log, rule_applied_id, handled) = log_override.get_log_override(response_status_code);
 
-                if handled
-                    && let (Some(trace), Some(unit_id)) = (unit_trace, &log_override.unit_id) {
-                        trace.borrow_mut().add_unit_id_with_target("configuration::log", unit_id);
-                    }
+                if handled && let (Some(trace), Some(unit_id)) = (unit_trace, &log_override.unit_id) {
+                    trace.borrow_mut().add_unit_id_with_target("configuration::log", unit_id);
+                }
 
                 if let Some(rule_id) = rule_applied_id {
                     self.rules_applied.insert(rule_id);

@@ -119,9 +119,10 @@ impl<T> Route<T> {
         let mut parameters = self.path_and_query().capture(path);
 
         if let Some(host) = self.host()
-            && let Some(request_host) = request.host.as_ref() {
-                parameters.extend(host.capture(request_host));
-            }
+            && let Some(request_host) = request.host.as_ref()
+        {
+            parameters.extend(host.capture(request_host));
+        }
 
         for header in self.headers() {
             for request_header in &request.headers {
@@ -144,9 +145,10 @@ impl<T> Route<T> {
         }
 
         if let Some(host) = &self.host
-            && host.compile() {
-                compiled += 1;
-            }
+            && host.compile()
+        {
+            compiled += 1;
+        }
 
         compiled
     }

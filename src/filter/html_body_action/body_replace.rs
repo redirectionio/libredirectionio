@@ -63,14 +63,16 @@ impl BodyReplace {
         let mut element_tree = self.element_tree.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
 
         if let Some(css_selector) = &self.css_selector
-            && !css_selector.is_empty() {
-                if let Some(last) = element_tree.last()
-                    && css_selector.starts_with(last) {
-                        element_tree.remove(element_tree.len() - 1);
-                    }
-
-                return format!("{} > {}", element_tree.join(" > "), css_selector);
+            && !css_selector.is_empty()
+        {
+            if let Some(last) = element_tree.last()
+                && css_selector.starts_with(last)
+            {
+                element_tree.remove(element_tree.len() - 1);
             }
+
+            return format!("{} > {}", element_tree.join(" > "), css_selector);
+        }
 
         element_tree.join(" > ")
     }

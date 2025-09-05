@@ -50,17 +50,19 @@ impl BodyAppend {
         let mut element_tree = self.element_tree.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
 
         if let Some(css_selector) = &self.css_selector
-            && !css_selector.is_empty() {
-                if let Some(last) = element_tree.last()
-                    && css_selector.starts_with(last) {
-                        element_tree.remove(element_tree.len() - 1);
-                    }
-
-                let base_css_selector = element_tree.join(" > ");
-                let checker_selector = format!("{} > {}", element_tree.join(" > "), css_selector);
-
-                return (base_css_selector, Some(checker_selector));
+            && !css_selector.is_empty()
+        {
+            if let Some(last) = element_tree.last()
+                && css_selector.starts_with(last)
+            {
+                element_tree.remove(element_tree.len() - 1);
             }
+
+            let base_css_selector = element_tree.join(" > ");
+            let checker_selector = format!("{} > {}", element_tree.join(" > "), css_selector);
+
+            return (base_css_selector, Some(checker_selector));
+        }
 
         (element_tree.join(" > "), None)
     }

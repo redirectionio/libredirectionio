@@ -31,11 +31,12 @@ impl TextFilterBodyAction {
         match self.action {
             TextFilterAction::Replace => {
                 if let Some(trace) = unit_trace
-                    && let Some(id) = self.id.clone() {
-                        // We always use "body" as target since it's not
-                        // possible to change the value in the UI
-                        trace.borrow_mut().override_unit_id_with_target("text", id.as_str());
-                    }
+                    && let Some(id) = self.id.clone()
+                {
+                    // We always use "body" as target since it's not
+                    // possible to change the value in the UI
+                    trace.borrow_mut().override_unit_id_with_target("text", id.as_str());
+                }
 
                 if self.executed {
                     Vec::new()
@@ -46,21 +47,23 @@ impl TextFilterBodyAction {
             }
             TextFilterAction::Append => {
                 if let Some(trace) = unit_trace
-                    && let Some(id) = self.id.clone() {
-                        // We always use "body" as target since it's not
-                        // possible to change the value in the UI
-                        trace.borrow_mut().add_unit_id_with_target("text", id.as_str());
-                    }
+                    && let Some(id) = self.id.clone()
+                {
+                    // We always use "body" as target since it's not
+                    // possible to change the value in the UI
+                    trace.borrow_mut().add_unit_id_with_target("text", id.as_str());
+                }
 
                 data
             }
             TextFilterAction::Prepend => {
                 if let Some(trace) = unit_trace
-                    && let Some(id) = self.id.clone() {
-                        // We always use "body" as target since it's not
-                        // possible to change the value in the UI
-                        trace.borrow_mut().add_unit_id_with_target("text", id.as_str());
-                    }
+                    && let Some(id) = self.id.clone()
+                {
+                    // We always use "body" as target since it's not
+                    // possible to change the value in the UI
+                    trace.borrow_mut().add_unit_id_with_target("text", id.as_str());
+                }
 
                 if self.executed {
                     data
