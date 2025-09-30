@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct RouterConfig {
-    #[serde(default = "default_as_false")]
+    #[serde(default)]
     pub ignore_host_case: bool,
-    #[serde(default = "default_as_false")]
+    #[serde(default)]
     pub ignore_header_case: bool,
     #[serde(default = "default_as_false")]
     pub ignore_path_and_query_case: bool,
@@ -64,8 +64,8 @@ impl Default for RouterConfig {
         parameters.insert("utm_content".to_string());
 
         RouterConfig {
-            ignore_host_case: false,
-            ignore_header_case: false,
+            ignore_host_case: true,
+            ignore_header_case: true,
             ignore_path_and_query_case: false,
             ignore_marketing_query_params: true,
             marketing_query_params: parameters,
