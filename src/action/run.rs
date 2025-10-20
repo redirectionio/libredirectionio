@@ -17,7 +17,6 @@ pub struct RunExample {
     pub(crate) response: RunResponse,
     pub(crate) should_log_request: bool,
     pub(crate) redirection_loop: Option<RedirectionLoop>,
-    #[cfg(feature = "router")]
     pub(crate) match_traces: Vec<Trace<Rule>>,
 }
 
@@ -29,7 +28,6 @@ pub struct RunResponse {
 }
 
 impl RunExample {
-    #[cfg(feature = "router")]
     pub fn new(router: &Router<Rule>, example: &Example) -> Result<Self, http::Error> {
         let request = Request::from_example(&router.config, example)?;
         let routes = router.match_request(&request);

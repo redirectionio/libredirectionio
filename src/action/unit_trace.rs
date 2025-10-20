@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "router")]
 use crate::{
     action::run::RunExample,
     api::{Example, Rule},

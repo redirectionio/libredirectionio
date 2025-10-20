@@ -179,7 +179,7 @@ impl Action {
         }
 
         let action = self.action.as_mut().unwrap();
-        let filter = action.create_filter_body(response_status_code, &headers.headers);
+        let filter = action.create_filter_body(response_status_code, &headers.headers, None);
 
         BodyFilter { filter }
     }
@@ -209,7 +209,7 @@ impl BodyFilter {
     }
 
     pub fn end(&mut self) -> Vec<u8> {
-        match self.filter.as_mut() {
+        match std::mem::take(&mut self.filter) {
             None => Vec::new(),
             Some(filter) => filter.end(None),
         }
@@ -229,6 +229,8 @@ pub fn create_log_in_json(
     action: &Action,
     proxy: String,
     time: u64,
+    action_match_time: u64,
+    proxy_response_time: u64,
     client_ip: String,
 ) -> String {
     let log = Log::from_proxy(
@@ -238,6 +240,12 @@ pub fn create_log_in_json(
         action.action.as_ref(),
         proxy.as_str(),
         time.into(),
+        action_match_time.into(),
+        if proxy_response_time == 0 {
+            None
+        } else {
+            Some(proxy_response_time.into())
+        },
         client_ip.as_str(),
     );
 

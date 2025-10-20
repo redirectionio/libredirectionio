@@ -1,17 +1,19 @@
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi;
 mod log_override;
+#[cfg(feature = "router")]
 mod run;
 mod status_code_update;
 #[cfg(feature = "router")]
 mod trace;
 mod unit_trace;
 
+use std::{cell::RefCell, fmt::Debug, rc::Rc};
 #[cfg(feature = "router")]
-use std::sync::Arc;
-use std::{cell::RefCell, fmt::Debug, iter::FromIterator, rc::Rc};
+use std::{iter::FromIterator, sync::Arc};
 
 use linked_hash_set::LinkedHashSet;
+#[cfg(feature = "router")]
 pub use run::RunExample;
 use serde::{Deserialize, Serialize};
 pub use status_code_update::StatusCodeUpdate;

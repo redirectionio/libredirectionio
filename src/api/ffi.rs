@@ -28,6 +28,8 @@ pub extern "C" fn redirectionio_api_create_log_in_json(
     _action: *mut Action,
     _proxy: *const c_char,
     time: u64,
+    action_match_time: u64,
+    proxy_response_time: u64,
     _client_ip: *const c_char,
 ) -> *const c_char {
     if _request.is_null() {
@@ -42,7 +44,21 @@ pub extern "C" fn redirectionio_api_create_log_in_json(
     let request = unsafe { &*_request };
     let response_headers = header_map_to_http_headers(_response_headers);
 
-    let log = Log::from_proxy(request, code, &response_headers, action, proxy, time as u128, client_ip);
+    let log = Log::from_proxy(
+        request,
+        code,
+        &response_headers,
+        action,
+        proxy,
+        time as u128,
+        action_match_time as u128,
+        if proxy_response_time == 0 {
+            None
+        } else {
+            Some(proxy_response_time as u128)
+        },
+        client_ip,
+    );
 
     let log_serialized = match json_encode(&log) {
         Err(_) => return null(),

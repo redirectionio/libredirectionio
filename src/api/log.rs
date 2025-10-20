@@ -14,6 +14,8 @@ pub struct Log {
     ips: Option<Vec<String>>,
     from: FromLog,
     duration: Option<u128>,
+    match_duration: Option<u128>,
+    proxy_duration: Option<u128>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -66,6 +68,8 @@ impl Log {
                 content_type: None,
             },
             duration: None,
+            match_duration: None,
+            proxy_duration: None,
         }
     }
 
@@ -77,6 +81,8 @@ impl Log {
         action: Option<&Action>,
         proxy: &str,
         request_start_time: u128,
+        action_match_time: u128,
+        proxy_response_time: Option<u128>,
         client_ip: &str,
     ) -> Log {
         let mut location = None;
@@ -86,6 +92,8 @@ impl Log {
         let mut ips = Vec::new();
         let now = chrono::Utc::now().timestamp_millis() as u128;
         let duration = now.checked_sub(request_start_time);
+        let match_duration = action_match_time.checked_sub(request_start_time);
+        let proxy_duration = proxy_response_time.and_then(|ms| action_match_time.checked_sub(ms));
 
         if let Ok(addr) = client_ip.parse::<Addr>() {
             ips.push(addr.addr);
@@ -155,6 +163,8 @@ impl Log {
             ips: Some(ips.iter().map(|ip| ip.to_string()).collect()),
             to: location.unwrap_or_default(),
             duration,
+            match_duration,
+            proxy_duration,
         }
     }
 }

@@ -37,6 +37,7 @@ pub use header_filter::HeaderFilter;
 pub use impact::{ImpactInput, ImpactOutput, ImpactProjectInput};
 pub use ip::IpConstraint;
 pub use marker::Marker;
+#[cfg(feature = "router")]
 pub use redirection_loop::RedirectionLoop;
 #[cfg(feature = "router")]
 pub use rule::Rule;
