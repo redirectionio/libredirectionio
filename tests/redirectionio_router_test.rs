@@ -11897,6 +11897,35 @@ fn test_variable_body_html_3() {
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
+#[test]
+fn test_variable_body_html_4() {
+    let router = setup_variable_body_html();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/source"#), r#"/source"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[], None);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+    let mut new_body = body_filter.filter(r#"<html><body><h2>H2</h2><h1>H1</h1><h1>H1V2</h1></body></html>"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
+    assert_eq!(&String::from_utf8(new_body).unwrap(), r#"<html><body><h2>H1V2</h2><h1>H1</h1><h1>H1V2</h1></body></html>"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
 fn setup_variable_marker() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
     let mut router = Router::<Rule>::from_config(config);

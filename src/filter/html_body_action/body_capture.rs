@@ -102,6 +102,7 @@ impl BodyCapture {
 
                     if text.last_in_text_node() {
                         variables.set_variable(variable_name.clone(), value.clone());
+                        value = String::new();
                     }
 
                     Ok(())

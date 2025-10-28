@@ -7,6 +7,7 @@ use crate::{
     api::{BodyFilter, TextAction, VariableValue},
     filter::{
         HtmlFilterBodyAction,
+        buffer_filter_body::BufferFilterBody,
         error::Result,
         html_body_action::{
             HtmlBodyVisitor,
@@ -25,6 +26,7 @@ pub struct FilterBodyAction {
 
 #[derive(Debug)]
 pub enum FilterBodyActionItem {
+    Buffer(BufferFilterBody),
     Html(Box<HtmlFilterBodyAction>),
     Text(TextFilterBodyAction),
     #[cfg(feature = "compress")]
@@ -68,12 +70,15 @@ impl FilterBodyAction {
 
         // if need body capture and content is html
         if need_body_capture && content_type.as_deref().is_none_or(|ct| ct.contains("text/html")) {
+            // first insert buffer to ensure that variables are captured before other filters
+            chain.insert(0, FilterBodyActionItem::Buffer(BufferFilterBody::default()));
+
             chain.insert(
                 0,
                 FilterBodyActionItem::Html(Box::new(HtmlFilterBodyAction::new(HtmlBodyVisitor::Capture(BodyCapture(
                     variables.clone(),
                 ))))),
-            )
+            );
         }
 
         #[cfg(not(feature = "compress"))]
@@ -229,6 +234,7 @@ impl FilterBodyActionItem {
 
     pub fn filter(&mut self, data: Vec<u8>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Result<Vec<u8>> {
         Ok(match self {
+            FilterBodyActionItem::Buffer(buffer) => buffer.filter(data),
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data)?,
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data, unit_trace),
             #[cfg(feature = "compress")]
@@ -240,6 +246,7 @@ impl FilterBodyActionItem {
 
     pub fn end(self) -> Result<Vec<u8>> {
         Ok(match self {
+            FilterBodyActionItem::Buffer(buffer) => buffer.end(),
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.end(),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
             #[cfg(feature = "compress")]
@@ -579,6 +586,40 @@ mod tests {
 
         assert_eq!(
             r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.to_string(),
+            String::from_utf8(filtered).unwrap()
+        );
+    }
+
+    #[test]
+    pub fn test_capture_buffered() {
+        let mut filter = FilterBodyAction::new(
+            vec![BodyFilter::HTML(HTMLBodyFilter {
+                action: "replace".to_string(),
+                element_tree: vec!["html".to_string(), "body".to_string(), "h2".to_string()],
+                css_selector: None,
+                value: r#"<h2>@var1</h2>"#.to_string(),
+                id: Some("test".to_string()),
+                target_hash: Some("target_hash".to_string()),
+                inner_value: None,
+            })],
+            &[],
+            None,
+            vec![(
+                "var1".to_string(),
+                VariableValue::HtmlFilter {
+                    transformers: vec![],
+                    selector: "body > h1".to_string(),
+                    default: Some("Default Title".to_string()),
+                },
+            )],
+        );
+
+        let mut filtered = filter.filter(r#"<html><body><h2>Test</h2>"#.to_string().into_bytes(), None);
+        filtered.extend(filter.filter("<h1>This is the title</h1></body></html>".to_string().into_bytes(), None));
+        filtered.extend(filter.end(None));
+
+        assert_eq!(
+            r#"<html><body><h2>This is the title</h2><h1>This is the title</h1></body></html>"#.to_string(),
             String::from_utf8(filtered).unwrap()
         );
     }

@@ -1,4 +1,5 @@
 pub mod buffer;
+mod buffer_filter_body;
 #[cfg(feature = "compress")]
 mod encoding;
 mod error;
