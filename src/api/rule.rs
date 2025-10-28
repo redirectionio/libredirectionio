@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
 
 use crate::{
-    api::{BodyFilter, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Source, Variable},
+    api::{BodyFilter, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Source, Variable, variable::VariableValue},
     http::Request,
     marker::{Marker as RouteMarker, MarkerString, StaticOrDynamic, Transform},
     router::{IntoRoute, Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday},
@@ -80,7 +80,7 @@ impl Rule {
         Some(rule_result.unwrap())
     }
 
-    pub fn variables(&self, markers_captured: &HashMap<String, String>, request: &Request) -> Vec<(String, String)> {
+    pub fn variables(&self, markers_captured: &HashMap<String, String>, request: &Request) -> Vec<(String, VariableValue)> {
         let mut variables = Vec::new();
         let mut input = HashMap::new();
 
@@ -98,7 +98,7 @@ impl Rule {
         // Clone markers capture for bc break
         if self.variables.is_empty() {
             for (name, value) in &input {
-                variables.push((name.clone(), value.clone()));
+                variables.push((name.clone(), VariableValue::Value(value.clone())));
             }
         } else {
             for variable in &self.variables {

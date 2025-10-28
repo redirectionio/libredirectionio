@@ -33,7 +33,7 @@ use crate::marker::StaticOrDynamic;
 use crate::router::Route;
 use crate::{
     action::log_override::LogOverride,
-    api::{BodyFilter, HeaderFilter},
+    api::{BodyFilter, HeaderFilter, VariableValue},
     filter::{FilterBodyAction, FilterHeaderAction},
     http::Header,
 };
@@ -50,6 +50,8 @@ pub struct Action {
     #[serde(default)]
     pub rules_applied: LinkedHashSet<String>,
     log_override: Option<LogOverride>,
+    #[serde(default)]
+    variables: Vec<(String, VariableValue)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -85,6 +87,7 @@ impl Default for Action {
             rule_traces: Vec::new(),
             rules_applied: LinkedHashSet::new(),
             log_override: None,
+            variables: Vec::new(),
         }
     }
 }
@@ -101,7 +104,7 @@ impl Action {
         let rule = route.handler();
 
         rule.target.as_ref().map(|t| {
-            let mut value = StaticOrDynamic::replace(t.clone(), &variables);
+            let mut value = StaticOrDynamic::replace(t.clone(), &variables, true);
 
             if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
                 if value.contains('?') {
@@ -159,7 +162,7 @@ impl Action {
         if let Some(target) = &rule.target
             && !target.is_empty()
         {
-            let mut value = StaticOrDynamic::replace(target.clone(), &variables);
+            let mut value = StaticOrDynamic::replace(target.clone(), &variables, true);
 
             if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
                 if value.contains('?') {
@@ -194,7 +197,7 @@ impl Action {
                     filter: HeaderFilter {
                         action: filter.action.clone(),
                         header: filter.header.clone(),
-                        value: StaticOrDynamic::replace(filter.value.clone(), &variables),
+                        value: StaticOrDynamic::replace(filter.value.clone(), &variables, true),
                         id: filter.id.clone(),
                         target_hash: filter.target_hash.clone(),
                     },
@@ -213,20 +216,21 @@ impl Action {
                             action: html_body_filter.action.clone(),
                             css_selector: html_body_filter.css_selector.clone(),
                             element_tree: html_body_filter.element_tree.clone(),
-                            value: StaticOrDynamic::replace(html_body_filter.value.clone(), &variables),
+                            value: StaticOrDynamic::replace(html_body_filter.value.clone(), &variables, false),
                             inner_value: Some(StaticOrDynamic::replace(
                                 html_body_filter
                                     .inner_value
                                     .clone()
                                     .unwrap_or_else(|| html_body_filter.value.clone()),
                                 &variables,
+                                false,
                             )),
                             id: html_body_filter.id.clone(),
                             target_hash: html_body_filter.target_hash.clone(),
                         }),
                         BodyFilter::Text(text_body_filter) => BodyFilter::Text(TextBodyFilter {
                             action: text_body_filter.action.clone(),
-                            content: StaticOrDynamic::replace(text_body_filter.content.clone(), &variables),
+                            content: StaticOrDynamic::replace(text_body_filter.content.clone(), &variables, true),
                             id: text_body_filter.id.clone(),
                             target_hash: text_body_filter.target_hash.clone(),
                         }),
@@ -261,6 +265,7 @@ impl Action {
                 fallback_rule_id: None,
                 unit_id: rule.configuration_log_unit_id.clone(),
             }),
+            variables,
         };
 
         (
@@ -334,6 +339,8 @@ impl Action {
                 }
             }
         }
+
+        self.variables.extend(other.variables);
     }
 
     #[cfg(feature = "router")]
@@ -491,7 +498,7 @@ impl Action {
             filters.push(filter.filter.clone());
         }
 
-        let body_filter = FilterBodyAction::new(filters, headers, unit_trace);
+        let body_filter = FilterBodyAction::new(filters, headers, unit_trace, self.variables.clone());
 
         if body_filter.is_empty() { None } else { Some(body_filter) }
     }

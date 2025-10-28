@@ -1,14 +1,18 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 
 #[cfg(feature = "compress")]
 use crate::filter::encoding::{DecodeFilterBody, EncodeFilterBody, get_encoding_filters};
 use crate::{
     action::UnitTrace,
-    api::{BodyFilter, TextAction},
+    api::{BodyFilter, TextAction, VariableValue},
     filter::{
         HtmlFilterBodyAction,
+        buffer_filter_body::BufferFilterBody,
         error::Result,
-        html_body_action::HtmlBodyVisitor,
+        html_body_action::{
+            HtmlBodyVisitor,
+            body_capture::{BodyCapture, CaptureRegistry},
+        },
         text_filter_body::{TextFilterAction, TextFilterBodyAction},
     },
     http::Header,
@@ -22,6 +26,7 @@ pub struct FilterBodyAction {
 
 #[derive(Debug)]
 pub enum FilterBodyActionItem {
+    Buffer(BufferFilterBody),
     Html(Box<HtmlFilterBodyAction>),
     Text(TextFilterBodyAction),
     #[cfg(feature = "compress")]
@@ -31,7 +36,12 @@ pub enum FilterBodyActionItem {
 }
 
 impl FilterBodyAction {
-    pub fn new(filters: Vec<BodyFilter>, headers: &[Header], unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Self {
+    pub fn new(
+        filters: Vec<BodyFilter>,
+        headers: &[Header],
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+        variables: Vec<(String, VariableValue)>,
+    ) -> Self {
         let mut chain = Vec::new();
         let mut content_type = None;
         #[cfg(feature = "compress")]
@@ -48,10 +58,27 @@ impl FilterBodyAction {
             }
         }
 
+        let capture_registry = CaptureRegistry::from_variables(variables);
+        let need_body_capture = capture_registry.need_body_capture();
+        let variables = Arc::new(capture_registry);
+
         for filter in filters {
-            if let Some(item) = FilterBodyActionItem::new(filter, content_type.clone(), unit_trace.clone()) {
+            if let Some(item) = FilterBodyActionItem::new(filter, content_type.clone(), unit_trace.clone(), variables.clone()) {
                 chain.push(item);
             }
+        }
+
+        // if need body capture and content is html
+        if need_body_capture && content_type.as_deref().is_none_or(|ct| ct.contains("text/html")) {
+            // first insert buffer to ensure that variables are captured before other filters
+            chain.insert(0, FilterBodyActionItem::Buffer(BufferFilterBody::default()));
+
+            chain.insert(
+                0,
+                FilterBodyActionItem::Html(Box::new(HtmlFilterBodyAction::new(HtmlBodyVisitor::Capture(BodyCapture(
+                    variables.clone(),
+                ))))),
+            );
         }
 
         #[cfg(not(feature = "compress"))]
@@ -155,17 +182,22 @@ impl FilterBodyAction {
 }
 
 impl FilterBodyActionItem {
-    pub fn new(filter: BodyFilter, content_type: Option<String>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Option<Self> {
+    pub fn new(
+        filter: BodyFilter,
+        content_type: Option<String>,
+        unit_trace: Option<Rc<RefCell<UnitTrace>>>,
+        variables: Arc<CaptureRegistry>,
+    ) -> Option<Self> {
         match filter {
             BodyFilter::HTML(html_body_filter) => match content_type {
                 Some(content_type) if content_type.contains("text/html") => {
                     // @TODO Support charset
-                    HtmlBodyVisitor::new(html_body_filter, unit_trace)
+                    HtmlBodyVisitor::new(html_body_filter, unit_trace, variables.clone())
                         .map(|visitor| Self::Html(Box::new(HtmlFilterBodyAction::new(visitor))))
                 }
                 None => {
                     // Assume HTML if no content type
-                    HtmlBodyVisitor::new(html_body_filter, unit_trace)
+                    HtmlBodyVisitor::new(html_body_filter, unit_trace, variables)
                         .map(|visitor| Self::Html(Box::new(HtmlFilterBodyAction::new(visitor))))
                 }
                 _ => {
@@ -202,6 +234,7 @@ impl FilterBodyActionItem {
 
     pub fn filter(&mut self, data: Vec<u8>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Result<Vec<u8>> {
         Ok(match self {
+            FilterBodyActionItem::Buffer(buffer) => buffer.filter(data),
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data)?,
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data, unit_trace),
             #[cfg(feature = "compress")]
@@ -213,6 +246,7 @@ impl FilterBodyActionItem {
 
     pub fn end(self) -> Result<Vec<u8>> {
         Ok(match self {
+            FilterBodyActionItem::Buffer(buffer) => buffer.end(),
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.end(),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
             #[cfg(feature = "compress")]
@@ -265,6 +299,7 @@ mod tests {
             })],
             &headers,
             None,
+            Vec::new(),
         );
 
         let size = compressed_input.len();
@@ -319,6 +354,7 @@ mod tests {
             })],
             &headers,
             None,
+            Vec::new(),
         );
 
         let size = compressed_input.len();
@@ -373,6 +409,7 @@ mod tests {
             })],
             &headers,
             None,
+            Vec::new(),
         );
 
         let size = compressed_input.len();
@@ -399,7 +436,7 @@ mod tests {
 
     #[test]
     pub fn test_filter() {
-        let mut filter = FilterBodyAction::new(Vec::new(), &[], None);
+        let mut filter = FilterBodyAction::new(Vec::new(), &[], None, Vec::new());
 
         let before_filter = "Test".to_string().into_bytes();
         let filtered = filter.filter(before_filter.clone(), None);
@@ -411,7 +448,7 @@ mod tests {
 
     #[test]
     pub fn test_buffer_on_error() {
-        let mut filter = FilterBodyAction::new(Vec::new(), &[], None);
+        let mut filter = FilterBodyAction::new(Vec::new(), &[], None, Vec::new());
 
         let mut filtered = filter.filter("<div>Text </".to_string().into_bytes(), None);
         filtered.extend(filter.end(None));
@@ -444,6 +481,7 @@ mod tests {
             ],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter(
@@ -483,6 +521,7 @@ mod tests {
             ],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter("<html><head><meta></head></html>".to_string().into_bytes(), None);
@@ -508,6 +547,7 @@ mod tests {
             })],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter(
@@ -538,6 +578,7 @@ mod tests {
             })],
             &[],
             None,
+            Vec::new(),
         );
 
         let mut filtered = filter.filter(r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="Old Description" /></head></html>"#.to_string().into_bytes(), None);
@@ -545,6 +586,40 @@ mod tests {
 
         assert_eq!(
             r#"<html><head><description>Old description</description><meta /><meta property="og:description" content="New Description" /></head></html>"#.to_string(),
+            String::from_utf8(filtered).unwrap()
+        );
+    }
+
+    #[test]
+    pub fn test_capture_buffered() {
+        let mut filter = FilterBodyAction::new(
+            vec![BodyFilter::HTML(HTMLBodyFilter {
+                action: "replace".to_string(),
+                element_tree: vec!["html".to_string(), "body".to_string(), "h2".to_string()],
+                css_selector: None,
+                value: r#"<h2>@var1</h2>"#.to_string(),
+                id: Some("test".to_string()),
+                target_hash: Some("target_hash".to_string()),
+                inner_value: None,
+            })],
+            &[],
+            None,
+            vec![(
+                "var1".to_string(),
+                VariableValue::HtmlFilter {
+                    transformers: vec![],
+                    selector: "body > h1".to_string(),
+                    default: Some("Default Title".to_string()),
+                },
+            )],
+        );
+
+        let mut filtered = filter.filter(r#"<html><body><h2>Test</h2>"#.to_string().into_bytes(), None);
+        filtered.extend(filter.filter("<h1>This is the title</h1></body></html>".to_string().into_bytes(), None));
+        filtered.extend(filter.end(None));
+
+        assert_eq!(
+            r#"<html><body><h2>This is the title</h2><h1>This is the title</h1></body></html>"#.to_string(),
             String::from_utf8(filtered).unwrap()
         );
     }

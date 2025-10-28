@@ -49,6 +49,6 @@ pub use test_examples::{TestExamplesInput, TestExamplesOutput, TestExamplesProje
 pub use transformer::Transformer;
 #[cfg(feature = "router")]
 pub use unit_ids::{UnitIdsInput, UnitIdsOutput, UnitIdsProjectInput};
-pub use variable::{Variable, VariableKind};
+pub use variable::{Variable, VariableKind, VariableValue};
 
 pub use self::log::{LegacyLog, Log};

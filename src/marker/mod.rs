@@ -8,7 +8,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 pub use transformer::{Camelize, Dasherize, Lowercase, Replace, Slice, Transform, Underscorize, Uppercase};
 
-use crate::regex::LazyRegex;
+use crate::{api::VariableValue, regex::LazyRegex};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Marker {
@@ -145,9 +145,17 @@ impl StaticOrDynamic {
         }
     }
 
-    pub fn replace(mut str: String, variables: &[(String, String)]) -> String {
+    pub fn replace(mut str: String, variables: &[(String, VariableValue)], use_default: bool) -> String {
         for (name, value) in variables {
-            str = str.replace(format!("@{name}").as_str(), value.as_str())
+            match value {
+                VariableValue::Value(v) => {
+                    str = str.replace(format!("@{name}").as_str(), v.as_str());
+                }
+                VariableValue::HtmlFilter { default: Some(v), .. } if use_default => {
+                    str = str.replace(format!("@{name}").as_str(), v.as_str());
+                }
+                _ => {}
+            }
         }
 
         str

@@ -18,6 +18,10 @@ pub enum VariableKind {
     RequestRemoteAddress,
     RequestScheme,
     RequestTime,
+    HtmlBody {
+        selector: String,
+        default: Option<String>,
+    },
     #[serde(untagged)]
     Other(serde_json::Value),
 }
@@ -31,8 +35,18 @@ pub struct Variable {
     transformers: Vec<Transformer>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum VariableValue {
+    Value(String),
+    HtmlFilter {
+        selector: String,
+        default: Option<String>,
+        transformers: Vec<Transformer>,
+    },
+}
+
 impl Variable {
-    pub fn get_value(&self, markers_captured: &HashMap<String, String>, request: &Request) -> String {
+    pub fn get_value(&self, markers_captured: &HashMap<String, String>, request: &Request) -> VariableValue {
         let mut value = match &self.kind {
             VariableKind::RequestHeader { name, default } => Some(
                 request
@@ -46,6 +60,13 @@ impl Variable {
             VariableKind::RequestScheme => request.scheme.clone(),
             VariableKind::RequestTime => request.created_at.map(|d| d.to_rfc2822()),
             VariableKind::Marker(marker_name) => markers_captured.get(marker_name.as_str()).cloned(),
+            VariableKind::HtmlBody { selector, default } => {
+                return VariableValue::HtmlFilter {
+                    selector: selector.clone(),
+                    default: default.clone(),
+                    transformers: self.transformers.clone(),
+                };
+            }
             VariableKind::Other(_) => None,
         }
         .unwrap_or_default();
@@ -59,6 +80,26 @@ impl Variable {
             }
         }
 
-        value
+        VariableValue::Value(value)
+    }
+}
+
+impl VariableValue {
+    pub fn to_static(&self, mut new_value: String) -> VariableValue {
+        match self {
+            VariableValue::Value(_) => VariableValue::Value(new_value),
+            VariableValue::HtmlFilter { transformers, .. } => {
+                for transformer in transformers {
+                    match transformer.to_transform() {
+                        None => (),
+                        Some(t) => {
+                            new_value = t.transform(new_value);
+                        }
+                    }
+                }
+
+                VariableValue::Value(new_value)
+            }
+        }
     }
 }
