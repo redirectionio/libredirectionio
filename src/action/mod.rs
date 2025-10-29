@@ -1,6 +1,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi;
 mod log_override;
+mod peer_override;
 #[cfg(feature = "router")]
 mod run;
 mod status_code_update;
@@ -32,8 +33,8 @@ use crate::marker::StaticOrDynamic;
 #[cfg(feature = "router")]
 use crate::router::Route;
 use crate::{
-    action::log_override::LogOverride,
-    api::{BodyFilter, HeaderFilter, VariableValue},
+    action::{log_override::LogOverride, peer_override::PeerOverride},
+    api::{BodyFilter, HeaderFilter, Peer, VariableValue},
     filter::{FilterBodyAction, FilterHeaderAction},
     http::Header,
 };
@@ -50,6 +51,7 @@ pub struct Action {
     #[serde(default)]
     pub rules_applied: LinkedHashSet<String>,
     log_override: Option<LogOverride>,
+    peer_override: Option<PeerOverride>,
     #[serde(default)]
     variables: Vec<(String, VariableValue)>,
 }
@@ -87,6 +89,7 @@ impl Default for Action {
             rule_traces: Vec::new(),
             rules_applied: LinkedHashSet::new(),
             log_override: None,
+            peer_override: None,
             variables: Vec::new(),
         }
     }
@@ -265,6 +268,17 @@ impl Action {
                 fallback_rule_id: None,
                 unit_id: rule.configuration_log_unit_id.clone(),
             }),
+            peer_override: if let Some(peer) = rule.peer_override.clone()
+                && on_response_status_codes.is_empty()
+            {
+                Some(PeerOverride {
+                    peer,
+                    rule_id: Some(rule.id.clone()),
+                    unit_id: rule.peer_unit_id.clone(),
+                })
+            } else {
+                None
+            },
             variables,
         };
 
@@ -340,6 +354,10 @@ impl Action {
             }
         }
 
+        if let Some(other_peer_override) = other.peer_override {
+            self.peer_override = Some(other_peer_override);
+        }
+
         self.variables.extend(other.variables);
     }
 
@@ -385,6 +403,27 @@ impl Action {
             (final_status_code, fallback_status_code)
         } else {
             (action_status_code, response_status_code)
+        }
+    }
+
+    pub fn get_peer(&mut self, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Option<&Peer> {
+        match self.peer_override.as_ref() {
+            None => None,
+            Some(peer_override) => {
+                if let Some(rule_id) = peer_override.rule_id.as_ref() {
+                    self.rules_applied.insert(rule_id.clone());
+
+                    if let Some(trace) = &unit_trace {
+                        trace.borrow_mut().rule_ids_applied.insert(rule_id.to_string());
+
+                        if let Some(unit_id) = &peer_override.unit_id {
+                            trace.borrow_mut().add_unit_id_with_target("peer_override", unit_id);
+                        }
+                    }
+                }
+
+                Some(&peer_override.peer)
+            }
         }
     }
 

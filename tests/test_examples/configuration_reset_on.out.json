@@ -25,6 +25,7 @@
         "body_filters": [],
         "header_filters": [],
         "log_override": true,
+        "peer_override": null,
         "reset": true,
         "stop": null,
         "examples": [
@@ -44,6 +45,7 @@
         "redirect_unit_id": null,
         "configuration_log_unit_id": "53f9a13c-732a-4ee4-a379-3a27e95c2046",
         "configuration_reset_unit_id": "1d5c840c-2d6c-4c96-822f-808a1dc0a794",
+        "peer_unit_id": null,
         "target_hash": null
       },
       "failed_examples": [
