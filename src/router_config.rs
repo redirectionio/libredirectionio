@@ -10,6 +10,8 @@ pub struct RouterConfig {
     pub ignore_header_case: bool,
     #[serde(default = "default_as_false")]
     pub ignore_path_and_query_case: bool,
+    #[serde(default = "default_as_false")]
+    pub ignore_all_query_parameters: bool,
     #[serde(default)]
     pub ignore_marketing_query_params: bool,
     #[serde(default = "default_marketing_parameters")]
@@ -25,6 +27,7 @@ impl Hash for RouterConfig {
         self.ignore_host_case.hash(state);
         self.ignore_header_case.hash(state);
         self.ignore_path_and_query_case.hash(state);
+        self.ignore_all_query_parameters.hash(state);
         self.ignore_marketing_query_params.hash(state);
         self.pass_marketing_query_params_to_target.hash(state);
         self.always_match_any_host.hash(state);
@@ -67,6 +70,7 @@ impl Default for RouterConfig {
             ignore_host_case: true,
             ignore_header_case: true,
             ignore_path_and_query_case: false,
+            ignore_all_query_parameters: false,
             ignore_marketing_query_params: true,
             marketing_query_params: parameters,
             pass_marketing_query_params_to_target: true,

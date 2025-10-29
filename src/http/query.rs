@@ -37,7 +37,7 @@ impl PathAndQueryWithSkipped {
     pub fn from_config(config: &RouterConfig, path_and_query_str: &str) -> Self {
         let url = sanitize_url(path_and_query_str);
 
-        if !config.ignore_marketing_query_params {
+        if !config.ignore_marketing_query_params && !config.ignore_all_query_parameters {
             return Self {
                 path_and_query_matching: Some(if config.ignore_path_and_query_case {
                     url.to_lowercase()
@@ -72,31 +72,36 @@ impl PathAndQueryWithSkipped {
         let mut skipped_query_params = "".to_string();
 
         if let Some(query) = path_and_query.query() {
-            let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes()).into_owned().collect();
             let mut query_string = "".to_string();
 
-            for (key, value) in &hash_query {
-                let mut query_param = "".to_string();
+            if config.ignore_all_query_parameters {
+                skipped_query_params = query.to_string();
+            } else {
+                let hash_query: BTreeMap<_, _> = parse_query(query.as_bytes()).into_owned().collect();
 
-                query_param.push_str(&utf8_percent_encode(key, QUERY_ENCODE_SET).to_string());
+                for (key, value) in &hash_query {
+                    let mut query_param = "".to_string();
 
-                if !value.is_empty() {
-                    query_param.push('=');
-                    query_param.push_str(&utf8_percent_encode(value, QUERY_ENCODE_SET).to_string());
-                }
+                    query_param.push_str(&utf8_percent_encode(key, QUERY_ENCODE_SET).to_string());
 
-                if config.marketing_query_params.contains(key) {
-                    if !skipped_query_params.is_empty() {
-                        skipped_query_params.push('&')
+                    if !value.is_empty() {
+                        query_param.push('=');
+                        query_param.push_str(&utf8_percent_encode(value, QUERY_ENCODE_SET).to_string());
                     }
 
-                    skipped_query_params.push_str(query_param.as_str())
-                } else {
-                    if !query_string.is_empty() {
-                        query_string.push('&');
-                    }
+                    if config.marketing_query_params.contains(key) {
+                        if !skipped_query_params.is_empty() {
+                            skipped_query_params.push('&')
+                        }
 
-                    query_string.push_str(query_param.as_str())
+                        skipped_query_params.push_str(query_param.as_str())
+                    } else {
+                        if !query_string.is_empty() {
+                            query_string.push('&');
+                        }
+
+                        query_string.push_str(query_param.as_str())
+                    }
                 }
             }
 

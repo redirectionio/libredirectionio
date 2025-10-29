@@ -207,12 +207,12 @@ impl Rule {
         None
     }
 
-    fn path_and_query(&self, ignore_case: bool) -> StaticOrDynamic {
+    fn path_and_query(&self, ignore_case: bool, ignore_query_parameters: bool) -> StaticOrDynamic {
         let markers = self.markers();
 
         let query = match self.source.query.clone() {
-            None => None,
-            Some(source_query) => Request::build_sorted_query(source_query.as_str()),
+            Some(source_query) if !ignore_query_parameters => Request::build_sorted_query(source_query.as_str()),
+            _ => None,
         };
 
         let mut path = utf8_percent_encode(self.source.path.as_str(), URL_ENCODE_SET).to_string();
@@ -296,7 +296,7 @@ impl IntoRoute<Rule> for Rule {
             self.source.exclude_methods,
             self.source.scheme.clone(),
             self.host(config.ignore_host_case),
-            self.path_and_query(config.ignore_path_and_query_case),
+            self.path_and_query(config.ignore_path_and_query_case, config.ignore_all_query_parameters),
             self.headers(config.ignore_header_case),
             self.route_ips(),
             self.route_datetimes(),

@@ -33,6 +33,8 @@ struct RouterConfig {
     pub ignore_path_and_query_case: bool,
     #[serde(default)]
     pub ignore_marketing_query_params: bool,
+    #[serde(default = "default_as_false")]
+    pub ignore_all_query_parameters: bool,
     #[serde(default = "default_marketing_parameters")]
     pub marketing_query_params: LinkedHashSet<String>,
     #[serde(default)]
@@ -72,6 +74,7 @@ impl Default for RouterConfig {
             ignore_header_case: false,
             ignore_path_and_query_case: false,
             ignore_marketing_query_params: true,
+            ignore_all_query_parameters: false,
             marketing_query_params: parameters,
             pass_marketing_query_params_to_target: true,
             always_match_any_host: false,
