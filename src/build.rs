@@ -109,6 +109,8 @@ struct Rule {
     reset: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     stop: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    peer_override: Option<Peer>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -217,6 +219,15 @@ pub enum IpConstraint {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct DateTimeConstraint(pub Option<String>, pub Option<String>);
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Peer {
+    pub address: String,
+    pub sni_host: String,
+    pub request_host: String,
+    pub allow_invalid_certificates: bool,
+    pub tls: bool,
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleTest {

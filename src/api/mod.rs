@@ -12,6 +12,7 @@ mod impact;
 mod ip;
 mod log;
 mod marker;
+mod peer;
 #[cfg(feature = "router")]
 mod redirection_loop;
 #[cfg(feature = "router")]
@@ -37,6 +38,7 @@ pub use header_filter::HeaderFilter;
 pub use impact::{ImpactInput, ImpactOutput, ImpactProjectInput};
 pub use ip::IpConstraint;
 pub use marker::Marker;
+pub use peer::Peer;
 #[cfg(feature = "router")]
 pub use redirection_loop::RedirectionLoop;
 #[cfg(feature = "router")]
