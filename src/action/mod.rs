@@ -100,6 +100,10 @@ impl Action {
         &self.rules_applied
     }
 
+    pub fn get_applied_rule_ids_vec(&self) -> Vec<String> {
+        self.rules_applied.iter().cloned().collect::<Vec<String>>()
+    }
+
     #[cfg(feature = "router")]
     pub fn get_target(route: &Route<Rule>, request: &Request) -> Option<String> {
         let markers_captured = route.capture(request);

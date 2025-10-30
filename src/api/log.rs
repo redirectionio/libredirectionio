@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    action::Action,
-    http::{Addr, Header, Request},
-};
+use crate::http::{Addr, Header, Request};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {
@@ -78,7 +75,7 @@ impl Log {
         request: &Request,
         code: u16,
         response_headers: &[Header],
-        action: Option<&Action>,
+        rule_ids: Vec<String>,
         proxy: &str,
         request_start_time: u128,
         action_match_time: u128,
@@ -145,7 +142,7 @@ impl Log {
         }
 
         let from = FromLog {
-            rule_ids: action.map(|a| a.get_applied_rule_ids().iter().cloned().collect()),
+            rule_ids: Some(rule_ids),
             url: request.path_and_query_skipped.original.clone(),
             method: request.method.clone(),
             scheme: request.scheme.clone(),

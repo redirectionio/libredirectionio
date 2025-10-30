@@ -48,7 +48,7 @@ pub extern "C" fn redirectionio_api_create_log_in_json(
         request,
         code,
         &response_headers,
-        action,
+        action.map(|a| a.get_applied_rule_ids_vec()).unwrap_or_default(),
         proxy,
         time as u128,
         action_match_time as u128,
