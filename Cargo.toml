@@ -19,7 +19,7 @@ libtool = "0.1.1"
 linked_hash_set = { version = "0.1.5", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_yaml = "0.9.34"
-tera = "1.20.0"
+tera = "1.20.1"
 
 [features]
 default = ["compress", "router"]
@@ -35,7 +35,7 @@ getrandom = { version = "0.2.16", features = ["js"] }
 log = "0.4.28"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
-wasm-bindgen = "0.2.104"
+wasm-bindgen = "0.2.105"
 wasm-logger = "0.2.0"
 
 [dependencies]
@@ -43,7 +43,7 @@ brotli = { version = "8.0.2", optional = true }
 chrono = { version = "0.4.42", features = ["serde"] }
 cidr = { version = "0.3.1", features = ["serde"] }
 dot_graph = { version = "0.2.3", optional = true }
-flate2 = { version = "1.1.4", optional = true }
+flate2 = { version = "1.1.5", optional = true }
 heck = "0.5.0"
 http = "1.3.1"
 lazy_static = "1.5.0"
@@ -52,7 +52,7 @@ log = "0.4.28"
 lol_html = "2.7.0"
 percent-encoding = "2.3.2"
 rand = "0.8.5"
-regex = "1.11.3"
+regex = "1.12.2"
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = "1.0.145"
 stderrlog = "0.6.0"
@@ -81,7 +81,7 @@ name = "test_examples_benchmark"
 harness = false
 
 [dependencies.web-sys]
-version = "0.3.81"
+version = "0.3.82"
 features = [
     "console",
 ]
