@@ -285,7 +285,7 @@ fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let package_name = env::var("CARGO_PKG_NAME").unwrap();
     let build_dir = Path::new(crate_dir.as_str());
-    let output_file = build_dir.join(format!("{package_name}.h"));
+    let output_file = build_dir.join("target").join(format!("{package_name}.h"));
 
     if env::var("PUBLISH_SKIP_BUILD").is_ok() {
         return;

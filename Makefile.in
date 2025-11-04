@@ -20,17 +20,17 @@ endif
 prefix := @prefix@
 exec_prefix := @exec_prefix@
 
-all: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a redirectionio.h
+all: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a target/redirectionio.h
 
-redirectionio.h: $(EXTRA_DIST)
+target/redirectionio.h: $(EXTRA_DIST)
 	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_TARGET_DIR@
 
 @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a: $(EXTRA_DIST)
 	@CARGO_BIN@ build $(CARGO_FLAGS) --lib @RUST_RELEASE@ --target-dir @RUST_TARGET_DIR@
 
-install: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a redirectionio.h
+install: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a target/redirectionio.h
 	mkdir -p $(DESTDIR)@prefix@/include/
-	install -c -m 644 redirectionio.h $(DESTDIR)@prefix@/include/
+	install -c -m 644 target/redirectionio.h $(DESTDIR)@prefix@/include/
 	mkdir -p $(DESTDIR)@libdir@/
 	install -c -m 644 @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a $(DESTDIR)@libdir@/
 	mkdir -p $(DESTDIR)@libdir@/pkgconfig/
@@ -41,7 +41,7 @@ build-wasm:
 
 .PHONY:	clean
 clean:
-	rm -f redirectionio.h
+	rm -f target/redirectionio.h
 	rm -f @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a
 	@CARGO_BIN@ clean --package redirectionio @RUST_RELEASE@
 
