@@ -90,7 +90,7 @@ impl Log {
         let now = chrono::Utc::now().timestamp_millis() as u128;
         let duration = now.checked_sub(request_start_time);
         let match_duration = action_match_time.checked_sub(request_start_time);
-        let proxy_duration = proxy_response_time.and_then(|ms| action_match_time.checked_sub(ms));
+        let proxy_duration = proxy_response_time.and_then(|ms| ms.checked_sub(action_match_time));
 
         if let Ok(addr) = client_ip.parse::<Addr>() {
             ips.push(addr.addr);

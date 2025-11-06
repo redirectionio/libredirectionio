@@ -52,11 +52,7 @@ pub extern "C" fn redirectionio_api_create_log_in_json(
         proxy,
         time as u128,
         action_match_time as u128,
-        if proxy_response_time == 0 {
-            None
-        } else {
-            Some(proxy_response_time as u128)
-        },
+        Some(proxy_response_time as u128),
         client_ip,
     );
 
