@@ -43,11 +43,6 @@ impl log::Log for CallbackLogger {
 static INIT: Once = Once::new();
 
 #[unsafe(no_mangle)]
-pub extern "C" fn redirectionio_log_init_stderr() {
-    stderrlog::new().init().unwrap();
-}
-
-#[unsafe(no_mangle)]
 pub unsafe extern "C" fn redirectionio_log_init_with_callback(callback: redirectionio_log_callback, data: &'static c_void) {
     let logger = CallbackLogger {
         callback: Some(callback),
