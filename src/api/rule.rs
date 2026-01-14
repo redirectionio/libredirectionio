@@ -211,6 +211,7 @@ impl Rule {
         let markers = self.markers();
 
         let query = match self.source.query.clone() {
+            Some(source_query) if source_query.is_empty() => None,
             Some(source_query) if !ignore_query_parameters => {
                 if ignore_query_param_order {
                     Request::build_sorted_query(source_query.as_str())

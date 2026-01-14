@@ -7964,8 +7964,11 @@ fn setup_query_parameters_order() -> Router<Rule> {
     let route_1: Rule = serde_json::from_str(r#"{"id":"rule-inverted-with-query-parameters","rank":0,"source":{"path":"/foo","query":"c=c&b=b"},"status_code":302,"target":"/bar-inverted"}"#).expect("cannot deserialize");
     router.insert(route_1);
 
-    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-with-query-parameters","rank":0,"source":{"path":"/foo","query":"a=a&b=b"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    let route_2: Rule = serde_json::from_str(r#"{"id":"rule-no-query-parameters","rank":0,"source":{"path":"/no-query","query":""},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
     router.insert(route_2);
+
+    let route_3: Rule = serde_json::from_str(r#"{"id":"rule-with-query-parameters","rank":0,"source":{"path":"/foo","query":"a=a&b=b"},"status_code":302,"target":"/bar"}"#).expect("cannot deserialize");
+    router.insert(route_3);
 
     router.cache(Some(100));
     router
@@ -8081,6 +8084,34 @@ fn test_query_parameters_order_6() {
     let router = setup_query_parameters_order();
     let default_config = RouterConfig::default();
     let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/foo?a=a&b=b&param1=value1"#), r#"/foo?a=a&b=b&param1=value1"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 302);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/bar"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+#[test]
+fn test_query_parameters_order_7() {
+    let router = setup_query_parameters_order();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/no-query"#), r#"/no-query"#.to_string(),None,None,None,None,None);
     
     let request_configured = Request::rebuild_with_config(&router.config, &request);
     let matched = router.match_request(&request_configured);

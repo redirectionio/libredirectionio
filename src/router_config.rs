@@ -4,15 +4,15 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct RouterConfig {
-    #[serde(default)]
+    #[serde(default = "default_as_true")]
     pub ignore_host_case: bool,
-    #[serde(default)]
+    #[serde(default = "default_as_true")]
     pub ignore_header_case: bool,
     #[serde(default = "default_as_false")]
     pub ignore_path_and_query_case: bool,
     #[serde(default = "default_as_false")]
     pub ignore_all_query_parameters: bool,
-    #[serde(default)]
+    #[serde(default = "default_as_true")]
     pub ignore_marketing_query_params: bool,
     #[serde(default = "default_marketing_parameters")]
     pub marketing_query_params: HashSet<String>,
@@ -20,7 +20,7 @@ pub struct RouterConfig {
     pub pass_marketing_query_params_to_target: bool,
     #[serde(default = "default_as_false")]
     pub always_match_any_host: bool,
-    #[serde(default)]
+    #[serde(default = "default_as_true")]
     pub ignore_query_param_order: bool,
 }
 
@@ -45,6 +45,10 @@ impl Hash for RouterConfig {
 
 fn default_as_false() -> bool {
     false
+}
+
+fn default_as_true() -> bool {
+    true
 }
 
 fn default_marketing_parameters() -> HashSet<String> {
