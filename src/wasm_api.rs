@@ -237,7 +237,7 @@ pub fn create_log_in_json(
         &request.request,
         status_code,
         &response_headers.headers,
-        action.action.as_ref(),
+        action.action.as_ref().map(|a| a.get_applied_rule_ids_vec()).unwrap_or_default(),
         proxy.as_str(),
         time.into(),
         action_match_time.into(),

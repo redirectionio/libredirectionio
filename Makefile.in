@@ -37,7 +37,7 @@ install: @RUST_TARGET_DIR@/@RUST_TARGET_SUBDIR@/libredirectionio.a target/redire
 	install -c -m 644 libredirectionio.pc $(DESTDIR)@libdir@/pkgconfig/
 
 build-wasm:
-	wasm-pack build --scope redirection.io --no-default-features --out-dir pkg/wasm --no-pack --release --features wasmbind
+	RUSTFLAGS='--cfg getrandom_backend="wasm_js"' wasm-pack build --scope redirection.io --no-default-features --out-dir pkg/wasm --no-pack --release --features wasmbind
 
 .PHONY:	clean
 clean:

@@ -31,7 +31,7 @@ wasmbind = []
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 chrono = { version = "0.4.42", features = ["serde", "wasmbind"] }
 futures-util = { version = "0.3.31", default-features = false }
-getrandom = { version = "0.3.4" }
+getrandom = { version = "0.3.4", features = ["wasm_js"] }
 log = "0.4.29"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
