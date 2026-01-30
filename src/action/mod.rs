@@ -569,4 +569,28 @@ impl Action {
             }
         }
     }
+
+    pub fn need_proxification(&self) -> bool {
+        if let Some(update) = &self.status_code_update
+            && !update.on_response_status_codes.is_empty()
+        {
+            return true;
+        }
+
+        if let Some(log_override) = &self.log_override
+            && !log_override.on_response_status_codes.is_empty()
+        {
+            return true;
+        }
+
+        if !self.header_filters.is_empty() {
+            return true;
+        }
+
+        if !self.body_filters.is_empty() {
+            return true;
+        }
+
+        false
+    }
 }

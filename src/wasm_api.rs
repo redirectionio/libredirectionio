@@ -193,6 +193,14 @@ impl Action {
 
         action.should_log_request(true, response_status_code, None)
     }
+
+    pub fn need_proxification(&self) -> bool {
+        if let Some(action) = &self.action {
+            return action.need_proxification();
+        }
+
+        false
+    }
 }
 
 #[wasm_bindgen()]
