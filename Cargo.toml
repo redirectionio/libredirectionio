@@ -80,6 +80,10 @@ harness = false
 name = "test_examples_benchmark"
 harness = false
 
+[[bench]]
+name = "string_alloc_benchmark"
+harness = false
+
 [dependencies.web-sys]
 version = "0.3.85"
 features = [
