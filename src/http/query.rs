@@ -1,3 +1,5 @@
+use std::fmt::Write;
+
 use http::uri::PathAndQuery;
 use linked_hash_map::LinkedHashMap;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
@@ -68,10 +70,10 @@ impl PathAndQueryWithSkipped {
         };
 
         let mut new_path_and_query = path_and_query.path().to_string();
-        let mut skipped_query_params = "".to_string();
+        let mut skipped_query_params = String::new();
 
         if let Some(query) = path_and_query.query() {
-            let mut query_string = "".to_string();
+            let mut query_string = String::new();
 
             if config.ignore_all_query_parameters {
                 skipped_query_params = query.to_string();
@@ -83,15 +85,17 @@ impl PathAndQueryWithSkipped {
                     keys.sort();
                 }
 
+                let mut query_param = String::new();
+
                 for key in &keys {
                     let value = hash_query.get(key).unwrap();
-                    let mut query_param = "".to_string();
 
-                    query_param.push_str(&utf8_percent_encode(key, QUERY_ENCODE_SET).to_string());
+                    query_param.clear();
+                    let _ = write!(query_param, "{}", utf8_percent_encode(key, QUERY_ENCODE_SET));
 
                     if !value.is_empty() {
                         query_param.push('=');
-                        query_param.push_str(&utf8_percent_encode(value, QUERY_ENCODE_SET).to_string());
+                        let _ = write!(query_param, "{}", utf8_percent_encode(value, QUERY_ENCODE_SET));
                     }
 
                     if config.marketing_query_params.contains(key) {

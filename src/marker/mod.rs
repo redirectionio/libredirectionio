@@ -2,6 +2,7 @@ mod transformer;
 
 use std::{
     collections::HashMap,
+    fmt::Write,
     sync::{Arc, RwLock},
 };
 
@@ -44,15 +45,12 @@ impl Marker {
 
 impl MarkerString {
     pub fn new(str: &str, mut markers: Vec<Marker>, ignore_case: bool) -> Option<MarkerString> {
-        // Create regex string
         let mut regex = regex::escape(str);
         let mut capture = regex.clone();
         let mut marker_map = HashMap::new();
 
-        // Sort markers by length
         markers.sort_by(|a, b| b.name.len().cmp(&a.name.len()));
 
-        // Foreach marker replace
         for marker in &markers {
             let marker_regex = format!("(?:{})", marker.regex);
             let marker_capture = format!("(?P<{}>{})", marker.name, marker.regex);
@@ -146,16 +144,18 @@ impl StaticOrDynamic {
     }
 
     pub fn replace(mut str: String, variables: &[(String, VariableValue)], use_default: bool) -> String {
+        let mut marker_buf = String::new();
+
         for (name, value) in variables {
-            match value {
-                VariableValue::Value(v) => {
-                    str = str.replace(format!("@{name}").as_str(), v.as_str());
-                }
-                VariableValue::HtmlFilter { default: Some(v), .. } if use_default => {
-                    str = str.replace(format!("@{name}").as_str(), v.as_str());
-                }
-                _ => {}
-            }
+            let replacement = match value {
+                VariableValue::Value(v) => v.as_str(),
+                VariableValue::HtmlFilter { default: Some(v), .. } if use_default => v.as_str(),
+                _ => continue,
+            };
+
+            marker_buf.clear();
+            let _ = write!(marker_buf, "@{name}");
+            str = str.replace(marker_buf.as_str(), replacement);
         }
 
         str
