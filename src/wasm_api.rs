@@ -150,6 +150,20 @@ impl Action {
         Action { action }
     }
 
+    pub fn serialize(&self) -> String {
+        match &self.action {
+            None => "".to_string(),
+            Some(action) => match json_encode(action) {
+                Err(err) => {
+                    log::error!("Unable to serialize to action: {}", err);
+
+                    "".to_string()
+                }
+                Ok(action_serialized) => action_serialized,
+            },
+        }
+    }
+
     pub fn empty() -> Action {
         Action { action: None }
     }

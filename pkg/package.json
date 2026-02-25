@@ -4,11 +4,11 @@
         "Joel Wurtz <jwurtz@redirection.io>"
     ],
     "description": "Redirection IO Library to handle matching rule, redirect and filtering headers and body.",
-    "version": "3.0.0-dev",
+    "version": "3.0.2-dev",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/redirectionio/libredirectionio"
+        "url": "git+https://github.com/redirectionio/libredirectionio.git"
     },
     "files": [
         "wasm/redirectionio.d.ts",
