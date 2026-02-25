@@ -1,3 +1,19 @@
+## 3.0.0
+
+* [chore] Migrate to rust 2024 edition
+* [action] Replace custom html parser with lol_html
+* [action] Add support for capturing values in html
+* [router] Fix header case sensitivity in header filters and actions
+* [router] Make header and host matching case insensitive by default
+* [log] Add support to pass match and proxy duration in log
+* [router] Fix not one of ip triggers
+* [router] Add cache support for regex in headers
+* [action] Add support for overriding proxy destination (only in next agent version)
+* [wasm] Add a method to serialize the action matched for a response
+* [router] Add a config option to ignore all query parameters
+* [router] Add a config option respect the order of query parameters (matching a=a&b=b against match b=b&a=a will not match if the option is true)
+* [wasm] Add a method to check if an action will need to manipulate the response.
+
 ## 2.11.2 - 17-05-2024
 
 * Add wasmbindgen feature to not expose the library as a javascript module when used as a dependency by default
