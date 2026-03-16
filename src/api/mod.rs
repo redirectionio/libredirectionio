@@ -27,7 +27,7 @@ mod transformer;
 mod unit_ids;
 mod variable;
 
-pub use body_filter::{BodyFilter, HTMLBodyFilter, TextAction, TextBodyFilter};
+pub use body_filter::{BodyFilter, HTMLBodyFilter, HTMLBodyFilterInnerLegacy, TextAction, TextBodyFilter};
 pub use date_time::DateTimeConstraint;
 pub use examples::Example;
 #[cfg(feature = "router")]

@@ -6,8 +6,7 @@ use crate::{action::UnitTrace, filter::html_body_action::body_capture::CaptureRe
 
 #[derive(Debug)]
 pub struct BodyReplace {
-    element_tree: Vec<String>,
-    css_selector: Option<String>,
+    css_selector: String,
     content: String,
     inner_content: String,
     id: Option<String>,
@@ -41,10 +40,8 @@ impl<'h> IntoHandler<ElementHandler<'h>> for BodyReplace {
 }
 
 impl BodyReplace {
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
-        element_tree: Vec<String>,
-        css_selector: Option<String>,
+        css_selector: String,
         content: String,
         inner_content: String,
         id: Option<String>,
@@ -53,7 +50,6 @@ impl BodyReplace {
         variables: Arc<CaptureRegistry>,
     ) -> BodyReplace {
         BodyReplace {
-            element_tree,
             css_selector,
             content,
             inner_content,
@@ -67,20 +63,6 @@ impl BodyReplace {
 
 impl BodyReplace {
     pub fn css_selector(&self) -> String {
-        let mut element_tree = self.element_tree.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
-
-        if let Some(css_selector) = &self.css_selector
-            && !css_selector.is_empty()
-        {
-            if let Some(last) = element_tree.last()
-                && css_selector.starts_with(last)
-            {
-                element_tree.remove(element_tree.len() - 1);
-            }
-
-            return format!("{} > {}", element_tree.join(" > "), css_selector);
-        }
-
-        element_tree.join(" > ")
+        self.css_selector.clone()
     }
 }

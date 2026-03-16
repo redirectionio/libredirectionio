@@ -215,13 +215,6 @@ impl FilterBodyActionItem {
                     TextAction::Append => TextFilterAction::Append,
                     TextAction::Prepend => TextFilterAction::Prepend,
                     TextAction::Replace => TextFilterAction::Replace,
-                    _ => {
-                        log::warn!(
-                            "unsupported text body filter action: {:?}, you may need to update your agent or module",
-                            text_body_filter.action
-                        );
-                        return None;
-                    }
                 },
                 text_body_filter.content,
             ))),
@@ -267,7 +260,7 @@ mod tests {
     };
 
     use super::*;
-    use crate::api::HTMLBodyFilter;
+    use crate::api::{HTMLBodyFilter, HTMLBodyFilterInnerLegacy};
 
     #[test]
     pub fn test_filter_gzip() {
@@ -288,15 +281,14 @@ mod tests {
         ];
 
         let mut filter = FilterBodyAction::new(
-            vec![BodyFilter::HTML(HTMLBodyFilter {
-                action: "prepend_child".to_string(),
+            vec![BodyFilter::HTML(HTMLBodyFilter::PrependLegacy(HTMLBodyFilterInnerLegacy {
                 element_tree: vec!["html".to_string(), "body".to_string()],
                 css_selector: Some("".to_string()),
                 value: "<p>This is as test</p>".to_string(),
                 id: Some("test".to_string()),
                 target_hash: Some("target_hash".to_string()),
                 inner_value: None,
-            })],
+            }))],
             &headers,
             None,
             Vec::new(),
@@ -343,15 +335,14 @@ mod tests {
         ];
 
         let mut filter = FilterBodyAction::new(
-            vec![BodyFilter::HTML(HTMLBodyFilter {
-                action: "prepend_child".to_string(),
+            vec![BodyFilter::HTML(HTMLBodyFilter::PrependLegacy(HTMLBodyFilterInnerLegacy {
                 element_tree: vec!["html".to_string(), "body".to_string()],
                 css_selector: Some("".to_string()),
                 value: "<p>This is as test</p>".to_string(),
                 id: Some("test".to_string()),
                 target_hash: Some("target_hash".to_string()),
                 inner_value: None,
-            })],
+            }))],
             &headers,
             None,
             Vec::new(),
@@ -398,15 +389,14 @@ mod tests {
         ];
 
         let mut filter = FilterBodyAction::new(
-            vec![BodyFilter::HTML(HTMLBodyFilter {
-                action: "prepend_child".to_string(),
+            vec![BodyFilter::HTML(HTMLBodyFilter::PrependLegacy(HTMLBodyFilterInnerLegacy {
                 element_tree: vec!["html".to_string(), "body".to_string()],
                 css_selector: Some("".to_string()),
                 value: "<p>This is as test</p>".to_string(),
                 id: Some("test".to_string()),
                 target_hash: Some("target_hash".to_string()),
                 inner_value: None,
-            })],
+            }))],
             &headers,
             None,
             Vec::new(),
@@ -460,24 +450,22 @@ mod tests {
     pub fn test_replace() {
         let mut filter = FilterBodyAction::new(
             vec![
-                BodyFilter::HTML(HTMLBodyFilter {
-                    action: "append_child".to_string(),
+                BodyFilter::HTML(HTMLBodyFilter::AppendLegacy(HTMLBodyFilterInnerLegacy {
                     element_tree: vec!["html".to_string(), "head".to_string()],
                     css_selector: Some(r#"meta[name="description"]"#.to_string()),
                     value: "<meta name=\"description\" content=\"New Description\" />".to_string(),
                     id: Some("test".to_string()),
                     target_hash: Some("target_hash".to_string()),
                     inner_value: None,
-                }),
-                BodyFilter::HTML(HTMLBodyFilter {
-                    action: "replace".to_string(),
+                })),
+                BodyFilter::HTML(HTMLBodyFilter::ReplaceLegacy(HTMLBodyFilterInnerLegacy {
                     element_tree: vec!["html".to_string(), "head".to_string(), "meta".to_string()],
                     css_selector: Some(r#"meta[name="description"]"#.to_string()),
                     value: "<meta name=\"description\" content=\"New Description\" />".to_string(),
                     id: Some("test".to_string()),
                     target_hash: Some("target_hash".to_string()),
                     inner_value: None,
-                }),
+                })),
             ],
             &[],
             None,
@@ -500,24 +488,22 @@ mod tests {
     pub fn test_append() {
         let mut filter = FilterBodyAction::new(
             vec![
-                BodyFilter::HTML(HTMLBodyFilter {
-                    action: "append_child".to_string(),
+                BodyFilter::HTML(HTMLBodyFilter::AppendLegacy(HTMLBodyFilterInnerLegacy {
                     element_tree: vec!["html".to_string(), "head".to_string()],
                     css_selector: Some(r#"meta[name="description"]"#.to_string()),
                     value: "<meta name=\"description\" content=\"New Description\" />".to_string(),
                     id: Some("test".to_string()),
                     target_hash: Some("target_hash".to_string()),
                     inner_value: None,
-                }),
-                BodyFilter::HTML(HTMLBodyFilter {
-                    action: "replace".to_string(),
+                })),
+                BodyFilter::HTML(HTMLBodyFilter::ReplaceLegacy(HTMLBodyFilterInnerLegacy {
                     element_tree: vec!["html".to_string(), "head".to_string(), "meta".to_string()],
                     css_selector: Some(r#"meta[name="description"]"#.to_string()),
                     value: "<meta name=\"description\" content=\"New Description\" />".to_string(),
                     id: Some("test".to_string()),
                     target_hash: Some("target_hash".to_string()),
                     inner_value: None,
-                }),
+                })),
             ],
             &[],
             None,
@@ -536,15 +522,14 @@ mod tests {
     #[test]
     pub fn test_prepend() {
         let mut filter = FilterBodyAction::new(
-            vec![BodyFilter::HTML(HTMLBodyFilter {
-                action: "prepend_child".to_string(),
+            vec![BodyFilter::HTML(HTMLBodyFilter::PrependLegacy(HTMLBodyFilterInnerLegacy {
                 element_tree: vec!["html".to_string(), "body".to_string()],
                 css_selector: Some("".to_string()),
                 value: "<p>This is as test</p>".to_string(),
                 id: Some("test".to_string()),
                 target_hash: Some("target_hash".to_string()),
                 inner_value: None,
-            })],
+            }))],
             &[],
             None,
             Vec::new(),
@@ -567,15 +552,14 @@ mod tests {
     #[test]
     pub fn test_description_2() {
         let mut filter = FilterBodyAction::new(
-            vec![BodyFilter::HTML(HTMLBodyFilter {
-                action: "replace".to_string(),
+            vec![BodyFilter::HTML(HTMLBodyFilter::ReplaceLegacy(HTMLBodyFilterInnerLegacy {
                 element_tree: vec!["html".to_string(), "head".to_string(), "meta".to_string()],
                 css_selector: Some(r#"meta[property="og:description"]"#.to_string()),
                 value: r#"<meta property="og:description" content="New Description" />"#.to_string(),
                 id: Some("test".to_string()),
                 target_hash: Some("target_hash".to_string()),
                 inner_value: None,
-            })],
+            }))],
             &[],
             None,
             Vec::new(),
@@ -593,15 +577,14 @@ mod tests {
     #[test]
     pub fn test_capture_buffered() {
         let mut filter = FilterBodyAction::new(
-            vec![BodyFilter::HTML(HTMLBodyFilter {
-                action: "replace".to_string(),
+            vec![BodyFilter::HTML(HTMLBodyFilter::ReplaceLegacy(HTMLBodyFilterInnerLegacy {
                 element_tree: vec!["html".to_string(), "body".to_string(), "h2".to_string()],
                 css_selector: None,
                 value: r#"<h2>@var1</h2>"#.to_string(),
                 id: Some("test".to_string()),
                 target_hash: Some("target_hash".to_string()),
                 inner_value: None,
-            })],
+            }))],
             &[],
             None,
             vec![(

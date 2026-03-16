@@ -14,8 +14,8 @@ use crate::{action::UnitTrace, filter::html_body_action::body_capture::CaptureRe
 
 #[derive(Debug)]
 pub struct BodyAppend {
-    element_tree: Vec<String>,
-    css_selector: Option<String>,
+    css_selector: String,
+    ignore_css_selector: Option<String>,
     content: String,
     inner_content: String,
     id: Option<String>,
@@ -27,8 +27,8 @@ pub struct BodyAppend {
 impl BodyAppend {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        element_tree: Vec<String>,
-        css_selector: Option<String>,
+        css_selector: String,
+        ignore_css_selector: Option<String>,
         content: String,
         inner_content: String,
         id: Option<String>,
@@ -37,8 +37,8 @@ impl BodyAppend {
         variables: Arc<CaptureRegistry>,
     ) -> BodyAppend {
         BodyAppend {
-            element_tree,
             css_selector,
+            ignore_css_selector,
             content,
             inner_content,
             id,
@@ -51,47 +51,30 @@ impl BodyAppend {
 
 impl BodyAppend {
     pub fn css_selector(&self) -> (String, Option<String>) {
-        let mut element_tree = self.element_tree.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
-
-        if let Some(css_selector) = &self.css_selector
-            && !css_selector.is_empty()
-        {
-            if let Some(last) = element_tree.last()
-                && css_selector.starts_with(last)
-            {
-                element_tree.remove(element_tree.len() - 1);
-            }
-
-            let base_css_selector = element_tree.join(" > ");
-            let checker_selector = format!("{} > {}", element_tree.join(" > "), css_selector);
-
-            return (base_css_selector, Some(checker_selector));
-        }
-
-        (element_tree.join(" > "), None)
+        (self.css_selector.clone(), self.ignore_css_selector.clone())
     }
 
     pub fn into_handlers(self, settings: &mut Settings) {
-        let (base_css_selector, checker_selector) = match self.css_selector() {
+        let (css_selector, ignore_css_selector) = match self.css_selector() {
             (base, Some(checker)) => match (checker.parse(), base.parse()) {
                 (Ok(checker_selector), Ok(base_selector)) => (base_selector, Some(checker_selector)),
                 _ => {
-                    log::error!("Failed to parse CSS selector: {}", self.css_selector.as_deref().unwrap_or(""));
+                    log::error!("failed to parse CSS selector: {}", self.css_selector);
                     return;
                 }
             },
             (base, None) => match base.parse() {
                 Ok(selector) => (selector, None),
                 Err(_) => {
-                    log::error!("Failed to parse CSS selector: {}", self.css_selector.as_deref().unwrap_or(""));
+                    log::error!("failed to parse CSS selector: {}", self.css_selector);
                     return;
                 }
             },
         };
 
-        if checker_selector.is_none() {
+        if ignore_css_selector.is_none() {
             settings.element_content_handlers.push((
-                Cow::Owned(base_css_selector),
+                Cow::Owned(css_selector),
                 ElementContentHandlers::default().element(move |element: &mut Element| {
                     let content = self.variables.replace(self.content.clone());
                     element.append(content.as_str(), ContentType::Html);
@@ -120,7 +103,7 @@ impl BodyAppend {
         let element_exists_clone = Arc::clone(&element_exists);
 
         settings.element_content_handlers.push((
-            Cow::Owned(checker_selector.unwrap()),
+            Cow::Owned(ignore_css_selector.unwrap()),
             ElementContentHandlers::default().element(move |_element: &mut Element| {
                 element_exists.store(true, std::sync::atomic::Ordering::Relaxed);
 
@@ -129,7 +112,7 @@ impl BodyAppend {
         ));
 
         settings.element_content_handlers.push((
-            Cow::Owned(base_css_selector),
+            Cow::Owned(css_selector),
             ElementContentHandlers::default().element(move |element: &mut Element| {
                 let element_exists_clone = Arc::clone(&element_exists_clone);
                 let content = self.content.clone();

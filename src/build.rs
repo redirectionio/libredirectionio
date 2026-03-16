@@ -178,6 +178,8 @@ struct BodyFilter {
     element_tree: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     css_selector: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    ignore_css_selector: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

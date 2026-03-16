@@ -5,7 +5,7 @@ use lol_html::{ElementHandler, html_content::ContentType, send::IntoHandler};
 use crate::{action::UnitTrace, filter::html_body_action::body_capture::CaptureRegistry};
 
 #[derive(Debug)]
-pub struct BodyPrepend {
+pub struct BodyAfter {
     css_selector: String,
     content: String,
     inner_content: String,
@@ -15,11 +15,11 @@ pub struct BodyPrepend {
     variables: Arc<CaptureRegistry>,
 }
 
-impl<'h> IntoHandler<ElementHandler<'h>> for BodyPrepend {
+impl<'h> IntoHandler<ElementHandler<'h>> for BodyAfter {
     fn into_handler(self) -> ElementHandler<'h> {
         Box::new(move |element| {
             let content = self.variables.replace(self.content.clone());
-            element.prepend(content.as_str(), ContentType::Html);
+            element.after(content.as_str(), ContentType::Html);
 
             if let (Some(unit_trace), Some(id)) = (self.unit_trace.clone(), &self.id) {
                 let inner_content = self.variables.replace(self.inner_content.clone());
@@ -39,8 +39,7 @@ impl<'h> IntoHandler<ElementHandler<'h>> for BodyPrepend {
     }
 }
 
-impl BodyPrepend {
-    #[allow(clippy::too_many_arguments)]
+impl BodyAfter {
     pub fn new(
         css_selector: String,
         content: String,
@@ -49,8 +48,8 @@ impl BodyPrepend {
         target_hash: Option<String>,
         unit_trace: Option<Rc<RefCell<UnitTrace>>>,
         variables: Arc<CaptureRegistry>,
-    ) -> BodyPrepend {
-        BodyPrepend {
+    ) -> BodyAfter {
+        BodyAfter {
             css_selector,
             content,
             inner_content,
@@ -62,7 +61,7 @@ impl BodyPrepend {
     }
 }
 
-impl BodyPrepend {
+impl BodyAfter {
     pub fn css_selector(&self) -> String {
         self.css_selector.clone()
     }

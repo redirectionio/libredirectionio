@@ -25,7 +25,7 @@ pub use crate::action::unit_trace::UnitTrace;
 #[cfg(feature = "router")]
 use crate::api::Rule;
 #[cfg(feature = "router")]
-use crate::api::{HTMLBodyFilter, TextBodyFilter};
+use crate::api::TextBodyFilter;
 #[cfg(feature = "router")]
 use crate::http::Request;
 #[cfg(feature = "router")]
@@ -219,22 +219,7 @@ impl Action {
             for filter in rule_body_filters {
                 body_filters.push(BodyFilterAction {
                     filter: match filter {
-                        BodyFilter::HTML(html_body_filter) => BodyFilter::HTML(HTMLBodyFilter {
-                            action: html_body_filter.action.clone(),
-                            css_selector: html_body_filter.css_selector.clone(),
-                            element_tree: html_body_filter.element_tree.clone(),
-                            value: StaticOrDynamic::replace(html_body_filter.value.clone(), &variables, false),
-                            inner_value: Some(StaticOrDynamic::replace(
-                                html_body_filter
-                                    .inner_value
-                                    .clone()
-                                    .unwrap_or_else(|| html_body_filter.value.clone()),
-                                &variables,
-                                false,
-                            )),
-                            id: html_body_filter.id.clone(),
-                            target_hash: html_body_filter.target_hash.clone(),
-                        }),
+                        BodyFilter::HTML(html_body_filter) => BodyFilter::HTML(html_body_filter.clone_with_variables_replaced(&variables)),
                         BodyFilter::Text(text_body_filter) => BodyFilter::Text(TextBodyFilter {
                             action: text_body_filter.action.clone(),
                             content: StaticOrDynamic::replace(text_body_filter.content.clone(), &variables, true),
