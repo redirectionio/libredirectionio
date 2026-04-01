@@ -13,6 +13,7 @@ use crate::{
             HtmlBodyVisitor,
             body_capture::{BodyCapture, CaptureRegistry},
         },
+        html_to_markdown::HtmlToMarkdownFilter,
         text_filter_body::{TextFilterAction, TextFilterBodyAction},
     },
     http::Header,
@@ -27,6 +28,7 @@ pub struct FilterBodyAction {
 #[derive(Debug)]
 pub enum FilterBodyActionItem {
     Buffer(BufferFilterBody),
+    HtmlToMarkdown(Box<HtmlToMarkdownFilter>),
     Html(Box<HtmlFilterBodyAction>),
     Text(TextFilterBodyAction),
     #[cfg(feature = "compress")]
@@ -218,6 +220,24 @@ impl FilterBodyActionItem {
                 },
                 text_body_filter.content,
             ))),
+            BodyFilter::HTMLToMarkdown(html_to_md_filter) => match content_type {
+                Some(content_type) if content_type.contains("text/html") => {
+                    // @TODO Support charset
+                    Some(Self::HtmlToMarkdown(Box::new(HtmlToMarkdownFilter::new(html_to_md_filter.options))))
+                }
+                None => {
+                    // Assume HTML if no content type
+                    Some(Self::HtmlToMarkdown(Box::new(HtmlToMarkdownFilter::new(html_to_md_filter.options))))
+                }
+                _ => {
+                    log::warn!(
+                        "html to markdown is only supported for text/html content type, {} received",
+                        content_type.unwrap_or_default()
+                    );
+
+                    None
+                }
+            },
             BodyFilter::Other(_) => {
                 log::warn!("unsupported body filter: {filter:?}, you may need to update your agent or module");
                 None
@@ -229,6 +249,7 @@ impl FilterBodyActionItem {
         Ok(match self {
             FilterBodyActionItem::Buffer(buffer) => buffer.filter(data),
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.filter(data)?,
+            FilterBodyActionItem::HtmlToMarkdown(html_to_md_filter) => html_to_md_filter.filter(data),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.filter(data, unit_trace),
             #[cfg(feature = "compress")]
             FilterBodyActionItem::Decode(decode_body_filter) => decode_body_filter.filter(data)?,
@@ -241,6 +262,7 @@ impl FilterBodyActionItem {
         Ok(match self {
             FilterBodyActionItem::Buffer(buffer) => buffer.end(),
             FilterBodyActionItem::Html(html_body_filter) => html_body_filter.end(),
+            FilterBodyActionItem::HtmlToMarkdown(html_to_md_filter) => html_to_md_filter.end(),
             FilterBodyActionItem::Text(text_body_filter) => text_body_filter.end(),
             #[cfg(feature = "compress")]
             FilterBodyActionItem::Decode(decode_body_filter) => decode_body_filter.end()?,

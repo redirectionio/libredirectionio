@@ -226,6 +226,7 @@ impl Action {
                             id: text_body_filter.id.clone(),
                             target_hash: text_body_filter.target_hash.clone(),
                         }),
+                        BodyFilter::HTMLToMarkdown(html_to_markdown_filter) => BodyFilter::HTMLToMarkdown(html_to_markdown_filter.clone()),
                         BodyFilter::Other(_) => {
                             continue;
                         }

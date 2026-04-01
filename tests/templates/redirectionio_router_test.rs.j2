@@ -28,6 +28,8 @@ fn setup_{{ name }}() -> Router<Rule> {
 {% for test in rule_set.tests %}
 #[test]
 fn test_{{ name }}_{{ loop.index }}() {
+    let _ = tracing_subscriber::fmt::try_init();
+
     let router = setup_{{ name }}();
     let default_config = RouterConfig::default();
     let{% if test.headers or test.datetime %} mut{% endif %} request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"{{ test.uri }}"#), r#"{{ test.uri }}"#.to_string(),
@@ -72,9 +74,15 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(body_filter_opt.is_some(), {{ test.should_filter_body.enable }});
 {% if test.should_filter_body.enable %}
     let mut body_filter = body_filter_opt.unwrap();
+{% if test.should_filter_body.is_binary %}
+    let mut new_body = body_filter.filter(b"{{ test.should_filter_body.original_body | as_bytes }}".to_vec(), None);
+    new_body.extend(body_filter.end(None));
+    assert_eq!(&new_body, b"{{ test.should_filter_body.expected_body | as_bytes }}");
+{% else %}
     let mut new_body = body_filter.filter(r#"{{ test.should_filter_body.original_body }}"#.as_bytes().to_vec(), None);
     new_body.extend(body_filter.end(None));
     assert_eq!(&String::from_utf8(new_body).unwrap(), r#"{{ test.should_filter_body.expected_body }}"#);
+    {%- endif -%}
     {%- endif -%}
     {%- endif -%}
 {% if test.should_not_log %}

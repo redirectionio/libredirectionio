@@ -11,10 +11,11 @@ use std::{
 };
 
 use glob::glob;
+use html_to_markdown_rs::ConversionOptions;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
-use tera::{Context, Tera};
+use tera::{Context, Tera, Value, try_get_value};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleSet {
     #[serde(default)]
@@ -180,6 +181,8 @@ struct BodyFilter {
     css_selector: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     ignore_css_selector: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    options: Option<ConversionOptions>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -270,8 +273,21 @@ struct RuleTestHeader {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct ShouldFilterBody {
     enable: bool,
+    #[serde(default = "default_false")]
+    is_binary: bool,
     original_body: String,
     expected_body: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum Body {
+    String(String),
+    Bytes(Vec<u8>),
+}
+
+fn default_false() -> bool {
+    false
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -347,10 +363,12 @@ fn make_router_tests() {
         return;
     }
 
-    let templating = match Tera::new("tests/templates/**/*") {
+    let mut templating = match Tera::new("tests/templates/**/*") {
         Ok(t) => t,
         Err(e) => panic!("{}", e),
     };
+
+    templating.register_filter("as_bytes", filter_as_bytes_str);
 
     let rule_sets_list = RuleSetList { rule_sets };
     let test_path = Path::new("tests/redirectionio_router_test.rs");
@@ -370,6 +388,18 @@ fn make_router_tests() {
     } else {
         std::fs::write(test_path, test_content).expect("cannot write");
     }
+}
+
+fn filter_as_bytes_str(value: &Value, _: &HashMap<String, Value>) -> tera::Result<Value> {
+    let body = try_get_value!("as_bytes", "value", String, value);
+
+    Ok(Value::String(
+        body.as_bytes()
+            .iter()
+            .map(|b| format!("\\x{b:02x}"))
+            .collect::<Vec<String>>()
+            .join(""),
+    ))
 }
 
 fn read_router_tests(path: &str) -> HashMap<String, RuleSet> {

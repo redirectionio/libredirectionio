@@ -1,3 +1,4 @@
+use html_to_markdown_rs::ConversionOptions;
 use serde::{Deserialize, Serialize};
 
 use crate::{api::VariableValue, marker::StaticOrDynamic};
@@ -146,10 +147,23 @@ pub enum TextAction {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct HTMLToMarkdownFilter {
+    pub action: HTMLToMarkdownAction,
+    pub options: Option<ConversionOptions>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum HTMLToMarkdownAction {
+    #[serde(rename = "html_to_markdown")]
+    Filter,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum BodyFilter {
     Text(TextBodyFilter),
     HTML(HTMLBodyFilter),
+    HTMLToMarkdown(HTMLToMarkdownFilter),
     #[serde(untagged)]
     Other(serde_json::Value),
 }
