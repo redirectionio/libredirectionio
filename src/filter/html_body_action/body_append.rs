@@ -59,14 +59,14 @@ impl BodyAppend {
             (base, Some(checker)) => match (checker.parse(), base.parse()) {
                 (Ok(checker_selector), Ok(base_selector)) => (base_selector, Some(checker_selector)),
                 _ => {
-                    log::error!("failed to parse CSS selector: {}", self.css_selector);
+                    tracing::error!("failed to parse CSS selector: {}", self.css_selector);
                     return;
                 }
             },
             (base, None) => match base.parse() {
                 Ok(selector) => (selector, None),
                 Err(_) => {
-                    log::error!("failed to parse CSS selector: {}", self.css_selector);
+                    tracing::error!("failed to parse CSS selector: {}", self.css_selector);
                     return;
                 }
             },

@@ -103,7 +103,9 @@ impl FilterBodyAction {
                     Self { chain, in_error: false }
                 }
                 None => {
-                    log::error!("redirectionio does not support content-encoding {encoding}, filtering will be disable for this request");
+                    tracing::error!(
+                        "redirectionio does not support content-encoding {encoding}, filtering will be disable for this request"
+                    );
 
                     Self {
                         chain: Vec::new(),
@@ -127,7 +129,7 @@ impl FilterBodyAction {
         match self.do_filter(data.clone(), unit_trace) {
             Ok(filtered) => filtered,
             Err(err) => {
-                log::error!("error while filtering: {err:?}");
+                tracing::error!("error while filtering: {err:?}");
                 self.in_error = true;
 
                 data
@@ -155,7 +157,7 @@ impl FilterBodyAction {
         match self.do_end(unit_trace) {
             Ok(end) => end,
             Err(err) => {
-                log::error!("error while ending filtering: {err}");
+                tracing::error!("error while ending filtering: {err}");
 
                 Vec::new()
             }
@@ -203,7 +205,7 @@ impl FilterBodyActionItem {
                         .map(|visitor| Self::Html(Box::new(HtmlFilterBodyAction::new(visitor))))
                 }
                 _ => {
-                    log::warn!(
+                    tracing::warn!(
                         "html filtering is only supported for text/html content type, {} received",
                         content_type.unwrap_or_default()
                     );
@@ -230,7 +232,7 @@ impl FilterBodyActionItem {
                     Some(Self::HtmlToMarkdown(Box::new(HtmlToMarkdownFilter::new(html_to_md_filter.options))))
                 }
                 _ => {
-                    log::warn!(
+                    tracing::warn!(
                         "html to markdown is only supported for text/html content type, {} received",
                         content_type.unwrap_or_default()
                     );
@@ -239,7 +241,7 @@ impl FilterBodyActionItem {
                 }
             },
             BodyFilter::Other(_) => {
-                log::warn!("unsupported body filter: {filter:?}, you may need to update your agent or module");
+                tracing::warn!("unsupported body filter: {filter:?}, you may need to update your agent or module");
                 None
             }
         }

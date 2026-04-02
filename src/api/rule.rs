@@ -74,7 +74,7 @@ impl Rule {
         let rule_result = json_decode(rule_str);
 
         if rule_result.is_err() {
-            log::error!("Unable to create rule from string {}: {}", rule_str, rule_result.err().unwrap());
+            tracing::error!("unable to create rule from string {}: {}", rule_str, rule_result.err().unwrap());
 
             return None;
         }
@@ -140,13 +140,13 @@ impl Rule {
                         IpConstraint::InRange(range) => match range.parse::<AnyIpCidr>() {
                             Ok(cidr) => route_ips.push(RouteIp::InRange(cidr)),
                             Err(err) => {
-                                log::error!("cannot parse cidr {range}: {err}");
+                                tracing::error!("cannot parse cidr {range}: {err}");
                             }
                         },
                         IpConstraint::NotInRange(range) => match range.parse::<AnyIpCidr>() {
                             Ok(cidr) => route_ips.push(RouteIp::NotInRange(cidr)),
                             Err(err) => {
-                                log::error!("cannot parse cidr {range}: {err}");
+                                tracing::error!("cannot parse cidr {range}: {err}");
                             }
                         },
                         IpConstraint::NotOneOf(list) => {
@@ -154,7 +154,7 @@ impl Rule {
                             for ip_str in list {
                                 match ip_str.parse::<IpAddr>() {
                                     Ok(ip) => ips.push(ip),
-                                    Err(err) => log::error!("cannot parse ip {ip_str}: {err}"),
+                                    Err(err) => tracing::error!("cannot parse ip {ip_str}: {err}"),
                                 }
                             }
 
@@ -283,7 +283,7 @@ impl Rule {
                             },
                         },
                         unknown => {
-                            log::error!("unsupported header constraint type {unknown}");
+                            tracing::error!("unsupported header constraint type {unknown}");
 
                             continue;
                         }

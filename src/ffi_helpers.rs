@@ -4,7 +4,7 @@ use std::{
     ptr::null,
 };
 
-pub fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
+pub fn c_char_to_str<'a>(ptr: *const c_char) -> Option<&'a str> {
     if ptr.is_null() {
         return None;
     }
@@ -14,7 +14,7 @@ pub fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
 
     match cstr.to_str() {
         Err(error) => {
-            log::error!(
+            tracing::error!(
                 "unable to create string for '{}': {}",
                 String::from_utf8_lossy(cstr.to_bytes()),
                 error,
@@ -29,7 +29,7 @@ pub fn c_char_to_str(ptr: *const c_char) -> Option<&'static str> {
 pub fn string_to_c_char(str: String) -> *const c_char {
     let string = match CString::new(str.as_str()) {
         Err(error) => {
-            log::error!("cannot create c string {str}: {error}");
+            tracing::error!("cannot create c string {str}: {error}");
 
             return null();
         }

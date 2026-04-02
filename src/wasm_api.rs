@@ -140,7 +140,7 @@ impl Action {
     pub fn new(action_serialized: String) -> Action {
         let action = match json_decode(action_serialized.as_str()) {
             Err(error) => {
-                log::error!("Unable to deserialize \"{}\" to action: {}", action_serialized, error,);
+                tracing::error!("unable to deserialize \"{}\" to action: {}", action_serialized, error,);
 
                 None
             }
@@ -155,7 +155,7 @@ impl Action {
             None => "".to_string(),
             Some(action) => match json_encode(action) {
                 Err(err) => {
-                    log::error!("Unable to serialize to action: {}", err);
+                    tracing::error!("unable to serialize to action: {}", err);
 
                     "".to_string()
                 }
@@ -240,7 +240,7 @@ impl BodyFilter {
 
 #[wasm_bindgen()]
 pub fn init_log() {
-    wasm_logger::init(wasm_logger::Config::new(log::Level::Error));
+    wasm_tracing::set_as_global_default();
 }
 
 #[wasm_bindgen()]

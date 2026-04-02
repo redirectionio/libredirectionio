@@ -15,7 +15,7 @@ impl Header {
             let name = match HeaderName::from_bytes(header.name.as_bytes()) {
                 Ok(name) => name,
                 Err(_) => {
-                    log::error!("unable to create header name from: {}", header.name);
+                    tracing::error!("unable to create header name from: {}", header.name);
 
                     continue;
                 }

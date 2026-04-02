@@ -88,7 +88,7 @@ impl BodyCapture {
             let css_selector = match selector.parse() {
                 Ok(selector) => selector,
                 Err(_) => {
-                    log::error!("Failed to parse CSS selector: {}", selector);
+                    tracing::error!("Failed to parse CSS selector: {}", selector);
                     continue;
                 }
             };

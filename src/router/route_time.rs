@@ -18,7 +18,7 @@ impl RouteTime {
             Some(time) => match time.parse::<NaiveTime>() {
                 Ok(dt) => route_start = Some(dt),
                 Err(err) => {
-                    log::error!("cannot parse time {time}: {err}");
+                    tracing::error!("cannot parse time {time}: {err}");
                 }
             },
         }
@@ -27,7 +27,7 @@ impl RouteTime {
             Some(time) => match time.parse::<NaiveTime>() {
                 Ok(dt) => route_end = Some(dt),
                 Err(err) => {
-                    log::error!("cannot parse time {time}: {err}");
+                    tracing::error!("cannot parse time {time}: {err}");
                 }
             },
         }

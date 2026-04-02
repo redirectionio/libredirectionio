@@ -18,7 +18,7 @@ impl RouteDateTime {
             Some(datetime) => match datetime.parse::<DateTime<Utc>>() {
                 Ok(dt) => route_start = Some(dt.naive_utc()),
                 Err(err) => {
-                    log::error!("cannot parse datetime {datetime}: {err}");
+                    tracing::error!("cannot parse datetime {datetime}: {err}");
                 }
             },
         }
@@ -27,7 +27,7 @@ impl RouteDateTime {
             Some(datetime) => match datetime.parse::<DateTime<Utc>>() {
                 Ok(dt) => route_end = Some(dt.naive_utc()),
                 Err(err) => {
-                    log::error!("cannot parse datetime {datetime}: {err}");
+                    tracing::error!("cannot parse datetime {datetime}: {err}");
                 }
             },
         }

@@ -22,7 +22,7 @@ impl HtmlToMarkdownFilter {
     pub fn end(self) -> Vec<u8> {
         let html = match String::from_utf8(self.buffer) {
             Err(e) => {
-                log::error!("error while converting to utf8: {}", e);
+                tracing::error!("error while converting to utf8: {}", e);
 
                 return e.into_bytes();
             }
@@ -32,7 +32,7 @@ impl HtmlToMarkdownFilter {
         match convert(html.as_str(), self.options) {
             Ok(md) => md.content.unwrap_or_default().into_bytes(),
             Err(e) => {
-                log::error!("error while converting html to markdown: {}", e);
+                tracing::error!("error while converting html to markdown: {}", e);
 
                 html.into_bytes()
             }

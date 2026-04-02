@@ -70,7 +70,7 @@ pub extern "C" fn redirectionio_request_json_deserialize(str: *mut c_char) -> *c
 
     let request = match json_decode(request_str) {
         Err(err) => {
-            log::error!("cannot deserialize request {err} for string {request_str}");
+            tracing::error!("cannot deserialize request {err} for string {request_str}");
 
             return null();
         }
@@ -140,7 +140,7 @@ pub extern "C" fn redirectionio_trusted_proxies_create(_proxies_str: *const c_ch
             if !proxy_norm.is_empty()
                 && let Err(e) = trusted_proxies.add_trusted_ip(proxy_norm.as_str())
             {
-                log::warn!("cannot parse trusted proxy {proxy_norm}: {e}");
+                tracing::warn!("cannot parse trusted proxy {proxy_norm}: {e}");
             }
         }
     }
@@ -168,8 +168,21 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_add_proxy(_trusted_proxie
     let config = unsafe { &mut *(trusted_proxies.0 as *mut Config) };
 
     if let Err(e) = config.add_trusted_ip(proxy_str.as_str()) {
-        log::warn!("cannot parse trusted proxy {proxy_str}: {e}");
+        tracing::warn!("cannot parse trusted proxy {proxy_str}: {e}");
     }
+}
+
+#[unsafe(no_mangle)]
+/// # Safety
+///
+/// This function must be called with a valid pointer to TrustedProxies or null pointer
+pub unsafe extern "C" fn redirectionio_trusted_proxies_drop(_trusted_proxies: *mut TrustedProxies) {
+    if _trusted_proxies.is_null() {
+        return;
+    }
+
+    // Safety: _trusted_proxies is a valid pointer to a TrustedProxies
+    drop(unsafe { Box::from_raw(_trusted_proxies) });
 }
 
 #[unsafe(no_mangle)]
@@ -223,7 +236,7 @@ pub extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> *const 
 
     match url.parse::<Request>() {
         Err(err) => {
-            log::error!("cannot create request for url {url}: {err}");
+            tracing::error!("cannot create request for url {url}: {err}");
 
             null()
         }

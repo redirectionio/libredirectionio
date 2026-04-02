@@ -33,11 +33,10 @@ wasmbind = []
 chrono = { version = "0.4.44", features = ["serde", "wasmbind"] }
 futures-util = { version = "0.3.32", default-features = false }
 getrandom = { version = "0.4.2", features = ["wasm_js"] }
-log = "0.4.29"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 wasm-bindgen = "0.2.114"
-wasm-logger = "0.2.0"
+wasm-tracing = "2.1.0"
 
 [dependencies]
 brotli = { version = "8.0.2", optional = true }
@@ -48,10 +47,8 @@ flate2 = { version = "1.1.9", optional = true }
 heck = "0.5.0"
 html-to-markdown-rs = "3.0.2"
 http = "1.4.0"
-lazy_static = "1.5.0"
 linked_hash_set = { version = "0.1.6", features = ["serde"] }
 linked-hash-map = "0.5.6"
-log = { version = "0.4.29", features = ["std"] }
 lol_html = "2.7.2"
 percent-encoding = "2.3.2"
 rand = "0.10.0"
@@ -59,13 +56,13 @@ regex = "1.12.3"
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = "1.0.149"
 tracing = "0.1.44"
+tracing-subscriber = "0.3.23"
 trusted-proxies = "0.3.0"
 url = "2.5.8"
 
 [dev-dependencies]
 pprof = { version = "0.15.0", features = ["flamegraph"] }
 criterion = { version = "0.8.2", default-features = false }
-tracing-subscriber = "0.3.17"
 
 [[bench]]
 name = "match_rule_benchmark"
