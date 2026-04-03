@@ -1,4 +1,12 @@
-## 3.0.0
+## 3.1.0 - 04-04-2026
+
+* [action] Add new action to transform html into markdown
+* [action] Add new html filters, to allow remove, or adding html after / before an element
+* [ffi] remove log callback (keep the method for BC purpose, but it does not do anything), only allow to enable trace on
+  stderr
+* [log] replace log with tracing
+
+## 3.0.0 - 26-02-2026
 
 * [chore] Migrate to rust 2024 edition
 * [action] Replace custom html parser with lol_html
@@ -11,7 +19,8 @@
 * [action] Add support for overriding proxy destination (only in next agent version)
 * [wasm] Add a method to serialize the action matched for a response
 * [router] Add a config option to ignore all query parameters
-* [router] Add a config option respect the order of query parameters (matching a=a&b=b against match b=b&a=a will not match if the option is true)
+* [router] Add a config option respect the order of query parameters (matching a=a&b=b against match b=b&a=a will not
+  match if the option is true)
 * [wasm] Add a method to check if an action will need to manipulate the response.
 
 ## 2.11.2 - 17-05-2024
