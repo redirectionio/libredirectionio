@@ -182,7 +182,12 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_drop(_trusted_proxies: *m
     }
 
     // Safety: _trusted_proxies is a valid pointer to a TrustedProxies
-    drop(unsafe { Box::from_raw(_trusted_proxies) });
+    let trusted_proxies = unsafe { Box::from_raw(_trusted_proxies) };
+
+    // Also free the inner Config that was Box::into_raw'd during creation
+    if !trusted_proxies.0.is_null() {
+        drop(unsafe { Box::from_raw(trusted_proxies.0 as *mut Config) });
+    }
 }
 
 #[unsafe(no_mangle)]
