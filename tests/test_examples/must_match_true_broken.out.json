@@ -1,76 +1,35 @@
-{
-  "example_count": 1,
-  "failure_count": 1,
-  "error_count": 0,
-  "first_ten_failures": {
-    "9d8a5ba4-1d76-41e0-820b-891d45484152": {
-      "rule": {
-        "id": "9d8a5ba4-1d76-41e0-820b-891d45484152",
-        "source": {
-          "scheme": "",
-          "host": "",
-          "ips": [],
-          "path": "/redir/test-redir",
-          "query": "",
-          "headers": [],
-          "methods": [],
-          "exclude_methods": null,
-          "response_status_codes": [],
-          "exclude_response_status_codes": null,
-          "sampling": null
-        },
-        "target": "",
-        "status_code": 410,
-        "rank": 32765,
-        "body_filters": [],
-        "header_filters": [
-          {
-            "action": "remove",
-            "header": "location",
-            "value": "",
-            "id": null,
-            "target_hash": null
-          }
-        ],
-        "log_override": null,
-        "peer_override": null,
-        "reset": null,
-        "stop": null,
-        "examples": [
-          {
-            "url": "/not/possible",
-            "method": "GET",
-            "headers": [],
-            "ip_address": null,
-            "response_status_code": 200,
-            "must_match": true,
-            "unit_ids_applied": []
-          }
-        ],
-        "redirect_unit_id": "38032bcb-2580-4243-a14f-3e26477e878e",
-        "configuration_log_unit_id": null,
-        "configuration_reset_unit_id": null,
-        "peer_unit_id": null,
-        "target_hash": null
+[
+  {
+    "request": {
+      "path_and_query": {
+        "path_and_query": "/not/possible",
+        "path_and_query_matching": "/not/possible",
+        "skipped_query_params": null,
+        "original": "/not/possible"
       },
-      "failed_examples": [
-        {
-          "example": {
-            "url": "/not/possible",
-            "method": "GET",
-            "headers": [],
-            "ip_address": null,
-            "response_status_code": 200,
-            "must_match": true,
-            "unit_ids_applied": []
-          },
-          "rule_ids_applied": [],
-          "unit_ids_applied": [],
-          "unit_ids_not_applied_anymore": [],
-          "redirection_loop": null
-        }
-      ]
-    }
-  },
-  "first_ten_errors": {}
-}
+      "path_and_query_v2": "/not/possible",
+      "host": null,
+      "scheme": null,
+      "method": "GET",
+      "headers": [],
+      "remote_addr": null,
+      "created_at": null,
+      "sampling_override": null
+    },
+    "unit_trace": {
+      "rule_ids_applied": [],
+      "unit_ids_applied": [],
+      "unit_ids_seen": [],
+      "value_computed_by_units": {}
+    },
+    "backend_status_code": 200,
+    "response": {
+      "status_code": 0,
+      "headers": [],
+      "body": "<!DOCTYPE html>\n<html>\n    <head>\n    </head>\n    <body>\n    </body>\n</html>"
+    },
+    "should_log_request": true,
+    "redirection_loop": null,
+    "match_traces": []
+  }
+]

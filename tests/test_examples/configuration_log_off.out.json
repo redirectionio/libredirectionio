@@ -1,79 +1,81 @@
-{
-  "example_count": 2,
-  "failure_count": 1,
-  "error_count": 0,
-  "first_ten_failures": {
-    "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e": {
-      "rule": {
-        "id": "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
-        "source": {
-          "scheme": "",
-          "host": "",
-          "ips": null,
-          "path": "/goo",
-          "query": "",
-          "headers": [],
-          "methods": [],
-          "exclude_methods": null,
-          "response_status_codes": [],
-          "exclude_response_status_codes": null,
-          "sampling": null
-        },
-        "target": null,
-        "status_code": null,
-        "rank": 32766,
-        "body_filters": [],
-        "header_filters": [],
-        "log_override": false,
-        "peer_override": null,
-        "reset": false,
-        "stop": null,
-        "examples": [
-          {
-            "url": "/goo",
-            "method": null,
-            "headers": [],
-            "ip_address": null,
-            "response_status_code": null,
-            "must_match": true,
-            "unit_ids_applied": [
-              "53f9a13c-732a-4ee4-a379-3a27e95c2046"
-            ]
-          }
-        ],
-        "redirect_unit_id": null,
-        "configuration_log_unit_id": "53f9a13c-732a-4ee4-a379-3a27e95c2046",
-        "configuration_reset_unit_id": "1d5c840c-2d6c-4c96-822f-808a1dc0a794",
-        "peer_unit_id": null,
-        "target_hash": null
+[
+  {
+    "request": {
+      "path_and_query": {
+        "path_and_query": "/goo",
+        "path_and_query_matching": "/goo",
+        "skipped_query_params": null,
+        "original": "/goo"
       },
-      "failed_examples": [
-        {
-          "example": {
-            "url": "/goo",
-            "method": null,
-            "headers": [],
-            "ip_address": null,
-            "response_status_code": null,
-            "must_match": true,
-            "unit_ids_applied": [
-              "53f9a13c-732a-4ee4-a379-3a27e95c2046"
-            ]
-          },
-          "rule_ids_applied": [
-            "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
-            "56c402fd-c854-46c6-b89d-a874818b717b"
-          ],
-          "unit_ids_applied": [
-            "c73e8447-08b5-490f-bd46-0a137e16b749"
-          ],
-          "unit_ids_not_applied_anymore": [
-            "53f9a13c-732a-4ee4-a379-3a27e95c2046"
-          ],
-          "redirection_loop": null
-        }
-      ]
-    }
+      "path_and_query_v2": "/goo",
+      "host": null,
+      "scheme": null,
+      "method": null,
+      "headers": [],
+      "remote_addr": null,
+      "created_at": null,
+      "sampling_override": null
+    },
+    "unit_trace": {
+      "rule_ids_applied": [
+        "7ac6a3ea-9ba5-4557-9e2e-e996d348c15e",
+        "56c402fd-c854-46c6-b89d-a874818b717b"
+      ],
+      "unit_ids_applied": [
+        "c73e8447-08b5-490f-bd46-0a137e16b749"
+      ],
+      "unit_ids_seen": [
+        "c73e8447-08b5-490f-bd46-0a137e16b749"
+      ],
+      "value_computed_by_units": {}
+    },
+    "backend_status_code": 200,
+    "response": {
+      "status_code": 0,
+      "headers": [],
+      "body": "<!DOCTYPE html>\n<html>\n    <head>\n    </head>\n    <body>\n    </body>\n</html>"
+    },
+    "should_log_request": false,
+    "redirection_loop": null,
+    "match_traces": []
   },
-  "first_ten_errors": {}
-}
+  {
+    "request": {
+      "path_and_query": {
+        "path_and_query": "/anything",
+        "path_and_query_matching": "/anything",
+        "skipped_query_params": null,
+        "original": "/anything"
+      },
+      "path_and_query_v2": "/anything",
+      "host": null,
+      "scheme": null,
+      "method": null,
+      "headers": [],
+      "remote_addr": null,
+      "created_at": null,
+      "sampling_override": null
+    },
+    "unit_trace": {
+      "rule_ids_applied": [
+        "56c402fd-c854-46c6-b89d-a874818b717b"
+      ],
+      "unit_ids_applied": [
+        "c73e8447-08b5-490f-bd46-0a137e16b749"
+      ],
+      "unit_ids_seen": [
+        "c73e8447-08b5-490f-bd46-0a137e16b749"
+      ],
+      "value_computed_by_units": {}
+    },
+    "backend_status_code": 200,
+    "response": {
+      "status_code": 0,
+      "headers": [],
+      "body": "<!DOCTYPE html>\n<html>\n    <head>\n    </head>\n    <body>\n    </body>\n</html>"
+    },
+    "should_log_request": false,
+    "redirection_loop": null,
+    "match_traces": []
+  }
+]

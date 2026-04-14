@@ -1,0 +1,98 @@
+{
+    "router_config": {
+        "ignore_host_case": false,
+        "ignore_header_case": false,
+        "ignore_path_and_query_case": false,
+        "ignore_marketing_query_params": true,
+        "marketing_query_params": [
+            "utm_campaign",
+            "utm_content",
+            "utm_medium",
+            "utm_source",
+            "utm_term"
+        ],
+        "pass_marketing_query_params_to_target": true,
+        "always_match_any_host": false,
+        "ignore_query_param_order": true
+    },
+    "rules": [
+        {
+            "source": {
+                "host": "",
+                "path": "/",
+                "query": "",
+                "scheme": "",
+                "sampling": null,
+                "methods": [],
+                "headers": [],
+                "response_status_codes": [],
+                "ips": []
+            },
+            "id": "A",
+            "rank": 3,
+            "markers": [],
+            "body_filters": [
+                {
+                    "action": "append_html",
+                    "target_hash": null,
+                    "css_selector": "head",
+                    "ignore_css_selector": null,
+                    "value": "<!-- COUCOU -->",
+                    "inner_value": null,
+                    "id": "A:1"
+                },
+                {
+                    "action": "append_html",
+                    "value": "<!-- MISSING -->",
+                    "inner_value": null,
+                    "css_selector": "head",
+                    "ignore_css_selector": null,
+                    "id": "A:2",
+                    "target_hash": null
+                },
+                {
+                    "action": "append_child",
+                    "value": "<!-- MISSING BODY -->",
+                    "inner_value": null,
+                    "css_selector": "",
+                    "element_tree": ["html", "body"],
+                    "id": "A:3",
+                    "target_hash": null
+                },
+                {
+                    "action": "replace_html",
+                    "value": "New title",
+                    "inner_value": null,
+                    "css_selector": "head > title",
+                    "id": "A:4",
+                    "target_hash": null
+                },
+                {
+                    "action": "remove_html",
+                    "css_selector": "head > meta",
+                    "id": "A:5",
+                    "target_hash": null
+                }
+            ],
+            "header_filters": [],
+            "target": "",
+            "redirect_code": null,
+            "redirect_unit_id": null,
+            "examples": [
+                {
+                    "id": "example:A:1",
+                    "url": "/",
+                    "must_match": true,
+                    "headers": [],
+                    "response_status_code": 200,
+                    "method": "GET",
+                    "unit_ids_applied": [
+                        "A:1"
+                    ],
+                    "body": "<html><head><title>Original Title</title><!-- COUCOU --><meta>Original Meta</meta></head><body></body></html>"
+                }
+            ]
+        }
+    ],
+    "max_hops": 5
+}

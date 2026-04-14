@@ -11,6 +11,7 @@ pub struct Example {
     pub response_status_code: Option<u16>,
     pub must_match: bool,
     pub unit_ids_applied: Option<Vec<String>>,
+    pub body: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]

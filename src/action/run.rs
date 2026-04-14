@@ -11,7 +11,7 @@ use crate::{
 
 #[derive(Serialize, Debug, Clone)]
 pub struct RunExample {
-    pub(crate) request: Request,
+    pub request: Request,
     pub(crate) unit_trace: UnitTrace,
     pub(crate) backend_status_code: u16,
     pub(crate) response: RunResponse,
@@ -48,13 +48,15 @@ impl RunExample {
 
         let headers = action.filter_headers(Vec::new(), backend_status_code, false, Some(unit_trace.clone()));
 
-        let mut body = "<!DOCTYPE html>
+        let mut body = example.body.as_deref().unwrap_or(
+            "<!DOCTYPE html>
 <html>
     <head>
     </head>
     <body>
     </body>
-</html>";
+</html>",
+        );
 
         let mut b1;
         if let Some(mut body_filter) = action.create_filter_body(backend_status_code, &[], Some(unit_trace.clone())) {
