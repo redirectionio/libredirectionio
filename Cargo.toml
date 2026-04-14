@@ -51,7 +51,7 @@ linked_hash_set = { version = "0.1.6", features = ["serde"] }
 linked-hash-map = "0.5.6"
 lol_html = "2.7.2"
 percent-encoding = "2.3.2"
-rand = "0.10.0"
+rand = "0.10.1"
 regex = "1.12.3"
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = "1.0.149"
