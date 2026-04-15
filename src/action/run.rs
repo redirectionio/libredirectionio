@@ -48,7 +48,7 @@ impl RunExample {
 
         let headers = action.filter_headers(Vec::new(), backend_status_code, false, Some(unit_trace.clone()));
 
-        let mut body = example.body.as_deref().unwrap_or(
+        let mut body = example.response_body.as_deref().unwrap_or(
             "<!DOCTYPE html>
 <html>
     <head>

@@ -121,10 +121,8 @@ impl Request {
             None,
         );
 
-        if let Some(headers) = &example.headers {
-            for header in headers {
-                request.add_header(header.name.clone(), header.value.clone(), router_config.ignore_header_case);
-            }
+        for header in &example.headers {
+            request.add_header(header.name.clone(), header.value.clone(), router_config.ignore_header_case);
         }
 
         if let Some(ip) = &example.ip_address {

@@ -1,7 +1,8 @@
+use std::collections::HashMap;
+
 use linked_hash_map::LinkedHashMap;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[cfg(feature = "router")]
 use crate::{

@@ -4,14 +4,18 @@ use serde::{Deserialize, Serialize};
 pub struct Example {
     pub url: String,
     pub method: Option<String>,
-    pub headers: Option<Vec<ExampleHeader>>,
+    #[serde(default)]
+    pub headers: Vec<ExampleHeader>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub datetime: Option<String>,
     pub ip_address: Option<String>,
     pub response_status_code: Option<u16>,
     pub must_match: bool,
     pub unit_ids_applied: Option<Vec<String>>,
-    pub body: Option<String>,
+    #[serde(default)]
+    pub response_headers: Vec<ExampleHeader>,
+    #[serde(default)]
+    pub response_body: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]

@@ -89,7 +89,7 @@
                     "unit_ids_applied": [
                         "A:1"
                     ],
-                    "body": "<html><head><title>Original Title</title><!-- COUCOU --><meta>Original Meta</meta></head><body></body></html>"
+                    "response_body": "<html><head><title>Original Title</title><!-- COUCOU --><meta>Original Meta</meta></head><body></body></html>"
                 }
             ]
         }
