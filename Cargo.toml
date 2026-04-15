@@ -15,7 +15,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [build-dependencies]
 cbindgen = "0.29.2"
 glob = "^0.3.3"
-html-to-markdown-rs = "3.1.0"
+html-to-markdown-rs = "3.2.0"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.6", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive"] }
@@ -35,7 +35,7 @@ futures-util = { version = "0.3.32", default-features = false }
 getrandom = { version = "0.4.2", features = ["wasm_js"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
-wasm-bindgen = "0.2.117"
+wasm-bindgen = "0.2.118"
 wasm-tracing = "2.1.0"
 
 [dependencies]
@@ -45,10 +45,10 @@ cidr = { version = "0.3.2", features = ["serde"] }
 dot_graph = { version = "0.2.3", optional = true }
 flate2 = { version = "1.1.9", optional = true }
 heck = "0.5.0"
-html-to-markdown-rs = "3.1.0"
+html-to-markdown-rs = "3.2.0"
 http = "1.4.0"
 linked_hash_set = { version = "0.1.6", features = ["serde"] }
-linked-hash-map = "0.5.6"
+linked-hash-map = { version = "0.5.6", features = ["serde_impl"] }
 lol_html = "2.7.2"
 percent-encoding = "2.3.2"
 rand = "0.10.1"
@@ -85,7 +85,7 @@ name = "string_alloc_benchmark"
 harness = false
 
 [dependencies.web-sys]
-version = "0.3.94"
+version = "0.3.95"
 features = [
     "console",
 ]

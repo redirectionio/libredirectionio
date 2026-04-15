@@ -26,9 +26,9 @@
         "ee15e733-ad61-4640-973f-732dcc68f5d5"
       ],
       "unit_ids_seen": [
-        "c73e8447-08b5-490f-bd46-0a137e16b749",
         "1d5c840c-2d6c-4c96-822f-808a1dc0a794",
-        "ee15e733-ad61-4640-973f-732dcc68f5d5"
+        "ee15e733-ad61-4640-973f-732dcc68f5d5",
+        "c73e8447-08b5-490f-bd46-0a137e16b749"
       ],
       "value_computed_by_units": {}
     },
@@ -68,8 +68,8 @@
         "ee15e733-ad61-4640-973f-732dcc68f5d5"
       ],
       "unit_ids_seen": [
-        "c73e8447-08b5-490f-bd46-0a137e16b749",
-        "ee15e733-ad61-4640-973f-732dcc68f5d5"
+        "ee15e733-ad61-4640-973f-732dcc68f5d5",
+        "c73e8447-08b5-490f-bd46-0a137e16b749"
       ],
       "value_computed_by_units": {}
     },

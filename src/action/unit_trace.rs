@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-
+use linked_hash_map::LinkedHashMap;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[cfg(feature = "router")]
 use crate::{
@@ -12,7 +12,7 @@ use crate::{
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct WithTargetUnitTrace {
-    unit_ids_applied_by_key: HashMap<String, LinkedHashSet<String>>,
+    unit_ids_applied_by_key: LinkedHashMap<String, LinkedHashSet<String>>,
 }
 
 impl WithTargetUnitTrace {
@@ -22,7 +22,7 @@ impl WithTargetUnitTrace {
     }
 
     fn override_unit_id(&mut self, target: &str, unit_id: &str) {
-        self.unit_ids_applied_by_key.remove_entry(target);
+        self.unit_ids_applied_by_key.remove(target);
         self.add_unit_id(target, unit_id);
     }
 }
