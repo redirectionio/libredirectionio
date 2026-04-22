@@ -17,8 +17,6 @@ impl<'h> IntoHandler<ElementHandler<'h>> for BodyRemove {
         Box::new(move |element| {
             element.remove();
 
-            println!("BodyRemove: removed element with selector {}", self.css_selector);
-
             if let (Some(unit_trace), Some(id)) = (self.unit_trace.clone(), &self.id) {
                 unit_trace.borrow_mut().add_value_computed_by_unit(id, "");
 
