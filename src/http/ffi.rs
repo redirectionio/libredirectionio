@@ -1,4 +1,8 @@
-use std::{os::raw::c_char, ptr::null};
+use std::{
+    ffi::CString,
+    os::raw::c_char,
+    ptr::null,
+};
 
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use trusted_proxies::{Config, Trusted};
@@ -32,6 +36,40 @@ pub fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
     }
 
     current
+}
+
+/// Free a header map previously returned by `redirectionio_action_header_filter_filter`.
+///
+/// The returned list, along with each header name and value, is allocated with
+/// Rust's allocator, so it must be reclaimed by Rust as well rather than with the
+/// C `free()` function.
+///
+/// # Safety
+///
+/// This function must be called with a pointer returned by
+/// `redirectionio_action_header_filter_filter`, or a null pointer. It must not be
+/// called with a header map allocated on the caller side, and the list must be
+/// dropped at most once.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn redirectionio_header_map_drop(header_map: *const HeaderMap) {
+    let mut current = header_map as *mut HeaderMap;
+
+    while !current.is_null() {
+        // Safety: current is a valid pointer to a Rust-allocated HeaderMap node
+        let node = unsafe { Box::from_raw(current) };
+
+        if !node.name.is_null() {
+            // Safety: name was created with CString::into_raw in string_to_c_char
+            drop(unsafe { CString::from_raw(node.name as *mut c_char) });
+        }
+
+        if !node.value.is_null() {
+            // Safety: value was created with CString::into_raw in string_to_c_char
+            drop(unsafe { CString::from_raw(node.value as *mut c_char) });
+        }
+
+        current = node.next;
+    }
 }
 
 pub fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<Header> {

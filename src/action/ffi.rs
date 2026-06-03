@@ -119,7 +119,10 @@ pub extern "C" fn redirectionio_action_body_filter_create(
 #[unsafe(no_mangle)]
 pub extern "C" fn redirectionio_action_body_filter_filter(_filter: *mut FilterBodyAction, buffer: Buffer) -> Buffer {
     if _filter.is_null() {
-        return buffer.duplicate();
+        // No filter: pass the buffer straight through. Move it out rather than
+        // duplicating, otherwise the original allocation would leak (Buffer has
+        // no Drop impl, so a borrowed-and-copied input is never reclaimed).
+        return buffer;
     }
 
     // SAFETY: _filter is a valid pointer to a FilterBodyAction
