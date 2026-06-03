@@ -108,7 +108,7 @@ impl Rule {
             }
         }
 
-        variables.sort_by(|(key_a, _), (key_b, _)| key_b.len().cmp(&key_a.len()));
+        variables.sort_by_key(|(key_b, _)| std::cmp::Reverse(key_b.len()));
 
         variables
     }

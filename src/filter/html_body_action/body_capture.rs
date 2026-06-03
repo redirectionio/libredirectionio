@@ -31,7 +31,7 @@ impl CaptureRegistry {
             .collect::<Vec<(String, VariableValue)>>();
 
         // sort by length descending to replace longer keys first
-        variables.sort_by(|(key_a, _), (key_b, _)| key_b.len().cmp(&key_a.len()));
+        variables.sort_by_key(|(key_b, _)| std::cmp::Reverse(key_b.len()));
 
         StaticOrDynamic::replace(value, &variables, true)
     }

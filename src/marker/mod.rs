@@ -49,7 +49,7 @@ impl MarkerString {
         let mut capture = regex.clone();
         let mut marker_map = HashMap::new();
 
-        markers.sort_by(|a, b| b.name.len().cmp(&a.name.len()));
+        markers.sort_by_key(|b| std::cmp::Reverse(b.name.len()));
 
         for marker in &markers {
             let marker_regex = format!("(?:{})", marker.regex);

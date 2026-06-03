@@ -1,8 +1,4 @@
-use std::{
-    ffi::CString,
-    os::raw::c_char,
-    ptr::null,
-};
+use std::{ffi::CString, os::raw::c_char, ptr::null};
 
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use trusted_proxies::{Config, Trusted};

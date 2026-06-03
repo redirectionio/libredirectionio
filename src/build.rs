@@ -414,14 +414,12 @@ fn read_router_tests(path: &str) -> HashMap<String, RuleSet> {
                         rule_sets.extend(read_router_tests(file.path().to_str().unwrap()))
                     } else if file_type.is_file() {
                         match file.path().extension() {
-                            None => (),
-                            Some(ext) => {
-                                if ext == "yml" {
-                                    let (key, rule_set) = build_router_test_file(file).expect("");
+                            Some(ext) if ext == "yml" => {
+                                let (key, rule_set) = build_router_test_file(file).expect("");
 
-                                    rule_sets.insert(key, rule_set);
-                                }
+                                rule_sets.insert(key, rule_set);
                             }
+                            _ => (),
                         }
                     }
                 }
