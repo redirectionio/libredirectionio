@@ -1,3 +1,9 @@
+## 3.1.1 - 03-06-2026
+
+* [chore] Avoid string memory allocation in some cases to improve performance
+* [ffi] Add new ffi endpoint to free memory from rust side, since memory allocator may be different
+* [exemple] Allow to pass headers / body when testing example
+
 ## 3.1.0 - 04-04-2026
 
 * [action] Add new action to transform html into markdown
