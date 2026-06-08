@@ -220,15 +220,7 @@ impl Request {
     }
 
     pub fn header_exists(&self, name: &str) -> bool {
-        let lowercase_name = name.to_lowercase();
-
-        for header in &self.headers {
-            if header.name.to_lowercase() == lowercase_name {
-                return true;
-            }
-        }
-
-        false
+        self.headers.iter().any(|h| h.name.eq_ignore_ascii_case(name))
     }
 
     pub fn set_remote_ip(&mut self, remote_ip: IpAddr) {
@@ -236,16 +228,11 @@ impl Request {
     }
 
     pub fn header_values(&self, name: &str) -> Vec<&str> {
-        let mut values = Vec::new();
-        let lowercase_name = name.to_lowercase();
-
-        for header in &self.headers {
-            if header.name.to_lowercase() == lowercase_name {
-                values.push(header.value.as_str());
-            }
-        }
-
-        values
+        self.headers
+            .iter()
+            .filter(|h| h.name.eq_ignore_ascii_case(name))
+            .map(|h| h.value.as_str())
+            .collect()
     }
 
     pub fn header_value(&self, name: &str) -> Option<String> {
@@ -306,35 +293,35 @@ impl RequestInformation for Request {
     fn forwarded(&self) -> impl DoubleEndedIterator<Item = &str> {
         self.headers
             .iter()
-            .filter(|header| header.name.to_lowercase() == "forwarded")
+            .filter(|header| header.name.eq_ignore_ascii_case("forwarded"))
             .map(|header| header.value.as_str())
     }
 
     fn x_forwarded_for(&self) -> impl DoubleEndedIterator<Item = &str> {
         self.headers
             .iter()
-            .filter(|header| header.name.to_lowercase() == "x-forwarded-for")
+            .filter(|header| header.name.eq_ignore_ascii_case("x-forwarded-for"))
             .map(|header| header.value.as_str())
     }
 
     fn x_forwarded_host(&self) -> impl DoubleEndedIterator<Item = &str> {
         self.headers
             .iter()
-            .filter(|header| header.name.to_lowercase() == "x-forwarded-host")
+            .filter(|header| header.name.eq_ignore_ascii_case("x-forwarded-host"))
             .map(|header| header.value.as_str())
     }
 
     fn x_forwarded_proto(&self) -> impl DoubleEndedIterator<Item = &str> {
         self.headers
             .iter()
-            .filter(|header| header.name.to_lowercase() == "x-forwarded-proto")
+            .filter(|header| header.name.eq_ignore_ascii_case("x-forwarded-proto"))
             .map(|header| header.value.as_str())
     }
 
     fn x_forwarded_by(&self) -> impl DoubleEndedIterator<Item = &str> {
         self.headers
             .iter()
-            .filter(|header| header.name.to_lowercase() == "x-forwarded-by")
+            .filter(|header| header.name.eq_ignore_ascii_case("x-forwarded-by"))
             .map(|header| header.value.as_str())
     }
 
