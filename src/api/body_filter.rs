@@ -150,6 +150,7 @@ pub enum TextAction {
 pub struct HTMLToMarkdownFilter {
     pub action: HTMLToMarkdownAction,
     pub options: Option<ConversionOptions>,
+    pub id: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -225,11 +225,19 @@ impl FilterBodyActionItem {
             BodyFilter::HTMLToMarkdown(html_to_md_filter) => match content_type {
                 Some(content_type) if content_type.contains("text/html") => {
                     // @TODO Support charset
-                    Some(Self::HtmlToMarkdown(Box::new(HtmlToMarkdownFilter::new(html_to_md_filter.options))))
+                    Some(Self::HtmlToMarkdown(Box::new(HtmlToMarkdownFilter::new(
+                        html_to_md_filter.options,
+                        html_to_md_filter.id,
+                        unit_trace.clone(),
+                    ))))
                 }
                 None => {
                     // Assume HTML if no content type
-                    Some(Self::HtmlToMarkdown(Box::new(HtmlToMarkdownFilter::new(html_to_md_filter.options))))
+                    Some(Self::HtmlToMarkdown(Box::new(HtmlToMarkdownFilter::new(
+                        html_to_md_filter.options,
+                        html_to_md_filter.id,
+                        unit_trace.clone(),
+                    ))))
                 }
                 _ => {
                     tracing::warn!(
