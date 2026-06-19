@@ -168,3 +168,32 @@ pub extern "C" fn redirectionio_action_should_log_request(_action: *mut Action, 
 
     action.should_log_request(allow_log_config, response_status_code, None)
 }
+
+/// Serialize the ids of the rules applied by this action as a JSON array of strings.
+///
+/// Used to count rule executions when logging is disabled for the request (so no log
+/// is sent). Returns null when no rule was applied. The returned string must be freed
+/// with `redirectionio_string_drop`.
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_action_get_applied_rule_ids(_action: *mut Action) -> *const c_char {
+    if _action.is_null() {
+        return null();
+    }
+
+    // SAFETY: _action is a valid pointer to an Action
+    let action = unsafe { &*_action };
+    let rule_ids = action.get_applied_rule_ids_vec();
+
+    if rule_ids.is_empty() {
+        return null();
+    }
+
+    match json_encode(&rule_ids) {
+        Err(error) => {
+            tracing::error!("unable to serialize applied rule ids: {error}");
+
+            null()
+        }
+        Ok(serialized) => string_to_c_char(serialized),
+    }
+}
