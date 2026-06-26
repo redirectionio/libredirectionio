@@ -1,3 +1,7 @@
+## 3.2.0 - 26-06-2026
+
+* [action] Fix capture backend response headers to pass them to body filters before redirection.io mutates them
+
 ## 3.1.1 - 03-06-2026
 
 * [chore] Avoid string memory allocation in some cases to improve performance
