@@ -621,7 +621,8 @@ mod agent_protocol_tests {
     fn missing_version_fields_default_to_unsupported() {
         // An action JSON produced by an agent that predates protocol negotiation has no
         // version fields; #[serde(default)] makes them 0.0, i.e. rule-count unsupported.
-        let json = r#"{"status_code_update":null,"header_filters":[],"body_filters":[],"rule_ids":[],"log_override":null,"peer_override":null}"#;
+        let json =
+            r#"{"status_code_update":null,"header_filters":[],"body_filters":[],"rule_ids":[],"log_override":null,"peer_override":null}"#;
         let action: Action = serde_json::from_str(json).unwrap();
 
         assert!(!action.agent_supports_rule_count());
