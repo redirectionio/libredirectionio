@@ -39,6 +39,14 @@ use crate::{
     http::Header,
 };
 
+/// Version of the agent <-> proxy-module wire protocol this build speaks. The agent
+/// advertises it inside the MATCH action (see `Action::agent_protocol_version_*`) so a
+/// proxy module can tell whether the agent understands newer commands before sending
+/// them. Mirrors `REDIRECTIONIO_PROTOCOL_VERSION_MAJOR`/`_MINOR` in the C modules.
+/// `RULE_COUNT` was introduced in 1.1.
+pub const PROTOCOL_VERSION_MAJOR: u8 = 1;
+pub const PROTOCOL_VERSION_MINOR: u8 = 1;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Action {
     status_code_update: Option<StatusCodeUpdate>,
@@ -54,6 +62,13 @@ pub struct Action {
     peer_override: Option<PeerOverride>,
     #[serde(default)]
     variables: Vec<(String, VariableValue)>,
+    // Protocol version the agent speaks, advertised to proxy modules in the MATCH
+    // response. Absent (0.0) when the action comes from an agent that predates protocol
+    // negotiation, which a module reads as "does not support newer commands".
+    #[serde(default)]
+    agent_protocol_version_major: u8,
+    #[serde(default)]
+    agent_protocol_version_minor: u8,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -91,6 +106,8 @@ impl Default for Action {
             log_override: None,
             peer_override: None,
             variables: Vec::new(),
+            agent_protocol_version_major: 0,
+            agent_protocol_version_minor: 0,
         }
     }
 }
@@ -98,6 +115,19 @@ impl Default for Action {
 impl Action {
     pub fn get_applied_rule_ids(&self) -> &LinkedHashSet<String> {
         &self.rules_applied
+    }
+
+    /// Stamp the protocol version the agent speaks so proxy modules can negotiate
+    /// capabilities from the MATCH response.
+    pub fn set_agent_protocol_version(&mut self, major: u8, minor: u8) {
+        self.agent_protocol_version_major = major;
+        self.agent_protocol_version_minor = minor;
+    }
+
+    /// Whether the agent that produced this action understands the `RULE_COUNT` command,
+    /// introduced in protocol 1.1. Older agents advertise no version (0.0) -> false.
+    pub fn agent_supports_rule_count(&self) -> bool {
+        (self.agent_protocol_version_major, self.agent_protocol_version_minor) >= (1, 1)
     }
 
     pub fn get_applied_rule_ids_vec(&self) -> Vec<String> {
@@ -270,6 +300,8 @@ impl Action {
                 None
             },
             variables,
+            agent_protocol_version_major: 0,
+            agent_protocol_version_minor: 0,
         };
 
         (
@@ -578,5 +610,40 @@ impl Action {
         }
 
         false
+    }
+}
+
+#[cfg(test)]
+mod agent_protocol_tests {
+    use super::Action;
+
+    #[test]
+    fn missing_version_fields_default_to_unsupported() {
+        // An action JSON produced by an agent that predates protocol negotiation has no
+        // version fields; #[serde(default)] makes them 0.0, i.e. rule-count unsupported.
+        let json = r#"{"status_code_update":null,"header_filters":[],"body_filters":[],"rule_ids":[],"log_override":null,"peer_override":null}"#;
+        let action: Action = serde_json::from_str(json).unwrap();
+
+        assert!(!action.agent_supports_rule_count());
+    }
+
+    #[test]
+    fn version_1_1_supports_rule_count_through_serialization() {
+        let mut action = Action::default();
+        action.set_agent_protocol_version(1, 1);
+
+        // Round-trip through JSON, as it travels in the MATCH response.
+        let serialized = serde_json::to_string(&action).unwrap();
+        let parsed: Action = serde_json::from_str(&serialized).unwrap();
+
+        assert!(parsed.agent_supports_rule_count());
+    }
+
+    #[test]
+    fn version_1_0_does_not_support_rule_count() {
+        let mut action = Action::default();
+        action.set_agent_protocol_version(1, 0);
+
+        assert!(!action.agent_supports_rule_count());
     }
 }

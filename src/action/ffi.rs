@@ -197,3 +197,20 @@ pub extern "C" fn redirectionio_action_get_applied_rule_ids(_action: *mut Action
         Ok(serialized) => string_to_c_char(serialized),
     }
 }
+
+/// Whether the agent that produced this action understands the `RULE_COUNT` command
+/// (protocol >= 1.1), as advertised in the MATCH response. A proxy module must check this
+/// before sending `RULE_COUNT`, so it never sends it to an older agent that would reject
+/// the unknown command and close the connection. Returns false on a null action or when
+/// the agent advertised no version (older agent).
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_action_agent_supports_rule_count(_action: *mut Action) -> bool {
+    if _action.is_null() {
+        return false;
+    }
+
+    // SAFETY: _action is a valid pointer to an Action
+    let action = unsafe { &*_action };
+
+    action.agent_supports_rule_count()
+}
