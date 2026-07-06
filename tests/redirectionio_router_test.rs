@@ -15019,6 +15019,9 @@ fn setup_variable_marker_transformer() -> Router<Rule> {
     let route_1: Rule = serde_json::from_str(r#"{"id":"camelize-rule","markers":[{"name":"marker","regex":"([\\p{Ll}\\p{Lu}\\p{Lt}]|\\-)+?","transformers":[{"options":{"from":"0","to":"5"},"type":"slice"}]}],"rank":0,"source":{"path":"/camelize/from/@marker"},"status_code":302,"target":"/camelize/target/@var_marker_1","variables":[{"name":"var_marker_1","transformers":[{"options":null,"type":"uppercase"}],"type":{"marker":"marker"}}]}"#).expect("cannot deserialize");
     router.insert(route_1);
 
+    let route_2: Rule = serde_json::from_str(r#"{"id":"enum-variable-transformer-rule","markers":[{"name":"marker","regex":"(dog|fish|cat)","transformers":[{"options":null,"type":"lowercase"}]}],"rank":0,"source":{"path":"/test/@marker"},"status_code":301,"target":"/@var","variables":[{"name":"var","transformers":[{"options":null,"type":"uppercase"}],"type":{"marker":"marker"}}]}"#).expect("cannot deserialize");
+    router.insert(route_2);
+
     router.cache(Some(100));
     router
 }
@@ -15051,6 +15054,36 @@ fn test_variable_marker_transformer_1() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/camelize/target/HELLO"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+#[test]
+fn test_variable_marker_transformer_2() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_variable_marker_transformer();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/test/dog"#), r#"/test/dog"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 301);
+    let headers = action.filter_headers(Vec::new(), response_status_code, false, None);
+    assert_eq!(headers.len(), 1);
+
+    let target_header = headers.first().unwrap();
+    assert_eq!(target_header.name, "Location");
+    assert_eq!(target_header.value, r#"/DOG"#);
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
