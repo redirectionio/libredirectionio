@@ -118,7 +118,7 @@ impl Request {
             http_request.uri().scheme_str().map(|s| s.to_string()),
             example.method.clone(),
             None,
-            None,
+            example.sampling_override,
         );
 
         for header in &example.headers {

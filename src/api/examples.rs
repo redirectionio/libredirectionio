@@ -16,6 +16,8 @@ pub struct Example {
     pub response_headers: Vec<ExampleHeader>,
     #[serde(default)]
     pub response_body: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub sampling_override: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
