@@ -1,3 +1,7 @@
+## Unreleased
+
+* [filter] Do not append or prepend text to media and other binary content types, which splicing corrupts - replacing a body still applies to every content type
+
 ## 3.2.0 - 26-06-2026
 
 * [action] Fix capture backend response headers to pass them to body filters before redirection.io mutates them

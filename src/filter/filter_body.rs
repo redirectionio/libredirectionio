@@ -185,6 +185,36 @@ impl FilterBodyAction {
     }
 }
 
+/// Whether text spliced into a body of this content type has a chance of not corrupting it.
+///
+/// This is a deny list of formats known to break, so `true` is no guarantee - only "not known
+/// to be binary". `content_type` is expected lowercased, as read from the response headers;
+/// parameters such as `; charset=utf-8` are ignored.
+fn may_accept_text_splicing(content_type: &str) -> bool {
+    let content_type = content_type.split(';').next().unwrap_or_default().trim();
+
+    if let Some(subtype) = content_type.strip_prefix("image/") {
+        return subtype == "svg+xml";
+    }
+
+    !content_type.starts_with("audio/")
+        && !content_type.starts_with("video/")
+        && !content_type.starts_with("font/")
+        && !matches!(
+            content_type,
+            "application/octet-stream"
+                | "application/pdf"
+                | "application/zip"
+                | "application/gzip"
+                | "application/x-gzip"
+                | "application/font-woff"
+                | "application/font-woff2"
+                // server-sent events never end, so appended content would never be sent, and
+                // prepended content would corrupt the first event
+                | "text/event-stream"
+        )
+}
+
 impl FilterBodyActionItem {
     pub fn new(
         filter: BodyFilter,
@@ -213,15 +243,32 @@ impl FilterBodyActionItem {
                     None
                 }
             },
-            BodyFilter::Text(text_body_filter) => Some(Self::Text(TextFilterBodyAction::new(
-                text_body_filter.id,
-                match text_body_filter.action {
+            BodyFilter::Text(text_body_filter) => {
+                let action = match text_body_filter.action {
                     TextAction::Append => TextFilterAction::Append,
                     TextAction::Prepend => TextFilterAction::Prepend,
                     TextAction::Replace => TextFilterAction::Replace,
-                },
-                text_body_filter.content,
-            ))),
+                };
+
+                // Appending or prepending splices text into the bytes the origin produced, which
+                // corrupts media and other binary payloads - and costs them their Content-Length.
+                // Replacing discards the original body, so the type it used to have is irrelevant:
+                // a rule serving a custom body over a binary asset is doing what it was asked.
+                if !matches!(action, TextFilterAction::Replace)
+                    && let Some(content_type) = content_type.as_deref()
+                    && !may_accept_text_splicing(content_type)
+                {
+                    tracing::warn!("appending or prepending text is not supported for {content_type} content type");
+
+                    return None;
+                }
+
+                Some(Self::Text(TextFilterBodyAction::new(
+                    text_body_filter.id,
+                    action,
+                    text_body_filter.content,
+                )))
+            }
             BodyFilter::HTMLToMarkdown(html_to_md_filter) => match content_type {
                 Some(content_type) if content_type.contains("text/html") => {
                     // @TODO Support charset
@@ -292,7 +339,7 @@ mod tests {
     };
 
     use super::*;
-    use crate::api::{HTMLBodyFilter, HTMLBodyFilterInnerLegacy};
+    use crate::api::{HTMLBodyFilter, HTMLBodyFilterInnerLegacy, TextBodyFilter};
 
     #[test]
     pub fn test_filter_gzip() {
@@ -637,5 +684,83 @@ mod tests {
             r#"<html><body><h2>This is the title</h2><h1>This is the title</h1></body></html>"#.to_string(),
             String::from_utf8(filtered).unwrap()
         );
+    }
+
+    fn text_filter(action: TextAction) -> BodyFilter {
+        BodyFilter::Text(TextBodyFilter {
+            action,
+            content: "filtered".to_string(),
+            id: None,
+            target_hash: None,
+        })
+    }
+
+    fn filter_for(action: TextAction, content_type: &str) -> FilterBodyAction {
+        FilterBodyAction::new(
+            vec![text_filter(action)],
+            &[Header {
+                name: "Content-Type".to_string(),
+                value: content_type.to_string(),
+            }],
+            None,
+            Vec::new(),
+        )
+    }
+
+    #[test]
+    pub fn test_text_append_is_skipped_on_binary_content_types() {
+        for content_type in [
+            "audio/mpeg",
+            "video/mp4",
+            "image/png",
+            "font/woff2",
+            "application/octet-stream",
+            "application/pdf",
+            "application/zip",
+            "text/event-stream",
+        ] {
+            assert!(
+                filter_for(TextAction::Append, content_type).is_empty(),
+                "appending text to {content_type} would corrupt the body"
+            );
+            assert!(
+                filter_for(TextAction::Prepend, content_type).is_empty(),
+                "prepending text to {content_type} would corrupt the body"
+            );
+        }
+    }
+
+    #[test]
+    pub fn test_text_append_applies_to_textual_content_types() {
+        for content_type in ["text/html; charset=utf-8", "text/plain", "application/json", "image/svg+xml"] {
+            assert!(
+                !filter_for(TextAction::Append, content_type).is_empty(),
+                "appending text to {content_type} is supported"
+            );
+        }
+    }
+
+    /// Replacing discards the original body, so a rule serving a custom body over a binary
+    /// asset - the `custom_body`, `robots.txt` and `sitemap` actions all compile to this - must
+    /// keep working whatever the origin was serving.
+    #[test]
+    pub fn test_text_replace_applies_to_any_content_type() {
+        for content_type in ["audio/mpeg", "application/octet-stream", "application/pdf", "text/html"] {
+            assert!(
+                !filter_for(TextAction::Replace, content_type).is_empty(),
+                "replacing the body of a {content_type} response is supported"
+            );
+        }
+    }
+
+    /// Responses with no `Content-Type` keep being filtered: the generated router tests and the
+    /// module integrations rely on it.
+    #[test]
+    pub fn test_text_filters_apply_without_content_type() {
+        for action in [TextAction::Append, TextAction::Prepend, TextAction::Replace] {
+            let filter = FilterBodyAction::new(vec![text_filter(action)], &[], None, Vec::new());
+
+            assert!(!filter.is_empty(), "text filters apply when no content type is known");
+        }
     }
 }

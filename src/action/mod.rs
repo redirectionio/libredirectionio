@@ -534,6 +534,14 @@ impl Action {
         new_headers
     }
 
+    /// Body filters deliberately apply whatever `response_status_code` is - 206 and 304
+    /// included, unless the rule's own status-code trigger says otherwise. Several rules can
+    /// combine on one request (e.g. one filters the body while another rewrites the status
+    /// code to 200), so only the rule author can judge whether the composed response is
+    /// coherent; besides, gating on the backend status would let clients bypass
+    /// content-replacement rules by sending a `Range` header. Do not add status-based guards
+    /// here - the only built-in restriction is content-type based, in
+    /// `FilterBodyActionItem::new` (no text splicing into binary content types).
     pub fn create_filter_body(
         &mut self,
         response_status_code: u16,
