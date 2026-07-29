@@ -1,6 +1,10 @@
-## Unreleased
+## 3.3.0 - 29-07-2026
 
 * [filter] Do not append or prepend text to media and other binary content types, which splicing corrupts - replacing a body still applies to every content type
+* [action] Expose the agent protocol version carried in match responses: `PROTOCOL_VERSION_MAJOR`/`PROTOCOL_VERSION_MINOR`, `Action::set_agent_protocol_version()` and `Action::agent_supports_rule_count()`, so a proxy can tell whether the agent understands the `RULE_COUNT` command (protocol >= 1.1) before sending it
+* [ffi] Add `redirectionio_action_agent_supports_rule_count()`
+* [router] Fix options for variables with output transforms
+* [router] Fix rule matching for sampling, and ignore sampling in examples
 
 ## 3.2.0 - 26-06-2026
 
