@@ -2762,7 +2762,6 @@ fn test_action_html_to_markdown_4() {
 title: Page title
 ---
 
-
 # Title
 
 ## Exists
