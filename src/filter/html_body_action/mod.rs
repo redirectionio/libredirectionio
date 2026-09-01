@@ -162,9 +162,7 @@ impl HtmlBodyVisitor {
 
                 settings.append_element_content_handler((Cow::Owned(selector), ElementContentHandlers::default().element(replace)))
             }
-            HtmlBodyVisitor::Capture(capture) => {
-                capture.into_handlers(settings)
-            }
+            HtmlBodyVisitor::Capture(capture) => capture.into_handlers(settings),
             HtmlBodyVisitor::Remove(remove) => {
                 let Ok(selector) = remove.css_selector().parse() else {
                     return settings;
