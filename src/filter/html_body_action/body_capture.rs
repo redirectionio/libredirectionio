@@ -83,7 +83,7 @@ impl CaptureRegistry {
 pub struct BodyCapture(pub Arc<CaptureRegistry>);
 
 impl BodyCapture {
-    pub fn into_handlers(self, settings: &mut Settings) {
+    pub fn into_handlers(self, mut settings: Settings<'static, 'static>) -> Settings<'static, 'static> {
         for (selector, variable_name) in self.0.selectors() {
             let css_selector = match selector.parse() {
                 Ok(selector) => selector,
@@ -95,7 +95,7 @@ impl BodyCapture {
 
             let mut value = String::new();
             let variables = self.0.clone();
-            settings.element_content_handlers.push((
+            settings = settings.append_element_content_handler((
                 Cow::Owned(css_selector),
                 ElementContentHandlers::default().text(move |text: &mut TextChunk| {
                     value += text.as_str();
@@ -109,5 +109,7 @@ impl BodyCapture {
                 }),
             ));
         }
+
+        settings
     }
 }

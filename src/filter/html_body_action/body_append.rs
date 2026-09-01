@@ -54,26 +54,26 @@ impl BodyAppend {
         (self.css_selector.clone(), self.ignore_css_selector.clone())
     }
 
-    pub fn into_handlers(self, settings: &mut Settings) {
+    pub fn into_handlers(self, mut settings: Settings<'static, 'static>) -> Settings<'static, 'static> {
         let (css_selector, ignore_css_selector) = match self.css_selector() {
             (base, Some(checker)) => match (checker.parse(), base.parse()) {
                 (Ok(checker_selector), Ok(base_selector)) => (base_selector, Some(checker_selector)),
                 _ => {
                     tracing::error!("failed to parse CSS selector: {}", self.css_selector);
-                    return;
+                    return settings;
                 }
             },
             (base, None) => match base.parse() {
                 Ok(selector) => (selector, None),
                 Err(_) => {
                     tracing::error!("failed to parse CSS selector: {}", self.css_selector);
-                    return;
+                    return settings;
                 }
             },
         };
 
         if ignore_css_selector.is_none() {
-            settings.element_content_handlers.push((
+            settings = settings.append_element_content_handler((
                 Cow::Owned(css_selector),
                 ElementContentHandlers::default().element(move |element: &mut Element| {
                     let content = self.variables.replace(self.content.clone());
@@ -96,13 +96,13 @@ impl BodyAppend {
                 }),
             ));
 
-            return;
+            return settings;
         }
 
         let element_exists = Arc::new(AtomicBool::new(false));
         let element_exists_clone = Arc::clone(&element_exists);
 
-        settings.element_content_handlers.push((
+        settings = settings.append_element_content_handler((
             Cow::Owned(ignore_css_selector.unwrap()),
             ElementContentHandlers::default().element(move |_element: &mut Element| {
                 element_exists.store(true, std::sync::atomic::Ordering::Relaxed);
@@ -111,7 +111,7 @@ impl BodyAppend {
             }),
         ));
 
-        settings.element_content_handlers.push((
+        settings = settings.append_element_content_handler((
             Cow::Owned(css_selector),
             ElementContentHandlers::default().element(move |element: &mut Element| {
                 let element_exists_clone = Arc::clone(&element_exists_clone);
@@ -147,5 +147,7 @@ impl BodyAppend {
                 Ok(())
             }),
         ));
+
+        settings
     }
 }

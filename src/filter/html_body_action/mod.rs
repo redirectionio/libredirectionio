@@ -145,56 +145,46 @@ impl HtmlBodyVisitor {
         }
     }
 
-    pub fn into_handlers(self, settings: &mut Settings) {
+    pub fn into_handlers(self, settings: Settings<'static, 'static>) -> Settings<'static, 'static> {
         match self {
             HtmlBodyVisitor::Append(append) => append.into_handlers(settings),
             HtmlBodyVisitor::Prepend(prepend) => {
                 let Ok(selector) = prepend.css_selector().parse() else {
-                    return;
+                    return settings;
                 };
 
-                settings
-                    .element_content_handlers
-                    .push((Cow::Owned(selector), ElementContentHandlers::default().element(prepend)));
+                settings.append_element_content_handler((Cow::Owned(selector), ElementContentHandlers::default().element(prepend)))
             }
             HtmlBodyVisitor::Replace(replace) => {
                 let Ok(selector) = replace.css_selector().parse() else {
-                    return;
+                    return settings;
                 };
 
-                settings
-                    .element_content_handlers
-                    .push((Cow::Owned(selector), ElementContentHandlers::default().element(replace)));
+                settings.append_element_content_handler((Cow::Owned(selector), ElementContentHandlers::default().element(replace)))
             }
             HtmlBodyVisitor::Capture(capture) => {
-                capture.into_handlers(settings);
+                capture.into_handlers(settings)
             }
             HtmlBodyVisitor::Remove(remove) => {
                 let Ok(selector) = remove.css_selector().parse() else {
-                    return;
+                    return settings;
                 };
 
-                settings
-                    .element_content_handlers
-                    .push((Cow::Owned(selector), ElementContentHandlers::default().element(remove)));
+                settings.append_element_content_handler((Cow::Owned(selector), ElementContentHandlers::default().element(remove)))
             }
             HtmlBodyVisitor::After(after) => {
                 let Ok(selector) = after.css_selector().parse() else {
-                    return;
+                    return settings;
                 };
 
-                settings
-                    .element_content_handlers
-                    .push((Cow::Owned(selector), ElementContentHandlers::default().element(after)));
+                settings.append_element_content_handler((Cow::Owned(selector), ElementContentHandlers::default().element(after)))
             }
             HtmlBodyVisitor::Before(before) => {
                 let Ok(selector) = before.css_selector().parse() else {
-                    return;
+                    return settings;
                 };
 
-                settings
-                    .element_content_handlers
-                    .push((Cow::Owned(selector), ElementContentHandlers::default().element(before)));
+                settings.append_element_content_handler((Cow::Owned(selector), ElementContentHandlers::default().element(before)))
             }
         }
     }

@@ -23,8 +23,7 @@ impl OutputSink for OutputSinkBuffer {
 impl HtmlFilterBodyAction {
     pub fn new(visitor: HtmlBodyVisitor) -> Self {
         let output = Rc::new(RefCell::new(vec![]));
-        let mut settings = Settings::default();
-        visitor.into_handlers(&mut settings);
+        let settings = visitor.into_handlers(Settings::default());
 
         let rewriter = HtmlRewriter::new(settings, OutputSinkBuffer { output: output.clone() });
 
