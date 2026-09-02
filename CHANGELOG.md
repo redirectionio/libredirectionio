@@ -1,3 +1,8 @@
+## Unreleased
+
+* [http] Add `Request::set_scheme()` and `Request::set_host()`
+* [ffi] Add `redirectionio_request_set_forwarded()`, which also takes the scheme and the host from a trusted proxy's `Forwarded` header - `redirectionio_request_set_remote_addr()` still only sets the remote ip
+
 ## 3.3.0 - 29-07-2026
 
 * [filter] Do not append or prepend text to media and other binary content types, which splicing corrupts - replacing a body still applies to every content type

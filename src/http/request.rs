@@ -227,6 +227,14 @@ impl Request {
         self.remote_addr = Some(remote_ip);
     }
 
+    pub fn set_scheme(&mut self, scheme: String) {
+        self.scheme = Some(scheme);
+    }
+
+    pub fn set_host(&mut self, host: String) {
+        self.host = Some(host);
+    }
+
     pub fn header_values(&self, name: &str) -> Vec<&str> {
         self.headers
             .iter()

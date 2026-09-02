@@ -1,7 +1,7 @@
 use std::{ffi::CString, os::raw::c_char, ptr::null};
 
 use serde_json::{from_str as json_decode, to_string as json_encode};
-use trusted_proxies::{Config, Trusted};
+use trusted_proxies::{Config, RequestInformation, Trusted};
 
 use crate::{
     ffi_helpers::{c_char_to_str, string_to_c_char},
@@ -234,6 +234,27 @@ pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
     _remote_addr_str: *const c_char,
     _trusted_proxies: *const TrustedProxies,
 ) {
+    unsafe { redirectionio_request_set_forwarded(_request, _remote_addr_str, _trusted_proxies, 0, 0) }
+}
+
+#[unsafe(no_mangle)]
+/// # Safety
+///
+/// This function must be called with a valid pointer to Request or null pointer
+/// and a valid pointer to TrustedProxies or null pointer
+///
+/// Same as `redirectionio_request_set_remote_addr`, but also takes the scheme and the host from a
+/// trusted proxy's `Forwarded` header (RFC 7239). `X-Forwarded-Proto` and `X-Forwarded-Host` are
+/// not used, they are trivially spoofable.
+///
+/// Only allow an override for a value you had to guess: an explicit one must win.
+pub unsafe extern "C" fn redirectionio_request_set_forwarded(
+    _request: *mut Request,
+    _remote_addr_str: *const c_char,
+    _trusted_proxies: *const TrustedProxies,
+    _allow_scheme_override: u8,
+    _allow_host_override: u8,
+) {
     if _request.is_null() {
         return;
     }
@@ -266,7 +287,33 @@ pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
 
     let trusted = Trusted::from(remote_addr.addr, request, config);
 
-    request.set_remote_ip(trusted.ip());
+    let remote_ip = trusted.ip();
+
+    // `Trusted` falls back to the request's own values, keep only what the proxy advertised
+    let scheme = match _allow_scheme_override {
+        0 => None,
+        _ => trusted
+            .scheme()
+            .filter(|scheme| Some(*scheme) != request.default_scheme())
+            .map(|scheme| scheme.to_string()),
+    };
+    let host = match _allow_host_override {
+        0 => None,
+        _ => trusted
+            .host_with_port()
+            .filter(|host| Some(*host) != request.default_host())
+            .map(|host| host.to_string()),
+    };
+
+    request.set_remote_ip(remote_ip);
+
+    if let Some(scheme) = scheme {
+        request.set_scheme(scheme);
+    }
+
+    if let Some(host) = host {
+        request.set_host(host);
+    }
 }
 
 #[unsafe(no_mangle)]
@@ -294,4 +341,181 @@ pub unsafe extern "C" fn redirectionio_request_drop(_request: *mut Request) {
 
     // Safety: _request is a valid pointer to a Request
     drop(unsafe { Box::from_raw(_request) });
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ffi::CString;
+
+    use super::*;
+
+    /// Replays what the nginx / apache modules do.
+    fn request_from_module(headers: &[(&str, &str)], peer: &str, allow_scheme_override: u8, allow_host_override: u8) -> Box<Request> {
+        let uri = CString::new("/").unwrap();
+        let host = CString::new("example.com").unwrap();
+        // what a clear text virtual host computes on its own
+        let scheme = CString::new("http").unwrap();
+        let method = CString::new("GET").unwrap();
+
+        let headers: Vec<(CString, CString)> = headers
+            .iter()
+            .map(|(name, value)| (CString::new(*name).unwrap(), CString::new(*value).unwrap()))
+            .collect();
+
+        let mut first: *mut HeaderMap = std::ptr::null_mut();
+        let mut header_map: Vec<Box<HeaderMap>> = Vec::new();
+
+        for (name, value) in &headers {
+            let mut current = Box::new(HeaderMap {
+                name: name.as_ptr(),
+                value: value.as_ptr(),
+                next: first,
+            });
+
+            first = current.as_mut() as *mut HeaderMap;
+            header_map.push(current);
+        }
+
+        let proxies = CString::new("192.168.0.0/16").unwrap();
+        let trusted_proxies = redirectionio_trusted_proxies_create(proxies.as_ptr());
+        let request = redirectionio_request_create(uri.as_ptr(), host.as_ptr(), scheme.as_ptr(), method.as_ptr(), first) as *mut Request;
+        let peer = CString::new(peer).unwrap();
+
+        unsafe { redirectionio_request_set_forwarded(request, peer.as_ptr(), trusted_proxies, allow_scheme_override, allow_host_override) };
+
+        unsafe { Box::from_raw(request) }
+    }
+
+    #[test]
+    fn without_any_forwarding_header_nothing_is_touched() {
+        let request = request_from_module(&[("Host", "example.com")], "192.168.1.1", 1, 1);
+
+        assert_eq!(request.scheme(), Some("http"));
+        assert_eq!(request.host(), Some("example.com"));
+        assert_eq!(request.remote_addr, Some("192.168.1.1".parse().unwrap()));
+    }
+
+    #[test]
+    fn trusted_proxy_forwarded_header_gives_ip_scheme_and_host() {
+        let request = request_from_module(
+            &[
+                ("Host", "example.com"),
+                ("Forwarded", "for=1.2.3.4;proto=https;host=forwarded.example.com"),
+            ],
+            "192.168.1.1",
+            1,
+            1,
+        );
+
+        assert_eq!(request.scheme(), Some("https"));
+        assert_eq!(request.host(), Some("forwarded.example.com"));
+        assert_eq!(request.remote_addr, Some("1.2.3.4".parse().unwrap()));
+    }
+
+    #[test]
+    fn an_element_the_client_prepended_is_ignored() {
+        // haproxy appends its own element, only that last one has a trusted address
+        let request = request_from_module(
+            &[
+                ("Host", "example.com"),
+                ("Forwarded", "proto=https;host=evil.example.com,proto=http;for=1.2.3.4"),
+            ],
+            "192.168.1.1",
+            1,
+            1,
+        );
+
+        assert_eq!(request.scheme(), Some("http"));
+        assert_eq!(request.host(), Some("example.com"));
+        assert_eq!(request.remote_addr, Some("1.2.3.4".parse().unwrap()));
+    }
+
+    #[test]
+    fn x_forwarded_proto_and_host_are_not_trusted() {
+        let request = request_from_module(
+            &[
+                ("Host", "example.com"),
+                ("X-Forwarded-For", "1.2.3.4"),
+                ("X-Forwarded-Proto", "https"),
+                ("X-Forwarded-Host", "forwarded.example.com"),
+            ],
+            "192.168.1.1",
+            1,
+            1,
+        );
+
+        // the ip still comes from X-Forwarded-For, the scheme and the host do not follow
+        assert_eq!(request.remote_addr, Some("1.2.3.4".parse().unwrap()));
+        assert_eq!(request.scheme(), Some("http"));
+        assert_eq!(request.host(), Some("example.com"));
+    }
+
+    #[test]
+    fn an_untrusted_peer_is_never_believed() {
+        let request = request_from_module(
+            &[
+                ("Host", "example.com"),
+                ("Forwarded", "for=1.2.3.4;proto=https;host=forwarded.example.com"),
+            ],
+            "8.8.8.8",
+            1,
+            1,
+        );
+
+        assert_eq!(request.scheme(), Some("http"));
+        assert_eq!(request.host(), Some("example.com"));
+        assert_eq!(request.remote_addr, Some("8.8.8.8".parse().unwrap()));
+    }
+
+    #[test]
+    fn an_explicitly_configured_scheme_and_host_win() {
+        let request = request_from_module(
+            &[
+                ("Host", "example.com"),
+                ("Forwarded", "for=1.2.3.4;proto=https;host=forwarded.example.com"),
+            ],
+            "192.168.1.1",
+            0,
+            0,
+        );
+
+        assert_eq!(request.scheme(), Some("http"));
+        assert_eq!(request.host(), Some("example.com"));
+        // the ip is always taken from a trusted proxy
+        assert_eq!(request.remote_addr, Some("1.2.3.4".parse().unwrap()));
+    }
+
+    #[test]
+    fn set_remote_addr_keeps_its_ip_only_behaviour() {
+        let uri = CString::new("/").unwrap();
+        let host = CString::new("example.com").unwrap();
+        let scheme = CString::new("http").unwrap();
+        let method = CString::new("GET").unwrap();
+        let name = CString::new("Forwarded").unwrap();
+        let value = CString::new("for=1.2.3.4;proto=https;host=forwarded.example.com").unwrap();
+        let mut header = Box::new(HeaderMap {
+            name: name.as_ptr(),
+            value: value.as_ptr(),
+            next: std::ptr::null_mut(),
+        });
+
+        let proxies = CString::new("192.168.0.0/16").unwrap();
+        let trusted_proxies = redirectionio_trusted_proxies_create(proxies.as_ptr());
+        let request = redirectionio_request_create(
+            uri.as_ptr(),
+            host.as_ptr(),
+            scheme.as_ptr(),
+            method.as_ptr(),
+            header.as_mut() as *mut HeaderMap,
+        ) as *mut Request;
+        let peer = CString::new("192.168.1.1").unwrap();
+
+        unsafe { redirectionio_request_set_remote_addr(request, peer.as_ptr(), trusted_proxies) };
+
+        let request = unsafe { Box::from_raw(request) };
+
+        assert_eq!(request.remote_addr, Some("1.2.3.4".parse().unwrap()));
+        assert_eq!(request.scheme(), Some("http"));
+        assert_eq!(request.host(), Some("example.com"));
+    }
 }
