@@ -37,7 +37,7 @@ fn test_{{ name }}_{{ loop.index }}() {
     {%- if test.scheme -%}Some(r#"{{ test.scheme }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.method -%}Some(r#"{{ test.method }}"#.to_string()){% else %}None{%- endif -%},
     {%- if test.remote_ip -%}r#"{{ test.remote_ip }}"#.to_string().parse().ok(){% else %}None{%- endif -%},
-    {%- if test.sampling_override | default(value="null") != "null" -%}Some({%- if test.sampling_override -%}true{%- else -%}false{%- endif -%}){%- else -%}None{%- endif -%}
+    {%- if test.sampling_override is bool -%}Some({%- if test.sampling_override -%}true{%- else -%}false{%- endif -%}){%- else -%}None{%- endif -%}
     );
     {%- if test.headers -%}
     {% for header in test.headers %}

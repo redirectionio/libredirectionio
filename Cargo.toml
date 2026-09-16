@@ -19,8 +19,9 @@ html-to-markdown-rs = "3.5.7"
 libtool = "0.1.1"
 linked_hash_set = { version = "0.1.6", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
 serde_yaml = "0.9.34"
-tera = "2.3.0"
+tera = { version = "2.3.0", features = ["glob_fs", "preserve_order"] }
 
 [features]
 default = ["compress", "router"]

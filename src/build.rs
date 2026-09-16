@@ -4,7 +4,7 @@ extern crate serde;
 extern crate serde_yaml;
 
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     env,
     fs::{DirEntry, read_dir, read_to_string},
     path::Path,
@@ -15,12 +15,12 @@ use html_to_markdown_rs::ConversionOptions;
 use linked_hash_set::LinkedHashSet;
 use serde::{Deserialize, Serialize};
 use serde_yaml::from_str as yaml_decode;
-use tera::{Context, Tera, Value, try_get_value};
+use tera::{Context, Kwargs, State, Tera, Value};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleSet {
     #[serde(default)]
     config: RouterConfig,
-    rules: HashMap<String, RuleInput>,
+    rules: BTreeMap<String, RuleInput>,
     tests: Vec<RuleTest>,
 }
 
@@ -303,7 +303,7 @@ struct ShouldFilterHeader {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct RuleSetList {
-    rule_sets: HashMap<String, RuleSet>,
+    rule_sets: BTreeMap<String, RuleSet>,
 }
 
 fn main() {
@@ -336,7 +336,7 @@ fn make_test_examples_tests() {
         names.push(name);
     }
 
-    let templating = Tera::new("tests/templates/**/*").expect("cannot load templates");
+    let templating = templating();
     let test_path = Path::new("tests/redirectionio_test_examples.rs");
     let mut context = Context::default();
     context.insert("names", &names);
@@ -363,12 +363,7 @@ fn make_router_tests() {
         return;
     }
 
-    let mut templating = match Tera::new("tests/templates/**/*") {
-        Ok(t) => t,
-        Err(e) => panic!("{}", e),
-    };
-
-    templating.register_filter("as_bytes", filter_as_bytes_str);
+    let templating = templating();
 
     let rule_sets_list = RuleSetList { rule_sets };
     let test_path = Path::new("tests/redirectionio_router_test.rs");
@@ -390,20 +385,40 @@ fn make_router_tests() {
     }
 }
 
-fn filter_as_bytes_str(value: &Value, _: &HashMap<String, Value>) -> tera::Result<Value> {
-    let body = try_get_value!("as_bytes", "value", String, value);
+fn templating() -> Tera {
+    let mut templating = Tera::new();
 
-    Ok(Value::String(
-        body.as_bytes()
-            .iter()
-            .map(|b| format!("\\x{b:02x}"))
-            .collect::<Vec<String>>()
-            .join(""),
-    ))
+    // tera resolves filters when it parses a template, so they have to be registered first.
+    templating.register_filter("as_bytes", filter_as_bytes_str);
+    // tera 2 dropped the built-in json_encode filter.
+    templating.register_filter("json_encode", filter_json_encode);
+
+    if let Err(e) = templating.load_from_glob("tests/templates/**/*") {
+        panic!("{e}");
+    }
+
+    templating
 }
 
-fn read_router_tests(path: &str) -> HashMap<String, RuleSet> {
-    let mut rule_sets = HashMap::new();
+fn filter_json_encode(value: &Value, _: Kwargs, _: &State) -> String {
+    // tera's own Map is a hash map that serializes in an arbitrary order; routing through
+    // serde_json::Value (a BTreeMap) sorts the keys and keeps the generated tests stable.
+    let value: serde_json::Value = serde_json::to_value(value).expect("cannot encode as json");
+
+    serde_json::to_string(&value).expect("cannot encode as json")
+}
+
+fn filter_as_bytes_str(value: &str, _: Kwargs, _: &State) -> String {
+    value
+        .as_bytes()
+        .iter()
+        .map(|b| format!("\\x{b:02x}"))
+        .collect::<Vec<String>>()
+        .join("")
+}
+
+fn read_router_tests(path: &str) -> BTreeMap<String, RuleSet> {
+    let mut rule_sets = BTreeMap::new();
 
     match read_dir(path) {
         Err(_) => return rule_sets,
