@@ -68,6 +68,11 @@ mod generated_tests {
         do_test("one_rule_one_example");
     }
 
+    #[test]
+    fn test_examples_switch_backend() {
+        do_test("switch_backend");
+    }
+
     fn do_test(name: &str) {
         let json_in = std::fs::read_to_string(format!("tests/test_examples/{}.in.json", name)).unwrap();
         let test_examples_input: TestExamplesInput = json_decode(&json_in).unwrap();

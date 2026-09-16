@@ -1,0 +1,74 @@
+[
+  {
+    "request": {
+      "path_and_query": {
+        "path_and_query": "/api/legacy",
+        "path_and_query_matching": "/api/legacy",
+        "skipped_query_params": null,
+        "original": "/api/legacy"
+      },
+      "path_and_query_v2": "/api/legacy",
+      "host": null,
+      "scheme": null,
+      "method": "GET",
+      "headers": [],
+      "remote_addr": null,
+      "created_at": null,
+      "sampling_override": null
+    },
+    "unit_trace": {
+      "rule_ids_applied": [
+        "c1a5c2a4-7b8e-4a41-9d13-3f1c2b7f9e01"
+      ],
+      "unit_ids_applied": [
+        "6e0b1c3d-2f4a-4b5c-8d6e-7f8a9b0c1d2e"
+      ],
+      "unit_ids_seen": [
+        "6e0b1c3d-2f4a-4b5c-8d6e-7f8a9b0c1d2e"
+      ],
+      "value_computed_by_units": {}
+    },
+    "backend_status_code": 200,
+    "response": {
+      "status_code": 0,
+      "headers": [],
+      "body": "<!DOCTYPE html>\n<html>\n    <head>\n    </head>\n    <body>\n    </body>\n</html>"
+    },
+    "should_log_request": true,
+    "redirection_loop": null,
+    "match_traces": []
+  },
+  {
+    "request": {
+      "path_and_query": {
+        "path_and_query": "/api/current",
+        "path_and_query_matching": "/api/current",
+        "skipped_query_params": null,
+        "original": "/api/current"
+      },
+      "path_and_query_v2": "/api/current",
+      "host": null,
+      "scheme": null,
+      "method": "GET",
+      "headers": [],
+      "remote_addr": null,
+      "created_at": null,
+      "sampling_override": null
+    },
+    "unit_trace": {
+      "rule_ids_applied": [],
+      "unit_ids_applied": [],
+      "unit_ids_seen": [],
+      "value_computed_by_units": {}
+    },
+    "backend_status_code": 200,
+    "response": {
+      "status_code": 0,
+      "headers": [],
+      "body": "<!DOCTYPE html>\n<html>\n    <head>\n    </head>\n    <body>\n    </body>\n</html>"
+    },
+    "should_log_request": true,
+    "redirection_loop": null,
+    "match_traces": []
+  }
+]

@@ -35,6 +35,10 @@ impl RunExample {
 
         let mut action = Action::from_routes_rule(routes, &request, Some(unit_trace.clone()));
 
+        // A replay reaches no backend, but the request would have been sent to this one: the
+        // backend switch is applied, and its unit has to be traced as such like every other.
+        action.get_peer(Some(unit_trace.clone()));
+
         let action_status_code = action.get_status_code(0, Some(unit_trace.clone()));
         let (final_status_code, backend_status_code) = if action_status_code != 0 {
             (action_status_code, action_status_code)
