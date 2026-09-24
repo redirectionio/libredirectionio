@@ -351,8 +351,18 @@ mod tests {
 
     /// Replays what the nginx / apache modules do.
     fn request_from_module(headers: &[(&str, &str)], peer: &str, allow_scheme_override: u8, allow_host_override: u8) -> Box<Request> {
+        request_from_module_with_host("example.com", headers, peer, allow_scheme_override, allow_host_override)
+    }
+
+    fn request_from_module_with_host(
+        host: &str,
+        headers: &[(&str, &str)],
+        peer: &str,
+        allow_scheme_override: u8,
+        allow_host_override: u8,
+    ) -> Box<Request> {
         let uri = CString::new("/").unwrap();
-        let host = CString::new("example.com").unwrap();
+        let host = CString::new(host).unwrap();
         // what a clear text virtual host computes on its own
         let scheme = CString::new("http").unwrap();
         let method = CString::new("GET").unwrap();
@@ -384,6 +394,40 @@ mod tests {
         unsafe { redirectionio_request_set_forwarded(request, peer.as_ptr(), trusted_proxies, allow_scheme_override, allow_host_override) };
 
         unsafe { Box::from_raw(request) }
+    }
+
+    #[test]
+    fn a_default_port_in_the_host_is_dropped() {
+        let request = request_from_module_with_host("example.com:443", &[("Host", "example.com:443")], "1.2.3.4", 1, 1);
+        assert_eq!(request.host(), Some("example.com"));
+
+        let request = request_from_module_with_host("example.com:8443", &[("Host", "example.com:8443")], "1.2.3.4", 1, 1);
+        assert_eq!(request.host(), Some("example.com:8443"));
+    }
+
+    #[test]
+    fn a_default_port_in_the_forwarded_host_is_dropped() {
+        let request = request_from_module(
+            &[
+                ("Host", "example.com"),
+                ("Forwarded", "for=1.2.3.4;proto=https;host=forwarded.example.com:443"),
+            ],
+            "192.168.1.1",
+            1,
+            1,
+        );
+        assert_eq!(request.host(), Some("forwarded.example.com"));
+
+        let request = request_from_module(
+            &[
+                ("Host", "example.com"),
+                ("Forwarded", "for=1.2.3.4;proto=https;host=forwarded.example.com:8443"),
+            ],
+            "192.168.1.1",
+            1,
+            1,
+        );
+        assert_eq!(request.host(), Some("forwarded.example.com:8443"));
     }
 
     #[test]

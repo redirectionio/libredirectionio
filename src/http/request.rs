@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use trusted_proxies::RequestInformation;
 use url::form_urlencoded::parse as parse_query;
 
-use super::{header::Header, query::PathAndQueryWithSkipped};
+use super::{header::Header, host::without_default_port, query::PathAndQueryWithSkipped};
 #[cfg(feature = "router")]
 use crate::api::Example;
 #[cfg(feature = "router")]
@@ -68,7 +68,7 @@ impl Request {
         Request {
             path_and_query_skipped,
             path_and_query: Some(path_and_query),
-            host,
+            host: host.map(without_default_port),
             scheme,
             method,
             headers: Vec::new(),
@@ -91,7 +91,7 @@ impl Request {
         Request {
             path_and_query_skipped: PathAndQueryWithSkipped::from_config(config, path_and_query.as_str()),
             path_and_query: Some(path_and_query),
-            host: host.map(|s| if config.ignore_host_case { s.to_lowercase() } else { s }),
+            host: host.map(|s| without_default_port(if config.ignore_host_case { s.to_lowercase() } else { s })),
             scheme,
             method,
             remote_addr,
@@ -160,16 +160,13 @@ impl Request {
         Request {
             path_and_query_skipped,
             path_and_query: Some(original_url.to_string()),
-            host: match &request.host {
-                Some(host) => {
-                    if config.ignore_host_case {
-                        Some(host.to_lowercase())
-                    } else {
-                        Some(host.clone())
-                    }
-                }
-                None => None,
-            },
+            host: request.host.as_ref().map(|host| {
+                without_default_port(if config.ignore_host_case {
+                    host.to_lowercase()
+                } else {
+                    host.clone()
+                })
+            }),
             scheme: request.scheme.clone(),
             method: request.method.clone(),
             headers,
@@ -232,7 +229,7 @@ impl Request {
     }
 
     pub fn set_host(&mut self, host: String) {
-        self.host = Some(host);
+        self.host = Some(without_default_port(host));
     }
 
     pub fn header_values(&self, name: &str) -> Vec<&str> {
@@ -335,5 +332,43 @@ impl RequestInformation for Request {
 
     fn default_scheme(&self) -> Option<&str> {
         self.scheme()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn from_str_drops_a_default_port() {
+        assert_eq!(Request::from_str("https://lacot.org:443/x").unwrap().host(), Some("lacot.org"));
+        assert_eq!(Request::from_str("http://lacot.org:80/x").unwrap().host(), Some("lacot.org"));
+        assert_eq!(
+            Request::from_str("https://lacot.org:8443/x").unwrap().host(),
+            Some("lacot.org:8443")
+        );
+    }
+
+    #[test]
+    fn set_host_drops_a_default_port() {
+        let mut request = Request::from_str("https://lacot.org/x").unwrap();
+        request.set_host("forwarded.lacot.org:443".to_string());
+
+        assert_eq!(request.host(), Some("forwarded.lacot.org"));
+    }
+
+    #[cfg(feature = "router")]
+    #[test]
+    fn rebuild_with_config_drops_a_default_port_after_lowercasing() {
+        let config = RouterConfig {
+            ignore_host_case: true,
+            ..RouterConfig::default()
+        };
+        let request = Request {
+            host: Some("LACOT.ORG:443".to_string()),
+            ..Request::from_str("/x").unwrap()
+        };
+
+        assert_eq!(Request::rebuild_with_config(&config, &request).host(), Some("lacot.org"));
     }
 }

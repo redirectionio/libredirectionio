@@ -1,5 +1,6 @@
 ## Unreleased
 
+* [http] Drop a default port (80 or 443) from the request host, whatever the scheme, in every `Request` constructor, `set_host()` and `rebuild_with_config()`: a rule on `example.com` now matches a client sending `Host: example.com:443`, any other port is kept
 * [http] Add `Request::set_scheme()` and `Request::set_host()`
 * [ffi] Add `redirectionio_request_set_forwarded()`, which also takes the scheme and the host from a trusted proxy's `Forwarded` header - `redirectionio_request_set_remote_addr()` still only sets the remote ip
 

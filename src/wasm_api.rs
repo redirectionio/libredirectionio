@@ -13,7 +13,7 @@ use crate::{
     action::Action as RedirectionioAction,
     api::Log,
     filter::FilterBodyAction,
-    http::{Addr, Header, PathAndQueryWithSkipped, Request as RedirectionioRequest},
+    http::{Addr, Header, PathAndQueryWithSkipped, Request as RedirectionioRequest, without_default_port},
 };
 
 #[wasm_bindgen()]
@@ -49,7 +49,7 @@ impl Request {
         Request {
             request: RedirectionioRequest {
                 headers: Vec::new(),
-                host: Some(host),
+                host: Some(without_default_port(host)),
                 method: Some(method),
                 scheme: Some(scheme),
                 path_and_query_skipped: PathAndQueryWithSkipped::from_config(&config, uri.as_str()),
