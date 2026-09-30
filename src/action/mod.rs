@@ -1,6 +1,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi;
 mod log_override;
+mod log_tags;
 mod peer_override;
 #[cfg(feature = "router")]
 mod run;
@@ -9,7 +10,7 @@ mod status_code_update;
 mod trace;
 mod unit_trace;
 
-use std::{cell::RefCell, fmt::Debug, rc::Rc};
+use std::{cell::RefCell, collections::BTreeSet, fmt::Debug, rc::Rc};
 #[cfg(feature = "router")]
 use std::{iter::FromIterator, sync::Arc};
 
@@ -33,7 +34,7 @@ use crate::marker::StaticOrDynamic;
 #[cfg(feature = "router")]
 use crate::router::Route;
 use crate::{
-    action::{log_override::LogOverride, peer_override::PeerOverride},
+    action::{log_override::LogOverride, log_tags::LogTags, peer_override::PeerOverride},
     api::{BodyFilter, HeaderFilter, Peer, VariableValue},
     filter::{FilterBodyAction, FilterHeaderAction},
     http::Header,
@@ -60,6 +61,8 @@ pub struct Action {
     pub rules_applied: LinkedHashSet<String>,
     log_override: Option<LogOverride>,
     peer_override: Option<PeerOverride>,
+    #[serde(default)]
+    log_tags: Vec<LogTags>,
     #[serde(default)]
     variables: Vec<(String, VariableValue)>,
     // Protocol version the agent speaks, advertised to proxy modules in the MATCH
@@ -105,6 +108,7 @@ impl Default for Action {
             rules_applied: LinkedHashSet::new(),
             log_override: None,
             peer_override: None,
+            log_tags: Vec::new(),
             variables: Vec::new(),
             agent_protocol_version_major: 0,
             agent_protocol_version_minor: 0,
@@ -299,6 +303,16 @@ impl Action {
             } else {
                 None
             },
+            log_tags: match rule.log_tags.as_ref() {
+                Some(tags) if !tags.is_empty() => vec![LogTags {
+                    tags: tags.clone(),
+                    rule_id: Some(rule.id.clone()),
+                    on_response_status_codes: on_response_status_codes.clone(),
+                    exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
+                    unit_id: rule.log_tags_unit_id.clone(),
+                }],
+                _ => Vec::new(),
+            },
             variables,
             agent_protocol_version_major: 0,
             agent_protocol_version_minor: 0,
@@ -380,6 +394,7 @@ impl Action {
             self.peer_override = Some(other_peer_override);
         }
 
+        self.log_tags.extend(other.log_tags);
         self.variables.extend(other.variables);
     }
 
@@ -594,6 +609,20 @@ impl Action {
                 allow_log.unwrap_or(allow_log_config)
             }
         }
+    }
+
+    pub fn get_log_tags(&self, response_status_code: u16, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Vec<String> {
+        let mut tags = BTreeSet::new();
+
+        for log_tags in self.log_tags.iter().filter(|log_tags| log_tags.applies_to(response_status_code)) {
+            tags.extend(log_tags.tags.iter().cloned());
+
+            if let (Some(trace), Some(unit_id)) = (&unit_trace, &log_tags.unit_id) {
+                trace.borrow_mut().add_unit_id_with_target("log_tags", unit_id);
+            }
+        }
+
+        tags.into_iter().collect()
     }
 
     pub fn need_proxification(&self) -> bool {

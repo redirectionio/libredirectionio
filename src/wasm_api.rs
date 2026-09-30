@@ -269,6 +269,13 @@ pub fn create_log_in_json(
             Some(proxy_response_time.into())
         },
         client_ip.as_str(),
+    )
+    .with_tags(
+        action
+            .action
+            .as_ref()
+            .map(|a| a.get_log_tags(status_code, None))
+            .unwrap_or_default(),
     );
 
     match json_encode(&log) {

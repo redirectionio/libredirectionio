@@ -2835,6 +2835,136 @@ fn test_action_html_to_markdown_6() {
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 
+fn setup_action_log_tags() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_all_query_parameters":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"ignore_query_param_order":true,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"id":"action-log-tags","log_tags":["campaign","seo"],"rank":0,"source":{"path":"/tags"}}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    let route_2: Rule = serde_json::from_str(r#"{"id":"action-log-tags-after-stop","log_tags":["second"],"rank":1,"source":{"path":"/tags-stop"}}"#).expect("cannot deserialize");
+    router.insert(route_2);
+
+    let route_3: Rule = serde_json::from_str(r#"{"id":"action-log-tags-before-reset","log_tags":["before"],"rank":2,"source":{"path":"/tags-reset"}}"#).expect("cannot deserialize");
+    router.insert(route_3);
+
+    let route_4: Rule = serde_json::from_str(r#"{"id":"action-log-tags-merged","log_tags":["seo","blog"],"rank":2,"source":{"path":"/tags"}}"#).expect("cannot deserialize");
+    router.insert(route_4);
+
+    let route_5: Rule = serde_json::from_str(r#"{"id":"action-log-tags-on-status","log_tags":["not-found"],"rank":0,"source":{"path":"/tags","response_status_codes":[404]}}"#).expect("cannot deserialize");
+    router.insert(route_5);
+
+    let route_6: Rule = serde_json::from_str(r#"{"id":"action-log-tags-reset","log_tags":["after"],"rank":1,"reset":true,"source":{"path":"/tags-reset"}}"#).expect("cannot deserialize");
+    router.insert(route_6);
+
+    let route_7: Rule = serde_json::from_str(r#"{"id":"action-log-tags-stop","log_tags":["first"],"rank":2,"source":{"path":"/tags-stop"},"stop":true}"#).expect("cannot deserialize");
+    router.insert(route_7);
+
+    router.cache(Some(100));
+    router
+}
+
+
+#[test]
+fn test_action_log_tags_1() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_action_log_tags();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/tags"#), r#"/tags"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![r#"blog"#.to_string(), r#"campaign"#.to_string(), r#"seo"#.to_string(), ] as Vec<String>);
+}
+
+#[test]
+fn test_action_log_tags_2() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_action_log_tags();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/tags"#), r#"/tags"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 404;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![r#"blog"#.to_string(), r#"campaign"#.to_string(), r#"not-found"#.to_string(), r#"seo"#.to_string(), ] as Vec<String>);
+}
+
+#[test]
+fn test_action_log_tags_3() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_action_log_tags();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/tags-reset"#), r#"/tags-reset"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![r#"after"#.to_string(), ] as Vec<String>);
+}
+
+#[test]
+fn test_action_log_tags_4() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_action_log_tags();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/tags-stop"#), r#"/tags-stop"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![r#"first"#.to_string(), ] as Vec<String>);
+}
+
 
 fn setup_action_reset() -> Router<Rule> {
     let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_all_query_parameters":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"ignore_query_param_order":true,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");

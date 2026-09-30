@@ -42,6 +42,7 @@ pub struct ExplainRequestOutput {
     match_traces: Vec<Trace<Rule>>,
     redirection_loop: Option<RedirectionLoop>,
     should_log_request: bool,
+    log_tags: Vec<String>,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -118,6 +119,7 @@ impl ExplainRequestOutput {
             match_traces: router.trace_request(&run.request),
             redirection_loop,
             should_log_request: run.should_log_request,
+            log_tags: run.log_tags,
         })
     }
 }

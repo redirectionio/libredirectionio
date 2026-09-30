@@ -13,6 +13,8 @@ pub struct Log {
     duration: Option<u128>,
     match_duration: Option<u128>,
     proxy_duration: Option<u128>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    tags: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -67,6 +69,7 @@ impl Log {
             duration: None,
             match_duration: None,
             proxy_duration: None,
+            tags: Vec::new(),
         }
     }
 
@@ -162,6 +165,35 @@ impl Log {
             duration,
             match_duration,
             proxy_duration,
+            tags: Vec::new(),
         }
+    }
+
+    pub fn with_tags(mut self, tags: Vec<String>) -> Self {
+        self.tags = tags;
+        self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{LegacyLog, Log};
+
+    fn legacy_log() -> LegacyLog {
+        serde_json::from_str(r#"{"status_code":200,"host":null,"method":null,"request_uri":"/","user_agent":null,"referer":null,"scheme":null,"use_json":null,"target":null,"rule_id":null}"#).unwrap()
+    }
+
+    #[test]
+    fn tags_are_omitted_when_empty() {
+        let log = Log::from_legacy(legacy_log(), "proxy".to_string());
+
+        assert!(!serde_json::to_string(&log).unwrap().contains("tags"));
+    }
+
+    #[test]
+    fn tags_are_serialized() {
+        let log = Log::from_legacy(legacy_log(), "proxy".to_string()).with_tags(vec!["blog".to_string(), "seo".to_string()]);
+
+        assert!(serde_json::to_string(&log).unwrap().contains(r#""tags":["blog","seo"]"#));
     }
 }

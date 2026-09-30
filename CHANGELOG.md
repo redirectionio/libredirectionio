@@ -3,6 +3,8 @@
 * [http] Drop a default port (80 or 443) from the request host, whatever the scheme, in every `Request` constructor, `set_host()` and `rebuild_with_config()`: a rule on `example.com` now matches a client sending `Host: example.com:443`, any other port is kept
 * [http] Add `Request::set_scheme()` and `Request::set_host()`
 * [ffi] Add `redirectionio_request_set_forwarded()`, which also takes the scheme and the host from a trusted proxy's `Forwarded` header - `redirectionio_request_set_remote_addr()` still only sets the remote ip
+* [action] Add the `log_tags` rule action: tags from every applied rule are merged, deduplicated and sorted by `Action::get_log_tags()`, honouring the rule's response status codes trigger
+* [api] Add `tags` to `Log`, set with `Log::with_tags()` - the FFI and wasm `create_log_in_json` fill it from the action
 
 ## 3.3.0 - 29-07-2026
 

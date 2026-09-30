@@ -33,6 +33,8 @@ pub struct Rule {
     pub header_filters: Option<Vec<HeaderFilter>>,
     pub log_override: Option<bool>,
     pub peer_override: Option<Peer>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub log_tags: Option<Vec<String>>,
     pub reset: Option<bool>,
     pub stop: Option<bool>,
     pub examples: Option<Vec<Example>>,
@@ -40,6 +42,8 @@ pub struct Rule {
     pub configuration_log_unit_id: Option<String>,
     pub configuration_reset_unit_id: Option<String>,
     pub peer_unit_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub log_tags_unit_id: Option<String>,
     pub target_hash: Option<String>,
 }
 

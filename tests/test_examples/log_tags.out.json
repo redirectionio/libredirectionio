@@ -1,0 +1,92 @@
+[
+  {
+    "request": {
+      "path_and_query": {
+        "path_and_query": "/blog",
+        "path_and_query_matching": "/blog",
+        "skipped_query_params": null,
+        "original": "/blog"
+      },
+      "path_and_query_v2": "/blog",
+      "host": null,
+      "scheme": null,
+      "method": null,
+      "headers": [],
+      "remote_addr": null,
+      "created_at": null,
+      "sampling_override": null
+    },
+    "unit_trace": {
+      "rule_ids_applied": [
+        "0c3f1a8e-6a57-4d52-9d9b-0d0c8a5b0f01"
+      ],
+      "unit_ids_applied": [
+        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e01"
+      ],
+      "unit_ids_seen": [
+        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e01"
+      ],
+      "value_computed_by_units": {}
+    },
+    "backend_status_code": 200,
+    "response": {
+      "status_code": 0,
+      "headers": [],
+      "body": "<!DOCTYPE html>\n<html>\n    <head>\n    </head>\n    <body>\n    </body>\n</html>"
+    },
+    "should_log_request": true,
+    "log_tags": [
+      "blog",
+      "seo"
+    ],
+    "redirection_loop": null,
+    "match_traces": []
+  },
+  {
+    "request": {
+      "path_and_query": {
+        "path_and_query": "/blog",
+        "path_and_query_matching": "/blog",
+        "skipped_query_params": null,
+        "original": "/blog"
+      },
+      "path_and_query_v2": "/blog",
+      "host": null,
+      "scheme": null,
+      "method": null,
+      "headers": [],
+      "remote_addr": null,
+      "created_at": null,
+      "sampling_override": null
+    },
+    "unit_trace": {
+      "rule_ids_applied": [
+        "0c3f1a8e-6a57-4d52-9d9b-0d0c8a5b0f01",
+        "0c3f1a8e-6a57-4d52-9d9b-0d0c8a5b0f02"
+      ],
+      "unit_ids_applied": [
+        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e01",
+        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e02"
+      ],
+      "unit_ids_seen": [
+        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e01",
+        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e02"
+      ],
+      "value_computed_by_units": {}
+    },
+    "backend_status_code": 404,
+    "response": {
+      "status_code": 0,
+      "headers": [],
+      "body": "<!DOCTYPE html>\n<html>\n    <head>\n    </head>\n    <body>\n    </body>\n</html>"
+    },
+    "should_log_request": true,
+    "log_tags": [
+      "blog",
+      "not-found",
+      "seo"
+    ],
+    "redirection_loop": null,
+    "match_traces": []
+  }
+]

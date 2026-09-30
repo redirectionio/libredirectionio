@@ -90,6 +90,9 @@ fn test_{{ name }}_{{ loop.index }}() {
     {%- else %}
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
     {%- endif -%}
+{% if test.log_tags is iterable %}
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![{% for tag in test.log_tags %}r#"{{ tag }}"#.to_string(), {% endfor %}] as Vec<String>);
+    {%- endif -%}
 {% endif %}
 {%- if test.should_filter_header and test.should_filter_header.enable %}
     let {% if test.should_filter_header.original_headers | length > 0 %}mut {% endif %}response_headers = Vec::new();

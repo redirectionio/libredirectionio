@@ -54,7 +54,8 @@ pub extern "C" fn redirectionio_api_create_log_in_json(
         action_match_time as u128,
         Some(proxy_response_time as u128),
         client_ip,
-    );
+    )
+    .with_tags(action.map(|a| a.get_log_tags(code, None)).unwrap_or_default());
 
     let log_serialized = match json_encode(&log) {
         Err(_) => return null(),

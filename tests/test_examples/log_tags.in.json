@@ -1,0 +1,69 @@
+{
+    "router_config": {
+        "ignore_host_case": false,
+        "ignore_header_case": false,
+        "ignore_path_and_query_case": false,
+        "ignore_marketing_query_params": true,
+        "marketing_query_params": [
+            "utm_campaign",
+            "utm_content",
+            "utm_medium",
+            "utm_source",
+            "utm_term"
+        ],
+        "pass_marketing_query_params_to_target": true,
+        "always_match_any_host": true,
+        "ignore_query_param_order": true
+    },
+    "rules": [
+        {
+            "source": {
+                "host": "",
+                "path": "\/blog",
+                "query": "",
+                "response_status_codes": []
+            },
+            "id": "0c3f1a8e-6a57-4d52-9d9b-0d0c8a5b0f01",
+            "rank": 2,
+            "log_tags": ["blog", "seo"],
+            "log_tags_unit_id": "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e01",
+            "examples": [
+                {
+                    "url": "\/blog",
+                    "must_match": true,
+                    "headers": [],
+                    "response_status_code": null,
+                    "method": null,
+                    "ip_address": null,
+                    "unit_ids_applied": ["9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e01"]
+                },
+                {
+                    "url": "\/blog",
+                    "must_match": true,
+                    "headers": [],
+                    "response_status_code": 404,
+                    "method": null,
+                    "ip_address": null,
+                    "unit_ids_applied": [
+                        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e01",
+                        "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e02"
+                    ]
+                }
+            ]
+        },
+        {
+            "source": {
+                "host": "",
+                "path": "\/blog",
+                "query": "",
+                "response_status_codes": [404]
+            },
+            "id": "0c3f1a8e-6a57-4d52-9d9b-0d0c8a5b0f02",
+            "rank": 1,
+            "log_tags": ["not-found", "seo"],
+            "log_tags_unit_id": "9a2b1d34-4c6e-4a8f-8f7d-3b1e2c4d5e02",
+            "examples": []
+        }
+    ],
+    "max_hops": 5
+}

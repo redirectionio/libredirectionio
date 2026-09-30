@@ -16,6 +16,8 @@ pub struct RunExample {
     pub(crate) backend_status_code: u16,
     pub(crate) response: RunResponse,
     pub(crate) should_log_request: bool,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub(crate) log_tags: Vec<String>,
     pub(crate) redirection_loop: Option<RedirectionLoop>,
     pub(crate) match_traces: Vec<Trace<Rule>>,
 }
@@ -71,6 +73,12 @@ impl RunExample {
         }
 
         let should_log_request = action.should_log_request(true, final_status_code, Some(unit_trace.clone()));
+        let response_status_code = if final_status_code != 0 {
+            final_status_code
+        } else {
+            backend_status_code
+        };
+        let log_tags = action.get_log_tags(response_status_code, Some(unit_trace.clone()));
         let mut unit_trace = unit_trace.take();
         unit_trace.squash_with_target_unit_traces();
 
@@ -84,6 +92,7 @@ impl RunExample {
                 body: body.to_string(),
             },
             should_log_request,
+            log_tags,
             redirection_loop: None,
             match_traces: vec![],
         })

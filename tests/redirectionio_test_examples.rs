@@ -44,6 +44,11 @@ mod generated_tests {
     }
 
     #[test]
+    fn test_examples_log_tags() {
+        do_test("log_tags");
+    }
+
+    #[test]
     fn test_examples_must_match_false_broken() {
         do_test("must_match_false_broken");
     }
