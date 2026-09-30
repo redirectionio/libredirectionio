@@ -168,3 +168,19 @@ pub enum BodyFilter {
     #[serde(untagged)]
     Other(serde_json::Value),
 }
+
+impl BodyFilter {
+    pub fn clone_with_variables_replaced(&self, variables: &[(String, VariableValue)]) -> Option<BodyFilter> {
+        Some(match self {
+            BodyFilter::HTML(html_body_filter) => BodyFilter::HTML(html_body_filter.clone_with_variables_replaced(variables)),
+            BodyFilter::Text(text_body_filter) => BodyFilter::Text(TextBodyFilter {
+                action: text_body_filter.action.clone(),
+                content: StaticOrDynamic::replace(text_body_filter.content.clone(), variables, true),
+                id: text_body_filter.id.clone(),
+                target_hash: text_body_filter.target_hash.clone(),
+            }),
+            BodyFilter::HTMLToMarkdown(html_to_markdown_filter) => BodyFilter::HTMLToMarkdown(html_to_markdown_filter.clone()),
+            BodyFilter::Other(_) => return None,
+        })
+    }
+}

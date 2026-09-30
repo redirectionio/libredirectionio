@@ -5,6 +5,7 @@
 * [ffi] Add `redirectionio_request_set_forwarded()`, which also takes the scheme and the host from a trusted proxy's `Forwarded` header - `redirectionio_request_set_remote_addr()` still only sets the remote ip
 * [action] Add the `log_tags` rule action: tags from every applied rule are merged, deduplicated and sorted by `Action::get_log_tags()`, honouring the rule's response status codes trigger
 * [api] Add `tags` to `Log`, set with `Log::with_tags()` - the FFI and wasm `create_log_in_json` fill it from the action
+* [router] Add the `response_header` variable, resolved from the backend response headers before the header filters apply: usable in header filters, body filters and log tags, so a rule can tag the logs with a response header then remove it
 
 ## 3.3.0 - 29-07-2026
 

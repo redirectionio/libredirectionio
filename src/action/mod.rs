@@ -26,11 +26,7 @@ pub use crate::action::unit_trace::UnitTrace;
 #[cfg(feature = "router")]
 use crate::api::Rule;
 #[cfg(feature = "router")]
-use crate::api::TextBodyFilter;
-#[cfg(feature = "router")]
 use crate::http::Request;
-#[cfg(feature = "router")]
-use crate::marker::StaticOrDynamic;
 #[cfg(feature = "router")]
 use crate::router::Route;
 use crate::{
@@ -38,6 +34,7 @@ use crate::{
     api::{BodyFilter, HeaderFilter, Peer, VariableValue},
     filter::{FilterBodyAction, FilterHeaderAction},
     http::Header,
+    marker::StaticOrDynamic,
 };
 
 /// Version of the agent <-> proxy-module wire protocol this build speaks. The agent
@@ -87,6 +84,9 @@ struct HeaderFilterAction {
     on_response_status_codes: Vec<u16>,
     exclude_response_status_codes: bool,
     rule_id: Option<String>,
+    // Only set when the rule has a response header variable: the value is then replaced in `filter_headers`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    variables: Vec<(String, VariableValue)>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -95,6 +95,8 @@ struct BodyFilterAction {
     on_response_status_codes: Vec<u16>,
     exclude_response_status_codes: bool,
     rule_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    variables: Vec<(String, VariableValue)>,
 }
 
 impl Default for Action {
@@ -199,11 +201,23 @@ impl Action {
 
         let mut header_filters = Vec::new();
         let mut body_filters = Vec::new();
+        let deferred_variables = if variables.iter().any(|(_, value)| value.is_response_header()) {
+            variables.clone()
+        } else {
+            Vec::new()
+        };
+        let replace_now = |value: &String| {
+            if deferred_variables.is_empty() {
+                StaticOrDynamic::replace(value.clone(), &variables, true)
+            } else {
+                value.clone()
+            }
+        };
 
         if let Some(target) = &rule.target
             && !target.is_empty()
         {
-            let mut value = StaticOrDynamic::replace(target.clone(), &variables, true);
+            let mut value = replace_now(target);
 
             if let Some(skipped_query_params) = request.path_and_query_skipped.skipped_query_params.as_ref() {
                 if value.contains('?') {
@@ -229,6 +243,7 @@ impl Action {
                 },
                 exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                 rule_id: Some(rule.id.clone()),
+                variables: deferred_variables.clone(),
             })
         }
 
@@ -238,36 +253,36 @@ impl Action {
                     filter: HeaderFilter {
                         action: filter.action.clone(),
                         header: filter.header.clone(),
-                        value: StaticOrDynamic::replace(filter.value.clone(), &variables, true),
+                        value: replace_now(&filter.value),
                         id: filter.id.clone(),
                         target_hash: filter.target_hash.clone(),
                     },
                     on_response_status_codes: on_response_status_codes.clone(),
                     exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                     rule_id: Some(rule.id.clone()),
+                    variables: deferred_variables.clone(),
                 });
             }
         }
 
         if let Some(rule_body_filters) = rule.body_filters.as_ref() {
             for filter in rule_body_filters {
+                let filter = if deferred_variables.is_empty() {
+                    filter.clone_with_variables_replaced(&variables)
+                } else {
+                    Some(filter.clone())
+                };
+
+                let Some(filter) = filter else {
+                    continue;
+                };
+
                 body_filters.push(BodyFilterAction {
-                    filter: match filter {
-                        BodyFilter::HTML(html_body_filter) => BodyFilter::HTML(html_body_filter.clone_with_variables_replaced(&variables)),
-                        BodyFilter::Text(text_body_filter) => BodyFilter::Text(TextBodyFilter {
-                            action: text_body_filter.action.clone(),
-                            content: StaticOrDynamic::replace(text_body_filter.content.clone(), &variables, true),
-                            id: text_body_filter.id.clone(),
-                            target_hash: text_body_filter.target_hash.clone(),
-                        }),
-                        BodyFilter::HTMLToMarkdown(html_to_markdown_filter) => BodyFilter::HTMLToMarkdown(html_to_markdown_filter.clone()),
-                        BodyFilter::Other(_) => {
-                            continue;
-                        }
-                    },
+                    filter,
                     on_response_status_codes: on_response_status_codes.clone(),
                     exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
                     rule_id: Some(rule.id.clone()),
+                    variables: deferred_variables.clone(),
                 });
             }
         }
@@ -305,7 +320,12 @@ impl Action {
             },
             log_tags: match rule.log_tags.as_ref() {
                 Some(tags) if !tags.is_empty() => vec![LogTags {
-                    tags: LogTags::resolve(tags, &variables),
+                    tags: if deferred_variables.is_empty() {
+                        LogTags::resolve(tags, &variables)
+                    } else {
+                        tags.clone()
+                    },
+                    variables: deferred_variables.clone(),
                     rule_id: Some(rule.id.clone()),
                     on_response_status_codes: on_response_status_codes.clone(),
                     exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
@@ -313,7 +333,8 @@ impl Action {
                 }],
                 _ => Vec::new(),
             },
-            variables,
+            // Older proxy modules fail to deserialize an action holding a variable kind they do not know.
+            variables: variables.into_iter().filter(|(_, value)| !value.is_response_header()).collect(),
             agent_protocol_version_major: 0,
             agent_protocol_version_minor: 0,
         };
@@ -523,11 +544,22 @@ impl Action {
                 }
             }
 
-            filters.push(filter.filter.clone());
+            let mut header_filter = filter.filter.clone();
+
+            if !filter.variables.is_empty() {
+                let variables = VariableValue::resolve_response_headers(&filter.variables, &headers);
+                header_filter.value = StaticOrDynamic::replace(header_filter.value, &variables, true);
+            }
+
+            filters.push(header_filter);
 
             if let Some(rule_id) = filter.rule_id.as_ref() {
                 self.rules_applied.insert(rule_id.clone());
             }
+        }
+
+        for log_tags in &mut self.log_tags {
+            log_tags.resolve_response_headers(&headers);
         }
 
         let mut new_headers = match FilterHeaderAction::new(filters) {
@@ -579,7 +611,14 @@ impl Action {
                 self.rules_applied.insert(rule_id.clone());
             }
 
-            filters.push(filter.filter.clone());
+            if filter.variables.is_empty() {
+                filters.push(filter.filter.clone());
+            } else if let Some(body_filter) = filter
+                .filter
+                .clone_with_variables_replaced(&VariableValue::resolve_response_headers(&filter.variables, headers))
+            {
+                filters.push(body_filter);
+            }
         }
 
         let body_filter = FilterBodyAction::new(filters, headers, unit_trace, self.variables.clone());
@@ -615,7 +654,7 @@ impl Action {
         let mut tags = BTreeSet::new();
 
         for log_tags in self.log_tags.iter().filter(|log_tags| log_tags.applies_to(response_status_code)) {
-            tags.extend(log_tags.tags.iter().cloned());
+            tags.extend(log_tags.resolved_tags());
 
             if let (Some(trace), Some(unit_id)) = (&unit_trace, &log_tags.unit_id) {
                 trace.borrow_mut().add_unit_id_with_target("log_tags", unit_id);

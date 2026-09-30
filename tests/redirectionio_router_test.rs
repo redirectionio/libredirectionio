@@ -1005,7 +1005,7 @@ fn test_action_custom_body_1() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code, &[], None);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[Header { name: r#"Content-Type"#.to_string(), value: r#"text/plain"#.to_string() }, ], None);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
@@ -1051,7 +1051,7 @@ fn test_action_custom_body_2() {
 
     let action_status_code = action.get_status_code(response_status_code, None);
     assert_eq!(action_status_code, 0);
-    let body_filter_opt = action.create_filter_body(response_status_code, &[], None);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[Header { name: r#"Content-Type"#.to_string(), value: r#"text/plain"#.to_string() }, ], None);
     assert_eq!(body_filter_opt.is_some(), true);
 
     let mut body_filter = body_filter_opt.unwrap();
@@ -15693,6 +15693,238 @@ fn test_variable_request_scheme_2() {
     let target_header = headers.first().unwrap();
     assert_eq!(target_header.name, "Location");
     assert_eq!(target_header.value, r#"/target/request-header/http"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+}
+
+fn setup_variable_response_header() -> Router<Rule> {
+    let config: RouterConfig = serde_json::from_str(r#"{"always_match_any_host":false,"ignore_all_query_parameters":false,"ignore_header_case":false,"ignore_host_case":false,"ignore_marketing_query_params":true,"ignore_path_and_query_case":false,"ignore_query_param_order":true,"marketing_query_params":["utm_source","utm_medium","utm_campaign","utm_term","utm_content"],"pass_marketing_query_params_to_target":true}"#).expect("cannot deserialize");
+    let mut router = Router::<Rule>::from_config(config);
+
+    let route_1: Rule = serde_json::from_str(r#"{"body_filters":[{"action":"append_text","content":" v@version"}],"id":"variable-response-header-body","rank":0,"source":{"path":"/variable/response-header/body"},"variables":[{"name":"version","type":{"response_header":{"default":"unknown","name":"X-Version"}}}]}"#).expect("cannot deserialize");
+    router.insert(route_1);
+
+    let route_2: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"add","header":"X-Cache-Status","value":"@cache-@lang"}],"id":"variable-response-header-copy","rank":0,"source":{"path":"/variable/response-header/copy"},"variables":[{"name":"cache","transformers":[{"options":null,"type":"uppercase"}],"type":{"response_header":{"default":"miss","name":"X-Backend-Cache"}}},{"name":"lang","type":{"request_header":{"default":"en","name":"X-Lang"}}}]}"#).expect("cannot deserialize");
+    router.insert(route_2);
+
+    let route_3: Rule = serde_json::from_str(r#"{"header_filters":[{"action":"remove","header":"X-Route","value":""}],"id":"variable-response-header-tag-and-drop","log_tags":["route:@route"],"rank":0,"source":{"path":"/variable/response-header/route"},"variables":[{"name":"route","type":{"response_header":{"default":null,"name":"X-Route"}}}]}"#).expect("cannot deserialize");
+    router.insert(route_3);
+
+    router.cache(Some(100));
+    router
+}
+
+
+#[test]
+fn test_variable_response_header_1() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_variable_response_header();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/response-header/route"#), r#"/variable/response-header/route"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-Route"#.to_string(),
+        value: r#"app_pricing"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get(r#"X-Route"#);
+
+    assert!(value.is_none());
+
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![r#"route:app_pricing"#.to_string(), ] as Vec<String>);
+}
+
+#[test]
+fn test_variable_response_header_2() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_variable_response_header();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/response-header/route"#), r#"/variable/response-header/route"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![] as Vec<String>);
+}
+
+#[test]
+fn test_variable_response_header_3() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_variable_response_header();
+    let default_config = RouterConfig::default();
+    let mut request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/response-header/copy"#), r#"/variable/response-header/copy"#.to_string(),None,None,None,None,None);
+    request.add_header(r#"X-Lang"#.to_string(), r#"fr"#.to_string(), false);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"x-backend-cache"#.to_string(),
+        value: r#"hit"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-Cache-Status"#).iter().find(|x| x.as_str() == r#"HIT-fr"#);
+
+    assert!(value.is_some());
+
+}
+
+#[test]
+fn test_variable_response_header_4() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_variable_response_header();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/response-header/copy"#), r#"/variable/response-header/copy"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let response_headers = Vec::new();
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-Cache-Status"#).iter().find(|x| x.as_str() == r#"MISS-en"#);
+
+    assert!(value.is_some());
+
+}
+
+#[test]
+fn test_variable_response_header_5() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_variable_response_header();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/response-header/body"#), r#"/variable/response-header/body"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[Header { name: r#"X-Version"#.to_string(), value: r#"42"#.to_string() }, ], None);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+
+    let mut new_body = body_filter.filter(r#"Content"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
+    assert_eq!(&String::from_utf8(new_body).unwrap(), r#"Content v42"#);
+    assert_eq!(action.should_log_request(true, response_status_code, None), true);
+    let mut response_headers = Vec::new();
+
+    response_headers.push(Header {
+        name: r#"X-Version"#.to_string(),
+        value: r#"42"#.to_string(),
+    });
+
+    let filtered_headers = action.filter_headers(response_headers, response_status_code, false, None);
+    let header_map = Header::create_header_map(filtered_headers);
+
+    let value = header_map.get_all(r#"X-Version"#).iter().find(|x| x.as_str() == r#"42"#);
+
+    assert!(value.is_some());
+
+}
+
+#[test]
+fn test_variable_response_header_6() {
+    let _ = tracing_subscriber::fmt::try_init();
+
+    let router = setup_variable_response_header();
+    let default_config = RouterConfig::default();
+    let request = Request::new(PathAndQueryWithSkipped::from_config(&default_config, r#"/variable/response-header/body"#), r#"/variable/response-header/body"#.to_string(),None,None,None,None,None);
+    
+    let request_configured = Request::rebuild_with_config(&router.config, &request);
+    let matched = router.match_request(&request_configured);
+    let traces = router.trace_request(&request_configured);
+    let routes_traces = Trace::<Rule>::get_routes_from_traces(&traces);
+
+    assert_eq!(!matched.is_empty(), true);
+    assert_eq!(!routes_traces.is_empty(), true);
+
+    let mut action = Action::from_routes_rule(matched, &request_configured, None);
+    let response_status_code = 0;
+
+    let action_status_code = action.get_status_code(response_status_code, None);
+    assert_eq!(action_status_code, 0);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[], None);
+    assert_eq!(body_filter_opt.is_some(), true);
+
+    let mut body_filter = body_filter_opt.unwrap();
+
+    let mut new_body = body_filter.filter(r#"Content"#.as_bytes().to_vec(), None);
+    new_body.extend(body_filter.end(None));
+    assert_eq!(&String::from_utf8(new_body).unwrap(), r#"Content vunknown"#);
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
 }
 

@@ -70,7 +70,7 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(target_header.value, r#"{{ test.location }}"#);
     {%- endif -%}
 {% if test.should_filter_body %}
-    let body_filter_opt = action.create_filter_body(response_status_code, &[], None);
+    let body_filter_opt = action.create_filter_body(response_status_code, &[{% if test.should_filter_header and test.should_filter_header.enable %}{% for header in test.should_filter_header.original_headers %}Header { name: r#"{{ header.name }}"#.to_string(), value: r#"{{ header.value }}"#.to_string() }, {% endfor %}{% endif %}], None);
     assert_eq!(body_filter_opt.is_some(), {{ test.should_filter_body.enable }});
 {% if test.should_filter_body.enable %}
     let mut body_filter = body_filter_opt.unwrap();
@@ -89,9 +89,6 @@ fn test_{{ name }}_{{ loop.index }}() {
     assert_eq!(action.should_log_request(true, response_status_code, None), false);
     {%- else %}
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
-    {%- endif -%}
-{% if test.log_tags is iterable %}
-    assert_eq!(action.get_log_tags(response_status_code, None), vec![{% for tag in test.log_tags %}r#"{{ tag }}"#.to_string(), {% endfor %}] as Vec<String>);
     {%- endif -%}
 {% endif %}
 {%- if test.should_filter_header and test.should_filter_header.enable %}
@@ -114,6 +111,9 @@ fn test_{{ name }}_{{ loop.index }}() {
 
     assert!(value.is_none());
 {% endfor -%}
+{%- endif %}
+{%- if test.match and test.log_tags is iterable %}
+    assert_eq!(action.get_log_tags(response_status_code, None), vec![{% for tag in test.log_tags %}r#"{{ tag }}"#.to_string(), {% endfor %}] as Vec<String>);
 {%- endif %}
 }
 {% endfor %}

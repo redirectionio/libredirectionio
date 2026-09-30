@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::api::VariableValue;
+use crate::{api::VariableValue, http::Header};
 
 const MAX_TAG_LENGTH: usize = 64;
 
@@ -11,9 +11,30 @@ pub struct LogTags {
     pub on_response_status_codes: Vec<u16>,
     pub exclude_response_status_codes: bool,
     pub unit_id: Option<String>,
+    // Set while `tags` still references a response header variable, see `resolve_response_headers`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub variables: Vec<(String, VariableValue)>,
 }
 
 impl LogTags {
+    /// Done when filtering the headers, so the tags see the backend headers before a rule drops them.
+    pub fn resolve_response_headers(&mut self, headers: &[Header]) {
+        if self.variables.is_empty() {
+            return;
+        }
+
+        self.tags = Self::resolve(&self.tags, &VariableValue::resolve_response_headers(&self.variables, headers));
+        self.variables.clear();
+    }
+
+    pub fn resolved_tags(&self) -> Vec<String> {
+        if self.variables.is_empty() {
+            self.tags.clone()
+        } else {
+            Self::resolve(&self.tags, &self.variables)
+        }
+    }
+
     pub fn applies_to(&self, response_status_code: u16) -> bool {
         if self.on_response_status_codes.is_empty() {
             return true;
@@ -46,8 +67,8 @@ fn replace_variables(tag: &str, variables: &[(String, VariableValue)]) -> Option
 
         let replacement = match value {
             VariableValue::Value(v) => v.as_str(),
-            VariableValue::HtmlFilter { default: Some(v), .. } => v.as_str(),
-            VariableValue::HtmlFilter { default: None, .. } => "",
+            VariableValue::HtmlFilter { default: Some(v), .. } | VariableValue::ResponseHeader { default: Some(v), .. } => v.as_str(),
+            VariableValue::HtmlFilter { default: None, .. } | VariableValue::ResponseHeader { default: None, .. } => "",
         };
 
         if replacement.is_empty() {
@@ -82,7 +103,7 @@ fn normalize(tag: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::LogTags;
-    use crate::api::VariableValue;
+    use crate::{api::VariableValue, http::Header};
 
     fn variables() -> Vec<(String, VariableValue)> {
         vec![
@@ -116,5 +137,44 @@ mod tests {
     #[test]
     fn tags_with_an_empty_or_unknown_variable_are_dropped() {
         assert!(resolve(&["lang:@empty", "@unknown", "   ", "///"]).is_empty());
+    }
+
+    fn route_tags(default: Option<&str>) -> LogTags {
+        LogTags {
+            tags: vec!["route:@route".to_string(), "lang:@lang".to_string()],
+            rule_id: None,
+            on_response_status_codes: Vec::new(),
+            exclude_response_status_codes: false,
+            unit_id: None,
+            variables: vec![
+                (
+                    "route".to_string(),
+                    VariableValue::ResponseHeader {
+                        name: "X-Route".to_string(),
+                        default: default.map(str::to_string),
+                        transformers: Vec::new(),
+                    },
+                ),
+                ("lang".to_string(), VariableValue::Value("fr".to_string())),
+            ],
+        }
+    }
+
+    #[test]
+    fn response_header_variables_are_resolved_from_the_response_headers() {
+        let mut log_tags = route_tags(None);
+        log_tags.resolve_response_headers(&[Header {
+            name: "x-route".to_string(),
+            value: "app_pricing".to_string(),
+        }]);
+
+        assert_eq!(log_tags.resolved_tags(), vec!["route:app_pricing", "lang:fr"]);
+        assert!(log_tags.variables.is_empty());
+    }
+
+    #[test]
+    fn response_header_variables_fall_back_to_their_default() {
+        assert_eq!(route_tags(Some("none")).resolved_tags(), vec!["route:none", "lang:fr"]);
+        assert_eq!(route_tags(None).resolved_tags(), vec!["lang:fr"]);
     }
 }

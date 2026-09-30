@@ -213,6 +213,7 @@ pub enum VariableKind {
     RequestRemoteAddress,
     RequestScheme,
     RequestTime,
+    ResponseHeader { name: String, default: Option<String> },
     HtmlBody { selector: String, default: Option<String> },
 }
 

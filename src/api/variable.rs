@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{api::Transformer, http::Request};
+use crate::{
+    api::Transformer,
+    http::{Header, Request},
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
@@ -18,6 +21,10 @@ pub enum VariableKind {
     RequestRemoteAddress,
     RequestScheme,
     RequestTime,
+    ResponseHeader {
+        name: String,
+        default: Option<String>,
+    },
     HtmlBody {
         selector: String,
         default: Option<String>,
@@ -43,6 +50,12 @@ pub enum VariableValue {
         default: Option<String>,
         transformers: Vec<Transformer>,
     },
+    // Resolved once the backend response headers are known, see `VariableValue::resolve_response_headers`.
+    ResponseHeader {
+        name: String,
+        default: Option<String>,
+        transformers: Vec<Transformer>,
+    },
 }
 
 impl Variable {
@@ -60,6 +73,13 @@ impl Variable {
             VariableKind::RequestScheme => request.scheme.clone(),
             VariableKind::RequestTime => request.created_at.map(|d| d.to_rfc2822()),
             VariableKind::Marker(marker_name) => markers_captured.get(marker_name.as_str()).cloned(),
+            VariableKind::ResponseHeader { name, default } => {
+                return VariableValue::ResponseHeader {
+                    name: name.clone(),
+                    default: default.clone(),
+                    transformers: self.transformers.clone(),
+                };
+            }
             VariableKind::HtmlBody { selector, default } => {
                 return VariableValue::HtmlFilter {
                     selector: selector.clone(),
@@ -85,10 +105,40 @@ impl Variable {
 }
 
 impl VariableValue {
+    pub fn is_response_header(&self) -> bool {
+        matches!(self, VariableValue::ResponseHeader { .. })
+    }
+
+    pub fn resolve_response_headers(variables: &[(String, VariableValue)], headers: &[Header]) -> Vec<(String, VariableValue)> {
+        variables
+            .iter()
+            .map(|(name, value)| {
+                let value = match value {
+                    VariableValue::ResponseHeader { name, default, .. } => {
+                        let values = headers
+                            .iter()
+                            .filter(|h| h.name.eq_ignore_ascii_case(name))
+                            .map(|h| h.value.as_str())
+                            .collect::<Vec<_>>();
+
+                        value.to_static(if values.is_empty() {
+                            default.clone().unwrap_or_default()
+                        } else {
+                            values.join(",")
+                        })
+                    }
+                    _ => value.clone(),
+                };
+
+                (name.clone(), value)
+            })
+            .collect()
+    }
+
     pub fn to_static(&self, mut new_value: String) -> VariableValue {
         match self {
             VariableValue::Value(_) => VariableValue::Value(new_value),
-            VariableValue::HtmlFilter { transformers, .. } => {
+            VariableValue::HtmlFilter { transformers, .. } | VariableValue::ResponseHeader { transformers, .. } => {
                 for transformer in transformers {
                     match transformer.to_transform() {
                         None => (),
