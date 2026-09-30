@@ -305,7 +305,7 @@ impl Action {
             },
             log_tags: match rule.log_tags.as_ref() {
                 Some(tags) if !tags.is_empty() => vec![LogTags {
-                    tags: tags.clone(),
+                    tags: LogTags::resolve(tags, &variables),
                     rule_id: Some(rule.id.clone()),
                     on_response_status_codes: on_response_status_codes.clone(),
                     exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
