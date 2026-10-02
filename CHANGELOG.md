@@ -6,6 +6,9 @@
 * [action] Add the `log_tags` rule action: tags from every applied rule are merged, deduplicated and sorted by `Action::get_log_tags()`, honouring the rule's response status codes trigger
 * [api] Add `tags` to `Log`, set with `Log::with_tags()` - the FFI and wasm `create_log_in_json` fill it from the action
 * [router] Add the `response_header` variable, resolved from the backend response headers before the header filters apply: usable in header filters, body filters and log tags, so a rule can tag the logs with a response header then remove it
+* [action] Add the `request_header_filters` rule action, which adds, replaces or removes headers of the request forwarded to the backend with `Action::filter_request_headers()`; framing and hop-by-hop headers (`Host`, `Content-Length`, `Connection`…) are never changed, and the action is ignored on a rule with a response status codes trigger - a `response_header` variable falls back to its default there
+* [ffi] Add `redirectionio_action_request_header_filter_filter()`, which returns null when the request has to be left untouched
+* [api] Add `backend_request_headers` to the explain request and test examples output
 
 ## 3.3.0 - 29-07-2026
 

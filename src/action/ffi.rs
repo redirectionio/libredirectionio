@@ -103,7 +103,10 @@ pub extern "C" fn redirectionio_action_header_filter_filter(
 /// in the same order as the input list, which replaces the original one. The returned
 /// list must be freed with `redirectionio_header_map_drop`.
 #[unsafe(no_mangle)]
-pub extern "C" fn redirectionio_action_request_header_filter_filter(_action: *mut Action, header_map: *const HeaderMap) -> *const HeaderMap {
+pub extern "C" fn redirectionio_action_request_header_filter_filter(
+    _action: *mut Action,
+    header_map: *const HeaderMap,
+) -> *const HeaderMap {
     if _action.is_null() {
         return null();
     }
