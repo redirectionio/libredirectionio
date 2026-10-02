@@ -34,7 +34,8 @@ pub fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
     current
 }
 
-/// Free a header map previously returned by `redirectionio_action_header_filter_filter`.
+/// Free a header map previously returned by `redirectionio_action_header_filter_filter`
+/// or `redirectionio_action_request_header_filter_filter`.
 ///
 /// The returned list, along with each header name and value, is allocated with
 /// Rust's allocator, so it must be reclaimed by Rust as well rather than with the
@@ -43,7 +44,8 @@ pub fn http_headers_to_header_map(headers: Vec<Header>) -> *const HeaderMap {
 /// # Safety
 ///
 /// This function must be called with a pointer returned by
-/// `redirectionio_action_header_filter_filter`, or a null pointer. It must not be
+/// `redirectionio_action_header_filter_filter` or
+/// `redirectionio_action_request_header_filter_filter`, or a null pointer. It must not be
 /// called with a header map allocated on the caller side, and the list must be
 /// dropped at most once.
 #[unsafe(no_mangle)]

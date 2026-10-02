@@ -124,6 +124,8 @@ struct Rule {
     peer_override: Option<Peer>,
     #[serde(skip_serializing_if = "Option::is_none")]
     log_tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    request_header_filters: Option<Vec<HeaderFilter>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -265,6 +267,7 @@ struct RuleTest {
     should_filter_header: Option<ShouldFilterHeader>,
     should_not_log: Option<bool>,
     log_tags: Option<Vec<String>>,
+    backend_request_headers: Option<Vec<RuleTestHeader>>,
     sampling_override: Option<bool>,
 }
 

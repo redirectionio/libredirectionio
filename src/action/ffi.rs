@@ -96,6 +96,31 @@ pub extern "C" fn redirectionio_action_header_filter_filter(
     http_headers_to_header_map(headers)
 }
 
+/// Filter the headers of the request forwarded to the backend.
+///
+/// Returns null when the action has no request header filter, in which case the request
+/// must be left untouched. Otherwise returns the complete new list of request headers,
+/// in the same order as the input list, which replaces the original one. The returned
+/// list must be freed with `redirectionio_header_map_drop`.
+#[unsafe(no_mangle)]
+pub extern "C" fn redirectionio_action_request_header_filter_filter(_action: *mut Action, header_map: *const HeaderMap) -> *const HeaderMap {
+    if _action.is_null() {
+        return null();
+    }
+
+    // SAFETY: _action is a valid pointer to an Action
+    let action = unsafe { &mut *_action };
+
+    if !action.has_request_header_filters() {
+        return null();
+    }
+
+    let headers = action.filter_request_headers(header_map_to_http_headers(header_map), None);
+
+    // http_headers_to_header_map prepends each header, reverse to keep the request order.
+    http_headers_to_header_map(headers.into_iter().rev().collect())
+}
+
 #[unsafe(no_mangle)]
 pub extern "C" fn redirectionio_action_body_filter_create(
     _action: *mut Action,

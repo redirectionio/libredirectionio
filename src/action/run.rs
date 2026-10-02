@@ -18,6 +18,8 @@ pub struct RunExample {
     pub(crate) should_log_request: bool,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub(crate) log_tags: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub(crate) backend_request_headers: Option<Vec<Header>>,
     pub(crate) redirection_loop: Option<RedirectionLoop>,
     pub(crate) match_traces: Vec<Trace<Rule>>,
 }
@@ -40,6 +42,12 @@ impl RunExample {
         // A replay reaches no backend, but the request would have been sent to this one: the
         // backend switch is applied, and its unit has to be traced as such like every other.
         action.get_peer(Some(unit_trace.clone()));
+
+        let backend_request_headers = if action.has_request_header_filters() {
+            Some(action.filter_request_headers(request.headers.clone(), Some(unit_trace.clone())))
+        } else {
+            None
+        };
 
         let action_status_code = action.get_status_code(0, Some(unit_trace.clone()));
         let (final_status_code, backend_status_code) = if action_status_code != 0 {
@@ -93,6 +101,7 @@ impl RunExample {
             },
             should_log_request,
             log_tags,
+            backend_request_headers,
             redirection_loop: None,
             match_traces: vec![],
         })

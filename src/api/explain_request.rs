@@ -43,6 +43,8 @@ pub struct ExplainRequestOutput {
     redirection_loop: Option<RedirectionLoop>,
     should_log_request: bool,
     log_tags: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    backend_request_headers: Option<Vec<Header>>,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
@@ -120,6 +122,7 @@ impl ExplainRequestOutput {
             redirection_loop,
             should_log_request: run.should_log_request,
             log_tags: run.log_tags,
+            backend_request_headers: run.backend_request_headers,
         })
     }
 }

@@ -90,6 +90,10 @@ fn test_{{ name }}_{{ loop.index }}() {
     {%- else %}
     assert_eq!(action.should_log_request(true, response_status_code, None), true);
     {%- endif -%}
+{% if test.backend_request_headers is iterable %}
+    let backend_request_headers: Vec<(String, String)> = action.filter_request_headers(request_configured.headers.clone(), None).into_iter().map(|h| (h.name, h.value)).collect();
+    assert_eq!(backend_request_headers, vec![{% for header in test.backend_request_headers %}(r#"{{ header.name }}"#.to_string(), r#"{{ header.value }}"#.to_string()), {% endfor %}] as Vec<(String, String)>);
+    {%- endif -%}
 {% endif %}
 {%- if test.should_filter_header and test.should_filter_header.enable %}
     let {% if test.should_filter_header.original_headers | length > 0 %}mut {% endif %}response_headers = Vec::new();

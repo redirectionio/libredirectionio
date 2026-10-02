@@ -3,6 +3,7 @@ mod ffi;
 mod log_override;
 mod log_tags;
 mod peer_override;
+mod request_header_filter;
 #[cfg(feature = "router")]
 mod run;
 mod status_code_update;
@@ -30,7 +31,12 @@ use crate::http::Request;
 #[cfg(feature = "router")]
 use crate::router::Route;
 use crate::{
-    action::{log_override::LogOverride, log_tags::LogTags, peer_override::PeerOverride},
+    action::{
+        log_override::LogOverride,
+        log_tags::LogTags,
+        peer_override::PeerOverride,
+        request_header_filter::{RequestHeaderFilterAction, is_protected_request_header},
+    },
     api::{BodyFilter, HeaderFilter, Peer, VariableValue},
     filter::{FilterBodyAction, FilterHeaderAction},
     http::Header,
@@ -60,6 +66,8 @@ pub struct Action {
     peer_override: Option<PeerOverride>,
     #[serde(default)]
     log_tags: Vec<LogTags>,
+    #[serde(default)]
+    request_header_filters: Vec<RequestHeaderFilterAction>,
     #[serde(default)]
     variables: Vec<(String, VariableValue)>,
     // Protocol version the agent speaks, advertised to proxy modules in the MATCH
@@ -111,6 +119,7 @@ impl Default for Action {
             log_override: None,
             peer_override: None,
             log_tags: Vec::new(),
+            request_header_filters: Vec::new(),
             variables: Vec::new(),
             agent_protocol_version_major: 0,
             agent_protocol_version_minor: 0,
@@ -333,6 +342,29 @@ impl Action {
                 }],
                 _ => Vec::new(),
             },
+            // The request is sent before any response exists, so a response status trigger cannot apply,
+            // and a response header variable falls back to its default.
+            request_header_filters: match rule.request_header_filters.as_ref() {
+                Some(filters) if on_response_status_codes.is_empty() => {
+                    let request_variables = VariableValue::resolve_response_headers(&variables, &[]);
+
+                    filters
+                        .iter()
+                        .filter(|filter| !is_protected_request_header(&filter.header))
+                        .map(|filter| RequestHeaderFilterAction {
+                            filter: HeaderFilter {
+                                action: filter.action.clone(),
+                                header: filter.header.clone(),
+                                value: StaticOrDynamic::replace(filter.value.clone(), &request_variables, true),
+                                id: filter.id.clone(),
+                                target_hash: filter.target_hash.clone(),
+                            },
+                            rule_id: Some(rule.id.clone()),
+                        })
+                        .collect()
+                }
+                _ => Vec::new(),
+            },
             // Older proxy modules fail to deserialize an action holding a variable kind they do not know.
             variables: variables.into_iter().filter(|(_, value)| !value.is_response_header()).collect(),
             agent_protocol_version_major: 0,
@@ -416,6 +448,7 @@ impl Action {
         }
 
         self.log_tags.extend(other.log_tags);
+        self.request_header_filters.extend(other.request_header_filters);
         self.variables.extend(other.variables);
     }
 
@@ -662,6 +695,33 @@ impl Action {
         }
 
         tags.into_iter().collect()
+    }
+
+    pub fn has_request_header_filters(&self) -> bool {
+        !self.request_header_filters.is_empty()
+    }
+
+    /// Filters the headers of the request forwarded to the backend. The request headers
+    /// used for matching and logging are left untouched.
+    pub fn filter_request_headers(&mut self, headers: Vec<Header>, unit_trace: Option<Rc<RefCell<UnitTrace>>>) -> Vec<Header> {
+        let mut filters = Vec::new();
+
+        for filter in &self.request_header_filters {
+            filters.push(filter.filter.clone());
+
+            if let Some(rule_id) = filter.rule_id.as_ref() {
+                self.rules_applied.insert(rule_id.clone());
+
+                if let Some(trace) = &unit_trace {
+                    trace.borrow_mut().rule_ids_applied.insert(rule_id.clone());
+                }
+            }
+        }
+
+        match FilterHeaderAction::new(filters) {
+            None => headers,
+            Some(filter_action) => filter_action.filter(headers, unit_trace),
+        }
     }
 
     pub fn need_proxification(&self) -> bool {

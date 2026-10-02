@@ -35,6 +35,8 @@ pub struct Rule {
     pub peer_override: Option<Peer>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub log_tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub request_header_filters: Option<Vec<HeaderFilter>>,
     pub reset: Option<bool>,
     pub stop: Option<bool>,
     pub examples: Option<Vec<Example>>,
