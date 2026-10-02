@@ -1,4 +1,8 @@
-use std::{ffi::CString, os::raw::c_char, ptr::null};
+use std::{
+    ffi::{CStr, CString},
+    os::raw::c_char,
+    ptr::null,
+};
 
 use serde_json::{from_str as json_decode, to_string as json_encode};
 use trusted_proxies::{Config, RequestInformation, Trusted};
@@ -68,6 +72,52 @@ pub unsafe extern "C" fn redirectionio_header_map_drop(header_map: *const Header
 
         current = node.next;
     }
+}
+
+/// Like `header_map_to_http_headers`, but also returns, untouched, the headers that are not
+/// valid UTF-8 instead of dropping them.
+pub fn header_map_to_http_headers_keeping_raw(header_map: *const HeaderMap) -> (Vec<Header>, Vec<(CString, CString)>) {
+    let mut headers = Vec::new();
+    let mut raw_headers = Vec::new();
+    let mut current = header_map;
+
+    while !current.is_null() {
+        // Safety: current is a valid pointer to a HeaderMap
+        let header = unsafe { &*current };
+        current = header.next;
+
+        if header.name.is_null() || header.value.is_null() {
+            continue;
+        }
+
+        // Safety: name and value are valid nul-terminated C strings
+        let (name, value) = unsafe { (CStr::from_ptr(header.name), CStr::from_ptr(header.value)) };
+
+        match (name.to_str(), value.to_str()) {
+            (Ok(name), Ok(value)) => headers.push(Header {
+                name: name.to_string(),
+                value: value.to_string(),
+            }),
+            _ => raw_headers.push((name.to_owned(), value.to_owned())),
+        }
+    }
+
+    (headers, raw_headers)
+}
+
+/// Builds a header map of `raw_headers` then `headers`, both in their order.
+pub fn http_headers_to_header_map_with_raw(headers: Vec<Header>, raw_headers: Vec<(CString, CString)>) -> *const HeaderMap {
+    let mut current = http_headers_to_header_map(headers.into_iter().rev().collect());
+
+    for (name, value) in raw_headers.into_iter().rev() {
+        current = Box::into_raw(Box::new(HeaderMap {
+            name: name.into_raw(),
+            value: value.into_raw(),
+            next: current as *mut HeaderMap,
+        }));
+    }
+
+    current
 }
 
 pub fn header_map_to_http_headers(header_map: *const HeaderMap) -> Vec<Header> {
