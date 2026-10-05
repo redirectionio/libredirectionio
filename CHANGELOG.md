@@ -1,4 +1,4 @@
-## Unreleased
+## 3.4.0 - 05-10-2026
 
 * [http] Drop a default port (80 or 443) from the request host, whatever the scheme, in every `Request` constructor, `set_host()` and `rebuild_with_config()`: a rule on `example.com` now matches a client sending `Host: example.com:443`, any other port is kept
 * [http] Add `Request::set_scheme()` and `Request::set_host()`
@@ -7,8 +7,10 @@
 * [api] Add `tags` to `Log`, set with `Log::with_tags()` - the FFI and wasm `create_log_in_json` fill it from the action
 * [router] Add the `response_header` variable, resolved from the backend response headers before the header filters apply: usable in header filters, body filters and log tags, so a rule can tag the logs with a response header then remove it
 * [action] Add the `request_header_filters` rule action, which adds, replaces or removes headers of the request forwarded to the backend with `Action::filter_request_headers()`; framing and hop-by-hop headers (`Host`, `Content-Length`, `Connection`…) are never changed, and the action is ignored on a rule with a response status codes trigger - a `response_header` variable falls back to its default there
-* [ffi] Add `redirectionio_action_request_header_filter_filter()`, which returns null when the request has to be left untouched
+* [ffi] Add `redirectionio_action_request_header_filter_filter()`, which returns null when the request has to be left untouched; non UTF-8 request headers are forwarded untouched
 * [api] Add `backend_request_headers` to the explain request and test examples output
+* [api] Report a backend switch as applied when replaying a test example
+* [chore] Update dependencies (lol_html 3, html-to-markdown-rs 3.11…)
 
 ## 3.3.0 - 29-07-2026
 
