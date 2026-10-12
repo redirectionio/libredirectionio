@@ -1,3 +1,7 @@
+## Unreleased
+
+* [api] Add `client_ip` to `Log`: the request remote address, as resolved from the trusted proxies by `redirectionio_request_set_forwarded()` or `Request::set_remote_ip()`
+
 ## 3.4.0 - 05-10-2026
 
 * [http] Drop a default port (80 or 443) from the request host, whatever the scheme, in every `Request` constructor, `set_host()` and `rebuild_with_config()`: a rule on `example.com` now matches a client sending `Host: example.com:443`, any other port is kept

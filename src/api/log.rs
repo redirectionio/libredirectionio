@@ -9,6 +9,10 @@ pub struct Log {
     time: u128,
     proxy: String,
     ips: Option<Vec<String>>,
+    /// The client address once the trusted proxies are peeled off, unlike `ips` which also holds
+    /// whatever the client wrote in its forwarding headers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    client_ip: Option<String>,
     from: FromLog,
     duration: Option<u128>,
     match_duration: Option<u128>,
@@ -56,6 +60,7 @@ impl Log {
             time: now,
             proxy,
             ips: None,
+            client_ip: None,
             from: FromLog {
                 rule_ids: legacy.rule_id.map(|id| vec![id]),
                 url: legacy.request_uri.unwrap_or_default(),
@@ -161,6 +166,7 @@ impl Log {
             proxy: proxy.to_string(),
             time: request_start_time,
             ips: Some(ips.iter().map(|ip| ip.to_string()).collect()),
+            client_ip: request.remote_addr.map(|ip| ip.to_string()),
             to: location.unwrap_or_default(),
             duration,
             match_duration,
@@ -178,6 +184,7 @@ impl Log {
 #[cfg(test)]
 mod tests {
     use super::{LegacyLog, Log};
+    use crate::http::{PathAndQueryWithSkipped, Request};
 
     fn legacy_log() -> LegacyLog {
         serde_json::from_str(r#"{"status_code":200,"host":null,"method":null,"request_uri":"/","user_agent":null,"referer":null,"scheme":null,"use_json":null,"target":null,"rule_id":null}"#).unwrap()
@@ -195,5 +202,32 @@ mod tests {
         let log = Log::from_legacy(legacy_log(), "proxy".to_string()).with_tags(vec!["blog".to_string(), "seo".to_string()]);
 
         assert!(serde_json::to_string(&log).unwrap().contains(r#""tags":["blog","seo"]"#));
+    }
+
+    #[test]
+    fn client_ip_is_the_trusted_remote_address_not_a_forwarded_one() {
+        let mut request = Request::new(
+            PathAndQueryWithSkipped::from_static("/"),
+            "/".to_string(),
+            None,
+            None,
+            None,
+            Some("203.0.113.7".parse().unwrap()),
+            None,
+        );
+        request.add_header("X-Forwarded-For".to_string(), "66.249.66.1".to_string(), false);
+
+        let log = Log::from_proxy(&request, 200, &[], vec![], "proxy", 0, 0, None, "10.0.0.1");
+        let json = serde_json::to_string(&log).unwrap();
+
+        assert!(json.contains(r#""client_ip":"203.0.113.7""#));
+        assert!(json.contains(r#""ips":["10.0.0.1","66.249.66.1"]"#));
+    }
+
+    #[test]
+    fn client_ip_is_omitted_when_unknown() {
+        let log = Log::from_legacy(legacy_log(), "proxy".to_string());
+
+        assert!(!serde_json::to_string(&log).unwrap().contains("client_ip"));
     }
 }
