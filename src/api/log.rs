@@ -2,6 +2,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::http::{Addr, Header, Request};
 
+/// The only request headers a log carries: cookies and credentials travel in headers too.
+const LOGGED_HEADERS: [&str; 4] = ["accept", "accept-language", "accept-encoding", "from"];
+const LOGGED_HEADER_PREFIXES: [&str; 2] = ["sec-fetch-", "sec-ch-ua"];
+const LOGGED_HEADER_MAX_LENGTH: usize = 256;
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {
     code: u16,
@@ -34,6 +39,8 @@ struct FromLog {
     user_agent: Option<String>,
     #[serde(rename = "contentType")]
     content_type: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    headers: Vec<Header>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -70,6 +77,7 @@ impl Log {
                 referer: legacy.referer,
                 user_agent: legacy.user_agent,
                 content_type: None,
+                headers: Vec::new(),
             },
             duration: None,
             match_duration: None,
@@ -94,6 +102,7 @@ impl Log {
         let mut user_agent = None;
         let mut referer = None;
         let mut content_type = None;
+        let mut headers = Vec::new();
         let mut ips = Vec::new();
         let now = chrono::Utc::now().timestamp_millis() as u128;
         let duration = now.checked_sub(request_start_time);
@@ -105,6 +114,10 @@ impl Log {
         }
 
         for header in &request.headers {
+            if let Some(logged) = logged_header(header) {
+                headers.push(logged);
+            }
+
             if header.name.to_lowercase() == "user-agent" {
                 user_agent = Some(header.value.clone())
             }
@@ -158,6 +171,7 @@ impl Log {
             referer,
             user_agent,
             content_type,
+            headers,
         };
 
         Log {
@@ -181,9 +195,28 @@ impl Log {
     }
 }
 
+fn logged_header(header: &Header) -> Option<Header> {
+    let name = header.name.to_ascii_lowercase();
+
+    if !LOGGED_HEADERS.contains(&name.as_str()) && !LOGGED_HEADER_PREFIXES.iter().any(|prefix| name.starts_with(prefix)) {
+        return None;
+    }
+
+    let mut end = header.value.len().min(LOGGED_HEADER_MAX_LENGTH);
+
+    while !header.value.is_char_boundary(end) {
+        end -= 1;
+    }
+
+    Some(Header {
+        name,
+        value: header.value[..end].to_string(),
+    })
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{LegacyLog, Log};
+    use super::{LOGGED_HEADER_MAX_LENGTH, LegacyLog, Log};
     use crate::http::{PathAndQueryWithSkipped, Request};
 
     fn legacy_log() -> LegacyLog {
@@ -229,5 +262,44 @@ mod tests {
         let log = Log::from_legacy(legacy_log(), "proxy".to_string());
 
         assert!(!serde_json::to_string(&log).unwrap().contains("client_ip"));
+    }
+
+    #[test]
+    fn only_the_allowed_headers_are_logged() {
+        let mut request = Request::new(
+            PathAndQueryWithSkipped::from_static("/"),
+            "/".to_string(),
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
+
+        for (name, value) in [
+            ("Accept", "text/html"),
+            ("Sec-Fetch-Mode", "navigate"),
+            ("sec-ch-ua-mobile", "?0"),
+            ("Cookie", "session=secret"),
+            ("Authorization", "Bearer secret"),
+            ("Accept-Language", &"é".repeat(LOGGED_HEADER_MAX_LENGTH)),
+        ] {
+            request.add_header(name.to_string(), value.to_string(), false);
+        }
+
+        let log = Log::from_proxy(&request, 200, &[], vec![], "proxy", 0, 0, None, "");
+        let json = serde_json::to_value(&log).unwrap();
+        let headers = json["from"]["headers"].as_array().unwrap();
+        let names: Vec<&str> = headers.iter().map(|header| header["name"].as_str().unwrap()).collect();
+
+        assert_eq!(names, ["accept", "sec-fetch-mode", "sec-ch-ua-mobile", "accept-language"]);
+        assert_eq!(headers[3]["value"].as_str().unwrap().len(), LOGGED_HEADER_MAX_LENGTH);
+    }
+
+    #[test]
+    fn headers_are_omitted_when_none_is_logged() {
+        let log = Log::from_legacy(legacy_log(), "proxy".to_string());
+
+        assert!(!serde_json::to_string(&log).unwrap().contains("headers"));
     }
 }
