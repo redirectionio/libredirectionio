@@ -6,6 +6,9 @@ use crate::http::{Addr, Header, Request};
 const LOGGED_HEADERS: [&str; 4] = ["accept", "accept-language", "accept-encoding", "from"];
 const LOGGED_HEADER_PREFIXES: [&str; 2] = ["sec-fetch-", "sec-ch-ua"];
 const LOGGED_HEADER_MAX_LENGTH: usize = 256;
+/// HTTP Message Signatures (RFC 9421) cannot be verified once cut: one too long is left out.
+const SIGNATURE_HEADERS: [&str; 3] = ["signature", "signature-input", "signature-agent"];
+const SIGNATURE_HEADER_MAX_LENGTH: usize = 1024;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Log {
@@ -200,6 +203,13 @@ impl Log {
 fn logged_header(header: &Header) -> Option<Header> {
     let name = header.name.to_ascii_lowercase();
 
+    if SIGNATURE_HEADERS.contains(&name.as_str()) {
+        return (header.value.len() <= SIGNATURE_HEADER_MAX_LENGTH).then(|| Header {
+            name,
+            value: header.value.clone(),
+        });
+    }
+
     if !LOGGED_HEADERS.contains(&name.as_str()) && !LOGGED_HEADER_PREFIXES.iter().any(|prefix| name.starts_with(prefix)) {
         return None;
     }
@@ -218,7 +228,7 @@ fn logged_header(header: &Header) -> Option<Header> {
 
 #[cfg(test)]
 mod tests {
-    use super::{LOGGED_HEADER_MAX_LENGTH, LegacyLog, Log};
+    use super::{LOGGED_HEADER_MAX_LENGTH, LegacyLog, Log, SIGNATURE_HEADER_MAX_LENGTH};
     use crate::http::{PathAndQueryWithSkipped, Request};
 
     fn legacy_log() -> LegacyLog {
@@ -317,5 +327,35 @@ mod tests {
                 .unwrap()
                 .contains("headers")
         );
+    }
+
+    #[test]
+    fn signature_headers_are_logged_whole_or_not_at_all() {
+        let mut request = Request::new(
+            PathAndQueryWithSkipped::from_static("/"),
+            "/".to_string(),
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
+        let input = format!(
+            "sig1=(\"@authority\" \"signature-agent\");keyid=\"{}\";tag=\"web-bot-auth\"",
+            "k".repeat(300)
+        );
+
+        request.add_header("Signature-Input".to_string(), input.clone(), false);
+        request.add_header("Signature-Agent".to_string(), "\"https://bot.example\"".to_string(), false);
+        request.add_header("Signature".to_string(), "x".repeat(SIGNATURE_HEADER_MAX_LENGTH + 1), false);
+
+        let log = Log::from_proxy(&request, 200, &[], vec![], "proxy", 0, 0, None, "");
+        let json = serde_json::to_value(&log).unwrap();
+        let headers = json["from"]["headers"].as_array().unwrap();
+
+        assert_eq!(headers.len(), 2);
+        assert_eq!(headers[0]["name"], "signature-input");
+        assert_eq!(headers[0]["value"].as_str().unwrap(), input);
+        assert_eq!(headers[1]["name"], "signature-agent");
     }
 }

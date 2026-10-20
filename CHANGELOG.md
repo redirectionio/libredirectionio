@@ -1,7 +1,7 @@
 ## Unreleased
 
 * [api] Add `client_ip` to `Log`: the request remote address, as resolved from the trusted proxies by `redirectionio_request_set_forwarded()` or `Request::set_remote_ip()`
-* [api] Add a selection of the request headers to `Log` (`Accept`, `Accept-Language`, `Accept-Encoding`, `From`, `Sec-Fetch-*`, `Sec-CH-UA*`), lowercased and cut at 256 bytes - no other header is logged; the list is always sent by `Log::from_proxy()`, even empty
+* [api] Add a selection of the request headers to `Log` (`Accept`, `Accept-Language`, `Accept-Encoding`, `From`, `Sec-Fetch-*`, `Sec-CH-UA*`), lowercased and cut at 256 bytes, along with `Signature`, `Signature-Input` and `Signature-Agent` (RFC 9421), kept whole up to 1024 bytes and left out beyond - no other header is logged; the list is always sent by `Log::from_proxy()`, even empty
 
 ## 3.4.0 - 05-10-2026
 
