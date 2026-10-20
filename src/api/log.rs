@@ -39,8 +39,10 @@ struct FromLog {
     user_agent: Option<String>,
     #[serde(rename = "contentType")]
     content_type: Option<String>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    headers: Vec<Header>,
+    /// Always sent by `from_proxy`, even empty, so that a request carrying none of the logged
+    /// headers is not mistaken for a log written by an integration that does not send them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    headers: Option<Vec<Header>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -77,7 +79,7 @@ impl Log {
                 referer: legacy.referer,
                 user_agent: legacy.user_agent,
                 content_type: None,
-                headers: Vec::new(),
+                headers: None,
             },
             duration: None,
             match_duration: None,
@@ -171,7 +173,7 @@ impl Log {
             referer,
             user_agent,
             content_type,
-            headers,
+            headers: Some(headers),
         };
 
         Log {
@@ -297,9 +299,23 @@ mod tests {
     }
 
     #[test]
-    fn headers_are_omitted_when_none_is_logged() {
-        let log = Log::from_legacy(legacy_log(), "proxy".to_string());
+    fn headers_are_sent_even_when_none_is_logged() {
+        let request = Request::new(
+            PathAndQueryWithSkipped::from_static("/"),
+            "/".to_string(),
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
+        let log = Log::from_proxy(&request, 200, &[], vec![], "proxy", 0, 0, None, "");
 
-        assert!(!serde_json::to_string(&log).unwrap().contains("headers"));
+        assert!(serde_json::to_string(&log).unwrap().contains(r#""headers":[]"#));
+        assert!(
+            !serde_json::to_string(&Log::from_legacy(legacy_log(), "proxy".to_string()))
+                .unwrap()
+                .contains("headers")
+        );
     }
 }
