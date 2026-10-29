@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Checking your browser</title>
+<style>
+:root{color-scheme:light dark}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:Canvas;color:CanvasText}
+main{max-width:28rem;padding:2rem;text-align:center}
+h1{font-size:1.4rem;margin:0 0 .75rem}
+p{margin:0 0 1rem;opacity:.8}
+.spin{width:2rem;height:2rem;margin:0 auto 1.5rem;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none;border-right-color:currentColor;opacity:.4}}
+button{font:inherit;padding:.6rem 1.4rem;border-radius:.4rem;border:1px solid currentColor;background:none;color:inherit;cursor:pointer}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<main>
+<div class="spin" id="spin" aria-hidden="true"></div>
+<h1 id="title">Checking your browser</h1>
+<p id="status" role="status" aria-live="polite">This takes a second, the page loads right after.</p>
+<button id="retry" type="button" hidden>Verify</button>
+<noscript><p>This check needs JavaScript. Enable it, then reload the page.</p></noscript>
+</main>
+<script>
+(function () {
+  "use strict";
+  var CHALLENGE = "__CHALLENGE__", DIFFICULTY = __DIFFICULTY__, COOKIE = "__COOKIE__", MAX_AGE = __MAX_AGE__;
+  var fr = /^fr\b/i.test(navigator.language || "");
+  var text = fr ? {
+    title: "Vérification de votre navigateur",
+    status: "Cela prend une seconde, la page se charge juste après.",
+    retry: "Nous n'avons pas pu vérifier votre navigateur automatiquement.",
+    button: "Vérifier",
+    done: "Vérifié, chargement de la page…"
+  } : {
+    title: "Checking your browser",
+    status: "This takes a second, the page loads right after.",
+    retry: "We could not verify your browser automatically.",
+    button: "Verify",
+    done: "Verified, loading the page…"
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  document.documentElement.lang = fr ? "fr" : "en";
+  document.title = text.title;
+  $("title").textContent = text.title;
+  $("status").textContent = text.status;
+  $("retry").textContent = text.button;
+
+  var interactions = 0;
+  ["pointermove", "pointerdown", "touchstart", "keydown", "scroll", "wheel"].forEach(function (name) {
+    addEventListener(name, function (event) { if (event.isTrusted) interactions++; }, { passive: true, capture: true });
+  });
+
+  function isNative(fn) {
+    try {
+      return typeof fn === "function" && /\{\s*\[native code\]\s*\}\s*$/.test(Function.prototype.toString.call(fn));
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getter(proto, name) {
+    var descriptor = proto && Object.getOwnPropertyDescriptor(proto, name);
+    return descriptor && descriptor.get;
+  }
+
+  function probe() {
+    var n = navigator, ua = n.userAgent || "", r = { v: 1 };
+    var set = function (key, test) { try { if (test()) r[key] = true; } catch (e) {} };
+
+    set("wd", function () { return n.webdriver === true; });
+    set("hl", function () {
+      return /Headless/.test(ua) || !!(n.userAgentData && n.userAgentData.brands.some(function (b) { return /Headless/.test(b.brand); }));
+    });
+    set("au", function () {
+      var globals = ["_phantom", "callPhantom", "__nightmare", "domAutomation", "domAutomationController", "_selenium", "__selenium_unwrapped",
+        "__webdriver_evaluate", "__driver_evaluate", "__webdriver_script_fn", "__playwright__binding__", "__pwInitScripts", "_Selenium_IDE_Recorder"];
+      var attributes = ["webdriver", "selenium", "driver"];
+      return globals.some(function (g) { return g in window; })
+        || attributes.some(function (a) { return document.documentElement.hasAttribute(a); })
+        || Object.getOwnPropertyNames(document).concat(Object.getOwnPropertyNames(window)).some(function (k) { return /^\$?cdc_|^\$wdc_/.test(k); });
+    });
+    set("nt", function () {
+      var nav = Object.getPrototypeOf(n);
+      var fns = [Function.prototype.toString, getter(nav, "webdriver"), getter(nav, "languages"), getter(nav, "plugins"),
+        getter(nav, "hardwareConcurrency"), window.HTMLCanvasElement && HTMLCanvasElement.prototype.toDataURL,
+        window.CanvasRenderingContext2D && CanvasRenderingContext2D.prototype.getImageData,
+        window.WebGLRenderingContext && WebGLRenderingContext.prototype.getParameter,
+        n.permissions && n.permissions.query];
+      return fns.some(function (fn) { return fn !== undefined && !isNative(fn); });
+    });
+    set("dp", function () {
+      var inspected = false, error = new Error();
+      Object.defineProperty(error, "stack", { configurable: true, get: function () { inspected = true; return ""; } });
+      console.debug(error);
+      return inspected;
+    });
+    set("sw", function () {
+      var gl = document.createElement("canvas").getContext("webgl");
+      var info = gl && gl.getExtension("WEBGL_debug_renderer_info");
+      return !!info && /SwiftShader|llvmpipe|softpipe|Software|Basic Render|Mesa OffScreen/i.test(gl.getParameter(info.UNMASKED_RENDERER_WEBGL));
+    });
+    set("ua", function () {
+      var platform = n.platform || "";
+      return (/Chrome\//.test(ua) && !/Edg|OPR|SamsungBrowser/.test(ua) && !window.chrome)
+        || (/Windows/.test(ua) && !/Win/.test(platform))
+        || (/Macintosh/.test(ua) && !/Mac/.test(platform))
+        || (!!n.userAgentData && !/Chrom|Edg|OPR/.test(ua));
+    });
+    set("lg", function () { return !n.languages || n.languages.length === 0; });
+    set("sc", function () { return !screen.width || !screen.height || (!outerWidth && !outerHeight); });
+
+    var permission = Promise.resolve();
+    try {
+      if (window.Notification && n.permissions) {
+        permission = n.permissions.query({ name: "notifications" }).then(function (status) {
+          if (Notification.permission === "denied" && status.state === "prompt") r.pm = true;
+        }, function () {});
+      }
+    } catch (e) {}
+
+    return permission.then(function () { return r; });
+  }
+
+  var K = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+    0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+    0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
+  var W = new Int32Array(64);
+
+  // SHA-256 of an ASCII string, as 8 words. The digest API of the browser is async and
+  // much slower for millions of tiny inputs.
+  function sha256(s) {
+    var length = s.length, blocks = ((length + 8) >> 6) + 1, m = new Int32Array(blocks * 16), i, j;
+    for (i = 0; i < length; i++) m[i >> 2] |= s.charCodeAt(i) << (24 - (i & 3) * 8);
+    m[length >> 2] |= 0x80 << (24 - (length & 3) * 8);
+    m[blocks * 16 - 1] = length * 8;
+    var h0 = 0x6a09e667, h1 = 0xbb67ae85 | 0, h2 = 0x3c6ef372, h3 = 0xa54ff53a | 0, h4 = 0x510e527f, h5 = 0x9b05688c | 0, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
+    for (j = 0; j < m.length; j += 16) {
+      var a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+      for (i = 0; i < 64; i++) {
+        if (i < 16) {
+          W[i] = m[j + i];
+        } else {
+          var x = W[i - 15], y = W[i - 2];
+          W[i] = (((x >>> 7) | (x << 25)) ^ ((x >>> 18) | (x << 14)) ^ (x >>> 3)) + W[i - 16]
+            + (((y >>> 17) | (y << 15)) ^ ((y >>> 19) | (y << 13)) ^ (y >>> 10)) + W[i - 7];
+        }
+        var t1 = (h + (((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7))) + ((e & f) ^ (~e & g)) + K[i] + W[i]) | 0;
+        var t2 = ((((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10))) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0;
+      h4 = (h4 + e) | 0; h5 = (h5 + f) | 0; h6 = (h6 + g) | 0; h7 = (h7 + h) | 0;
+    }
+    return [h0, h1, h2, h3, h4, h5, h6, h7];
+  }
+
+  function zeroBits(words) {
+    for (var i = 0, bits = 0; i < words.length; i++) {
+      bits += Math.clz32(words[i]);
+      if (words[i] !== 0) break;
+    }
+    return bits;
+  }
+
+  function solve(prefix, done) {
+    var counter = 0;
+    (function chunk() {
+      var end = counter + 5000;
+      for (; counter < end; counter++) {
+        if (zeroBits(sha256(prefix + counter)) >= DIFFICULTY) return done(prefix + counter);
+      }
+      setTimeout(chunk, 0);
+    })();
+  }
+
+  function encode(probes) {
+    return btoa(JSON.stringify(probes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  function run() {
+    $("retry").hidden = true;
+    $("spin").hidden = false;
+    probe().then(function (probes) {
+      probes.it = interactions;
+      solve(CHALLENGE + "." + encode(probes) + ".", function (value) {
+        document.cookie = COOKIE + "=" + value + "; Max-Age=" + MAX_AGE + "; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : "");
+        $("status").textContent = text.done;
+        location.reload();
+      });
+    });
+  }
+
+  // A cookie still there means the previous attempt was refused: ask for a click rather
+  // than reloading in a loop.
+  if (document.cookie.split(/;\s*/).some(function (c) { return c.indexOf(COOKIE + "=") === 0; })) {
+    $("spin").hidden = true;
+    $("status").textContent = text.retry;
+    $("retry").hidden = false;
+    $("retry").addEventListener("click", function (event) {
+      if (event.isTrusted) interactions++;
+      run();
+    });
+  } else {
+    run();
+  }
+})();
+</script>
+</body>
+</html>

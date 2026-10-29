@@ -2,6 +2,7 @@
 
 * [api] Add `client_ip` to `Log`: the request remote address, as resolved from the trusted proxies by `redirectionio_request_set_forwarded()` or `Request::set_remote_ip()`
 * [api] Add a selection of the request headers to `Log` (`Accept`, `Accept-Language`, `Accept-Encoding`, `From`, `Sec-Fetch-*`, `Sec-CH-UA*`), lowercased and cut at 256 bytes, along with `Signature`, `Signature-Input` and `Signature-Agent` (RFC 9421), kept whole up to 1024 bytes and left out beyond - no other header is logged; the list is always sent by `Log::from_proxy()`, even empty
+* [action] Add the `captcha` rule action: without a valid `rio_captcha` cookie, the request is answered with a 403 HTML page running a proof of work and browser automation checks, which then stores its result in the cookie; the cookie is checked statelessly (HMAC bound to the client network and user agent, expiry, proof of work), the rule stops the processing while the challenge is served, and the outcome is logged as a `captcha:challenged`, `captcha:rejected` or `captcha:passed` tag - ignored on a rule with a response status codes trigger, and on an unknown provider
 
 ## 3.4.0 - 05-10-2026
 

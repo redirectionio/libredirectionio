@@ -6,7 +6,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::from_str as json_decode;
 
 use crate::{
-    api::{BodyFilter, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Peer, Source, Variable, variable::VariableValue},
+    api::{
+        BodyFilter, Captcha, DateTimeConstraint, Example, HeaderFilter, IpConstraint, Marker, Peer, Source, Variable,
+        variable::VariableValue,
+    },
     http::Request,
     marker::{Marker as RouteMarker, MarkerString, StaticOrDynamic, Transform},
     router::{IntoRoute, Route, RouteDateTime, RouteHeader, RouteHeaderKind, RouteIp, RouteTime, RouteWeekday},
@@ -37,6 +40,8 @@ pub struct Rule {
     pub log_tags: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub request_header_filters: Option<Vec<HeaderFilter>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub captcha: Option<Captcha>,
     pub reset: Option<bool>,
     pub stop: Option<bool>,
     pub examples: Option<Vec<Example>>,

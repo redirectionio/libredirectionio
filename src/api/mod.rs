@@ -1,4 +1,5 @@
 mod body_filter;
+mod captcha;
 mod date_time;
 mod examples;
 #[cfg(feature = "router")]
@@ -28,6 +29,7 @@ mod unit_ids;
 mod variable;
 
 pub use body_filter::{BodyFilter, HTMLBodyFilter, HTMLBodyFilterInnerLegacy, TextAction, TextBodyFilter};
+pub use captcha::{Captcha, CaptchaProvider, DEFAULT_CAPTCHA_DIFFICULTY, DEFAULT_CAPTCHA_TTL, MAX_CAPTCHA_DIFFICULTY};
 pub use date_time::DateTimeConstraint;
 pub use examples::Example;
 #[cfg(feature = "router")]

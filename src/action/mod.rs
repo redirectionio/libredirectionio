@@ -1,3 +1,5 @@
+#[cfg(feature = "router")]
+mod captcha;
 #[cfg(not(target_arch = "wasm32"))]
 mod ffi;
 mod log_override;
@@ -23,9 +25,11 @@ pub use status_code_update::StatusCodeUpdate;
 #[cfg(feature = "router")]
 pub use trace::TraceAction;
 
+#[cfg(feature = "router")]
+use crate::action::captcha::Verdict;
 pub use crate::action::unit_trace::UnitTrace;
 #[cfg(feature = "router")]
-use crate::api::Rule;
+use crate::api::{Captcha, CaptchaProvider, Rule};
 #[cfg(feature = "router")]
 use crate::http::Request;
 #[cfg(feature = "router")]
@@ -37,7 +41,7 @@ use crate::{
         peer_override::PeerOverride,
         request_header_filter::{RequestHeaderFilterAction, is_protected_request_header},
     },
-    api::{BodyFilter, HeaderFilter, Peer, VariableValue},
+    api::{BodyFilter, HeaderFilter, Peer, TextAction, TextBodyFilter, VariableValue},
     filter::{FilterBodyAction, FilterHeaderAction},
     http::Header,
     marker::StaticOrDynamic,
@@ -296,6 +300,44 @@ impl Action {
             }
         }
 
+        let mut log_tags = match rule.log_tags.as_ref() {
+            Some(tags) if !tags.is_empty() => vec![LogTags {
+                tags: if deferred_variables.is_empty() {
+                    LogTags::resolve(tags, &variables)
+                } else {
+                    tags.clone()
+                },
+                variables: deferred_variables.clone(),
+                rule_id: Some(rule.id.clone()),
+                on_response_status_codes: on_response_status_codes.clone(),
+                exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
+                unit_id: rule.log_tags_unit_id.clone(),
+            }],
+            _ => Vec::new(),
+        };
+
+        if let Some(captcha) = rule.captcha.as_ref() {
+            let now = request.created_at.unwrap_or_else(chrono::Utc::now).timestamp();
+
+            match captcha.provider {
+                // A challenge needs to replace the response before the backend produces it.
+                _ if !on_response_status_codes.is_empty() => (),
+                CaptchaProvider::ProofOfWork => match captcha::verify(captcha, request, now) {
+                    Verdict::Passed => log_tags.push(Action::captcha_log_tags(rule, captcha, "captcha:passed")),
+                    verdict => {
+                        // Stops there, so that no other rule answers in place of the challenge.
+                        return (
+                            Some(Action::captcha_challenge(rule, captcha, request, now, verdict)),
+                            rule.reset.unwrap_or(false),
+                            true,
+                            rule.configuration_reset_unit_id.clone(),
+                        );
+                    }
+                },
+                CaptchaProvider::Unknown => tracing::warn!("unsupported captcha provider, you may need to update your agent or module"),
+            }
+        }
+
         let action = Action {
             status_code_update,
             header_filters,
@@ -327,21 +369,7 @@ impl Action {
             } else {
                 None
             },
-            log_tags: match rule.log_tags.as_ref() {
-                Some(tags) if !tags.is_empty() => vec![LogTags {
-                    tags: if deferred_variables.is_empty() {
-                        LogTags::resolve(tags, &variables)
-                    } else {
-                        tags.clone()
-                    },
-                    variables: deferred_variables.clone(),
-                    rule_id: Some(rule.id.clone()),
-                    on_response_status_codes: on_response_status_codes.clone(),
-                    exclude_response_status_codes: rule.source.exclude_response_status_codes.is_some(),
-                    unit_id: rule.log_tags_unit_id.clone(),
-                }],
-                _ => Vec::new(),
-            },
+            log_tags,
             // The request is sent before any response exists, so a response status trigger cannot apply,
             // and a response header variable falls back to its default.
             request_header_filters: match rule.request_header_filters.as_ref() {
@@ -377,6 +405,81 @@ impl Action {
             rule.stop.unwrap_or(false),
             rule.configuration_reset_unit_id.clone(),
         )
+    }
+
+    #[cfg(feature = "router")]
+    fn captcha_challenge(rule: &Rule, captcha: &Captcha, request: &Request, now: i64, verdict: Verdict) -> Action {
+        let header = |name: &str, value: &str| HeaderFilterAction {
+            filter: HeaderFilter {
+                action: "override".to_string(),
+                header: name.to_string(),
+                value: value.to_string(),
+                id: captcha.id.clone(),
+                target_hash: Some(format!("header::{}", name.to_lowercase())),
+            },
+            on_response_status_codes: Vec::new(),
+            exclude_response_status_codes: false,
+            rule_id: Some(rule.id.clone()),
+            variables: Vec::new(),
+        };
+
+        Action {
+            status_code_update: Some(StatusCodeUpdate {
+                status_code: 403,
+                on_response_status_codes: Vec::new(),
+                exclude_response_status_codes: false,
+                fallback_status_code: 0,
+                rule_id: Some(rule.id.clone()),
+                fallback_rule_id: None,
+                unit_id: captcha.id.clone(),
+                target_hash: Some("status_code".to_string()),
+            }),
+            header_filters: vec![
+                header("Content-Type", "text/html; charset=utf-8"),
+                // The challenge is bound to a single client, a cache must never share it.
+                header("Cache-Control", "no-store, private"),
+            ],
+            body_filters: vec![BodyFilterAction {
+                filter: BodyFilter::Text(TextBodyFilter {
+                    action: TextAction::Replace,
+                    content: captcha::challenge_page(captcha, request, now),
+                    id: captcha.id.clone(),
+                    target_hash: None,
+                }),
+                on_response_status_codes: Vec::new(),
+                exclude_response_status_codes: false,
+                rule_id: Some(rule.id.clone()),
+                variables: Vec::new(),
+            }],
+            rule_ids: LinkedHashSet::from_iter(vec![rule.id.clone()]),
+            rule_traces: vec![RuleTrace {
+                id: rule.id.clone(),
+                on_response_status_codes: Vec::new(),
+                exclude_response_status_codes: false,
+            }],
+            log_tags: vec![Action::captcha_log_tags(
+                rule,
+                captcha,
+                if verdict == Verdict::Rejected {
+                    "captcha:rejected"
+                } else {
+                    "captcha:challenged"
+                },
+            )],
+            ..Action::default()
+        }
+    }
+
+    #[cfg(feature = "router")]
+    fn captcha_log_tags(rule: &Rule, captcha: &Captcha, tag: &str) -> LogTags {
+        LogTags {
+            tags: vec![tag.to_string()],
+            rule_id: Some(rule.id.clone()),
+            on_response_status_codes: Vec::new(),
+            exclude_response_status_codes: false,
+            unit_id: captcha.id.clone(),
+            variables: Vec::new(),
+        }
     }
 
     #[cfg(feature = "router")]
