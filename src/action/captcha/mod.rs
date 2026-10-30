@@ -113,7 +113,8 @@ fn signature_matches(config: &Captcha, request: &Request, payload: &str, signatu
 }
 
 fn mac(config: &Captcha, request: &Request, payload: &str) -> Hmac<Sha256> {
-    let mut mac = Hmac::<Sha256>::new_from_slice(config.secret.as_bytes()).expect("hmac accepts keys of any size");
+    let mut mac =
+        Hmac::<Sha256>::new_from_slice(config.secret.as_deref().unwrap_or_default().as_bytes()).expect("hmac accepts keys of any size");
 
     mac.update(payload.as_bytes());
     mac.update(b"|");

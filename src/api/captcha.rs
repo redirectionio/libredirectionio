@@ -10,8 +10,10 @@ const MAX_CAPTCHA_COOKIE_NAME_LENGTH: usize = 64;
 pub struct Captcha {
     #[serde(default)]
     pub provider: CaptchaProvider,
-    /// Signs the challenges, a clearance obtained with one secret is not valid with another.
-    pub secret: String,
+    /// Copied from `RouterConfig::captcha_secret` when the rule enters the router, so that a
+    /// clearance is valid for every rule of the project: it never travels with the rule.
+    #[serde(skip)]
+    pub secret: Option<String>,
     /// Number of leading zero bits the proof of work must reach.
     #[serde(default = "default_difficulty")]
     pub difficulty: u8,

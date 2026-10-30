@@ -22,6 +22,9 @@ pub struct RouterConfig {
     pub always_match_any_host: bool,
     #[serde(default = "default_as_true")]
     pub ignore_query_param_order: bool,
+    /// Signs the captcha challenges of every rule, see `api::Captcha`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub captcha_secret: Option<String>,
 }
 
 impl Hash for RouterConfig {
@@ -34,6 +37,7 @@ impl Hash for RouterConfig {
         self.pass_marketing_query_params_to_target.hash(state);
         self.always_match_any_host.hash(state);
         self.ignore_query_param_order.hash(state);
+        self.captcha_secret.hash(state);
 
         // order hash set to make sure it's always the same
         let mut marketing_query_params: Vec<String> = self.marketing_query_params.iter().cloned().collect();
@@ -83,6 +87,7 @@ impl Default for RouterConfig {
             pass_marketing_query_params_to_target: true,
             always_match_any_host: true,
             ignore_query_param_order: true,
+            captcha_secret: None,
         }
     }
 }

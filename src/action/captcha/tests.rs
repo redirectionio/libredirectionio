@@ -9,6 +9,7 @@ use crate::{
     api::{Captcha, CaptchaProvider, DEFAULT_CAPTCHA_COOKIE_NAME, Rule},
     http::Request,
     router::Router,
+    router_config::RouterConfig,
 };
 
 const NOW: i64 = 1_800_000_000;
@@ -17,7 +18,7 @@ const USER_AGENT: &str = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KH
 fn config() -> Captcha {
     Captcha {
         provider: CaptchaProvider::ProofOfWork,
-        secret: "secret".to_string(),
+        secret: Some("secret".to_string()),
         difficulty: 8,
         ttl: 3600,
         cookie_name: None,
@@ -209,18 +210,28 @@ fn an_unsafe_cookie_name_falls_back_to_the_default_one() {
 }
 
 fn router() -> Router<Rule> {
+    router_with_secret(Some("secret"))
+}
+
+fn router_with_secret(secret: Option<&str>) -> Router<Rule> {
     let rule = Rule::from_json(
-        r#"{"id":"captcha-rule","rank":0,"source":{"path":"/page"},"target":null,"status_code":null,"body_filters":null,"header_filters":null,"log_override":null,"peer_override":null,"reset":null,"stop":null,"examples":null,"redirect_unit_id":null,"configuration_log_unit_id":null,"configuration_reset_unit_id":null,"peer_unit_id":null,"target_hash":null,"captcha":{"secret":"secret","difficulty":8,"ttl":3600,"id":"captcha-unit"}}"#,
+        r#"{"id":"captcha-rule","rank":0,"source":{"path":"/page"},"target":null,"status_code":null,"body_filters":null,"header_filters":null,"log_override":null,"peer_override":null,"reset":null,"stop":null,"examples":null,"redirect_unit_id":null,"configuration_log_unit_id":null,"configuration_reset_unit_id":null,"peer_unit_id":null,"target_hash":null,"captcha":{"secret":"ignored","difficulty":8,"ttl":3600,"id":"captcha-unit"}}"#,
     )
     .unwrap();
-    let mut router = Router::<Rule>::default();
+    let mut router = Router::<Rule>::from_config(RouterConfig {
+        captcha_secret: secret.map(str::to_string),
+        ..RouterConfig::default()
+    });
     router.insert(rule);
 
     router
 }
 
 fn action_for(request: &Request) -> Action {
-    let router = router();
+    action_from(&router(), request)
+}
+
+fn action_from(router: &Router<Rule>, request: &Request) -> Action {
     Action::from_routes_rule(router.match_request(request), request, None)
 }
 
@@ -254,4 +265,25 @@ fn the_rule_lets_a_cleared_browser_through() {
 
     assert_eq!(action.get_status_code(0, None), 0);
     assert_eq!(action.get_log_tags(200, None), vec!["captcha:passed"]);
+}
+
+#[test]
+fn the_secret_comes_from_the_router_config_only() {
+    // The rule carries "ignored" as secret: a clearance signed with it must not pass.
+    let ignored = Captcha {
+        secret: Some("ignored".to_string()),
+        ..config()
+    };
+    let cookie = solve(&challenge(&ignored, &request("192.0.2.10", USER_AGENT, None)), r#"{"v":1}"#, 8);
+    let mut action = action_for(&request("192.0.2.10", USER_AGENT, Some(&cookie)));
+
+    assert_eq!(action.get_status_code(0, None), 403);
+}
+
+#[test]
+fn without_secret_no_challenge_is_served() {
+    let mut action = action_from(&router_with_secret(None), &request("192.0.2.10", USER_AGENT, None));
+
+    assert_eq!(action.get_status_code(0, None), 0);
+    assert!(action.get_log_tags(200, None).is_empty());
 }

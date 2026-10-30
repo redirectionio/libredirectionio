@@ -308,7 +308,11 @@ impl Rule {
 }
 
 impl IntoRoute<Rule> for Rule {
-    fn into_route(self, config: &RouterConfig) -> Route<Rule> {
+    fn into_route(mut self, config: &RouterConfig) -> Route<Rule> {
+        if let Some(captcha) = self.captcha.as_mut() {
+            captcha.secret.clone_from(&config.captcha_secret);
+        }
+
         Route::new(
             self.source.methods.clone(),
             self.source.exclude_methods,

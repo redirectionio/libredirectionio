@@ -322,6 +322,8 @@ impl Action {
             match captcha.provider {
                 // A challenge needs to replace the response before the backend produces it.
                 _ if !on_response_status_codes.is_empty() => (),
+                // A project whose secret is not drawn yet serves no challenge, rather than one signed with nothing.
+                _ if captcha.secret.as_deref().unwrap_or_default().is_empty() => (),
                 CaptchaProvider::ProofOfWork => match captcha::verify(captcha, request, now) {
                     Verdict::Passed => log_tags.push(Action::captcha_log_tags(rule, captcha, "captcha:passed")),
                     verdict => {
