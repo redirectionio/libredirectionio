@@ -1,5 +1,6 @@
 ## Unreleased
 
+* [ffi] Add `redirectionio_trusted_proxies_contains()`, which tells whether an address is one of the trusted proxies
 * [http] Add `fingerprints` to `Request` and `Log`: the `tls` (JA4), `tcp` (p0f signature) and `http2` (Akamai format) fingerprints of the client connection, set with `Request::set_fingerprint()`, `redirectionio_request_set_fingerprint()` or the wasm `Request.set_fingerprint()` by the integration which can read them - an unknown name, an empty value, or one longer than 256 bytes or not printable ASCII is ignored
 * [api] Add `client_ip` to `Log`: the request remote address, as resolved from the trusted proxies by `redirectionio_request_set_forwarded()` or `Request::set_remote_ip()`
 * [api] Add a selection of the request headers to `Log` (`Accept`, `Accept-Language`, `Accept-Encoding`, `From`, `Sec-Fetch-*`, `Sec-CH-UA*`), lowercased and cut at 256 bytes, along with `Signature`, `Signature-Input` and `Signature-Agent` (RFC 9421), kept whole up to 1024 bytes and left out beyond - no other header is logged; the list is always sent by `Log::from_proxy()`, even empty

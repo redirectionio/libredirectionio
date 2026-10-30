@@ -279,6 +279,29 @@ pub unsafe extern "C" fn redirectionio_trusted_proxies_drop(_trusted_proxies: *m
 #[unsafe(no_mangle)]
 /// # Safety
 ///
+/// This function must be called with a valid pointer to TrustedProxies or null pointer, a null
+/// pointer standing for the default ones (loopback and private networks)
+///
+/// Returns 1 when the address is one of the trusted proxies.
+pub unsafe extern "C" fn redirectionio_trusted_proxies_contains(_trusted_proxies: *const TrustedProxies, _addr_str: *const c_char) -> u8 {
+    let Some(addr) = c_char_to_str(_addr_str).and_then(|addr| addr.parse::<Addr>().ok()) else {
+        return 0;
+    };
+
+    let default_config = Config::default();
+    let config = if _trusted_proxies.is_null() {
+        &default_config
+    } else {
+        // Safety: _trusted_proxies is a valid pointer to a TrustedProxies, whose Config is never freed
+        unsafe { &*((*_trusted_proxies).0 as *const Config) }
+    };
+
+    config.is_ip_trusted(&addr.addr) as u8
+}
+
+#[unsafe(no_mangle)]
+/// # Safety
+///
 /// This function must be called with a valid pointer to Request or null pointer
 /// and a valid pointer to TrustedProxies or null pointer
 pub unsafe extern "C" fn redirectionio_request_set_remote_addr(
@@ -421,6 +444,26 @@ mod tests {
     use std::ffi::CString;
 
     use super::*;
+
+    #[test]
+    fn trusted_proxies_contains_the_configured_and_private_addresses() {
+        let proxies = CString::new("203.0.113.0/24").unwrap();
+        let trusted_proxies = redirectionio_trusted_proxies_create(proxies.as_ptr());
+        let contains = |trusted_proxies, addr: &str| {
+            let addr = CString::new(addr).unwrap();
+
+            unsafe { redirectionio_trusted_proxies_contains(trusted_proxies, addr.as_ptr()) }
+        };
+
+        assert_eq!(contains(trusted_proxies, "203.0.113.7"), 1);
+        assert_eq!(contains(trusted_proxies, "10.0.0.1:443"), 1);
+        assert_eq!(contains(trusted_proxies, "198.51.100.1"), 0);
+        assert_eq!(contains(null(), "127.0.0.1"), 1);
+        assert_eq!(contains(null(), "198.51.100.1"), 0);
+        assert_eq!(contains(null(), "not an ip"), 0);
+
+        unsafe { redirectionio_trusted_proxies_drop(trusted_proxies as *mut TrustedProxies) };
+    }
 
     /// Replays what the nginx / apache modules do.
     fn request_from_module(headers: &[(&str, &str)], peer: &str, allow_scheme_override: u8, allow_host_override: u8) -> Box<Request> {
