@@ -57,6 +57,7 @@ impl Request {
                 remote_addr: None,
                 created_at: Some(Utc::now()),
                 sampling_override: None,
+                fingerprints: Default::default(),
             },
         }
     }
@@ -78,6 +79,10 @@ impl Request {
 
     pub fn add_header(&mut self, name: String, value: String) {
         self.request.add_header(name, value, false)
+    }
+
+    pub fn set_fingerprint(&mut self, name: String, value: String) -> bool {
+        self.request.set_fingerprint(name.as_str(), value.as_str())
     }
 
     pub fn serialize(&self) -> String {

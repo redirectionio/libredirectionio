@@ -369,6 +369,27 @@ pub unsafe extern "C" fn redirectionio_request_set_forwarded(
 }
 
 #[unsafe(no_mangle)]
+/// # Safety
+///
+/// This function must be called with a valid pointer to Request or null pointer
+///
+/// Set the `tls` (JA4), `tcp` (p0f signature) or `http2` (Akamai format) fingerprint of the client
+/// connection, returns 0 when the name is unknown or the value invalid.
+pub unsafe extern "C" fn redirectionio_request_set_fingerprint(_request: *mut Request, _name: *const c_char, _value: *const c_char) -> u8 {
+    if _request.is_null() {
+        return 0;
+    }
+
+    // Safety: _request is a valid pointer to a Request
+    let request = unsafe { &mut *_request };
+
+    match (c_char_to_str(_name), c_char_to_str(_value)) {
+        (Some(name), Some(value)) => request.set_fingerprint(name, value) as u8,
+        _ => 0,
+    }
+}
+
+#[unsafe(no_mangle)]
 pub extern "C" fn redirectionio_request_from_str(_url: *const c_char) -> *const Request {
     let url = c_char_to_str(_url).unwrap_or("/");
 

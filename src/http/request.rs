@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use trusted_proxies::RequestInformation;
 use url::form_urlencoded::parse as parse_query;
 
-use super::{header::Header, host::without_default_port, query::PathAndQueryWithSkipped};
+use super::{fingerprints::Fingerprints, header::Header, host::without_default_port, query::PathAndQueryWithSkipped};
 #[cfg(feature = "router")]
 use crate::api::Example;
 #[cfg(feature = "router")]
@@ -31,6 +31,8 @@ pub struct Request {
     pub remote_addr: Option<IpAddr>,
     pub created_at: Option<DateTime<Utc>>,
     pub sampling_override: Option<bool>,
+    #[serde(default, skip_serializing_if = "Fingerprints::is_empty")]
+    pub fingerprints: Fingerprints,
 }
 
 impl FromStr for Request {
@@ -75,6 +77,7 @@ impl Request {
             remote_addr,
             created_at: Some(Utc::now()),
             sampling_override,
+            fingerprints: Fingerprints::default(),
         }
     }
 
@@ -98,6 +101,7 @@ impl Request {
             headers: Vec::new(),
             created_at: Some(Utc::now()),
             sampling_override,
+            fingerprints: Fingerprints::default(),
         }
     }
 
@@ -173,6 +177,7 @@ impl Request {
             remote_addr: request.remote_addr,
             created_at: request.created_at,
             sampling_override: request.sampling_override,
+            fingerprints: request.fingerprints.clone(),
         }
     }
 
@@ -218,6 +223,10 @@ impl Request {
 
     pub fn header_exists(&self, name: &str) -> bool {
         self.headers.iter().any(|h| h.name.eq_ignore_ascii_case(name))
+    }
+
+    pub fn set_fingerprint(&mut self, name: &str, value: &str) -> bool {
+        self.fingerprints.set(name, value)
     }
 
     pub fn set_remote_ip(&mut self, remote_ip: IpAddr) {

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::http::{Addr, Header, Request};
+use crate::http::{Addr, Fingerprints, Header, Request};
 
 /// The only request headers a log carries: cookies and credentials travel in headers too.
 const LOGGED_HEADERS: [&str; 4] = ["accept", "accept-language", "accept-encoding", "from"];
@@ -46,6 +46,8 @@ struct FromLog {
     /// headers is not mistaken for a log written by an integration that does not send them.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     headers: Option<Vec<Header>>,
+    #[serde(default, skip_serializing_if = "Fingerprints::is_empty")]
+    fingerprints: Fingerprints,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -83,6 +85,7 @@ impl Log {
                 user_agent: legacy.user_agent,
                 content_type: None,
                 headers: None,
+                fingerprints: Fingerprints::default(),
             },
             duration: None,
             match_duration: None,
@@ -177,6 +180,7 @@ impl Log {
             user_agent,
             content_type,
             headers: Some(headers),
+            fingerprints: request.fingerprints.clone(),
         };
 
         Log {
@@ -357,5 +361,31 @@ mod tests {
         assert_eq!(headers[0]["name"], "signature-input");
         assert_eq!(headers[0]["value"].as_str().unwrap(), input);
         assert_eq!(headers[1]["name"], "signature-agent");
+    }
+
+    #[test]
+    fn fingerprints_are_logged_when_known() {
+        let mut request = Request::new(
+            PathAndQueryWithSkipped::from_static("/"),
+            "/".to_string(),
+            None,
+            None,
+            None,
+            None,
+            None,
+        );
+        let log = Log::from_proxy(&request, 200, &[], vec![], "proxy", 0, 0, None, "");
+
+        assert!(!serde_json::to_string(&log).unwrap().contains("fingerprints"));
+
+        request.set_fingerprint("tls", "t13d1516h2_8daaf6152771_e5627efa2ab1");
+
+        let log = Log::from_proxy(&request, 200, &[], vec![], "proxy", 0, 0, None, "");
+        let json = serde_json::to_value(&log).unwrap();
+
+        assert_eq!(
+            json["from"]["fingerprints"],
+            serde_json::json!({"tls": "t13d1516h2_8daaf6152771_e5627efa2ab1"})
+        );
     }
 }
