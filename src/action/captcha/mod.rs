@@ -4,7 +4,7 @@
 //!
 //! Challenge: `1.<expires>.<difficulty>.<nonce>.<signature>`, the signature binding the
 //! challenge to the client network and user agent.
-//! Cookie: `<challenge>.<probes>.<counter>`, where the SHA-256 of the whole value starts
+//! Cookie (`rio_captcha` unless configured): `<challenge>.<probes>.<counter>`, where the SHA-256 of the whole value starts
 //! with `difficulty` zero bits.
 
 use std::net::IpAddr;
@@ -16,7 +16,6 @@ use sha2::{Digest, Sha256};
 
 use crate::{api::Captcha, http::Request};
 
-pub const COOKIE_NAME: &str = "rio_captcha";
 const VERSION: &str = "1";
 const SIGNATURE_LENGTH: usize = 16;
 const MAX_PROBES_LENGTH: usize = 512;
@@ -39,7 +38,7 @@ pub fn verify(config: &Captcha, request: &Request, now: i64) -> Verdict {
 
     let mut verdict = Verdict::Missing;
 
-    for value in cookies(request) {
+    for value in cookies(request, config.cookie_name()) {
         match verify_cookie(config, request, now, value) {
             Verdict::Passed => return Verdict::Passed,
             Verdict::Rejected => verdict = Verdict::Rejected,
@@ -60,7 +59,7 @@ pub fn challenge_page(config: &Captcha, request: &Request, now: i64) -> String {
     PAGE.replace("__CHALLENGE__", &format!("{payload}.{signature}"))
         .replace("__DIFFICULTY__", &difficulty.to_string())
         .replace("__MAX_AGE__", &config.ttl.to_string())
-        .replace("__COOKIE__", COOKIE_NAME)
+        .replace("__COOKIE__", config.cookie_name())
 }
 
 fn verify_cookie(config: &Captcha, request: &Request, now: i64, value: &str) -> Verdict {
@@ -149,14 +148,14 @@ fn header<'a>(request: &'a Request, name: &str) -> Option<&'a str> {
         .map(|header| header.value.as_str())
 }
 
-fn cookies(request: &Request) -> impl Iterator<Item = &str> {
+fn cookies<'a>(request: &'a Request, cookie_name: &'a str) -> impl Iterator<Item = &'a str> {
     request
         .headers
         .iter()
         .filter(|header| header.name.eq_ignore_ascii_case("cookie"))
         .flat_map(|header| header.value.split(';'))
         .filter_map(|cookie| cookie.trim().split_once('='))
-        .filter(|(name, _)| *name == COOKIE_NAME)
+        .filter(move |(name, _)| *name == cookie_name)
         .map(|(_, value)| value)
 }
 

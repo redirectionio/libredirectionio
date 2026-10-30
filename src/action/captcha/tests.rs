@@ -3,10 +3,10 @@ use std::{cell::RefCell, rc::Rc, str::FromStr};
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use sha2::{Digest, Sha256};
 
-use super::{COOKIE_NAME, Verdict, challenge_page, leading_zero_bits, verify};
+use super::{Verdict, challenge_page, leading_zero_bits, verify};
 use crate::{
     action::{Action, UnitTrace},
-    api::{Captcha, CaptchaProvider, Rule},
+    api::{Captcha, CaptchaProvider, DEFAULT_CAPTCHA_COOKIE_NAME, Rule},
     http::Request,
     router::Router,
 };
@@ -20,18 +20,23 @@ fn config() -> Captcha {
         secret: "secret".to_string(),
         difficulty: 8,
         ttl: 3600,
+        cookie_name: None,
         id: Some("captcha-unit".to_string()),
     }
 }
 
 fn request(ip: &str, user_agent: &str, cookie: Option<&str>) -> Request {
+    request_with_cookie(ip, user_agent, DEFAULT_CAPTCHA_COOKIE_NAME, cookie)
+}
+
+fn request_with_cookie(ip: &str, user_agent: &str, cookie_name: &str, cookie: Option<&str>) -> Request {
     let mut request = Request::from_str("http://example.org/page").unwrap();
     request.remote_addr = Some(ip.parse().unwrap());
     request.created_at = chrono::DateTime::from_timestamp(NOW, 0);
     request.add_header("User-Agent".to_string(), user_agent.to_string(), false);
 
     if let Some(cookie) = cookie {
-        request.add_header("Cookie".to_string(), format!("other=1; {COOKIE_NAME}={cookie}"), false);
+        request.add_header("Cookie".to_string(), format!("other=1; {cookie_name}={cookie}"), false);
     }
 
     request
@@ -166,6 +171,41 @@ fn a_headless_user_agent_is_refused() {
     let user_agent = USER_AGENT.replace("Chrome", "HeadlessChrome");
 
     assert_eq!(verify(&config(), &request("192.0.2.10", &user_agent, None), NOW), Verdict::Rejected);
+}
+
+#[test]
+fn the_cookie_name_can_be_configured() {
+    let config = Captcha {
+        cookie_name: Some("bot_check".to_string()),
+        ..config()
+    };
+    let cookie = solved(r#"{"v":1}"#);
+
+    assert!(challenge_page(&config, &request("192.0.2.10", USER_AGENT, None), NOW).contains("COOKIE = \"bot_check\""));
+    assert_eq!(
+        verify(
+            &config,
+            &request_with_cookie("192.0.2.10", USER_AGENT, "bot_check", Some(&cookie)),
+            NOW + 10
+        ),
+        Verdict::Passed
+    );
+    assert_eq!(
+        verify(&config, &request("192.0.2.10", USER_AGENT, Some(&cookie)), NOW + 10),
+        Verdict::Missing
+    );
+}
+
+#[test]
+fn an_unsafe_cookie_name_falls_back_to_the_default_one() {
+    for name in ["", "a\";alert(1);//", "with space", "semi;colon", &"x".repeat(65)] {
+        let config = Captcha {
+            cookie_name: Some(name.to_string()),
+            ..config()
+        };
+
+        assert_eq!(config.cookie_name(), DEFAULT_CAPTCHA_COOKIE_NAME, "{name}");
+    }
 }
 
 fn router() -> Router<Rule> {
