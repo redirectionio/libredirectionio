@@ -164,7 +164,7 @@ pub enum HTMLToMarkdownAction {
 pub enum BodyFilter {
     Text(TextBodyFilter),
     HTML(HTMLBodyFilter),
-    HTMLToMarkdown(HTMLToMarkdownFilter),
+    HTMLToMarkdown(Box<HTMLToMarkdownFilter>),
     #[serde(untagged)]
     Other(serde_json::Value),
 }
