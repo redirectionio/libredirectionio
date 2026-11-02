@@ -53,7 +53,7 @@ impl CaptureRegistry {
     }
 
     pub fn need_body_capture(&self) -> bool {
-        for (_, var) in self.variables.iter() {
+        for var in self.variables.values() {
             if let Ok(read_lock) = var.read()
                 && let VariableValue::HtmlFilter { .. } = read_lock.deref()
             {
