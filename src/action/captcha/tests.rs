@@ -120,10 +120,18 @@ fn raising_the_difficulty_invalidates_previous_clearances() {
 #[test]
 fn a_tampered_cookie_is_refused() {
     let cookie = solved(r#"{"v":1}"#);
-    let mut parts = cookie.split('.').map(str::to_string).collect::<Vec<_>>();
+    // Only the proof of work binds the probes: an edit that still meets it by chance, one time
+    // in 2^difficulty, would pass as a solved cookie, so the test takes one that does not.
+    let tampered = (5..)
+        .map(|iterations| {
+            let mut parts = cookie.split('.').map(str::to_string).collect::<Vec<_>>();
+            parts[5] = URL_SAFE_NO_PAD.encode(format!(r#"{{"v":1,"it":{iterations}}}"#));
 
-    parts[5] = URL_SAFE_NO_PAD.encode(r#"{"v":1,"it":5}"#);
-    assert_ne!(verdict("192.0.2.10", USER_AGENT, &parts.join(".")), Verdict::Passed);
+            parts.join(".")
+        })
+        .find(|value| leading_zero_bits(&Sha256::digest(value.as_bytes())) < u32::from(config().difficulty))
+        .unwrap();
+    assert_eq!(verdict("192.0.2.10", USER_AGENT, &tampered), Verdict::Rejected);
 
     let mut parts = cookie.split('.').map(str::to_string).collect::<Vec<_>>();
     parts[1] = (NOW + 3000).to_string();
